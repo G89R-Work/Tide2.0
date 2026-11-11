@@ -63,3 +63,17 @@ Muster für einen Eintrag:
 - Grund: steht im Konzept und in der Technik-Liste; der spätere Server ersetzt ihn ohne Änderung an der Oberfläche.
 - Link: https://mswjs.io
 - Eingebaut in Scheibe: attrappe-und-tempo
+
+## 2026-11-11 · Seitenleiste mit ziehbarer Breite
+- Kandidaten: react-resizable-panels (Mindestbreite, Einklappen, gemerkte Breite), eigener Zieh-Griff
+- Entscheidung: react-resizable-panels 4
+- Grund: steht im Konzept als geprüft; Einrasten und Merken bringt er mit; Ja des Nutzers.
+- Link: https://github.com/bvaughn/react-resizable-panels
+- Eingebaut in Scheibe: geruest-seitenleiste
+
+## 2026-11-11 · Symbole
+- Kandidaten: lucide-react (Standard bei shadcn/ui, nur genutzte Symbole im Paket), eigene SVGs
+- Entscheidung: lucide-react
+- Grund: passt zu shadcn/ui, einheitliche Linien; Ja des Nutzers.
+- Link: https://lucide.dev
+- Eingebaut in Scheibe: geruest-seitenleiste

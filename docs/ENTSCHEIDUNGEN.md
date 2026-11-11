@@ -33,14 +33,16 @@ Eine Zeile je Entscheidung, neueste unten. Was hier steht, gilt und wird nicht n
 - 2026-11-11 · Ein Eintrag hat die Grundfelder id, art, titel, erledigt, erstellt, geaendert. Ändern über PATCH, nur titel und erledigt.
 - 2026-11-11 · Die Attrappe speichert Änderungen im Browser (localStorage) und wird nachgeladen, damit sie nicht im Startpaket steckt.
 - 2026-11-11 · Tempo-Grenzen stehen einmal in `src/logik/tempoGrenzen.ts`; `npm run pruefen` misst sie auf Start und Bausteine.
+- 2026-11-11 · Neun Bereiche und die Einstellungen (offener Punkt 1, nach Empfehlung).
+- 2026-11-11 · Seitenleiste mit react-resizable-panels, Symbole aus lucide-react; Ja des Nutzers.
+- 2026-11-11 · Bereiche sind über Sprungmarken (#heute, #postfach …) erreichbar; Zurück im Browser macht den Wechsel rückgängig.
 
 ## Offen
 
-Zwölf Punkte sind offen. Bei jedem steht meine Empfehlung. Ohne Antwort gilt die Empfehlung.
+Zehn Punkte sind offen. Bei jedem steht meine Empfehlung. Ohne Antwort gilt die Empfehlung.
 
 | Nr. | Frage | Empfehlung | Wann nötig |
 | --- | --- | --- | --- |
-| 1 | Du zählst zehn Seiten und die Einstellungen. Ich zähle neun: Heute, Postfach, Kalender, To-dos, Einkauf, Kochen, Finanzen, Arbeit, Notizen. Fehlt eine? In deiner Version 3 sind „Braucht dich“ und „Urlaub“ eigene Seiten, hier sind sie eine Kachel auf Heute und ein Teil von Arbeit | Neun Bereiche und die Einstellungen | Vor Etappe 1 |
 | 2 | Kachel-Baustein | react-grid-layout, sofern der Versuch auf deinem Handy besteht | In Etappe 1 |
 | 3 | Bahn von Sonne und Mond ab Werk | Bogen, „Echt“ als Schalter | In Etappe 2 am Bildschirm |
 | 4 | Lage der Gezeitenkurve am Handy | Unten über der Leiste | In Etappe 2 |

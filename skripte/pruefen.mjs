@@ -7,7 +7,7 @@ const pruefungen = [
   ['Stil', 'oxlint --deny-warnings --format unix'],
   ['Tests', 'vitest run --reporter=agent'],
   ['Werte', 'node skripte/werte-pruefen.mjs'],
-  ['Tempo', 'node skripte/sicht.mjs start bausteine'],
+  ['Tempo', 'node skripte/sicht.mjs start postfach kalender todos einkauf kochen finanzen arbeit notizen einstellungen heute bausteine'],
 ]
 
 let fehler = 0
