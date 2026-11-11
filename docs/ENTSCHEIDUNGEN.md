@@ -7,6 +7,9 @@ Eine Zeile je Entscheidung, neueste unten. Was hier steht, gilt und wird nicht n
 - 2026-11-10 · Tide läuft später online über die eigene Domain, mit mehreren Nutzern und Teilen über Räume. Das gehört in die Server-Etappen.
 - 2026-11-11 · Grundgerüst der Seiten ist die Beispielseite. Funktionen, Farben (Glut), Schrift (Inter), Kacheln und Gezeitenkurve kommen aus Prototyp 3.
 - 2026-11-11 · Zuerst entsteht der Prototyp als echtes Frontend mit Attrappen-Daten, danach der Server.
+- 2026-11-11 · Knopf-Belegung wird wie die Leistenbreite im Browser gemerkt (`tide.knoepfe`), nicht über den Vertrag; Umzug in die Einstellungsliste mit `einstellungen-liste`.
+- 2026-11-11 · Tastenkürzel ohne neue Bibliothek: Alt+1…0 für die Bereiche, Alt+Buchstabe für Aktionen, Strg+K für die Suche; gelesen wird die Taste, nicht das Zeichen.
+- 2026-11-11 · Noch nicht gebaute Aktionen (Kurve, Suche, Diktat) stehen in der Liste, sind aber ausgegraut mit Hinweis, wann sie kommen. „Neue Mail" u. ä. öffnen bis dahin ihren Bereich.
 - 2026-11-11 · Tide läuft ohne KI. Statt „Kurz gesagt" gibt es den Erkannt-Kasten per Regel.
 - 2026-11-11 · Tempo geht vor Effekt. Bewegung steht ab Werk auf „Rückmeldung" und ist je Nutzer einstellbar.
 - 2026-11-11 · Die Gezeitenkurve ist auf jeder Seite eingeblendet, je Seite abschaltbar und nimmt am PC unten die volle Breite ein. Beim Ausblenden kommt keine Meldung.

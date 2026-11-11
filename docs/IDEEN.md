@@ -14,3 +14,7 @@ Hier landet alles, was nicht zur laufenden Scheibe gehört. Einmal im Monat wird
 ## Neu
 - Schalter „Namen im Menü“ (jetzt `tide.menue.namen`) in die Einstellungsliste übernehmen (Scheibe einstellungen-liste)
 - Eigene und intelligente Ordner der zweiten Ebene aus dem Vertrag statt aus `src/logik/ebenen.ts` (postfach-ordner)
+- Knopf-Belegung (`tide.knoepfe`) in die Einstellungsliste übernehmen und je Geräteart speichern (einstellungen-liste)
+- Alt+Ziffer wechselt in Chrome unter Linux die Tabs; dort ggf. anderes Kürzel für Bereiche anbieten
+- Langer Druck / Rechtsklick auf einen belegbaren Knopf öffnet direkt „Knöpfe belegen" für diesen Platz
+- Ausgegraute Aktionen am Handy: kurzer Hinweis beim Antippen, sobald es Meldungen gibt

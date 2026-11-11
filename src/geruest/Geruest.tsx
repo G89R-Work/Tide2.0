@@ -1,13 +1,17 @@
 import { Suspense, useState } from 'react'
 import { Group, Panel, Separator, useDefaultLayout, usePanelRef } from 'react-resizable-panels'
+import { mitteUnten } from '../logik/aktionen'
 import { zeigtNamen } from '../logik/bereiche'
 import { ebeneVon, ortAusMarke, type Ort } from '../logik/ebenen'
 import { leiste } from '../werte/leiste'
+import { AktionKnopf } from './AktionKnopf'
+import { useBelegung } from './belegung'
 import { HandyMenue } from './HandyMenue'
 import { seiten } from './seiten'
 import { Seitenleiste } from './Seitenleiste'
 import { useBrauchtDich } from './useBrauchtDich'
 import { useSchmal } from './useSchmal'
+import { useTastenkuerzel } from './useTastenkuerzel'
 import { ZweiteEbene } from './ZweiteEbene'
 
 // Am PC: Seitenleiste mit ziehbarer Kante, daneben die zweite Ebene und der offene Bereich.
@@ -16,6 +20,7 @@ export function Geruest({ marke }: { marke: string }) {
   const ort = ortAusMarke(marke)
   const schmal = useSchmal()
   const zahl = useBrauchtDich()
+  useTastenkuerzel()
   return schmal ? <Handy ort={ort} zahl={zahl} /> : <Pc ort={ort} />
 }
 
@@ -31,16 +36,29 @@ function Inhalt({ ort }: { ort: Ort }) {
 }
 
 function Handy({ ort, zahl }: { ort: Ort; zahl: number }) {
+  const { oben, unten } = useBelegung()
   return (
     <div className="himmel flex h-dvh flex-col">
       <header className="p-2 pb-0">
         <div className="flaeche-leiste flex items-center p-1">
           <HandyMenue ort={ort} zahl={zahl} />
+          <div className="ml-auto flex">
+            {oben.map((id, i) => (
+              <AktionKnopf key={i} id={id} />
+            ))}
+          </div>
         </div>
       </header>
       <div className="flex-1 overflow-auto">
         <Inhalt ort={ort} />
       </div>
+      <nav aria-label="Untere Leiste" className="p-2 pt-0">
+        <div className="flaeche-leiste grid grid-cols-5 place-items-center p-1">
+          {unten.map((id, i) => (
+            <AktionKnopf key={i} id={id} art={i === mitteUnten ? 'haupt' : 'symbol'} className={i === mitteUnten ? 'w-11 px-0' : undefined} />
+          ))}
+        </div>
+      </nav>
     </div>
   )
 }
