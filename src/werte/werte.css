@@ -309,3 +309,45 @@ html {
   left: calc(50% - 1.375rem);
   cursor: ns-resize;
 }
+
+/* Gezeitenkurve (src/geruest/Gezeitenkurve.tsx): ein Glasstreifen, darin scrollt der Browser waagrecht. */
+:root {
+  --kurve-hoehe: 4.5rem;
+  --kurve-strich: 2;
+}
+@utility kurve {
+  height: var(--kurve-hoehe);
+}
+@utility kurve-scroller {
+  overflow-x: auto;
+  overflow-y: hidden;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+@utility kurve-linie {
+  fill: none;
+  stroke: var(--akzent);
+  stroke-width: var(--kurve-strich);
+  stroke-linecap: round;
+}
+@utility kurve-wasser {
+  fill: var(--akzent);
+  opacity: 0.14;
+}
+@utility kurve-jetzt {
+  stroke: var(--text-blass);
+  stroke-width: 1;
+  stroke-dasharray: 3 3;
+}
+@utility kurve-mitte {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 1px;
+  background: var(--linie-stark);
+  pointer-events: none;
+}

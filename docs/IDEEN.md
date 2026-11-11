@@ -21,7 +21,7 @@ Hier landet alles, was nicht zur laufenden Scheibe gehört. Einmal im Monat wird
 - Die Einstellungen wirken noch nicht (Design, Schriftgröße, Bewegung …); je Verbraucher `useEinstellung` aus `src/geruest/einstellungen.ts` anschließen, Design ohne Flackern beim Start (einstellungen-liste)
 - Ort nach Namen suchen (Ortsliste oder Dienst) und „Standort vom Gerät übernehmen“ für Breite/Länge (hintergrund)
 - Einstellung „Wellen“ (ab Werk an) passt nicht zum Konzept „Wellen bewegen sich“ (ab Werk aus); umbenennen, sobald Wellen sich bewegen können (hintergrund)
-- Hintergrund folgt später der Zeit der Gezeitenkurve statt der Uhr (`zeit` an `himmel` durchreichen) (hintergrund)
 - Nach dem langen Druck gleich weiterziehen können, ohne den Finger abzusetzen (wie One UI) (kacheln)
 - Jede Kachel zeigt je nach Größe eine Darstellung klein/mittel/groß; kommt mit den echten Kacheln der Bereiche (kacheln)
 - MSW meldet beim Neuladen „GET / ohne Antwort“ als Warnung; `onUnhandledRequest: 'bypass'` für Seitenaufrufe prüfen (kacheln)
+- Gruß in der Heute-Kachel („Guten Morgen“) folgt der gezeigten Uhrzeit der Kurve (kurve-grund)

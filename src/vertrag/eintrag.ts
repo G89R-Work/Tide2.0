@@ -12,6 +12,10 @@ export type Eintrag = {
   erstellt: string
   /** ISO-Zeitpunkt der letzten Änderung */
   geaendert: string
+  /** ISO-Zeitpunkt des Beginns, nur bei Einträgen mit Uhrzeit (Termin, Schicht) */
+  beginn?: string
+  /** ISO-Zeitpunkt des Endes, gehört zu `beginn` */
+  ende?: string
 }
 
 /** Was sich an einem Eintrag ändern lässt. */
@@ -38,4 +42,10 @@ export function aendereEintrag(id: string, aenderung: Aenderung): Promise<Eintra
     }),
     'Eintrag ändern',
   )
+}
+
+/** Einträge mit Uhrzeit, die den Zeitraum berühren (für Gezeitenkurve und Kalender). */
+export function holeTermine(von: Date, bis: Date): Promise<Eintrag[]> {
+  const q = new URLSearchParams({ von: von.toISOString(), bis: bis.toISOString() })
+  return antwort(fetch(`/api/termine?${q}`), 'Termine holen')
 }

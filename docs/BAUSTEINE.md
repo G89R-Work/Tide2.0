@@ -98,3 +98,10 @@ Muster für einen Eintrag:
 - Grund: keine neue Abhängigkeit; muss auch beim langen Druck aufgehen, das kann Radix' Kontextmenü auf iOS nicht.
 - Link: https://developer.mozilla.org/docs/Web/API/Popover_API
 - Eingebaut in Scheibe: kacheln
+
+## 2026-11-11 · Glatte Gezeitenkurve
+- Kandidaten: d3-shape (bewährte Kurvenformen für SVG-Pfade, klein), eigene Spline-Rechnung
+- Entscheidung: d3-shape
+- Grund: bewährte Bibliothek statt Eigenbau; Ja des Nutzers.
+- Link: https://d3js.org/d3-shape
+- Eingebaut in Scheibe: kurve-grund

@@ -2,10 +2,11 @@ import type { CSSProperties } from 'react'
 import { einstellungen } from '../logik/einstellungen'
 import { himmel, mondPfad, type Bahn, type Lage } from '../logik/himmel'
 import { useEinstellung } from './einstellungen'
+import { useGezeigteZeit } from './gezeigteZeit'
 import { useMinute } from './useMinute'
 
 // Himmel, Sonne, Mond und Wellen hinter der ganzen App (docs/konzept/05-design.md).
-// Rückt einmal pro Minute weiter; dazwischen läuft keine Animation.
+// Rückt einmal pro Minute weiter oder mit der gezeigten Uhrzeit der Gezeitenkurve; dazwischen läuft keine Animation.
 const nach = (id: string) => einstellungen.find((e) => e.id === id)!
 const e = {
   bahn: nach('bahn'),
@@ -35,7 +36,9 @@ const wellen = [0, 1, 2, 3, 4].map((i) => {
 const lage = (l: Lage) => ({ '--x': l.x, '--y': l.y }) as CSSProperties
 
 export function Hintergrund() {
-  const zeit = useMinute()
+  const minute = useMinute()
+  // Scrollt jemand in der Gezeitenkurve, gilt deren Uhrzeit.
+  const zeit = useGezeigteZeit() ?? minute
   const bahn = useEinstellung(e.bahn) as Bahn
   const ort = { breite: Number(useEinstellung(e.breite)), laenge: Number(useEinstellung(e.laenge)) }
   const mondNachts = useEinstellung(e.mondNachts) === true

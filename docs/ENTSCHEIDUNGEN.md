@@ -53,16 +53,19 @@ Eine Zeile je Entscheidung, neueste unten. Was hier steht, gilt und wird nicht n
 - 2026-11-11 · Feste Größen im Menü (PC/Handy in Spalten × Zeilen): Klein 3×2/1×2, Mittel 4×3/2×2, Groß 6×4/2×4, Breit 12×2/2×2, Hoch 3×5/1×4; nie unter der Mindestgröße der Kachel. Ausgeblendete Kacheln holt man in der Leiste des Modus zurück.
 - 2026-11-11 · Vertrag `/api/kacheln/<seite>/<geraet>`: GET liefert die gemerkte Anordnung oder null (Werkszustand), PUT speichert, DELETE setzt zurück. Gleich dem Werk wird nichts gemerkt.
 - 2026-11-11 · Aktionen kennen neben `ziel` und `kommt` jetzt `befehl` (Ausführung in `src/geruest/befehle.ts`).
+- 2026-11-11 · Vertrag: Eintrag hat die freiwilligen Felder `beginn`/`ende`, neue Anfrage `holeTermine(von, bis)`; die Attrappe legt den Beispieltag auf jeden angefragten Tag. Ja des Nutzers.
+- 2026-11-11 · Gezeitenkurve glättet mit d3-shape (`curveBasis`) nach zweifachem Mittel über ±15 Minuten. Ja des Nutzers.
+- 2026-11-11 · Gezeitenkurve: Die Mitte des Sichtfelds ist die gezeigte Uhrzeit; ab „Ganzer Tag“ zeigt sie 24 Stunden. Am PC liegt sie über dem Inhalt.
+- 2026-11-11 · Lage der Gezeitenkurve am Handy ab Werk unten über der Leiste (offener Punkt 4, nach Empfehlung).
+- 2026-11-11 · Sichtbare Stunden ab Werk 4, einstellbar 3 bis 8 (offener Punkt 5, nach Empfehlung).
 
 ## Offen
 
-Neun Punkte sind offen. Bei jedem steht meine Empfehlung. Ohne Antwort gilt die Empfehlung.
+Sieben Punkte sind offen. Bei jedem steht meine Empfehlung. Ohne Antwort gilt die Empfehlung.
 
 | Nr. | Frage | Empfehlung | Wann nötig |
 | --- | --- | --- | --- |
 | 3 | Bahn von Sonne und Mond ab Werk | Bogen, „Echt“ als Schalter | In Etappe 2 am Bildschirm |
-| 4 | Lage der Gezeitenkurve am Handy | Unten über der Leiste | In Etappe 2 |
-| 5 | Sichtbare Stunden ab Werk | 4 | In Etappe 2 |
 | 6 | Belegung am Handy ab Werk | Oben: Kurve, Suche, Einstellungen. Unten: Heute, Postfach, Plus, Kalender, To-dos | In Etappe 1 |
 | 7 | Notizen für die Arbeit | Derselbe Baustein im Raum Arbeit | Vor Etappe 4 |
 | 8 | Bons vom Foto | Später als Versuch hinter einem Schalter | Nach dem Prototyp |
