@@ -54,7 +54,7 @@ Eine Zeile je Entscheidung, neueste unten. Was hier steht, gilt und wird nicht n
 - 2026-11-11 · Vertrag `/api/kacheln/<seite>/<geraet>`: GET liefert die gemerkte Anordnung oder null (Werkszustand), PUT speichert, DELETE setzt zurück. Gleich dem Werk wird nichts gemerkt.
 - 2026-11-11 · Aktionen kennen neben `ziel` und `kommt` jetzt `befehl` (Ausführung in `src/geruest/befehle.ts`).
 - 2026-11-11 · Vertrag: Eintrag hat die freiwilligen Felder `beginn`/`ende`, neue Anfrage `holeTermine(von, bis)`; die Attrappe legt den Beispieltag auf jeden angefragten Tag. Ja des Nutzers.
-- 2026-11-11 · Gezeitenkurve glättet mit d3-shape (`curveBasis`) nach zweifachem Mittel über ±15 Minuten. Ja des Nutzers.
+- 2026-11-11 · Gezeitenkurve glättet mit d3-shape (`curveBasis`) nach zweifachem Mittel über ±30 Minuten (die weiche Form, Wunsch des Nutzers).
 - 2026-11-11 · Gezeitenkurve: Die Mitte des Sichtfelds ist die gezeigte Uhrzeit; ab „Ganzer Tag“ zeigt sie 24 Stunden. Am PC liegt sie über dem Inhalt.
 - 2026-11-11 · Lage der Gezeitenkurve am Handy ab Werk unten über der Leiste (offener Punkt 4, nach Empfehlung).
 - 2026-11-11 · Sichtbare Stunden ab Werk 4, einstellbar 3 bis 8 (offener Punkt 5, nach Empfehlung).

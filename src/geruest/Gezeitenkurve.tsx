@@ -26,8 +26,8 @@ const nach = (id: string) => einstellungen.find((e) => e.id === id)!
 const e = { stunden: nach('kurve-stunden'), ganzerTag: nach('kurve-ganzer-tag') }
 
 const HOEHE = 100
-// Zweimal gemittelt über ±15 Minuten: weiche Übergänge, kurze Termine bleiben sichtbar.
-const GLAETTEN = 3
+// Zweimal gemittelt über ±30 Minuten: weiche, ruhige Wellen (Wunsch des Nutzers); kurze Termine werden flache Hügel.
+const GLAETTEN = 6
 
 const tagBeginnVon = (d: Date) => new Date(d.getFullYear(), d.getMonth(), d.getDate())
 const zweistellig = (n: number) => String(n).padStart(2, '0')
