@@ -36,6 +36,9 @@ Eine Zeile je Entscheidung, neueste unten. Was hier steht, gilt und wird nicht n
 - 2026-11-11 · Neun Bereiche und die Einstellungen (offener Punkt 1, nach Empfehlung).
 - 2026-11-11 · Seitenleiste mit react-resizable-panels, Symbole aus lucide-react; Ja des Nutzers.
 - 2026-11-11 · Bereiche sind über Sprungmarken (#heute, #postfach …) erreichbar; Zurück im Browser macht den Wechsel rückgängig.
+- 2026-11-11 · Zweite Ebene: feste Liste je Bereich in `src/logik/ebenen.ts`, erreichbar unter `#bereich/unterpunkt`; ohne Unterpunkt gilt der erste. Eigene Ordner kommen später über den Vertrag.
+- 2026-11-11 · Handy-Menü ist ein natives `<dialog>` statt einer neuen Abhängigkeit; Handy-Ansicht unter 768 px.
+- 2026-11-11 · Punkt am Menü-Knopf zählt vorerst die offenen Einträge aus dem Vertrag; „Braucht dich“ ersetzt das später.
 
 ## Offen
 

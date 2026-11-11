@@ -103,6 +103,30 @@
   }
 }
 
+/* Menü am Handy (natives dialog): gleitet von links herein, nur beim Öffnen. */
+@utility menue-links {
+  margin: 0;
+  max-height: 100dvh;
+  height: 100dvh;
+  width: min(23rem, 100vw - 3rem);
+  max-width: none;
+  padding: 0.5rem;
+  background: none;
+  border: none;
+  color: var(--text);
+  transition:
+    translate var(--dauer-sanft) var(--kurve),
+    opacity var(--dauer-sanft) var(--kurve);
+  @starting-style {
+    translate: -1.5rem 0;
+    opacity: 0;
+  }
+  &::backdrop {
+    background: var(--grund);
+    opacity: 0.6;
+  }
+}
+
 /* Kleine Beschriftungen in Großbuchstaben. */
 @utility beschriftung {
   font-size: 0.6875rem;

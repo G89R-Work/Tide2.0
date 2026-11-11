@@ -6,6 +6,6 @@ export const leiste = {
   hoechstens: '360px',
   /** Ab dieser Breite in Pixeln stehen Namen neben den Symbolen. */
   namenAb: 150,
-  /** Unter dieser Fensterbreite startet die Leiste schmal (Handy, bis das Menü kommt). */
+  /** Unter dieser Fensterbreite gilt die Handy-Ansicht mit Menü statt Seitenleiste. */
   schmalUnter: 768,
 } as const

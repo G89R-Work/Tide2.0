@@ -10,7 +10,7 @@ Hintergrund zu den Etappen und zum Server: `docs/konzept/40-fahrplan.md`.
 
 ## Etappe 1: Gerüst
 - [x] `geruest-seitenleiste` · liest: 03-geruest.md · Seitenleiste mit Symbolen oder Namen, ziehbare Breite mit Einrasten, Logo führt zu Heute, alle Bereiche als leere Seiten, jeder Bereich lädt erst beim Öffnen · Fertig, wenn: alle Seiten am PC erreichbar sind und der Wechsel unter 0,1 Sekunden bleibt
-- [ ] `geruest-zweite-ebene` · liest: 03-geruest.md · zweite Ebene je Bereich; am Handy das zweispaltige Menü mit Punkt am Menü-Knopf · Fertig, wenn: jeder Bereich am Handy und am PC seine zweite Ebene zeigt
+- [x] `geruest-zweite-ebene` · liest: 03-geruest.md · zweite Ebene je Bereich; am Handy das zweispaltige Menü mit Punkt am Menü-Knopf · Fertig, wenn: jeder Bereich am Handy und am PC seine zweite Ebene zeigt
 - [ ] `aktionen-und-knoepfe` · liest: 03-geruest.md · Liste der Aktionen; belegbare Knöpfe in der Kopfzeile, oben rechts am Handy und in der unteren Leiste; Tastenkürzel · Fertig, wenn: ein Knopf-Platz sich umbelegen lässt und die Belegung das Neuladen übersteht
 - [ ] `einstellungen-liste` · liest: 20-einstellungen.md · zentrale Liste der Einstellungen, gespeichert je Nutzer und Geräteart; die Einstellungsseite entsteht daraus, mit Suche und Zurücksetzen · Fertig, wenn: eine neue Option mit einer Zeile auf der Seite erscheint
 - [ ] `hintergrund` · liest: 05-design.md · Hintergrund mit Sonne, Mond und Wellen hinter der ganzen App; Bahnen Bogen und Echt; echte Auf- und Untergangszeiten, Mondphase; rückt einmal pro Minute weiter · Fertig, wenn: beide Bahnen umschaltbar sind und im Ruhezustand keine Animation läuft
