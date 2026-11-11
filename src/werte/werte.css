@@ -310,13 +310,10 @@ html {
   cursor: ns-resize;
 }
 
-/* Gezeitenkurve (src/geruest/Gezeitenkurve.tsx): ein Glasstreifen, darin scrollt der Browser waagrecht. */
+/* Gezeitenkurve (src/geruest/Gezeitenkurve.tsx): ein Glasstreifen, darin scrollt der Browser waagrecht.
+   Höhe und Breite zieht man (src/werte/kurve.ts). */
 :root {
-  --kurve-hoehe: 4.5rem;
   --kurve-strich: 2;
-}
-@utility kurve {
-  height: var(--kurve-hoehe);
 }
 @utility kurve-scroller {
   overflow-x: auto;

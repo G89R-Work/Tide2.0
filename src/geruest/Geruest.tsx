@@ -1,14 +1,14 @@
 import { Suspense, useState } from 'react'
-import { Group, Panel, Separator, useDefaultLayout, usePanelRef } from 'react-resizable-panels'
+import { Group, Panel, useDefaultLayout, usePanelRef } from 'react-resizable-panels'
+import { Trenner } from '../bausteine/Trenner'
 import { mitteUnten } from '../logik/aktionen'
-import { einstellungen } from '../logik/einstellungen'
 import { ebeneVon, ortAusMarke, type Ort } from '../logik/ebenen'
 import { leiste } from '../werte/leiste'
 import { AktionKnopf } from './AktionKnopf'
 import { useBelegung } from './belegung'
-import { useEinstellung } from './einstellungen'
-import { Gezeitenkurve } from './Gezeitenkurve'
+import { useKurveOben } from './einstellungen'
 import { HandyMenue } from './HandyMenue'
+import { MitKurve } from './MitKurve'
 import { Hintergrund } from './Hintergrund'
 import { seiten } from './seiten'
 import { Seitenleiste } from './Seitenleiste'
@@ -43,11 +43,8 @@ function Inhalt({ ort }: { ort: Ort }) {
   )
 }
 
-const kurveLage = einstellungen.find((e) => e.id === 'kurve-lage')!
-
 function Handy({ ort, zahl }: { ort: Ort; zahl: number }) {
   const { oben, unten } = useBelegung()
-  const kurveOben = useEinstellung(kurveLage) === 'oben'
   return (
     <div className="flex h-dvh flex-col">
       <header className="p-2 pb-0">
@@ -59,13 +56,13 @@ function Handy({ ort, zahl }: { ort: Ort; zahl: number }) {
             ))}
           </div>
         </div>
-        {kurveOben && <Gezeitenkurve className="mt-1" />}
       </header>
-      <div className="flex-1 overflow-auto">
-        <Inhalt ort={ort} />
-      </div>
+      <MitKurve>
+        <div className="flex-1 overflow-auto">
+          <Inhalt ort={ort} />
+        </div>
+      </MitKurve>
       <nav aria-label="Untere Leiste" className="p-2 pt-0">
-        {!kurveOben && <Gezeitenkurve className="mb-2" />}
         <div className="flaeche-leiste grid grid-cols-5 place-items-center p-1">
           {unten.map((id, i) => (
             <AktionKnopf key={i} id={id} art={i === mitteUnten ? 'haupt' : 'symbol'} className={i === mitteUnten ? 'w-11 px-0' : undefined} />
@@ -81,43 +78,34 @@ function Pc({ ort }: { ort: Ort }) {
   const gemerkt = useDefaultLayout({ id: 'tide.leiste', storage: localStorage })
   const [breite, setBreite] = useState<number>(leiste.standardPx)
   const hatEbene = ebeneVon(ort.bereich).length > 0
-  const kurveOben = useEinstellung(kurveLage) === 'oben'
-  // Die Kurve liegt über die volle Breite; die Seitenleiste endet davor.
-  const kurve = (
-    <div className={kurveOben ? 'p-2 pb-0' : 'p-2 pt-0'}>
-      <Gezeitenkurve />
-    </div>
-  )
+  const kurveOben = useKurveOben()
 
+  // Die Kurve liegt über die volle Breite; die Seitenleiste endet davor (Abstand zur Kurve gibt deren Griff).
   return (
     <div className="flex h-dvh flex-col">
-      {kurveOben && kurve}
-      <Group {...gemerkt} orientation="horizontal" className="min-h-0 flex-1">
-        <Panel
-          id="leiste"
-          panelRef={leisteRef}
-          collapsible
-          collapsedSize={leiste.symbole}
-          minSize={leiste.standard}
-          maxSize={leiste.hoechstens}
-          defaultSize={leiste.standard}
-          // Die gemeldete Größe ist verlässlicher als isCollapsed(), das nach dem Neuladen veraltet sein kann.
-          onResize={(groesse) => setBreite(Math.round(groesse.inPixels))}
-          className="p-2 pr-0"
-        >
-          <Seitenleiste offen={ort.bereich} mitNamen={breite >= leiste.standardPx} />
-        </Panel>
-        <Separator
-          title="Ziehen ändert die Breite, Doppelklick stellt die Standardbreite her (ein zweiter klappt ein)"
-          onDoubleClick={() => (breite === leiste.standardPx ? leisteRef.current?.collapse() : leisteRef.current?.resize(leiste.standard))}
-          className="group flex w-2 items-center justify-center outline-none"
-        >
-          <div className="h-full w-0.5 bg-durchsichtig group-hover:bg-linie-stark group-focus-visible:bg-akzent" />
-        </Separator>
-        <Panel id="inhalt" className="flex flex-col">
-          <div className="flex min-h-0 flex-1">
+      <MitKurve>
+        <Group {...gemerkt} orientation="horizontal" className="h-full">
+          <Panel
+            id="leiste"
+            panelRef={leisteRef}
+            collapsible
+            collapsedSize={leiste.symbole}
+            minSize={leiste.standard}
+            maxSize={leiste.hoechstens}
+            defaultSize={leiste.standard}
+            // Die gemeldete Größe ist verlässlicher als isCollapsed(), das nach dem Neuladen veraltet sein kann.
+            onResize={(groesse) => setBreite(Math.round(groesse.inPixels))}
+            className={kurveOben ? 'pb-2 pl-2' : 'pt-2 pl-2'}
+          >
+            <Seitenleiste offen={ort.bereich} mitNamen={breite >= leiste.standardPx} />
+          </Panel>
+          <Trenner
+            title="Ziehen ändert die Breite, Doppelklick stellt die Standardbreite her (ein zweiter klappt ein)"
+            onDoubleClick={() => (breite === leiste.standardPx ? leisteRef.current?.collapse() : leisteRef.current?.resize(leiste.standard))}
+          />
+          <Panel id="inhalt" className="flex">
             {hatEbene && (
-              <nav aria-label="Zweite Ebene" className="w-52 shrink-0 overflow-y-auto py-2">
+              <nav aria-label="Zweite Ebene" className={kurveOben ? 'w-52 shrink-0 overflow-y-auto pb-2' : 'w-52 shrink-0 overflow-y-auto pt-2'}>
                 <div className="flaeche-leiste min-h-full p-2">
                   <ZweiteEbene bereich={ort.bereich} aktiv={ort.unter} />
                 </div>
@@ -126,10 +114,9 @@ function Pc({ ort }: { ort: Ort }) {
             <div className="flex-1 overflow-auto">
               <Inhalt ort={ort} />
             </div>
-          </div>
-        </Panel>
-      </Group>
-      {!kurveOben && kurve}
+          </Panel>
+        </Group>
+      </MitKurve>
     </div>
   )
 }

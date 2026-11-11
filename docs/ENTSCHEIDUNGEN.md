@@ -58,6 +58,7 @@ Eine Zeile je Entscheidung, neueste unten. Was hier steht, gilt und wird nicht n
 - 2026-11-11 · Gezeitenkurve: Die Mitte des Sichtfelds ist die gezeigte Uhrzeit; ab „Ganzer Tag“ zeigt sie 24 Stunden. Am PC liegt sie unten über die volle Breite, die Seitenleiste endet darüber (Wunsch des Nutzers). Einstellung „Lage“ (oben/unten) gilt je Gerät.
 - 2026-11-11 · Lage der Gezeitenkurve am Handy ab Werk unten über der Leiste (offener Punkt 4, nach Empfehlung).
 - 2026-11-11 · Sichtbare Stunden ab Werk 4, einstellbar 3 bis 8 (offener Punkt 5, nach Empfehlung).
+- 2026-11-11 · Gezeitenkurve in Höhe (PC und Handy) und Breite (PC) ziehbar wie die Seitenleiste, gemerkt je Geräteart im Browser (`tide.kurve-hoehe@…`, `tide.kurve-breite`), Doppelklick stellt zurück. Wunsch des Nutzers. Lage oben/unten für beide Geräte in einer Hülle `MitKurve`.
 
 ## Offen
 

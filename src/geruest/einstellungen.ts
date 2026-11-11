@@ -1,5 +1,5 @@
 import { useSyncExternalStore } from 'react'
-import { unterschied, wertVon, type Einstellung, type Geraet, type Werte } from '../logik/einstellungen'
+import { einstellungen, unterschied, wertVon, type Einstellung, type Geraet, type Werte } from '../logik/einstellungen'
 import { aendereEinstellungen, holeEinstellungen } from '../vertrag/einstellungen'
 import { useSchmal } from './useSchmal'
 
@@ -44,6 +44,13 @@ export function useGeraet(): Geraet {
 /** Wert einer Einstellung für dieses Gerät, solange nichts geladen ist der Standard. */
 export function useEinstellung(e: Einstellung) {
   return wertVon(e, useEinstellungen().werte, useGeraet())
+}
+
+const kurveLage = einstellungen.find((e) => e.id === 'kurve-lage')!
+
+/** Liegt die Gezeitenkurve oben? Der Inhalt braucht dann den Abstand unten statt oben. */
+export function useKurveOben() {
+  return useEinstellung(kurveLage) === 'oben'
 }
 
 async function speichern(alt: Werte, neu: Werte) {

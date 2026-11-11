@@ -1,4 +1,6 @@
 import { Flaeche } from '../../bausteine/Flaeche'
+import { Group, Panel } from 'react-resizable-panels'
+import { Trenner } from '../../bausteine/Trenner'
 import { Knopf } from '../../bausteine/Knopf'
 
 // Schaufenster: alle Spielarten von Knopf und Fläche, je Design eine Spalte.
@@ -73,6 +75,19 @@ function Spalte({ id, name }: (typeof designs)[number]) {
           </div>
         </Flaeche>
       </div>
+
+      <p className="beschriftung mt-6 mb-2">Trenner</p>
+      <Flaeche className="h-24 overflow-hidden">
+        <Group orientation="horizontal" className="h-full">
+          <Panel id="links" minSize="20%" className="flex items-center justify-center text-sm text-text-gedaempft">
+            Ziehen
+          </Panel>
+          <Trenner title="Ziehen ändert die Breite" />
+          <Panel id="rechts" minSize="20%" className="flex items-center justify-center text-sm text-text-gedaempft">
+            Für Seitenleiste und Kurve
+          </Panel>
+        </Group>
+      </Flaeche>
 
       <p className="beschriftung mt-6 mb-2">Text und Farben</p>
       <Flaeche className="p-4">

@@ -1,4 +1,5 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
+import { cn } from '../bausteine/cn'
 import { Knopf } from '../bausteine/Knopf'
 import { einstellungen } from '../logik/einstellungen'
 import {
@@ -137,8 +138,8 @@ export function Gezeitenkurve({ className }: { className?: string }) {
   const marken = useMemo(() => Array.from({ length: (72 / schritt) | 0 }, (_, i) => i * schritt), [schritt])
 
   return (
-    <section aria-label="Gezeitenkurve" className={`flaeche-leiste relative overflow-hidden ${className ?? ''}`}>
-      <div ref={scroller} tabIndex={0} onScroll={beimScrollen} className="kurve kurve-scroller outline-none">
+    <section aria-label="Gezeitenkurve" className={cn('flaeche-leiste relative h-full overflow-hidden', className)}>
+      <div ref={scroller} tabIndex={0} onScroll={beimScrollen} className="kurve-scroller h-full outline-none">
         <div className="relative h-full" style={{ width: tag * 3 }}>
           <svg viewBox={`0 0 ${MIN_TAG * 3} ${HOEHE}`} preserveAspectRatio="none" className="absolute inset-0 h-full w-full" aria-hidden>
             <defs>
