@@ -46,6 +46,7 @@ Eine Zeile je Entscheidung, neueste unten. Was hier steht, gilt und wird nicht n
 - 2026-11-11 · Die zweite Ebene der Einstellungen kommt aus den Abschnitten des Konzepts, davor „Grundlegendes“ (Zeilen mit `wichtig`). „Über Tide“ entfällt.
 - 2026-11-11 · Schalter ist ein natives Kästchen mit `role="switch"`, keine neue Abhängigkeit. Ab-Werk-Werte für Bahn, Stunden und Lage am Handy folgen den Empfehlungen zu Nr. 3–5, die selbst offen bleiben.
 - 2026-11-11 · Wunsch des Nutzers: Seitenleiste am PC: Standard- und Mindestbreite so breit wie „Finanzen“ (147 px, links und rechts gleicher Abstand), breiter ziehbar bis 360 px; „Einstellungen“ immer nur als Zahnrad, mittig. Obere Leiste am Handy ohne Fläche, nur freie Knöpfe. Auswahlfelder in den Einstellungen gleich breit, „Auf Standard“ je Zeile immer sichtbar (ausgegraut, solange der Standard gilt). Jede Einstellungszeile ist gleich hoch (64 px), höchstens zwei Textzeilen.
+- 2026-11-11 · Sonne und Mond rechnet SunCalc 2 (Ja des Nutzers). Ort weltweit frei über die Einstellungen „Ort: Breite“ und „Ort: Länge“ (0,01°), ab Werk Mitte Deutschlands (51,31° N, 9,49° O). Bogen folgt Auf- und Untergang, „Echt“ legt Nordost bis Nordwest auf die Bildbreite und 0–90° Höhe auf die Himmelshöhe. Bei Polartag/-nacht zeigt der Bogen die Höhe, Mittag in der Mitte.
 
 ## Offen
 

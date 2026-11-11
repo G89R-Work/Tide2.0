@@ -1,16 +1,16 @@
 # Status
 
 Etappe: 1 Gerüst
-Nächste Scheibe: `hintergrund`
+Nächste Scheibe: `kacheln`
 
 ## Stand
-Das Gerüst steht am PC und am Handy. PC: Seitenleiste mit ziehbarer Breite (ab 147 px, sonst nur Symbole), daneben die zweite Ebene des Bereichs. Handy: oben Menü-Knopf mit Punkt, darin zwei Spalten (Bereiche, zweite Ebene), Schalter für Namen. Belegbare Knöpfe: Kopfzeile PC (3), oben rechts Handy (3), untere Leiste Handy (4 + Mitte), umbelegbar unter Einstellungen › Navigation; Tastenkürzel. Einstellungen entstehen aus einer zentralen Liste, mit Suche, Zurücksetzen und Rückgängig, gespeichert über den Vertrag.
+Das Gerüst steht am PC und am Handy, mit Seitenleiste, zweiter Ebene, belegbaren Knöpfen und zentraler Einstellungsliste. Hinter der ganzen App liegt der Hintergrund mit Sonne, Mond (echte Phase, geneigte Sichel) und fünf Wellenlagen; Bahn Bogen oder Echt, Ort über Breite/Länge.
 
 ## Zuletzt erledigt
-- attrappe-und-tempo: `src/vertrag/eintrag.ts`, `src/attrappe/`, Beispielliste, Tempo-Grenzen im Prüfbefehl
 - geruest-seitenleiste: `src/geruest/` (Gerüst, Seitenleiste, Seitenkopf, LeereSeite), `src/logik/bereiche.ts`, Seiten unter `src/bereiche/<id>/Seite.tsx`
 - geruest-zweite-ebene: `src/logik/ebenen.ts` (Marke `#bereich/unter`), `ZweiteEbene`, `HandyMenue`, `useSchmal`, `useBrauchtDich`
 - aktionen-und-knoepfe: `src/logik/aktionen.ts` (Aktionsliste, Plätze, Kürzel), `src/geruest/belegung.ts` (gemerkt, Rückgängig), `AktionKnopf`, `Auswahl`, Einstellungen › Navigation
+- hintergrund: `src/logik/himmel.ts` (SunCalc, Bogen/Echt, Mondpfad), `src/geruest/Hintergrund.tsx`, `useMinute`, Einstellungen „Ort: Breite/Länge“
 - einstellungen-liste: `src/logik/einstellungen.ts` (Liste, Suche, Zurücksetzen), Vertrag und Attrappe `einstellungen`, `src/geruest/einstellungen.ts`, Bausteine `Schalter`, `Eingabe`
 
 ## Stolpersteine
@@ -29,5 +29,7 @@ Das Gerüst steht am PC und am Handy. PC: Seitenleiste mit ziehbarer Breite (ab 
 - Neues Design = Kopie von `src/werte/tinte.css`. Neue Farbe: beide Designs, `werte.css` (@theme inline), `src/bausteine/cn.ts`.
 - Glas nur über `flaeche-leiste`, `flaeche-kachel`, `flaeche-schwebend`; Drück-Rückmeldung über `drueck`.
 - Neue Aktion: Zeile in `src/logik/aktionen.ts`, Symbol in `src/geruest/aktionSymbole.ts`. Aktion ohne `ziel` braucht `kommt` (Test prüft das).
-- Neue Einstellung = eine Zeile in `einstellungen` (`src/logik/einstellungen.ts`); lesen mit `useEinstellung(e)` aus `src/geruest/einstellungen.ts`. Die Einstellungen wirken noch nirgends.
-- Programmcode gepackt beim Start: 104 KB von erlaubten 200 KB.
+- Neue Einstellung = eine Zeile in `einstellungen` (`src/logik/einstellungen.ts`); lesen mit `useEinstellung(e)` aus `src/geruest/einstellungen.ts`. Wirken bisher nur im Hintergrund (Bahn, Ort, Mond nur nachts, folgt der Tageszeit).
+- Hintergrund: Farben `--sonne`, `--welle-1…5`, `--nacht` je Design, Maße `--horizont` usw. in `werte.css`; Lage kommt als `--x`/`--y` (0–1). Die Uhrzeit fest stellen für Bilder: Playwright `page.clock.setFixedTime`, Bahn über `localStorage['tide.attrappe.einstellungen']`.
+- Zahl-Einstellungen mit Nachkommastellen: `schritt` angeben.
+- Programmcode gepackt beim Start: 110 KB von erlaubten 200 KB.

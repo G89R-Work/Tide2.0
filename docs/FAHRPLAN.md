@@ -13,7 +13,7 @@ Hintergrund zu den Etappen und zum Server: `docs/konzept/40-fahrplan.md`.
 - [x] `geruest-zweite-ebene` · liest: 03-geruest.md · zweite Ebene je Bereich; am Handy das zweispaltige Menü mit Punkt am Menü-Knopf · Fertig, wenn: jeder Bereich am Handy und am PC seine zweite Ebene zeigt
 - [x] `aktionen-und-knoepfe` · liest: 03-geruest.md · Liste der Aktionen; belegbare Knöpfe in der Kopfzeile, oben rechts am Handy und in der unteren Leiste; Tastenkürzel · Fertig, wenn: ein Knopf-Platz sich umbelegen lässt und die Belegung das Neuladen übersteht
 - [x] `einstellungen-liste` · liest: 20-einstellungen.md · zentrale Liste der Einstellungen, gespeichert je Nutzer und Geräteart; die Einstellungsseite entsteht daraus, mit Suche und Zurücksetzen · Fertig, wenn: eine neue Option mit einer Zeile auf der Seite erscheint
-- [ ] `hintergrund` · liest: 05-design.md · Hintergrund mit Sonne, Mond und Wellen hinter der ganzen App; Bahnen Bogen und Echt; echte Auf- und Untergangszeiten, Mondphase; rückt einmal pro Minute weiter · Fertig, wenn: beide Bahnen umschaltbar sind und im Ruhezustand keine Animation läuft
+- [x] `hintergrund` · liest: 05-design.md · Hintergrund mit Sonne, Mond und Wellen hinter der ganzen App; Bahnen Bogen und Echt; echte Auf- und Untergangszeiten, Mondphase; rückt einmal pro Minute weiter · Fertig, wenn: beide Bahnen umschaltbar sind und im Ruhezustand keine Animation läuft
 - [ ] `kacheln` · liest: 04-kacheln.md · Versuch mit react-grid-layout und gridstack.js auf dem Handy des Nutzers; danach Bearbeiten-Modus mit langem Druck, Griffpunkten, Rechtsklick-Menü, Speichern je Seite und Geräteart, Zurücksetzen · Fertig, wenn: fünf Kacheln sich am Handy und am PC verschieben und in der Größe ändern lassen
 
 ## Etappe 2: Gezeitenkurve und Heute

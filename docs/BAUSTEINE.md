@@ -77,3 +77,10 @@ Muster für einen Eintrag:
 - Grund: passt zu shadcn/ui, einheitliche Linien; Ja des Nutzers.
 - Link: https://lucide.dev
 - Eingebaut in Scheibe: geruest-seitenleiste
+
+## 2026-11-11 · Sonne und Mond
+- Kandidaten: SunCalc 2 (Auf-/Untergang, Lage, Mondphase und Neigung, ohne Abhängigkeiten, MIT), eigene Formeln
+- Entscheidung: SunCalc 2
+- Grund: steht im Konzept, bewährt und klein; die alten Formeln liegen in `vorlage/`; Ja des Nutzers.
+- Link: https://github.com/mourner/suncalc
+- Eingebaut in Scheibe: hintergrund

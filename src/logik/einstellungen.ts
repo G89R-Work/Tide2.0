@@ -46,7 +46,7 @@ export type Einstellung = Basis &
   (
     | { art: 'schalter'; standard: boolean }
     | { art: 'auswahl'; standard: string; optionen: readonly (readonly [wert: string, name: string])[] }
-    | { art: 'zahl'; standard: number; min: number; max: number; einheit?: string }
+    | { art: 'zahl'; standard: number; min: number; max: number; einheit?: string; /** Raster, ab Werk 1 (ganze Zahlen). */ schritt?: number }
   )
 
 const bundeslaender = [
@@ -62,6 +62,8 @@ export const einstellungen: readonly Einstellung[] = [
   { id: 'design', name: 'Design', abschnitt: 'darstellung', art: 'auswahl', standard: 'glut', optionen: [['glut', 'Glut'], ['tinte', 'Tinte']], wichtig: true },
   { id: 'schriftgroesse', name: 'Schriftgröße', abschnitt: 'darstellung', art: 'auswahl', standard: 'normal', optionen: [['klein', 'Klein'], ['normal', 'Normal'], ['gross', 'Groß']], jeGeraet: true, wichtig: true },
   { id: 'bahn', name: 'Bahn von Sonne und Mond', abschnitt: 'darstellung', art: 'auswahl', standard: 'bogen', optionen: [['bogen', 'Bogen'], ['echt', 'Echt']] },
+  { id: 'ort-breite', name: 'Ort: Breite', abschnitt: 'darstellung', art: 'zahl', standard: 51.31, min: -90, max: 90, schritt: 0.01, einheit: '°', hilfe: 'Nord plus, Süd minus' },
+  { id: 'ort-laenge', name: 'Ort: Länge', abschnitt: 'darstellung', art: 'zahl', standard: 9.49, min: -180, max: 180, schritt: 0.01, einheit: '°', hilfe: 'Ost plus, West minus' },
   { id: 'mond-nachts', name: 'Mond nur nachts', abschnitt: 'darstellung', art: 'schalter', standard: true },
   { id: 'hintergrund-tageszeit', name: 'Hintergrund folgt der Tageszeit', abschnitt: 'darstellung', art: 'schalter', standard: true },
   { id: 'wellen', name: 'Wellen', abschnitt: 'darstellung', art: 'schalter', standard: true },
@@ -81,6 +83,8 @@ export function einstellungenIn(abschnitt: AbschnittId): Einstellung[] {
 
 const schluessel = (e: Einstellung, geraet: Geraet) => (e.jeGeraet ? `${e.id}@${geraet}` : e.id)
 
+const imRaster = (w: number, schritt: number) => Math.abs(w / schritt - Math.round(w / schritt)) < 1e-6
+
 function gueltig(e: Einstellung, w: unknown): w is Wert {
   switch (e.art) {
     case 'schalter':
@@ -88,7 +92,7 @@ function gueltig(e: Einstellung, w: unknown): w is Wert {
     case 'auswahl':
       return e.optionen.some(([o]) => o === w)
     case 'zahl':
-      return typeof w === 'number' && Number.isInteger(w) && w >= e.min && w <= e.max
+      return typeof w === 'number' && imRaster(w, e.schritt ?? 1) && w >= e.min && w <= e.max
   }
 }
 

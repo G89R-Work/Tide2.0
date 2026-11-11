@@ -6,6 +6,7 @@ import { leiste } from '../werte/leiste'
 import { AktionKnopf } from './AktionKnopf'
 import { useBelegung } from './belegung'
 import { HandyMenue } from './HandyMenue'
+import { Hintergrund } from './Hintergrund'
 import { seiten } from './seiten'
 import { Seitenleiste } from './Seitenleiste'
 import { useBrauchtDich } from './useBrauchtDich'
@@ -20,7 +21,12 @@ export function Geruest({ marke }: { marke: string }) {
   const schmal = useSchmal()
   const zahl = useBrauchtDich()
   useTastenkuerzel()
-  return schmal ? <Handy ort={ort} zahl={zahl} /> : <Pc ort={ort} />
+  return (
+    <>
+      <Hintergrund />
+      {schmal ? <Handy ort={ort} zahl={zahl} /> : <Pc ort={ort} />}
+    </>
+  )
 }
 
 function Inhalt({ ort }: { ort: Ort }) {
@@ -37,7 +43,7 @@ function Inhalt({ ort }: { ort: Ort }) {
 function Handy({ ort, zahl }: { ort: Ort; zahl: number }) {
   const { oben, unten } = useBelegung()
   return (
-    <div className="himmel flex h-dvh flex-col">
+    <div className="flex h-dvh flex-col">
       <header className="p-2 pb-0">
         <div className="flex items-center p-1">
           <HandyMenue ort={ort} zahl={zahl} />
@@ -69,7 +75,7 @@ function Pc({ ort }: { ort: Ort }) {
   const hatEbene = ebeneVon(ort.bereich).length > 0
 
   return (
-    <div className="himmel h-dvh">
+    <div className="h-dvh">
       <Group {...gemerkt} orientation="horizontal" className="h-full">
         <Panel
           id="leiste"

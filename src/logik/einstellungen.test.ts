@@ -60,6 +60,15 @@ describe('setze und wertVon', () => {
     expect(setze(w, stunden, 'pc', 2.5)).toBe(w)
     expect(setze(w, stunden, 'pc', true)).toBe(w)
   })
+
+  it('nimmt beim Ort Nachkommastellen im Raster an, auch südlich und westlich', () => {
+    const breite = nach('ort-breite')
+    const laenge = nach('ort-laenge')
+    expect(setze({}, breite, 'pc', -33.87)).toEqual({ 'ort-breite': -33.87 })
+    expect(setze({}, laenge, 'pc', 151.21)).toEqual({ 'ort-laenge': 151.21 })
+    expect(setze({}, breite, 'pc', 52.123)).toEqual({})
+    expect(setze({}, breite, 'pc', 91)).toEqual({})
+  })
   it('lässt die alten Werte unverändert', () => {
     const w = { design: 'tinte' }
     setze(w, design, 'pc', 'glut')

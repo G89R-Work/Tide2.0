@@ -61,7 +61,58 @@
   }
 }
 
-/* Himmel hinter einem Design (Platzhalter bis zum Hintergrund im Gerüst). */
+/* Hintergrund mit Sonne, Mond und Wellen (src/geruest/Hintergrund.tsx). Steht still:
+   keine Animation, nur einmal pro Minute neue Lage über --x, --y, --licht. */
+:root {
+  --horizont: 16%;
+  --himmel-rand: 14%;
+  --sonne-groesse: 3.25rem;
+  --mond-groesse: 2.25rem;
+}
+@utility hintergrund {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+  background: linear-gradient(var(--himmel-oben), var(--himmel-unten));
+}
+@utility himmelskoerper {
+  position: absolute;
+  left: calc(var(--x) * 100%);
+  bottom: calc(var(--horizont) + var(--y) * (100% - var(--horizont) - var(--himmel-rand)));
+  translate: -50% 50%;
+}
+@utility sonne {
+  width: var(--sonne-groesse);
+  height: var(--sonne-groesse);
+  border-radius: 9999px;
+  background: var(--sonne);
+  box-shadow:
+    0 0 2rem 0.5rem color-mix(in srgb, var(--sonne-schein) 55%, transparent),
+    0 0 7rem 3rem color-mix(in srgb, var(--sonne-schein) 18%, transparent);
+}
+@utility mond {
+  width: var(--mond-groesse);
+  height: var(--mond-groesse);
+  overflow: visible;
+  filter: drop-shadow(0 0 0.75rem color-mix(in srgb, var(--sonne-schein) 35%, transparent));
+}
+@utility nacht {
+  position: absolute;
+  inset: 0;
+  background: var(--nacht);
+  opacity: calc((1 - var(--licht)) * var(--nacht-tiefe));
+}
+@utility wellen {
+  position: absolute;
+  inset-inline: 0;
+  bottom: 0;
+  width: 100%;
+  height: calc(var(--horizont) + 2%);
+}
+
+/* Himmel hinter einem Design (nur noch für die Bausteine-Seite). */
 @utility himmel {
   background: linear-gradient(var(--himmel-oben), var(--himmel-unten));
   color: var(--text);

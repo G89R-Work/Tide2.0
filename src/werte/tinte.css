@@ -3,6 +3,16 @@
   --grund: #0e0e0f;
   --himmel-oben: #0e0e0f;
   --himmel-unten: #19191a;
+  --sonne: #f2f2f0;
+  --sonne-schein: #a9a9a6;
+  --mond-dunkel: rgba(242, 242, 240, 0.08);
+  --nacht: #000000;
+  --nacht-tiefe: 0.5;
+  --welle-1: #2e2e2f;
+  --welle-2: #262627;
+  --welle-3: #1f1f20;
+  --welle-4: #171718;
+  --welle-5: #0e0e0f;
   --stufe-1: #19191a;
   --stufe-2: #232324;
   --stufe-3: #2e2e2f;

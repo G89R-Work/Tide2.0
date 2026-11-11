@@ -47,11 +47,12 @@ export function EinstellungZeile({ e, werte, geraet }: { e: Einstellung; werte: 
             key={String(wert)}
             id={feld}
             type="number"
-            inputMode="numeric"
+            inputMode={e.schritt ? 'decimal' : 'numeric'}
             min={e.min}
             max={e.max}
+            step={e.schritt}
             defaultValue={String(wert)}
-            className="w-20 text-right"
+            className={e.schritt ? 'w-24 text-right' : 'w-20 text-right'}
             onBlur={(x) => {
               const zahl = Number(x.currentTarget.value)
               if (setze(werte, e, geraet, zahl) === werte && zahl !== wert) x.currentTarget.value = String(wert)
