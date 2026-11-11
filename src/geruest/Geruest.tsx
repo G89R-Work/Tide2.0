@@ -1,14 +1,16 @@
-import { Suspense, useState } from 'react'
+import { Suspense, useState, type CSSProperties } from 'react'
 import { Group, Panel, useDefaultLayout, usePanelRef } from 'react-resizable-panels'
 import { Trenner } from '../bausteine/Trenner'
 import { mitteUnten } from '../logik/aktionen'
 import { ebeneVon, ortAusMarke, type Ort } from '../logik/ebenen'
+import { leisteLage } from '../logik/leisteLage'
+import { kurve } from '../werte/kurve'
 import { leiste } from '../werte/leiste'
 import { AktionKnopf } from './AktionKnopf'
 import { useBelegung } from './belegung'
 import { useKurveOben } from './einstellungen'
 import { HandyMenue } from './HandyMenue'
-import { MitKurve } from './MitKurve'
+import { MitKurve, type Platz } from './MitKurve'
 import { Hintergrund } from './Hintergrund'
 import { seiten } from './seiten'
 import { Seitenleiste } from './Seitenleiste'
@@ -79,11 +81,14 @@ function Pc({ ort }: { ort: Ort }) {
   const [breite, setBreite] = useState<number>(leiste.standardPx)
   const hatEbene = ebeneVon(ort.bereich).length > 0
   const kurveOben = useKurveOben()
+  const [platz, setPlatz] = useState<Platz>({ hoehe: 0, links: 0 })
+  const lage = leisteLage({ leiste: breite, links: platz.links, kurve: platz.hoehe, griff: kurve.griffPx, rand: leiste.randPx, kurveOben })
 
-  // Die Kurve liegt über die volle Breite; die Seitenleiste endet davor (Abstand zur Kurve gibt deren Griff).
+  // Die Kurve liegt über die volle Breite. Die Seitenleiste liegt als eigene Lage über ihrer Spalte: Die Spalte (Panel „leiste")
+  // gibt die ziehbare Breite vor, die Leiste endet am Kurven-Streifen oder reicht bis zum Rand, wenn die Kurve links Platz lässt.
   return (
-    <div className="flex h-dvh flex-col">
-      <MitKurve>
+    <div className="relative flex h-dvh flex-col">
+      <MitKurve onPlatz={setPlatz}>
         <Group {...gemerkt} orientation="horizontal" className="h-full">
           <Panel
             id="leiste"
@@ -95,10 +100,7 @@ function Pc({ ort }: { ort: Ort }) {
             defaultSize={leiste.standard}
             // Die gemeldete Größe ist verlässlicher als isCollapsed(), das nach dem Neuladen veraltet sein kann.
             onResize={(groesse) => setBreite(Math.round(groesse.inPixels))}
-            className={kurveOben ? 'pb-2 pl-2' : 'pt-2 pl-2'}
-          >
-            <Seitenleiste offen={ort.bereich} mitNamen={breite >= leiste.standardPx} />
-          </Panel>
+          />
           <Trenner
             title="Ziehen ändert die Breite, Doppelklick stellt die Standardbreite her (ein zweiter klappt ein)"
             onDoubleClick={() => (breite === leiste.standardPx ? leisteRef.current?.collapse() : leisteRef.current?.resize(leiste.standard))}
@@ -117,6 +119,9 @@ function Pc({ ort }: { ort: Ort }) {
           </Panel>
         </Group>
       </MitKurve>
+      <div className="leiste-lage" style={{ '--breite': breite, '--oben': lage.oben, '--unten': lage.unten } as CSSProperties}>
+        <Seitenleiste offen={ort.bereich} mitNamen={breite >= leiste.standardPx} />
+      </div>
     </div>
   )
 }

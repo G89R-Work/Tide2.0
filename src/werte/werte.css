@@ -348,3 +348,16 @@ html {
   background: var(--linie-stark);
   pointer-events: none;
 }
+
+/* Seitenleiste am PC als Lage über ihrer Spalte (src/geruest/Geruest.tsx): Breite aus der Spalte, Ende oben und unten
+   aus src/logik/leisteLage.ts (Abstand zum Rand). Werte kommen als Zahlen in Pixeln über --breite, --oben, --unten. */
+@utility leiste-lage {
+  position: absolute;
+  left: --spacing(2);
+  width: calc(var(--breite) * 1px - --spacing(2));
+  top: calc(var(--oben) * 1px);
+  bottom: calc(var(--unten) * 1px);
+  transition:
+    top var(--dauer-sanft) var(--kurve),
+    bottom var(--dauer-sanft) var(--kurve);
+}

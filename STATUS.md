@@ -36,3 +36,4 @@ Das Gerüst steht am PC und am Handy mit Seitenleiste, zweiter Ebene, belegbaren
 - Gezeitenkurve: Rechnung in `src/logik/gezeiten.ts`, Oberfläche `src/geruest/Gezeitenkurve.tsx`, Farben `kurve-*` in `werte.css`, Größen in `src/werte/kurve.ts`; Lage, Höhe und Breite in `src/geruest/MitKurve.tsx`. Termine über `holeTermine` (Attrappe `src/attrappe/termine.ts`).
 - Gezeigte Uhrzeit der Kurve teilt `src/geruest/gezeigteZeit.ts` (null = folgt der Uhr); der Hintergrund liest sie.
 - Zieh-Griffe nur über den Baustein `Trenner` (`src/bausteine/Trenner.tsx`), nie direkt `Separator`.
+- Seitenleiste am PC: Panel „leiste“ ist nur die Spalte (Breite); die Leiste selbst liegt darüber (`leiste-lage` in `werte.css`), Ende oben/unten aus `leisteLage`, Platz der Kurve kommt über `MitKurve onPlatz`.
