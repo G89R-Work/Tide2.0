@@ -65,6 +65,9 @@
    keine Animation, nur einmal pro Minute neue Lage über --x, --y, --licht. */
 :root {
   --horizont: 38.2%;
+  --wellen-anteil: 38.2;
+  /* Wellen werden nie schmaler als Breite : Höhe = 3,9 : 1 (so am PC beim Goldenen Schnitt). */
+  --wellen-verhaeltnis: 3.9;
   --himmel-rand: 14%;
   --sonne-groesse: 3.25rem;
   --mond-groesse: 2.25rem;
@@ -80,15 +83,19 @@
 /* Höhe der Wellen (Einstellung „Höhe der Wellen“), gesetzt über data-wellen am Hintergrund. */
 [data-wellen='viertel'] {
   --horizont: 25%;
+  --wellen-anteil: 25;
 }
 [data-wellen='drittel'] {
   --horizont: 33.3%;
+  --wellen-anteil: 33.3;
 }
 [data-wellen='gold'] {
   --horizont: 38.2%;
+  --wellen-anteil: 38.2;
 }
 [data-wellen='haelfte'] {
   --horizont: 50%;
+  --wellen-anteil: 50;
 }
 @utility himmelskoerper {
   position: absolute;
@@ -119,10 +126,12 @@
 }
 @utility wellen {
   position: absolute;
-  inset-inline: 0;
+  left: 50%;
   bottom: 0;
-  width: 100%;
-  height: calc(var(--horizont) + 2%);
+  translate: -50% 0;
+  height: calc((var(--wellen-anteil) + 2) * 1dvh);
+  width: max(100%, calc((var(--wellen-anteil) + 2) * 1dvh * var(--wellen-verhaeltnis)));
+  max-width: none;
 }
 
 /* Himmel hinter einem Design (nur noch für die Bausteine-Seite). */

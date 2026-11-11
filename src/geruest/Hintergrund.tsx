@@ -16,15 +16,20 @@ const e = {
   wellenHoehe: nach('wellen-hoehe'),
 }
 
-/** Fünf Wellenlagen, hinten lang und flach, vorne kürzer. Fläche 1000 × 100, verzerrt auf Bildbreite und Wellenhöhe. */
+/**
+ * Fünf Wellenlagen, hinten lang und flach, vorne kürzer. Fläche 1000 × 260, das Seitenverhältnis am PC.
+ * In der Breite darf sie gedehnt werden, schmaler als dieses Verhältnis wird sie nie: Am Handy und bei großer Höhe
+ * wird sie stattdessen links und rechts abgeschnitten (Breite in `werte.css`, Hilfsmittel `wellen`).
+ */
+const HOEHE = 260
 const wellen = [0, 1, 2, 3, 4].map((i) => {
-  const hoehe = 10 + i * 18
+  const hoehe = Math.round((10 + i * 18) * 2.6)
   const stueck = 1000 / (1.4 + i * 0.5)
-  const ausschlag = 12 - i * 1.5
+  const ausschlag = Math.round((12 - i * 1.5) * 2.6)
   const start = -Math.round(stueck * ((i * 0.37) % 1))
-  let pfad = `M ${start} ${hoehe} Q ${start + stueck / 4} ${hoehe - ausschlag} ${start + stueck / 2} ${hoehe}`
+  let pfad = `M ${start} ${hoehe} Q ${Math.round(start + stueck / 4)} ${hoehe - ausschlag} ${Math.round(start + stueck / 2)} ${hoehe}`
   for (let x = start + stueck; x <= 1000 + stueck; x += stueck / 2) pfad += ` T ${Math.round(x)} ${hoehe}`
-  return `${pfad} V 100 H ${start} Z`
+  return `${pfad} V ${HOEHE} H ${start} Z`
 })
 
 const lage = (l: Lage) => ({ '--x': l.x, '--y': l.y }) as CSSProperties
@@ -49,7 +54,7 @@ export function Hintergrund() {
           <path d={mondPfad(h.mond.beleuchtet)} transform={`rotate(${h.mond.neigung.toFixed(1)})`} fill="var(--sonne)" />
         </svg>
       )}
-      <svg className="wellen" viewBox="0 0 1000 100" preserveAspectRatio="none">
+      <svg className="wellen" viewBox={`0 0 1000 ${HOEHE}`} preserveAspectRatio="none">
         {wellen.map((d, i) => (
           <path key={i} d={d} fill={`var(--welle-${i + 1})`} />
         ))}
