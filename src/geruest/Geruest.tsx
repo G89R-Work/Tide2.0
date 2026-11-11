@@ -43,7 +43,7 @@ function Inhalt({ ort }: { ort: Ort }) {
   )
 }
 
-const kurveLage = einstellungen.find((e) => e.id === 'kurve-lage-handy')!
+const kurveLage = einstellungen.find((e) => e.id === 'kurve-lage')!
 
 function Handy({ ort, zahl }: { ort: Ort; zahl: number }) {
   const { oben, unten } = useBelegung()
@@ -81,10 +81,18 @@ function Pc({ ort }: { ort: Ort }) {
   const gemerkt = useDefaultLayout({ id: 'tide.leiste', storage: localStorage })
   const [breite, setBreite] = useState<number>(leiste.standardPx)
   const hatEbene = ebeneVon(ort.bereich).length > 0
+  const kurveOben = useEinstellung(kurveLage) === 'oben'
+  // Die Kurve liegt über die volle Breite; die Seitenleiste endet davor.
+  const kurve = (
+    <div className={kurveOben ? 'p-2 pb-0' : 'p-2 pt-0'}>
+      <Gezeitenkurve />
+    </div>
+  )
 
   return (
-    <div className="h-dvh">
-      <Group {...gemerkt} orientation="horizontal" className="h-full">
+    <div className="flex h-dvh flex-col">
+      {kurveOben && kurve}
+      <Group {...gemerkt} orientation="horizontal" className="min-h-0 flex-1">
         <Panel
           id="leiste"
           panelRef={leisteRef}
@@ -107,9 +115,6 @@ function Pc({ ort }: { ort: Ort }) {
           <div className="h-full w-0.5 bg-durchsichtig group-hover:bg-linie-stark group-focus-visible:bg-akzent" />
         </Separator>
         <Panel id="inhalt" className="flex flex-col">
-          <div className="p-2 pb-0 pl-0">
-            <Gezeitenkurve />
-          </div>
           <div className="flex min-h-0 flex-1">
             {hatEbene && (
               <nav aria-label="Zweite Ebene" className="w-52 shrink-0 overflow-y-auto py-2">
@@ -124,6 +129,7 @@ function Pc({ ort }: { ort: Ort }) {
           </div>
         </Panel>
       </Group>
+      {!kurveOben && kurve}
     </div>
   )
 }

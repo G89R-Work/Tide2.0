@@ -4,7 +4,7 @@ Etappe: 2 Gezeitenkurve und Heute
 Nächste Scheibe: `kurve-eintraege`
 
 ## Stand
-Das Gerüst steht am PC und am Handy mit Seitenleiste, zweiter Ebene, belegbaren Knöpfen, Einstellungsliste, Kacheln und Hintergrund. Die Gezeitenkurve zeigt den Beispieltag (PC oben, Handy über der unteren Leiste), scrollt endlos, folgt der Uhr und steuert beim Scrollen den Hintergrund.
+Das Gerüst steht am PC und am Handy mit Seitenleiste, zweiter Ebene, belegbaren Knöpfen, Einstellungsliste, Kacheln und Hintergrund. Die Gezeitenkurve zeigt den Beispieltag (PC unten über die volle Breite, Handy über der unteren Leiste; Einstellung „Lage“ je Gerät), scrollt endlos, folgt der Uhr und steuert beim Scrollen den Hintergrund.
 
 ## Zuletzt erledigt
 - kurve-grund: `src/logik/gezeiten.ts` (Raster, Glätten, Scrollstelle, endlos), `Gezeitenkurve`, `gezeigteZeit`, Vertrag `holeTermine`, Einstellung „Ganzer Tag“
