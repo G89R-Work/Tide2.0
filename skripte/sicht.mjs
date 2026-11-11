@@ -1,15 +1,17 @@
-// npm run sicht -- <seite>: baut die App, macht je ein Bild für PC und Handy
+// npm run sicht -- <seite> [<seite> …]: baut die App, macht je Seite ein Bild für PC und Handy
 // und misst die Tempo-Werte aus docs/konzept/02-tempo.md. Bilder landen in sicht/.
 // <seite> ist die Sprungmarke ohne #, z. B. „bausteine"; „start" für die Startseite.
+// Ab der zweiten Seite wird auch die Dauer des Wechsels gemessen. npm run pruefen nutzt das.
 import { spawn, spawnSync } from 'node:child_process'
 import { mkdirSync, readFileSync } from 'node:fs'
 import { createRequire } from 'node:module'
 import { join } from 'node:path'
 import { gzipSync } from 'node:zlib'
 
-const seite = process.argv[2] ?? 'start'
+import { tempoGrenzen, tempoVerstoesse } from '../src/logik/tempoGrenzen.ts'
+
+const seiten = process.argv.length > 2 ? process.argv.slice(2) : ['start']
 const wurzel = join(import.meta.dirname, '..')
-const grenzen = { blur: 4, animationen: 0, kilobyte: 200 }
 
 let playwright
 try {
@@ -44,7 +46,7 @@ const beenden = () => {
 let serverText = ''
 server.stdout.on('data', (d) => (serverText += d))
 server.stderr.on('data', (d) => (serverText += d))
-const adresse = `http://localhost:${port}/${seite === 'start' ? '' : `#${seite}`}`
+const marke = (seite) => (seite === 'start' ? '' : `#${seite}`)
 
 async function warteAufServer() {
   for (let i = 0; i < 50; i++) {
@@ -77,6 +79,22 @@ const messen = () =>
     )
   })
 
+// Wechsel per Sprungmarke: Zeit bis zum ersten Bild, auf dem der neue Inhalt steht.
+const wechseln = (ziel) =>
+  new Promise((fertig) => {
+    const wurzelElement = document.getElementById('root')
+    const vorher = wurzelElement.innerHTML
+    const start = performance.now()
+    location.hash = ziel
+    const pruefe = () =>
+      wurzelElement.innerHTML !== vorher && !wurzelElement.textContent.includes('Lädt')
+        ? requestAnimationFrame(() => fertig(Math.round(performance.now() - start)))
+        : performance.now() - start > 5000
+          ? fertig(Math.round(performance.now() - start))
+          : requestAnimationFrame(pruefe)
+    requestAnimationFrame(pruefe)
+  })
+
 const fehler = []
 try {
   await warteAufServer()
@@ -90,15 +108,18 @@ try {
     const kontext = await browser.newContext({ ...geraet, ...(name === 'pc' ? { deviceScaleFactor: 1 } : {}) })
     const tab = await kontext.newPage()
     tab.on('pageerror', (f) => fehler.push(`${name}: Fehler auf der Seite: ${f.message}`))
-    tab.on('console', (m) => m.type() === 'error' && fehler.push(`${name}: Konsole: ${m.text()}`))
-    await tab.goto(adresse, { waitUntil: 'networkidle' })
-    await tab.waitForTimeout(500)
-    const bild = join('sicht', `${seite}-${name}.png`)
-    await tab.screenshot({ path: join(wurzel, bild), fullPage: true })
-    const werte = await tab.evaluate(messen)
-    console.log(`${name}: ${JSON.stringify(werte)} → ${bild}`)
-    if (werte.blur > grenzen.blur) fehler.push(`${name}: ${werte.blur} Flächen mit Weichzeichner sichtbar, erlaubt ${grenzen.blur}`)
-    if (werte.animationen > grenzen.animationen) fehler.push(`${name}: ${werte.animationen} laufende Animationen im Ruhezustand, erlaubt 0`)
+    tab.on('console', (m) => ['error', 'warning'].includes(m.type()) && fehler.push(`${name}: Konsole: ${m.text()}`))
+    for (const [i, seite] of seiten.entries()) {
+      const werte = {}
+      if (i === 0) await tab.goto(`http://localhost:${port}/${marke(seite)}`, { waitUntil: 'networkidle' })
+      else werte.wechselMs = await tab.evaluate(wechseln, marke(seite) || '#')
+      await tab.waitForTimeout(500)
+      const bild = join('sicht', `${seite}-${name}.png`)
+      await tab.screenshot({ path: join(wurzel, bild), fullPage: true })
+      Object.assign(werte, await tab.evaluate(messen))
+      console.log(`${name} ${seite}: ${JSON.stringify(werte)} → ${bild}`)
+      for (const v of tempoVerstoesse(werte)) fehler.push(`${name} ${seite}: ${v}`)
+    }
     await kontext.close()
   }
   await browser.close()
@@ -108,8 +129,8 @@ try {
   beenden()
 }
 
-console.log(`Programmcode beim Start, gepackt: ${kilobyte} KB (erlaubt unter ${grenzen.kilobyte})`)
-if (kilobyte >= grenzen.kilobyte) fehler.push(`Programmcode ${kilobyte} KB, erlaubt unter ${grenzen.kilobyte}`)
+console.log(`Programmcode beim Start, gepackt: ${kilobyte} KB (erlaubt unter ${tempoGrenzen.kilobyte})`)
+fehler.push(...tempoVerstoesse({ kilobyte }))
 for (const f of fehler) console.log(`✗ ${f}`)
 console.log(fehler.length ? `${fehler.length} Grenze(n) oder Fehler.` : 'Tempo-Grenzen eingehalten.')
 process.exit(fehler.length ? 1 : 0)

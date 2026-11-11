@@ -30,6 +30,9 @@ Eine Zeile je Entscheidung, neueste unten. Was hier steht, gilt und wird nicht n
 - 2026-11-11 · Inter liegt lokal über @fontsource-variable/inter, ohne Aufruf bei Google.
 - 2026-11-11 · Knopf nach shadcn-Muster mit class-variance-authority, clsx, tailwind-merge und @radix-ui/react-slot.
 - 2026-11-11 · Tailwinds eigene Farben sind abgeschaltet; es gibt nur die Farben aus src/werte/. Abstände nur aus der Skala (p-4 usw.).
+- 2026-11-11 · Ein Eintrag hat die Grundfelder id, art, titel, erledigt, erstellt, geaendert. Ändern über PATCH, nur titel und erledigt.
+- 2026-11-11 · Die Attrappe speichert Änderungen im Browser (localStorage) und wird nachgeladen, damit sie nicht im Startpaket steckt.
+- 2026-11-11 · Tempo-Grenzen stehen einmal in `src/logik/tempoGrenzen.ts`; `npm run pruefen` misst sie auf Start und Bausteine.
 
 ## Offen
 

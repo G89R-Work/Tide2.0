@@ -1,19 +1,24 @@
 # Status
 
-Etappe: 0 Fundament
-Nächste Scheibe: `attrappe-und-tempo`
+Etappe: 1 Gerüst
+Nächste Scheibe: `geruest-seitenleiste`
 
 ## Stand
-Werte-Dateien für Glut und Tinte, Inter und die Bausteine Knopf und Fläche stehen. Die Bausteine-Seite unter `#bausteine` zeigt alles in beiden Designs.
+Fundament steht: Werte, Knopf, Fläche, Vertrag für Einträge, Attrappe mit Mock Service Worker und automatisch geprüfte Tempo-Grenzen. Die Startseite zeigt eine Beispielliste aus der Attrappe; Abhaken übersteht das Neuladen.
 
 ## Zuletzt erledigt
-- fundament: Projekt, `npm run dev` (auch im WLAN), `npm run pruefen`, erste Logik `src/logik/tageszeit.ts` mit Test
-- werte-und-bausteine: `src/werte/` (glut.css, tinte.css, werte.css), Knopf, Fläche, Bausteine-Seite, Prüfung „Werte", `npm run sicht`
+- fundament: Projekt, `npm run dev` (auch im WLAN), `npm run pruefen`, erste Logik mit Test
+- werte-und-bausteine: `src/werte/`, Knopf, Fläche, Bausteine-Seite (`#bausteine`), Prüfung „Werte", `npm run sicht`
+- attrappe-und-tempo: `src/vertrag/eintrag.ts`, `src/attrappe/`, Beispielliste auf der Startseite, Tempo-Grenzen im Prüfbefehl
 
 ## Stolpersteine
 - Stil prüft oxlint, nicht ESLint. Warnungen zählen als Fehler.
-- `npm run pruefen` steckt in `skripte/pruefen.mjs`; neue Prüfungen dort als eine Zeile anhängen.
-- `npm run sicht` gibt es schon (`skripte/sicht.mjs`): misst Weichzeichner, Animationen, Bilder/s und Programmcode. Für die nächste Scheibe fehlen nur noch die Tempo-Grenzen im Prüfbefehl.
-- Neues Design = Kopie von `src/werte/tinte.css` mit denselben Variablen. Neue Farbe: in beiden Designs, in `werte.css` (@theme inline) und in `src/bausteine/cn.ts` eintragen.
+- `npm run pruefen` steckt in `skripte/pruefen.mjs`; neue Prüfung = eine Zeile. Neue Seiten hinten an die Zeile „Tempo" hängen (`sicht.mjs start bausteine …`), dann wird auch der Wechsel gemessen.
+- Tempo-Grenzen nur in `src/logik/tempoGrenzen.ts`; `skripte/sicht.mjs` liest die Datei direkt (Node streicht die Typen).
+- `npm run sicht` meldet Konsolen-Fehler und -Warnungen der Seite als Fehler.
+- Neue Anfrage: Typ und Funktion in `src/vertrag/`, Antwort in `src/attrappe/<bereich>.ts`, in `src/attrappe/start.ts` eintragen. Gespeichert wird unter `tide.attrappe.*` im localStorage.
+- `public/mockServiceWorker.js` stammt von `npx msw init public`; bei MSW-Update neu erzeugen.
+- Lesen in `node_modules` ist in dieser Umgebung gesperrt; Schnittstellen über die Typprüfung klären.
+- Neues Design = Kopie von `src/werte/tinte.css`. Neue Farbe: beide Designs, `werte.css` (@theme inline), `src/bausteine/cn.ts`.
 - Glas nur über `flaeche-leiste`, `flaeche-kachel`, `flaeche-schwebend`; Drück-Rückmeldung über `drueck`.
-- Programmcode gepackt: 78 KB von erlaubten 200 KB.
+- Programmcode gepackt beim Start: 79 KB von erlaubten 200 KB.

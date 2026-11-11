@@ -56,3 +56,10 @@ Muster für einen Eintrag:
 - Grund: ist schon da; das Skript nennt den Grund, falls es fehlt.
 - Link: https://playwright.dev
 - Eingebaut in Scheibe: werte-und-bausteine
+
+## 2026-11-11 · Attrappen-Daten
+- Kandidaten: Mock Service Worker (fängt Anfragen im Browser ab, Oberfläche merkt nichts), eigene Attrappen-Funktionen (müssten später ausgebaut werden)
+- Entscheidung: Mock Service Worker 3
+- Grund: steht im Konzept und in der Technik-Liste; der spätere Server ersetzt ihn ohne Änderung an der Oberfläche.
+- Link: https://mswjs.io
+- Eingebaut in Scheibe: attrappe-und-tempo

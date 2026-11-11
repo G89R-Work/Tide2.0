@@ -1,5 +1,5 @@
 // npm run pruefen: führt alle Prüfungen aus und zeigt nur, was fehlschlägt.
-// Neue Prüfung (z. B. Tempo-Grenzen) = eine Zeile in der Liste.
+// Neue Prüfung = eine Zeile in der Liste. Neue Seiten hinten an die Tempo-Zeile hängen.
 import { spawnSync } from 'node:child_process'
 
 const pruefungen = [
@@ -7,6 +7,7 @@ const pruefungen = [
   ['Stil', 'oxlint --deny-warnings --format unix'],
   ['Tests', 'vitest run --reporter=agent'],
   ['Werte', 'node skripte/werte-pruefen.mjs'],
+  ['Tempo', 'node skripte/sicht.mjs start bausteine'],
 ]
 
 let fehler = 0

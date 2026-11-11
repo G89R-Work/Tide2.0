@@ -1,6 +1,7 @@
 import { lazy, Suspense, useEffect, useState } from 'react'
 import { Knopf } from './bausteine/Knopf'
 import { begruessung } from './logik/tageszeit'
+import { Beispielliste } from './bereiche/start/Beispielliste'
 
 // Bereiche laden erst beim Öffnen (Tempo-Regel 4).
 const BausteineSeite = lazy(() => import('./bereiche/bausteine/BausteineSeite'))
@@ -30,12 +31,13 @@ export default function App() {
   }
   return (
     <main className="himmel grid min-h-dvh place-items-center p-4 text-center">
-      <div>
+      <div className="grid justify-items-center">
         <h1 className="text-4xl font-semibold">Tide</h1>
         <p className="mt-2 text-text-gedaempft">{begruessung(jetzt)}</p>
         <Knopf alsKind className="mt-6">
           <a href="#bausteine">Bausteine ansehen</a>
         </Knopf>
+        <Beispielliste />
       </div>
     </main>
   )
