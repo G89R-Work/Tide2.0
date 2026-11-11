@@ -7,6 +7,8 @@ export type Aktion = {
   name: string
   /** Sprungmarke, zu der die Aktion führt. */
   ziel?: string
+  /** Führt einen Befehl auf der Seite aus statt zu springen (src/geruest/befehle.ts). */
+  befehl?: true
   /** Noch nicht gebaut: womit die Funktion kommt. Der Knopf ist dann ausgegraut. */
   kommt?: string
   /** Tastenkürzel wie „Alt+M" oder „Strg+K". */
@@ -20,6 +22,8 @@ export const aktionen: readonly Aktion[] = [
   { id: 'neues-todo', name: 'Neues To-do', ziel: '#todos', kuerzel: 'Alt+N' },
   { id: 'einkaufsmodus', name: 'Einkaufsmodus', ziel: '#einkauf/listen', kuerzel: 'Alt+E' },
   { id: 'knoepfe-belegen', name: 'Knöpfe belegen', ziel: '#einstellungen/navigation' },
+  { id: 'kacheln-anpassen', name: 'Kacheln anpassen', befehl: true, kuerzel: 'Alt+B' },
+  { id: 'kacheln-zuruecksetzen', name: 'Kacheln zurücksetzen', befehl: true },
   { id: 'kurve', name: 'Gezeitenkurve ein/aus', kommt: 'Kommt mit der Gezeitenkurve', kuerzel: 'Alt+K' },
   { id: 'suche', name: 'Suche', kommt: 'Kommt mit der Suche', kuerzel: 'Strg+K' },
   { id: 'diktat', name: 'Diktat', kommt: 'Kommt mit dem Diktat', kuerzel: 'Alt+D' },

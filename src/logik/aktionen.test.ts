@@ -18,8 +18,9 @@ describe('aktionen', () => {
     expect(new Set(kuerzel).size).toBe(kuerzel.length)
   })
 
-  it('führen entweder irgendwohin oder sagen, wann sie kommen', () => {
-    for (const a of aktionen) expect(Boolean(a.ziel) !== Boolean(a.kommt)).toBe(true)
+  it('führen irgendwohin, führen einen Befehl aus oder sagen, wann sie kommen – genau eins davon', () => {
+    for (const a of aktionen) expect([a.ziel, a.befehl, a.kommt].filter(Boolean)).toHaveLength(1)
+    expect(aktionVon('kacheln-anpassen')).toMatchObject({ befehl: true, kuerzel: 'Alt+B' })
   })
 
   it('enthält je Bereich eine Aktion zum Öffnen', () => {

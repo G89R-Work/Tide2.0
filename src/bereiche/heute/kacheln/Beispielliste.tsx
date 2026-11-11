@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
-import { Flaeche } from '../../bausteine/Flaeche'
-import { Knopf } from '../../bausteine/Knopf'
-import { aendereEintrag, holeEintraege, type Eintrag } from '../../vertrag/eintrag'
+import { Knopf } from '../../../bausteine/Knopf'
+import { aendereEintrag, holeEintraege, type Eintrag } from '../../../vertrag/eintrag'
 
 // Beweis für Vertrag und Attrappe: Liste kommt über den Vertrag, Abhaken übersteht das Neuladen.
 // Rückgängig: derselbe Eintrag noch einmal antippen.
@@ -24,7 +23,7 @@ export function Beispielliste() {
   }
 
   return (
-    <Flaeche className="mt-8 w-full max-w-sm p-2 text-left">
+    <div className="-mx-3 text-left">
       {fehler && <p className="p-2 text-sm text-warnung">{fehler}</p>}
       {!liste && !fehler && <p className="p-2 text-sm text-text-gedaempft">Lädt …</p>}
       <ul>
@@ -47,6 +46,6 @@ export function Beispielliste() {
           </li>
         ))}
       </ul>
-    </Flaeche>
+    </div>
   )
 }

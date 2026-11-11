@@ -48,14 +48,18 @@ Eine Zeile je Entscheidung, neueste unten. Was hier steht, gilt und wird nicht n
 - 2026-11-11 · Wunsch des Nutzers: Seitenleiste am PC: Standard- und Mindestbreite so breit wie „Finanzen“ (147 px, links und rechts gleicher Abstand), breiter ziehbar bis 360 px; „Einstellungen“ immer nur als Zahnrad, mittig. Obere Leiste am Handy ohne Fläche, nur freie Knöpfe. Auswahlfelder in den Einstellungen gleich breit, „Auf Standard“ je Zeile immer sichtbar (ausgegraut, solange der Standard gilt). Jede Einstellungszeile ist gleich hoch (64 px), höchstens zwei Textzeilen.
 - 2026-11-11 · Sonne und Mond rechnet SunCalc 2 (Ja des Nutzers). Ort weltweit frei über die Einstellungen „Ort: Breite“ und „Ort: Länge“ (0,01°), ab Werk Mitte Deutschlands (51,31° N, 9,49° O). Bogen folgt Auf- und Untergang, „Echt“ legt Nordost bis Nordwest auf die Bildbreite und 0–90° Höhe auf die Himmelshöhe. Bei Polartag/-nacht zeigt der Bogen die Höhe, Mittag in der Mitte.
 - 2026-11-12 · Wunsch des Nutzers: Wellen größer, länger und höher geschwungen. Ihre Höhe ist einstellbar (Viertel, Drittel, Goldener Schnitt, Hälfte der Seite), ab Werk Goldener Schnitt (38,2 %). Die Wellen werden nie schmaler als 3,9 : 1 (Form am PC beim Goldenen Schnitt); am Handy und bei „Hälfte“ werden sie seitlich abgeschnitten statt gestaucht.
+- 2026-11-11 · Kachel-Baustein ist react-grid-layout 2.3 (offener Punkt 2, nach Empfehlung; Ja des Nutzers, ohne eigenen Versuch auf dem Handy). Raster 12 Spalten am PC, 2 am Handy; Tablet nutzt die PC-Ansicht (Regel „Tablet und PC nutzen dieselbe Ansicht“).
+- 2026-11-11 · Bearbeiten-Modus: langer Druck (450 ms) öffnet Modus und dasselbe Menü wie der Rechtsklick; außerdem Knopf „Anpassen“, Aktion „Kacheln anpassen“ (Alt+B) und F2 auf einer Kachel. Am PC zieht man an der Kopfzeile, am Handy an der ganzen Kachel; Griffpunkte rechts, unten und an der Ecke. Pfeiltasten verschieben, Umschalt und Pfeiltasten ändern die Größe, Eingabe/Esc/„Fertig“ beenden. Inhalte sind im Modus nicht bedienbar.
+- 2026-11-11 · Feste Größen im Menü (PC/Handy in Spalten × Zeilen): Klein 3×2/1×2, Mittel 4×3/2×2, Groß 6×4/2×4, Breit 12×2/2×2, Hoch 3×5/1×4; nie unter der Mindestgröße der Kachel. Ausgeblendete Kacheln holt man in der Leiste des Modus zurück.
+- 2026-11-11 · Vertrag `/api/kacheln/<seite>/<geraet>`: GET liefert die gemerkte Anordnung oder null (Werkszustand), PUT speichert, DELETE setzt zurück. Gleich dem Werk wird nichts gemerkt.
+- 2026-11-11 · Aktionen kennen neben `ziel` und `kommt` jetzt `befehl` (Ausführung in `src/geruest/befehle.ts`).
 
 ## Offen
 
-Zehn Punkte sind offen. Bei jedem steht meine Empfehlung. Ohne Antwort gilt die Empfehlung.
+Neun Punkte sind offen. Bei jedem steht meine Empfehlung. Ohne Antwort gilt die Empfehlung.
 
 | Nr. | Frage | Empfehlung | Wann nötig |
 | --- | --- | --- | --- |
-| 2 | Kachel-Baustein | react-grid-layout, sofern der Versuch auf deinem Handy besteht | In Etappe 1 |
 | 3 | Bahn von Sonne und Mond ab Werk | Bogen, „Echt“ als Schalter | In Etappe 2 am Bildschirm |
 | 4 | Lage der Gezeitenkurve am Handy | Unten über der Leiste | In Etappe 2 |
 | 5 | Sichtbare Stunden ab Werk | 4 | In Etappe 2 |

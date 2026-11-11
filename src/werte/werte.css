@@ -4,6 +4,7 @@
 @import '@fontsource-variable/inter';
 @import './glut.css';
 @import './tinte.css';
+@import 'react-grid-layout/css/styles.css';
 
 @theme {
   /* Nur unsere Farben gibt es; Tailwinds eigene sind abgeschaltet. */
@@ -45,9 +46,12 @@
   --dauer-sanft: 0ms;
   --druck: 0.96;
   --kurve: cubic-bezier(0.2, 0.8, 0.2, 1);
+  /* Kacheln rücken beim Ziehen nach: gehört zur Rückmeldung, darum auch ohne „sanft". */
+  --dauer-ordnen: 180ms;
 }
 [data-bewegung='aus'] {
   --dauer-rueckmeldung: 0ms;
+  --dauer-ordnen: 0ms;
   --druck: 1;
 }
 [data-bewegung='sanft'] {
@@ -57,6 +61,7 @@
   :root {
     --dauer-rueckmeldung: 0ms;
     --dauer-sanft: 0ms;
+    --dauer-ordnen: 0ms;
     --druck: 1;
   }
 }
@@ -244,4 +249,63 @@ html {
   color: var(--text);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
+}
+
+/* Kachel-Raster (react-grid-layout): Nachrücken, Vorschau des Ziels, Griffpunkte im Bearbeiten-Modus. */
+.react-grid-item.react-grid-item {
+  transition-duration: var(--dauer-ordnen);
+  transition-timing-function: var(--kurve);
+}
+.react-grid-item.react-grid-placeholder {
+  background: var(--akzent);
+  opacity: 0.18;
+  border-radius: var(--kachel-rundung);
+  transition-duration: var(--dauer-ordnen);
+}
+.react-grid-item.react-draggable-dragging {
+  z-index: 3;
+}
+@utility kachel-bearbeiten {
+  outline: 1.5px dashed var(--akzent);
+  outline-offset: 2px;
+  touch-action: none;
+  user-select: none;
+}
+@utility kachel-gewaehlt {
+  outline: 2px solid var(--akzent);
+  outline-offset: 2px;
+}
+/* Griffpunkt: sichtbar klein, zum Anfassen groß (44 px Fläche). */
+@utility griff {
+  position: absolute;
+  z-index: 2;
+  width: 2.75rem;
+  height: 2.75rem;
+  display: grid;
+  place-items: center;
+  touch-action: none;
+  &::after {
+    content: '';
+    width: 0.875rem;
+    height: 0.875rem;
+    border-radius: 9999px;
+    background: var(--akzent);
+    border: 2px solid var(--auf-akzent);
+    box-shadow: var(--kachel-schatten);
+  }
+}
+@utility griff-se {
+  right: -1.375rem;
+  bottom: -1.375rem;
+  cursor: nwse-resize;
+}
+@utility griff-e {
+  right: -1.375rem;
+  top: calc(50% - 1.375rem);
+  cursor: ew-resize;
+}
+@utility griff-s {
+  bottom: -1.375rem;
+  left: calc(50% - 1.375rem);
+  cursor: ns-resize;
 }

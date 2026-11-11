@@ -1,16 +1,16 @@
 # Status
 
-Etappe: 1 Gerüst
-Nächste Scheibe: `kacheln`
+Etappe: 2 Gezeitenkurve und Heute
+Nächste Scheibe: `kurve-grund`
 
 ## Stand
-Das Gerüst steht am PC und am Handy, mit Seitenleiste, zweiter Ebene, belegbaren Knöpfen und zentraler Einstellungsliste. Hinter der ganzen App liegt der Hintergrund mit Sonne, Mond (echte Phase, geneigte Sichel) und fünf Wellenlagen (Höhe einstellbar, ab Werk Goldener Schnitt); Bahn Bogen oder Echt, Ort über Breite/Länge.
+Das Gerüst steht am PC und am Handy, mit Seitenleiste, zweiter Ebene, belegbaren Knöpfen und zentraler Einstellungsliste. Seiten bestehen aus verschiebbaren Kacheln (Heute hat fünf), gemerkt je Seite und Geräteart. Hinter der ganzen App liegt der Hintergrund mit Sonne, Mond (echte Phase, geneigte Sichel) und fünf Wellenlagen (Höhe einstellbar, ab Werk Goldener Schnitt); Bahn Bogen oder Echt, Ort über Breite/Länge.
 
 ## Zuletzt erledigt
-- geruest-seitenleiste: `src/geruest/` (Gerüst, Seitenleiste, Seitenkopf, LeereSeite), `src/logik/bereiche.ts`, Seiten unter `src/bereiche/<id>/Seite.tsx`
 - geruest-zweite-ebene: `src/logik/ebenen.ts` (Marke `#bereich/unter`), `ZweiteEbene`, `HandyMenue`, `useSchmal`, `useBrauchtDich`
 - aktionen-und-knoepfe: `src/logik/aktionen.ts` (Aktionsliste, Plätze, Kürzel), `src/geruest/belegung.ts` (gemerkt, Rückgängig), `AktionKnopf`, `Auswahl`, Einstellungen › Navigation
 - hintergrund: `src/logik/himmel.ts` (SunCalc, Bogen/Echt, Mondpfad), `src/geruest/Hintergrund.tsx`, `useMinute`, Einstellungen „Ort: Breite/Länge“
+- kacheln: `src/logik/kacheln.ts`, `src/kacheln/` (Raster, KachelMenue, BearbeitenLeiste, Speicher), Vertrag und Attrappe `kacheln`, Heute mit `werkszustand.ts`
 - einstellungen-liste: `src/logik/einstellungen.ts` (Liste, Suche, Zurücksetzen), Vertrag und Attrappe `einstellungen`, `src/geruest/einstellungen.ts`, Bausteine `Schalter`, `Eingabe`
 
 ## Stolpersteine
@@ -32,4 +32,9 @@ Das Gerüst steht am PC und am Handy, mit Seitenleiste, zweiter Ebene, belegbare
 - Neue Einstellung = eine Zeile in `einstellungen` (`src/logik/einstellungen.ts`); lesen mit `useEinstellung(e)` aus `src/geruest/einstellungen.ts`. Wirken bisher nur im Hintergrund (Bahn, Ort, Mond nur nachts, folgt der Tageszeit).
 - Hintergrund: Farben `--sonne`, `--welle-1…5`, `--nacht` je Design, Maße in `werte.css`, Wellenhöhe über `data-wellen` → `--horizont`; Lage kommt als `--x`/`--y` (0–1). Die Uhrzeit fest stellen für Bilder: Playwright `page.clock.setFixedTime`, Bahn über `localStorage['tide.attrappe.einstellungen']`.
 - Zahl-Einstellungen mit Nachkommastellen: `schritt` angeben.
-- Programmcode gepackt beim Start: 110 KB von erlaubten 200 KB.
+- Programmcode gepackt beim Start: 111 KB von erlaubten 200 KB.
+- Kacheln einer Seite: `<Raster seite kacheln={werkszustand} inhalt={{id: …}} />`; `werkszustand` muss eine Konstante sein (Speicher hängt daran). Maße in `src/werte/kacheln.ts`, Griffpunkte und Nachrücken in `werte.css`.
+- react-grid-layout zeichnet Griffpunkte auch, wenn Größe ändern aus ist: `handles` darum außerhalb des Modus leer lassen.
+- Popover-Menüs nicht mit `popover="auto"`: das Loslassen nach Rechtsklick/langem Druck schließt es sofort.
+- Aktion mit `befehl: true` braucht eine Zeile in `src/geruest/befehle.ts`.
+- Bedienung im Browser testen: Playwright, Finger über CDP `Input.dispatchTouchEvent` (langer Druck = touchStart, 700 ms warten).

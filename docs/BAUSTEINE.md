@@ -84,3 +84,17 @@ Muster für einen Eintrag:
 - Grund: steht im Konzept, bewährt und klein; die alten Formeln liegen in `vorlage/`; Ja des Nutzers.
 - Link: https://github.com/mourner/suncalc
 - Eingebaut in Scheibe: hintergrund
+
+## 2026-11-11 · Kacheln verschieben und Größe ändern
+- Kandidaten: react-grid-layout 2 (für React gebaut, Anordnung als Daten, Nachrücken und Kollisionen eingebaut), gridstack.js 14 (Finger-Bedienung eingebaut, greift selbst in die Seite ein, 2,2 MB)
+- Entscheidung: react-grid-layout 2.3
+- Grund: Empfehlung im Konzept; Ja des Nutzers ohne eigenen Handy-Versuch. Langer Druck, Griffpunkte, Menü, Tastatur und Speichern sind selbst gebaut.
+- Link: https://github.com/react-grid-layout/react-grid-layout
+- Eingebaut in Scheibe: kacheln
+
+## 2026-11-11 · Rechtsklick-Menü der Kacheln
+- Kandidaten: shadcn/ui Context Menu (@radix-ui/react-context-menu, neue Abhängigkeit), natives Popover
+- Entscheidung: natives Popover (`popover="manual"`) mit eigenem Schließen
+- Grund: keine neue Abhängigkeit; muss auch beim langen Druck aufgehen, das kann Radix' Kontextmenü auf iOS nicht.
+- Link: https://developer.mozilla.org/docs/Web/API/Popover_API
+- Eingebaut in Scheibe: kacheln
