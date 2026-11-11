@@ -18,3 +18,4 @@ Hier landet alles, was nicht zur laufenden Scheibe gehört. Einmal im Monat wird
 - Alt+Ziffer wechselt in Chrome unter Linux die Tabs; dort ggf. anderes Kürzel für Bereiche anbieten
 - Langer Druck / Rechtsklick auf einen belegbaren Knopf öffnet direkt „Knöpfe belegen" für diesen Platz
 - Ausgegraute Aktionen am Handy: kurzer Hinweis beim Antippen, sobald es Meldungen gibt
+- Die Einstellungen wirken noch nicht (Design, Schriftgröße, Bewegung …); je Verbraucher `useEinstellung` aus `src/geruest/einstellungen.ts` anschließen, Design ohne Flackern beim Start (einstellungen-liste)

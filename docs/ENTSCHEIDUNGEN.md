@@ -42,6 +42,9 @@ Eine Zeile je Entscheidung, neueste unten. Was hier steht, gilt und wird nicht n
 - 2026-11-11 · Zweite Ebene: feste Liste je Bereich in `src/logik/ebenen.ts`, erreichbar unter `#bereich/unterpunkt`; ohne Unterpunkt gilt der erste. Eigene Ordner kommen später über den Vertrag.
 - 2026-11-11 · Handy-Menü ist ein natives `<dialog>` statt einer neuen Abhängigkeit; Handy-Ansicht unter 768 px.
 - 2026-11-11 · Punkt am Menü-Knopf zählt vorerst die offenen Einträge aus dem Vertrag; „Braucht dich“ ersetzt das später.
+- 2026-11-11 · Einstellungen: zentrale Liste in `src/logik/einstellungen.ts`; gespeichert über den Vertrag (`/api/einstellungen`), nur Abweichungen vom Standard, je Geräteart unter `<id>@pc`/`<id>@handy`. Geräteart = Handy-Ansicht (unter 768 px).
+- 2026-11-11 · Die zweite Ebene der Einstellungen kommt aus den Abschnitten des Konzepts, davor „Grundlegendes“ (Zeilen mit `wichtig`). „Über Tide“ entfällt.
+- 2026-11-11 · Schalter ist ein natives Kästchen mit `role="switch"`, keine neue Abhängigkeit. Ab-Werk-Werte für Bahn, Stunden und Lage am Handy folgen den Empfehlungen zu Nr. 3–5, die selbst offen bleiben.
 
 ## Offen
 

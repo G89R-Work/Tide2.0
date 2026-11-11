@@ -1,6 +1,7 @@
 // Zweite Ebene je Bereich (docs/konzept/03-geruest.md). Erreichbar unter #<bereich>/<unterpunkt>.
 // Eigene Ordner sind bis zu ihren Etappen feste Beispiele; danach kommen sie über den Vertrag.
 import { bereichAusMarke, type BereichId } from './bereiche'
+import { abschnitte } from './einstellungen'
 
 export type Unterpunkt = { id: string; name: string; gruppe?: string }
 
@@ -29,14 +30,7 @@ const ebenen: Record<BereichId, Unterpunkt[]> = {
   finanzen: u(undefined, ['uebersicht', 'Übersicht'], ['rechnungen', 'Rechnungen'], ['abos', 'Abos'], ['vertraege', 'Verträge']),
   arbeit: u(undefined, ['schichtplan', 'Schichtplan'], ['arbeitszeit', 'Arbeitszeit'], ['urlaub', 'Urlaub'], ['wissen', 'Wissen']),
   notizen: u('Ordner', ['alle', 'Alle Notizen'], ['persoenlich', 'Persönlich'], ['ideen', 'Ideen']),
-  einstellungen: u(
-    'Abschnitte',
-    ['allgemein', 'Allgemein'],
-    ['aussehen', 'Aussehen'],
-    ['navigation', 'Navigation'],
-    ['bereiche', 'Bereiche'],
-    ['ueber', 'Über Tide'],
-  ),
+  einstellungen: abschnitte.map((a) => ({ ...a })),
 }
 
 export function ebeneVon(bereich: BereichId): readonly Unterpunkt[] {

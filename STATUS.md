@@ -1,17 +1,17 @@
 # Status
 
 Etappe: 1 Gerüst
-Nächste Scheibe: `einstellungen-liste`
+Nächste Scheibe: `hintergrund`
 
 ## Stand
-Das Gerüst steht am PC und am Handy. PC: Seitenleiste mit ziehbarer Breite, daneben die zweite Ebene des Bereichs. Handy: oben Menü-Knopf mit Punkt, darin zwei Spalten (Bereiche, zweite Ebene), Schalter für Namen. Belegbare Knöpfe: Kopfzeile PC (3), oben rechts Handy (3), untere Leiste Handy (4 + Mitte), umbelegbar unter Einstellungen › Navigation; Tastenkürzel.
+Das Gerüst steht am PC und am Handy. PC: Seitenleiste mit ziehbarer Breite, daneben die zweite Ebene des Bereichs. Handy: oben Menü-Knopf mit Punkt, darin zwei Spalten (Bereiche, zweite Ebene), Schalter für Namen. Belegbare Knöpfe: Kopfzeile PC (3), oben rechts Handy (3), untere Leiste Handy (4 + Mitte), umbelegbar unter Einstellungen › Navigation; Tastenkürzel. Einstellungen entstehen aus einer zentralen Liste, mit Suche, Zurücksetzen und Rückgängig, gespeichert über den Vertrag.
 
 ## Zuletzt erledigt
-- werte-und-bausteine: `src/werte/`, Knopf, Fläche, Bausteine-Seite (`#bausteine`), Prüfung „Werte", `npm run sicht`
 - attrappe-und-tempo: `src/vertrag/eintrag.ts`, `src/attrappe/`, Beispielliste, Tempo-Grenzen im Prüfbefehl
 - geruest-seitenleiste: `src/geruest/` (Gerüst, Seitenleiste, Seitenkopf, LeereSeite), `src/logik/bereiche.ts`, Seiten unter `src/bereiche/<id>/Seite.tsx`
 - geruest-zweite-ebene: `src/logik/ebenen.ts` (Marke `#bereich/unter`), `ZweiteEbene`, `HandyMenue`, `useSchmal`, `useBrauchtDich`
 - aktionen-und-knoepfe: `src/logik/aktionen.ts` (Aktionsliste, Plätze, Kürzel), `src/geruest/belegung.ts` (gemerkt, Rückgängig), `AktionKnopf`, `Auswahl`, Einstellungen › Navigation
+- einstellungen-liste: `src/logik/einstellungen.ts` (Liste, Suche, Zurücksetzen), Vertrag und Attrappe `einstellungen`, `src/geruest/einstellungen.ts`, Bausteine `Schalter`, `Eingabe`
 
 ## Stolpersteine
 - Stil prüft oxlint, nicht ESLint. Warnungen zählen als Fehler.
@@ -29,4 +29,5 @@ Das Gerüst steht am PC und am Handy. PC: Seitenleiste mit ziehbarer Breite, dan
 - Neues Design = Kopie von `src/werte/tinte.css`. Neue Farbe: beide Designs, `werte.css` (@theme inline), `src/bausteine/cn.ts`.
 - Glas nur über `flaeche-leiste`, `flaeche-kachel`, `flaeche-schwebend`; Drück-Rückmeldung über `drueck`.
 - Neue Aktion: Zeile in `src/logik/aktionen.ts`, Symbol in `src/geruest/aktionSymbole.ts`. Aktion ohne `ziel` braucht `kommt` (Test prüft das).
-- Programmcode gepackt beim Start: 102 KB von erlaubten 200 KB.
+- Neue Einstellung = eine Zeile in `einstellungen` (`src/logik/einstellungen.ts`); lesen mit `useEinstellung(e)` aus `src/geruest/einstellungen.ts`. Die Einstellungen wirken noch nirgends.
+- Programmcode gepackt beim Start: 104 KB von erlaubten 200 KB.
