@@ -13,7 +13,10 @@ for (const [name, befehl] of pruefungen) {
   const lauf = spawnSync(befehl, { shell: true, encoding: 'utf8' })
   if (lauf.status !== 0) {
     fehler++
-    console.log(`✗ ${name}\n${(lauf.stdout + lauf.stderr).trim()}\n`)
+    const text = (lauf.stdout + lauf.stderr).trim()
+    // Nie ein Fehler ohne Grund: Schweigt das Werkzeug, sagen wir, wo man nachsieht.
+    const grund = text || `Ohne Meldung beendet (Code ${lauf.status ?? lauf.error?.message}). Einzeln ausführen: npx ${befehl}`
+    console.log(`✗ ${name}\n${grund}\n`)
   }
 }
 console.log(fehler ? `${fehler} Prüfung(en) fehlgeschlagen.` : 'Alles grün.')
