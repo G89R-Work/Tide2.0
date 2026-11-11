@@ -3,27 +3,28 @@ import { Auswahl } from '../../bausteine/Auswahl'
 import { Eingabe } from '../../bausteine/Eingabe'
 import { Knopf } from '../../bausteine/Knopf'
 import { Schalter } from '../../bausteine/Schalter'
+import { cn } from '../../bausteine/cn'
 import { einstellungenAendern } from '../../geruest/einstellungen'
 import { istStandard, setze, wertVon, type Einstellung, type Geraet, type Wert, type Werte } from '../../logik/einstellungen'
 
-// Eine Zeile je Einstellung: Name links, Bedienung rechts, daneben immer „Auf Standard" (ausgegraut, solange der Standard gilt).
+// Eine Zeile je Einstellung, immer gleich hoch (zwei Textzeilen, nie mehr): Name links, Bedienung rechts, daneben immer „Auf Standard" (ausgegraut, solange der Standard gilt).
 export function EinstellungZeile({ e, werte, geraet }: { e: Einstellung; werte: Werte; geraet: Geraet }) {
   const wert = wertVon(e, werte, geraet)
   const feld = `einstellung-${e.id}`
   const aendern = (w: Wert) => einstellungenAendern(setze(werte, e, geraet, w))
   const standard = istStandard(e, werte, geraet)
+  const geraetHinweis = e.jeGeraet ? `Gilt für ${geraet === 'pc' ? 'den PC' : 'das Handy'}` : undefined
+  const unterzeile = [e.hilfe, geraetHinweis].filter(Boolean).join(' · ')
 
   return (
-    <li className="flex min-h-11 items-center gap-3 py-2">
+    <li className="flex h-16 items-center gap-3">
       <div className="min-w-0 flex-1">
-        <label htmlFor={feld} className="block">
+        <label htmlFor={feld} title={e.name} className={cn('block', unterzeile ? 'line-clamp-1' : 'line-clamp-2')}>
           {e.name}
         </label>
-        {(e.hilfe || e.jeGeraet) && (
-          <p className="text-sm text-text-gedaempft">
-            {e.hilfe}
-            {e.hilfe && e.jeGeraet ? ' · ' : ''}
-            {e.jeGeraet ? `Gilt für ${geraet === 'pc' ? 'den PC' : 'das Handy'}` : ''}
+        {unterzeile && (
+          <p title={unterzeile} className="line-clamp-1 text-sm text-text-gedaempft">
+            {unterzeile}
           </p>
         )}
       </div>

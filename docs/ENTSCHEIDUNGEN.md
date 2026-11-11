@@ -45,7 +45,7 @@ Eine Zeile je Entscheidung, neueste unten. Was hier steht, gilt und wird nicht n
 - 2026-11-11 · Einstellungen: zentrale Liste in `src/logik/einstellungen.ts`; gespeichert über den Vertrag (`/api/einstellungen`), nur Abweichungen vom Standard, je Geräteart unter `<id>@pc`/`<id>@handy`. Geräteart = Handy-Ansicht (unter 768 px).
 - 2026-11-11 · Die zweite Ebene der Einstellungen kommt aus den Abschnitten des Konzepts, davor „Grundlegendes“ (Zeilen mit `wichtig`). „Über Tide“ entfällt.
 - 2026-11-11 · Schalter ist ein natives Kästchen mit `role="switch"`, keine neue Abhängigkeit. Ab-Werk-Werte für Bahn, Stunden und Lage am Handy folgen den Empfehlungen zu Nr. 3–5, die selbst offen bleiben.
-- 2026-11-11 · Wunsch des Nutzers: Seitenleiste am PC hat nur noch zwei Zustände: ausgefahren so breit wie „Finanzen“ (147 px, links und rechts gleicher Abstand), „Einstellungen“ dort nur als Zahnrad, oder eingeklappt; keine frei ziehbare Breite mehr. Obere Leiste am Handy ohne Fläche, nur freie Knöpfe. Auswahlfelder in den Einstellungen gleich breit, „Auf Standard“ je Zeile immer sichtbar (ausgegraut, solange der Standard gilt).
+- 2026-11-11 · Wunsch des Nutzers: Seitenleiste am PC: Standard- und Mindestbreite so breit wie „Finanzen“ (147 px, links und rechts gleicher Abstand), breiter ziehbar bis 360 px; „Einstellungen“ immer nur als Zahnrad, mittig. Obere Leiste am Handy ohne Fläche, nur freie Knöpfe. Auswahlfelder in den Einstellungen gleich breit, „Auf Standard“ je Zeile immer sichtbar (ausgegraut, solange der Standard gilt). Jede Einstellungszeile ist gleich hoch (64 px), höchstens zwei Textzeilen.
 
 ## Offen
 

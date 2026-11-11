@@ -13,7 +13,7 @@ import { useSchmal } from './useSchmal'
 import { useTastenkuerzel } from './useTastenkuerzel'
 import { ZweiteEbene } from './ZweiteEbene'
 
-// Am PC: Seitenleiste, die sich per Ziehen oder Doppelklick ein- und ausklappen lässt, daneben die zweite Ebene und der offene Bereich.
+// Am PC: Seitenleiste mit ziehbarer Breite; unter der Mindestbreite rastet sie auf die Symbole ein, daneben die zweite Ebene und der offene Bereich.
 // Am Handy: oben das Menü mit Punkt und die belegbaren Knöpfe, frei ohne Fläche; darunter der Bereich.
 export function Geruest({ marke }: { marke: string }) {
   const ort = ortAusMarke(marke)
@@ -65,7 +65,7 @@ function Handy({ ort, zahl }: { ort: Ort; zahl: number }) {
 function Pc({ ort }: { ort: Ort }) {
   const leisteRef = usePanelRef()
   const gemerkt = useDefaultLayout({ id: 'tide.leiste', storage: localStorage })
-  const [eingeklappt, setEingeklappt] = useState(false)
+  const [breite, setBreite] = useState<number>(leiste.standardPx)
   const hatEbene = ebeneVon(ort.bereich).length > 0
 
   return (
@@ -76,18 +76,18 @@ function Pc({ ort }: { ort: Ort }) {
           panelRef={leisteRef}
           collapsible
           collapsedSize={leiste.symbole}
-          minSize={leiste.offen}
-          maxSize={leiste.offen}
-          defaultSize={leiste.offen}
+          minSize={leiste.standard}
+          maxSize={leiste.hoechstens}
+          defaultSize={leiste.standard}
           // Die gemeldete Größe ist verlässlicher als isCollapsed(), das nach dem Neuladen veraltet sein kann.
-          onResize={(groesse) => setEingeklappt(groesse.inPixels < parseInt(leiste.offen))}
+          onResize={(groesse) => setBreite(Math.round(groesse.inPixels))}
           className="p-2 pr-0"
         >
-          <Seitenleiste offen={ort.bereich} mitNamen={!eingeklappt} />
+          <Seitenleiste offen={ort.bereich} mitNamen={breite >= leiste.standardPx} />
         </Panel>
         <Separator
-          title="Ziehen oder Doppelklick klappt die Leiste ein und aus"
-          onDoubleClick={() => (eingeklappt ? leisteRef.current?.resize(leiste.offen) : leisteRef.current?.collapse())}
+          title="Ziehen ändert die Breite, Doppelklick stellt die Standardbreite her (ein zweiter klappt ein)"
+          onDoubleClick={() => (breite === leiste.standardPx ? leisteRef.current?.collapse() : leisteRef.current?.resize(leiste.standard))}
           className="group flex w-2 items-center justify-center outline-none"
         >
           <div className="h-full w-0.5 bg-durchsichtig group-hover:bg-linie-stark group-focus-visible:bg-akzent" />

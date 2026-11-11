@@ -14,7 +14,7 @@ export function Seitenleiste({ offen, mitNamen }: { offen: BereichId; mitNamen: 
         key={b.id}
         alsKind
         art="leise"
-        className={cn('w-full', mitNamen ? 'justify-start' : 'px-0', aktiv && 'bg-knopf-ton text-text')}
+        className={cn('w-full', mitNamen && !nurSymbol ? 'justify-start' : 'px-0', aktiv && 'bg-knopf-ton text-text')}
       >
         <a
           href={`#${b.id}`}
@@ -45,7 +45,7 @@ export function Seitenleiste({ offen, mitNamen }: { offen: BereichId; mitNamen: 
         </a>
       </Knopf>
       {bereiche.slice(0, -1).map((b) => eintrag(b))}
-      {/* Der Name passt nicht in die schmale Leiste: dort nur das Zahnrad. */}
+      {/* Der Name passt nicht in die Standardbreite: dort immer nur das Zahnrad, mittig. */}
       <div className="mt-auto">{eintrag(einstellungen, true)}</div>
     </nav>
   )
