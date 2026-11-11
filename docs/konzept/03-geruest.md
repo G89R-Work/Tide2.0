@@ -24,7 +24,7 @@ Die Wisch-Leiste mit Ordnern oben im Postfach am Handy entfällt. Du fandest sie
 ## PC und Tablet
 
 - **Seitenleiste.** Sie zeigt die Bereiche als Symbole oder als Symbole mit Namen. Rechts daneben klappt die zweite Ebene auf.
-- **Breite ziehen.** Die Kante der Leiste lässt sich mit Maus oder Finger ziehen. Unter einer Mindestbreite rastet sie auf die Symbol-Leiste ein, ein Doppelklick stellt die Standardbreite her. Dafür gibt es den Baustein [react-resizable-panels](https://cdn.jsdelivr.net/npm/react-resizable-panels@4.7.6/README.md), der Mindestbreite, Einklappen und gemerkte Breiten mitbringt.
+- **Ein- und ausklappen.** Die Leiste hat zwei Zustände: ausgefahren so breit wie der längste Bereichsname („Einstellungen“ zeigt dort nur das Zahnrad), eingeklappt nur Symbole. Ziehen an der Kante oder ein Doppelklick wechselt (Wunsch des Nutzers vom 11.11., ersetzt die frei ziehbare Breite). Dafür gibt es den Baustein [react-resizable-panels](https://cdn.jsdelivr.net/npm/react-resizable-panels@4.7.6/README.md), der Mindestbreite, Einklappen und gemerkte Breiten mitbringt.
 - **Logo.** Ein Klick auf das Tide-Logo oder den Namen führt immer zu Heute.
 - **Suche.** Das Suchfeld sitzt oben in der Seitenleiste und durchsucht alle Bereiche.
 - **Reihenfolge.** Bereiche werden gezogen, nicht mit Pfeilen verschoben. Der Knopf „Anordnen“ entfällt aus der Leiste und liegt in den Einstellungen. Ein langer Druck oder Rechtsklick auf einen Eintrag startet das Verschieben ebenfalls.

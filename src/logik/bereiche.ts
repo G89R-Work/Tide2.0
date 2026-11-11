@@ -24,7 +24,3 @@ export function bereichAusMarke(marke: string): BereichId {
   return ids.has(id) ? (id as BereichId) : 'heute'
 }
 
-/** Ab welcher Breite die Seitenleiste Namen neben den Symbolen zeigt. */
-export function zeigtNamen(breite: number, schwelle: number): boolean {
-  return breite >= schwelle
-}

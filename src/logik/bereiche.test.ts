@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { bereiche, bereichAusMarke, zeigtNamen } from './bereiche'
+import { bereiche, bereichAusMarke } from './bereiche'
 
 describe('bereiche', () => {
   it('sind neun Bereiche und die Einstellungen, Heute zuerst, Einstellungen zuletzt', () => {
@@ -24,14 +24,5 @@ describe('bereichAusMarke', () => {
     expect(bereichAusMarke('#')).toBe('heute')
     expect(bereichAusMarke('#gibtsnicht')).toBe('heute')
     expect(bereichAusMarke('#toString')).toBe('heute')
-  })
-})
-
-describe('zeigtNamen', () => {
-  it('zeigt Namen erst ab der Schwelle', () => {
-    expect(zeigtNamen(64, 150)).toBe(false)
-    expect(zeigtNamen(149.9, 150)).toBe(false)
-    expect(zeigtNamen(150, 150)).toBe(true)
-    expect(zeigtNamen(240, 150)).toBe(true)
   })
 })

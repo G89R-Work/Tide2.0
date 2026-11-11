@@ -6,7 +6,7 @@ import { Schalter } from '../../bausteine/Schalter'
 import { einstellungenAendern } from '../../geruest/einstellungen'
 import { istStandard, setze, wertVon, type Einstellung, type Geraet, type Wert, type Werte } from '../../logik/einstellungen'
 
-// Eine Zeile je Einstellung: Name links, Bedienung rechts, daneben „Auf Standard", sobald etwas abweicht.
+// Eine Zeile je Einstellung: Name links, Bedienung rechts, daneben immer „Auf Standard" (ausgegraut, solange der Standard gilt).
 export function EinstellungZeile({ e, werte, geraet }: { e: Einstellung; werte: Werte; geraet: Geraet }) {
   const wert = wertVon(e, werte, geraet)
   const feld = `einstellung-${e.id}`
@@ -66,7 +66,6 @@ export function EinstellungZeile({ e, werte, geraet }: { e: Einstellung; werte: 
         groesse="klein"
         aria-label={`${e.name} auf Standard zurücksetzen`}
         title="Auf Standard zurücksetzen"
-        className={standard ? 'invisible' : undefined}
         disabled={standard}
         onClick={() => aendern(e.standard)}
       >

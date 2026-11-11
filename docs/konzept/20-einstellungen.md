@@ -11,7 +11,7 @@ Die Einstellungen sind eine eigene Seite wie Postfach oder Arbeit, mit derselben
 | Allgemein | Konten und Kalender | Alle Konten an einem Ort, siehe unten |
 |  | Benachrichtigungen | Was sich wann meldet, Ebbe-Modus und Ruhezeit, Morgen-Zusammenfassung, Regeln für „Neu“ |
 |  | Darstellung | Design, Bahn von Sonne und Mond, „Mond nur nachts“, Hintergrund folgt der Tageszeit, Wellen, Bewegung, Schriftgröße |
-|  | Seitenleiste und Leisten | Reihenfolge der Bereiche, Symbole oder Namen, Breite, die belegbaren Knöpfe oben und unten |
+|  | Seitenleiste und Leisten | Reihenfolge der Bereiche, Symbole oder Namen, die belegbaren Knöpfe oben und unten |
 |  | Gezeitenkurve | Sichtbar je Seite, sichtbare Stunden, Lage am Handy |
 |  | Kacheln | Anordnung je Seite zurücksetzen |
 |  | Sprache und Schreiben | Diktat, Rechtschreibprüfung |

@@ -1,7 +1,7 @@
 import { useSyncExternalStore } from 'react'
 import { belege, belegungAusText, type Belegung, type Ort } from '../logik/aktionen'
 
-// Die Belegung der Knöpfe. Gemerkt im Browser wie die Breite der Leiste; jede Änderung lässt sich rückgängig machen.
+// Die Belegung der Knöpfe. Gemerkt im Browser wie der Zustand der Leiste; jede Änderung lässt sich rückgängig machen.
 const schluessel = 'tide.knoepfe'
 
 function lesen(): Belegung {

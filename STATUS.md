@@ -4,7 +4,7 @@ Etappe: 1 Gerüst
 Nächste Scheibe: `hintergrund`
 
 ## Stand
-Das Gerüst steht am PC und am Handy. PC: Seitenleiste mit ziehbarer Breite, daneben die zweite Ebene des Bereichs. Handy: oben Menü-Knopf mit Punkt, darin zwei Spalten (Bereiche, zweite Ebene), Schalter für Namen. Belegbare Knöpfe: Kopfzeile PC (3), oben rechts Handy (3), untere Leiste Handy (4 + Mitte), umbelegbar unter Einstellungen › Navigation; Tastenkürzel. Einstellungen entstehen aus einer zentralen Liste, mit Suche, Zurücksetzen und Rückgängig, gespeichert über den Vertrag.
+Das Gerüst steht am PC und am Handy. PC: Seitenleiste ein- und ausklappbar (147 px oder nur Symbole), daneben die zweite Ebene des Bereichs. Handy: oben Menü-Knopf mit Punkt, darin zwei Spalten (Bereiche, zweite Ebene), Schalter für Namen. Belegbare Knöpfe: Kopfzeile PC (3), oben rechts Handy (3), untere Leiste Handy (4 + Mitte), umbelegbar unter Einstellungen › Navigation; Tastenkürzel. Einstellungen entstehen aus einer zentralen Liste, mit Suche, Zurücksetzen und Rückgängig, gespeichert über den Vertrag.
 
 ## Zuletzt erledigt
 - attrappe-und-tempo: `src/vertrag/eintrag.ts`, `src/attrappe/`, Beispielliste, Tempo-Grenzen im Prüfbefehl
@@ -21,7 +21,7 @@ Das Gerüst steht am PC und am Handy. PC: Seitenleiste mit ziehbarer Breite, dan
 - Neue Anfrage: Typ und Funktion in `src/vertrag/`, Antwort in `src/attrappe/<bereich>.ts`, in `src/attrappe/start.ts` eintragen. Gespeichert wird unter `tide.attrappe.*` im localStorage.
 - `public/mockServiceWorker.js` stammt von `npx msw init public`; bei MSW-Update neu erzeugen.
 - Lesen in `node_modules` und jsdelivr sind gesperrt. Schnittstellen klärt man über die Typprüfung: `const x: keyof ComponentProps<typeof Panel> = 'zzz'` zeigt in der Fehlermeldung alle Props.
-- react-resizable-panels 4: Größen als Text mit Einheit (`'64px'`); Breiten der Leiste in `src/werte/leiste.ts`. Breite gemerkt unter `tide.leiste`.
+- react-resizable-panels 4: Größen als Text mit Einheit (`'64px'`); Breiten der Leiste in `src/werte/leiste.ts`, Zustand gemerkt unter `tide.leiste`. `isCollapsed()` ist nach dem Neuladen veraltet; eingeklappt wird aus der Größe in `onResize` bestimmt.
 - Neuer Bereich: Eintrag in `src/logik/bereiche.ts`, zweite Ebene in `src/logik/ebenen.ts`, Lader und Symbol in `src/geruest/seiten.ts`.
 - Handy-Ansicht unter `leiste.schmalUnter` (768 px), umgeschaltet live über `useSchmal`. Die Kopfzeile am Handy hat rechts Platz für die drei belegbaren Knöpfe.
 - Das Handy-Menü ist ein natives `<dialog>` (Esc und Zurück schließen); Einblenden über `menue-links` in `werte.css`.
