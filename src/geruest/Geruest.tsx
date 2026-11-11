@@ -15,7 +15,7 @@ import { useTastenkuerzel } from './useTastenkuerzel'
 import { ZweiteEbene } from './ZweiteEbene'
 
 // Am PC: Seitenleiste mit ziehbarer Kante, daneben die zweite Ebene und der offene Bereich.
-// Am Handy: oben das Menü mit Punkt, darunter der Bereich.
+// Am Handy: oben das Menü mit Punkt und die belegbaren Knöpfe, frei ohne Fläche; darunter der Bereich.
 export function Geruest({ marke }: { marke: string }) {
   const ort = ortAusMarke(marke)
   const schmal = useSchmal()
@@ -40,7 +40,7 @@ function Handy({ ort, zahl }: { ort: Ort; zahl: number }) {
   return (
     <div className="himmel flex h-dvh flex-col">
       <header className="p-2 pb-0">
-        <div className="flaeche-leiste flex items-center p-1">
+        <div className="flex items-center p-1">
           <HandyMenue ort={ort} zahl={zahl} />
           <div className="ml-auto flex">
             {oben.map((id, i) => (

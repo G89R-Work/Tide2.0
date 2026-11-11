@@ -6,7 +6,7 @@ import { symbole, vorladen } from './seiten'
 
 // Links die Bereiche. Schmal nur Symbole (Name als Hinweis), breit Symbole mit Namen.
 export function Seitenleiste({ offen, mitNamen }: { offen: BereichId; mitNamen: boolean }) {
-  const eintrag = (b: (typeof bereiche)[number]) => {
+  const eintrag = (b: (typeof bereiche)[number], nurSymbol = false) => {
     const Symbol = symbole[b.id]
     const aktiv = b.id === offen
     return (
@@ -19,12 +19,12 @@ export function Seitenleiste({ offen, mitNamen }: { offen: BereichId; mitNamen: 
         <a
           href={`#${b.id}`}
           aria-current={aktiv ? 'page' : undefined}
-          title={mitNamen ? undefined : b.name}
+          title={mitNamen && !nurSymbol ? undefined : b.name}
           onPointerEnter={() => vorladen(b.id)}
           onFocus={() => vorladen(b.id)}
         >
           <Symbol aria-hidden className="size-5 shrink-0" />
-          {mitNamen ? <span className="truncate">{b.name}</span> : <span className="sr-only">{b.name}</span>}
+          {mitNamen && !nurSymbol ? <span className="truncate">{b.name}</span> : <span className="sr-only">{b.name}</span>}
         </a>
       </Knopf>
     )
@@ -44,8 +44,9 @@ export function Seitenleiste({ offen, mitNamen }: { offen: BereichId; mitNamen: 
           <span className="sr-only">Tide, zu Heute</span>
         </a>
       </Knopf>
-      {bereiche.slice(0, -1).map(eintrag)}
-      <div className="mt-auto">{eintrag(einstellungen)}</div>
+      {bereiche.slice(0, -1).map((b) => eintrag(b))}
+      {/* Der Name passt nicht in die schmale Leiste: dort nur das Zahnrad. */}
+      <div className="mt-auto">{eintrag(einstellungen, true)}</div>
     </nav>
   )
 }

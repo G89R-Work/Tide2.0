@@ -31,7 +31,7 @@ export function EinstellungZeile({ e, werte, geraet }: { e: Einstellung; werte: 
         <Schalter id={feld} checked={wert === true} onChange={(x) => aendern(x.currentTarget.checked)} />
       )}
       {e.art === 'auswahl' && (
-        <Auswahl id={feld} className="max-w-48" value={String(wert)} onChange={(x) => aendern(x.currentTarget.value)}>
+        <Auswahl id={feld} className="w-32 sm:w-44" value={String(wert)} onChange={(x) => aendern(x.currentTarget.value)}>
           {e.optionen.map(([w, name]) => (
             <option key={w} value={w}>
               {name}
