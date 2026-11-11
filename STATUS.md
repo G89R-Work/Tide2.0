@@ -4,7 +4,7 @@ Etappe: 1 Gerüst
 Nächste Scheibe: `kacheln`
 
 ## Stand
-Das Gerüst steht am PC und am Handy, mit Seitenleiste, zweiter Ebene, belegbaren Knöpfen und zentraler Einstellungsliste. Hinter der ganzen App liegt der Hintergrund mit Sonne, Mond (echte Phase, geneigte Sichel) und fünf Wellenlagen; Bahn Bogen oder Echt, Ort über Breite/Länge.
+Das Gerüst steht am PC und am Handy, mit Seitenleiste, zweiter Ebene, belegbaren Knöpfen und zentraler Einstellungsliste. Hinter der ganzen App liegt der Hintergrund mit Sonne, Mond (echte Phase, geneigte Sichel) und fünf Wellenlagen (Höhe einstellbar, ab Werk Goldener Schnitt); Bahn Bogen oder Echt, Ort über Breite/Länge.
 
 ## Zuletzt erledigt
 - geruest-seitenleiste: `src/geruest/` (Gerüst, Seitenleiste, Seitenkopf, LeereSeite), `src/logik/bereiche.ts`, Seiten unter `src/bereiche/<id>/Seite.tsx`
@@ -30,6 +30,6 @@ Das Gerüst steht am PC und am Handy, mit Seitenleiste, zweiter Ebene, belegbare
 - Glas nur über `flaeche-leiste`, `flaeche-kachel`, `flaeche-schwebend`; Drück-Rückmeldung über `drueck`.
 - Neue Aktion: Zeile in `src/logik/aktionen.ts`, Symbol in `src/geruest/aktionSymbole.ts`. Aktion ohne `ziel` braucht `kommt` (Test prüft das).
 - Neue Einstellung = eine Zeile in `einstellungen` (`src/logik/einstellungen.ts`); lesen mit `useEinstellung(e)` aus `src/geruest/einstellungen.ts`. Wirken bisher nur im Hintergrund (Bahn, Ort, Mond nur nachts, folgt der Tageszeit).
-- Hintergrund: Farben `--sonne`, `--welle-1…5`, `--nacht` je Design, Maße `--horizont` usw. in `werte.css`; Lage kommt als `--x`/`--y` (0–1). Die Uhrzeit fest stellen für Bilder: Playwright `page.clock.setFixedTime`, Bahn über `localStorage['tide.attrappe.einstellungen']`.
+- Hintergrund: Farben `--sonne`, `--welle-1…5`, `--nacht` je Design, Maße in `werte.css`, Wellenhöhe über `data-wellen` → `--horizont`; Lage kommt als `--x`/`--y` (0–1). Die Uhrzeit fest stellen für Bilder: Playwright `page.clock.setFixedTime`, Bahn über `localStorage['tide.attrappe.einstellungen']`.
 - Zahl-Einstellungen mit Nachkommastellen: `schritt` angeben.
 - Programmcode gepackt beim Start: 110 KB von erlaubten 200 KB.

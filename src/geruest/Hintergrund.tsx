@@ -13,16 +13,18 @@ const e = {
   laenge: nach('ort-laenge'),
   mondNachts: nach('mond-nachts'),
   tageszeit: nach('hintergrund-tageszeit'),
+  wellenHoehe: nach('wellen-hoehe'),
 }
 
-/** Fünf Wellenlagen, hinten hoch und ruhig, vorne tief. Fläche 1000 × 100, verzerrt auf die Bildbreite. */
+/** Fünf Wellenlagen, hinten lang und flach, vorne kürzer. Fläche 1000 × 100, verzerrt auf Bildbreite und Wellenhöhe. */
 const wellen = [0, 1, 2, 3, 4].map((i) => {
-  const hoehe = 6 + i * 19
-  const stueck = 1000 / (4 + i * 2)
-  const ausschlag = 5 - i * 0.6
-  let pfad = `M ${-i * 37} ${hoehe} Q ${stueck / 4 - i * 37} ${hoehe - ausschlag} ${stueck / 2 - i * 37} ${hoehe}`
-  for (let x = stueck - i * 37; x <= 1000 + stueck; x += stueck / 2) pfad += ` T ${x} ${hoehe}`
-  return `${pfad} V 100 H ${-i * 37} Z`
+  const hoehe = 10 + i * 18
+  const stueck = 1000 / (1.4 + i * 0.5)
+  const ausschlag = 12 - i * 1.5
+  const start = -Math.round(stueck * ((i * 0.37) % 1))
+  let pfad = `M ${start} ${hoehe} Q ${start + stueck / 4} ${hoehe - ausschlag} ${start + stueck / 2} ${hoehe}`
+  for (let x = start + stueck; x <= 1000 + stueck; x += stueck / 2) pfad += ` T ${Math.round(x)} ${hoehe}`
+  return `${pfad} V 100 H ${start} Z`
 })
 
 const lage = (l: Lage) => ({ '--x': l.x, '--y': l.y }) as CSSProperties
@@ -33,11 +35,12 @@ export function Hintergrund() {
   const ort = { breite: Number(useEinstellung(e.breite)), laenge: Number(useEinstellung(e.laenge)) }
   const mondNachts = useEinstellung(e.mondNachts) === true
   const folgtTageszeit = useEinstellung(e.tageszeit) === true
+  const wellenHoehe = String(useEinstellung(e.wellenHoehe))
   const h = himmel(zeit, ort, bahn)
   const mondZeigen = h.mond.sichtbar && !(mondNachts && h.tag)
 
   return (
-    <div aria-hidden className="hintergrund" style={{ '--licht': folgtTageszeit ? h.licht : 1 } as CSSProperties}>
+    <div aria-hidden className="hintergrund" data-wellen={wellenHoehe} style={{ '--licht': folgtTageszeit ? h.licht : 1 } as CSSProperties}>
       <div className="nacht" />
       {h.sonne.sichtbar && <div className="himmelskoerper sonne" style={lage(h.sonne)} />}
       {mondZeigen && (
