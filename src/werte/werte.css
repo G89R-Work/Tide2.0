@@ -1,0 +1,120 @@
+/* Einzige Quelle für Farben, Schrift, Abstände, Glas und Bewegung.
+   Ein Design = eine Datei mit denselben Variablen (glut.css, tinte.css).
+   Gewählt wird es mit data-design am html-Element oder an einem Bereich. */
+@import '@fontsource-variable/inter';
+@import './glut.css';
+@import './tinte.css';
+
+@theme {
+  /* Nur unsere Farben gibt es; Tailwinds eigene sind abgeschaltet. */
+  --color-*: initial;
+  --font-*: initial;
+  --font-sans: 'Inter Variable', system-ui, sans-serif;
+  --spacing: 0.25rem;
+  --radius-knopf: 0.75rem;
+  --radius-voll: 9999px;
+}
+
+@theme inline {
+  --color-grund: var(--grund);
+  --color-stufe-1: var(--stufe-1);
+  --color-stufe-2: var(--stufe-2);
+  --color-stufe-3: var(--stufe-3);
+  --color-text: var(--text);
+  --color-text-gedaempft: var(--text-gedaempft);
+  --color-text-blass: var(--text-blass);
+  --color-akzent: var(--akzent);
+  --color-akzent-2: var(--akzent-2);
+  --color-auf-akzent: var(--auf-akzent);
+  --color-warnung: var(--warnung);
+  --color-erfolg: var(--erfolg);
+  --color-raum-1: var(--raum-1);
+  --color-raum-2: var(--raum-2);
+  --color-raum-3: var(--raum-3);
+  --color-regen: var(--regen);
+  --color-linie: var(--linie);
+  --color-linie-stark: var(--linie-stark);
+  --color-knopf-ton: var(--knopf-ton);
+  --color-knopf-ton-hover: var(--knopf-ton-hover);
+  --color-durchsichtig: transparent;
+}
+
+/* Bewegung: drei Stufen über data-bewegung (aus, rueckmeldung, sanft). */
+:root {
+  --dauer-rueckmeldung: 120ms;
+  --dauer-sanft: 0ms;
+  --druck: 0.96;
+  --kurve: cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+[data-bewegung='aus'] {
+  --dauer-rueckmeldung: 0ms;
+  --druck: 1;
+}
+[data-bewegung='sanft'] {
+  --dauer-sanft: 220ms;
+}
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --dauer-rueckmeldung: 0ms;
+    --dauer-sanft: 0ms;
+    --druck: 1;
+  }
+}
+
+/* Himmel hinter einem Design (Platzhalter bis zum Hintergrund im Gerüst). */
+@utility himmel {
+  background: linear-gradient(var(--himmel-oben), var(--himmel-unten));
+  color: var(--text);
+}
+
+/* Drei Flächen aus je fünf Werten. Kachel ohne Weichzeichner (Tempo-Regel 1). */
+@utility flaeche-leiste {
+  background: var(--leiste-ton);
+  border: 1px solid var(--leiste-rand);
+  backdrop-filter: blur(var(--leiste-blur));
+  box-shadow: var(--leiste-schatten);
+  border-radius: var(--leiste-rundung);
+}
+@utility flaeche-kachel {
+  background: var(--kachel-ton);
+  border: 1px solid var(--kachel-rand);
+  box-shadow: var(--kachel-schatten);
+  border-radius: var(--kachel-rundung);
+}
+@utility flaeche-schwebend {
+  background: var(--schwebend-ton);
+  border: 1px solid var(--schwebend-rand);
+  backdrop-filter: blur(var(--schwebend-blur));
+  box-shadow: var(--schwebend-schatten);
+  border-radius: var(--schwebend-rundung);
+}
+
+@utility akzent-verlauf {
+  background: linear-gradient(135deg, var(--akzent), var(--akzent-2));
+}
+
+/* Rückmeldung beim Drücken: kurz, nur wenn gedrückt, nie im Ruhezustand. */
+@utility drueck {
+  transition:
+    transform var(--dauer-rueckmeldung) var(--kurve),
+    background-color var(--dauer-rueckmeldung) var(--kurve);
+  &:active {
+    transform: scale(var(--druck));
+  }
+}
+
+/* Kleine Beschriftungen in Großbuchstaben. */
+@utility beschriftung {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-gedaempft);
+}
+
+html {
+  background: var(--grund);
+  color: var(--text);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}

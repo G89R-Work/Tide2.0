@@ -35,3 +35,24 @@ Muster für einen Eintrag:
 - Grund: steht im Konzept; das Plugin braucht keine eigene Einstellungsdatei.
 - Link: https://tailwindcss.com/docs/installation/using-vite
 - Eingebaut in Scheibe: fundament
+
+## 2026-11-11 · Schrift Inter
+- Kandidaten: @fontsource-variable/inter (lokal, ohne Google), Google Fonts (Aufruf bei jedem Start)
+- Entscheidung: @fontsource-variable/inter
+- Grund: läuft ohne Netz und ohne Drittanbieter; Ja des Nutzers.
+- Link: https://fontsource.org/fonts/inter
+- Eingebaut in Scheibe: werte-und-bausteine
+
+## 2026-11-11 · Knopf
+- Kandidaten: shadcn/ui Button (cva, clsx, tailwind-merge, @radix-ui/react-slot), eigener Knopf
+- Entscheidung: shadcn-Muster
+- Grund: steht im Konzept; Dialoge und Menüs brauchen dieselben Teile; Ja des Nutzers.
+- Link: https://ui.shadcn.com/docs/components/button
+- Eingebaut in Scheibe: werte-und-bausteine
+
+## 2026-11-11 · Bilder und Tempo-Messung (npm run sicht)
+- Kandidaten: Playwright (in der Cloud vorinstalliert), Puppeteer
+- Entscheidung: Playwright, ohne Eintrag in package.json
+- Grund: ist schon da; das Skript nennt den Grund, falls es fehlt.
+- Link: https://playwright.dev
+- Eingebaut in Scheibe: werte-und-bausteine

@@ -6,6 +6,7 @@ const pruefungen = [
   ['Typen', 'tsc -b --pretty false'],
   ['Stil', 'oxlint --deny-warnings --format unix'],
   ['Tests', 'vitest run --reporter=agent'],
+  ['Werte', 'node skripte/werte-pruefen.mjs'],
 ]
 
 let fehler = 0

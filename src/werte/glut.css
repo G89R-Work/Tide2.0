@@ -1,0 +1,49 @@
+/* Design Glut, der Standard. Farben aus docs/konzept/05-design.md. */
+:root,
+[data-design='glut'] {
+  --grund: #1a120e;
+  --himmel-oben: #1c1410;
+  --himmel-unten: #4a2f22;
+  --stufe-1: #251a17;
+  --stufe-2: #342521;
+  --stufe-3: #45302a;
+
+  --text: #f2ebe3;
+  --text-gedaempft: #bcad9e;
+  --text-blass: #7d6e61;
+
+  --akzent: #e0a15c;
+  --akzent-2: #b8673a;
+  --auf-akzent: #1a120e;
+  --warnung: #e58a76;
+  --erfolg: #9cc192;
+  --raum-1: #8fbcb6;
+  --raum-2: #bba3dc;
+  --raum-3: #dcc08f;
+  --regen: #8fbcb6; /* Eigene Wahl: kein Wert im Konzept, Kalenderfarbe Türkis */
+
+  --linie: rgba(242, 235, 227, 0.09);
+  --linie-stark: rgba(242, 235, 227, 0.22);
+  --schraffur: rgba(242, 235, 227, 0.18);
+  --knopf-ton: rgba(242, 235, 227, 0.08);
+  --knopf-ton-hover: rgba(242, 235, 227, 0.14);
+
+  /* Glas: je Fläche fünf Werte (Ton, Rand, Weichzeichner, Schatten, Rundung) */
+  --leiste-ton: rgba(28, 20, 16, 0.55);
+  --leiste-rand: rgba(242, 235, 227, 0.1);
+  --leiste-blur: 20px;
+  --leiste-schatten: 0 8px 24px rgba(0, 0, 0, 0.25);
+  --leiste-rundung: 1rem;
+
+  --kachel-ton: rgba(36, 25, 20, 0.72);
+  --kachel-rand: rgba(242, 235, 227, 0.1);
+  --kachel-blur: 0px;
+  --kachel-schatten: 0 4px 16px rgba(0, 0, 0, 0.2);
+  --kachel-rundung: 1rem;
+
+  --schwebend-ton: rgba(30, 21, 17, 0.86);
+  --schwebend-rand: rgba(242, 235, 227, 0.14);
+  --schwebend-blur: 24px;
+  --schwebend-schatten: 0 16px 48px rgba(0, 0, 0, 0.45);
+  --schwebend-rundung: 1.25rem;
+}

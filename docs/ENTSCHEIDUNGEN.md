@@ -26,6 +26,10 @@ Eine Zeile je Entscheidung, neueste unten. Was hier steht, gilt und wird nicht n
 - 2026-11-11 · Architektur, Mail-Abgleich und Sicherheit aus dem ersten Konzept gelten weiter und werden nach dem Prototyp gebraucht.
 - 2026-11-11 · Es baut immer nur ein Claude-Konto gleichzeitig. Beim Start wird der Stand automatisch geholt, nach jeder Antwort automatisch gesichert.
 - 2026-11-11 · Claude arbeitet eine Scheibe ohne Zwischenfragen ab und fragt nur bei wichtigen Entscheidungen. Offene Punkte entscheidet es nach der Empfehlung.
+- 2026-11-11 · Tinte-Farben nach den Werten der Beispielseite (vom Nutzer). Eigene Ergänzungen: Himmel aus Grund und Stufe 1, dritter Raum #A9A9A6; Glut-Regen #8fbcb6.
+- 2026-11-11 · Inter liegt lokal über @fontsource-variable/inter, ohne Aufruf bei Google.
+- 2026-11-11 · Knopf nach shadcn-Muster mit class-variance-authority, clsx, tailwind-merge und @radix-ui/react-slot.
+- 2026-11-11 · Tailwinds eigene Farben sind abgeschaltet; es gibt nur die Farben aus src/werte/. Abstände nur aus der Skala (p-4 usw.).
 
 ## Offen
 
