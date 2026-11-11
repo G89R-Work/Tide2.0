@@ -17,6 +17,10 @@ try {
   run('git add -A');
   run(`git commit --quiet -m "Zwischenstand ${new Date().toISOString().slice(0, 16).replace('T', ' ')}"`);
   run('git push --quiet -u origin HEAD');
+  // Cloud-Sitzungen arbeiten auf eigenem Zweig: Stand auch nach main, damit das andere Konto ihn findet.
+  if (run('git rev-parse --abbrev-ref HEAD') !== 'main') {
+    try { run('git push --quiet origin HEAD:main'); } catch { /* main ist weiter: /abschluss führt zusammen */ }
+  }
 } catch {
   // Bewusst still. /abschluss prüft später, ob alles oben ist.
 }

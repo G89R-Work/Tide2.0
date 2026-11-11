@@ -31,7 +31,7 @@ Alle weiteren Bausteine: `docs/konzept/30-bausteine.md` und `docs/BAUSTEINE.md`.
 - Zu Beginn nur `STATUS.md` lesen. Aus `docs/konzept/` nur die Dateien, die `docs/FAHRPLAN.md` für die Scheibe nennt. Nie das ganze Konzept.
 - Offene Punkte aus `docs/ENTSCHEIDUNGEN.md` (Abschnitt „Offen") entscheidest du nach der dortigen Empfehlung und vermerkst das. Frag nur, wenn der Punkt dort als wichtig markiert ist.
 - Es arbeitet immer nur ein Claude-Konto gleichzeitig. Der Stand wird beim Start automatisch geholt und nach jeder Antwort automatisch gesichert.
-- ECC: einmal je Scheibe bestätigen: „Ich setze diese Scheibe unter Verwendung von ECC um." Ist ECC in der Sitzung nicht vorhanden, sag das einmal und arbeite ohne.
+- Ist eine Scheibe fertig, beginne keine neue. Sag kurz Bescheid, damit der Nutzer `/clear` tippt. Das spart Tokens.
 - Subagenten nur nach Freigabe: wofür, warum nicht direkt, grober Umfang.
 - Ein Satz vor jedem größeren Schritt. Code nicht im Chat wiederholen. Abschlussbericht höchstens 6 Zeilen.
 - Ideen außerhalb der Scheibe: eine Zeile in `docs/IDEEN.md`, nicht bauen.

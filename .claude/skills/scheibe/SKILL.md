@@ -13,13 +13,13 @@ Arbeite die Schritte der Reihe nach ab, ohne zwischendurch auf Bestätigung zu w
 2. **Auftrag.** Suche in `docs/FAHRPLAN.md` mit Grep die Zeile dieser Scheibe. Lies nur diese Zeile. Gibt es sie nicht, nenne die drei ähnlichsten Namen und halte an.
 3. **Konzept.** Lies genau die Dateien aus `docs/konzept/`, die in der Zeile hinter „liest" stehen. Keine weiteren Konzeptdateien.
 4. **Offenes.** Suche in `docs/ENTSCHEIDUNGEN.md` im Abschnitt „Offen" nach Punkten für diese Scheibe. Entscheide nach der Empfehlung dort und notiere es für den Abschluss.
-5. **Plan.** Trag in `STATUS.md` die Zeile `In Arbeit: <name>` ein und darunter den Plan in höchstens 6 Zeilen. Zeig den Plan, sag einmal: „Ich setze diese Scheibe unter Verwendung von ECC um." Fang direkt an.
+5. **Plan.** Trag in `STATUS.md` die Zeile `In Arbeit: <name>` ein und darunter den Plan in höchstens 6 Zeilen. Zeig den Plan und fang direkt an.
    Halte nur an und frag, wenn der Plan eine neue Abhängigkeit braucht, den Vertrag in `src/vertrag/` ändert, vom Konzept abweicht oder schwer umkehrbar ist. Stell dann alle Fragen auf einmal, je mit deiner Empfehlung.
 6. **Bauen.** Erst Logik mit Test, dann Oberfläche aus vorhandenen Bausteinen.
 7. **Prüfen.** `npm run pruefen` ausführen, bis nichts mehr gemeldet wird.
 8. **Ansehen.** Hat sich die Oberfläche geändert: `npm run sicht -- <seite>` ausführen, beide Bilder ansehen, Messwerte mit `docs/konzept/02-tempo.md` vergleichen. Fehler beheben, erneut prüfen.
 9. **Abschluss.** Führe die Schritte aus `.claude/skills/abschluss/SKILL.md` aus.
-10. **Bericht.** Höchstens 6 Zeilen: was gebaut wurde, 3 bis 5 Dinge zum Ausprobieren, was offen blieb, welche offenen Punkte du nach Empfehlung entschieden hast. Letzte Zeile: „Für die nächste Scheibe: neue Sitzung, dann /scheibe."
+10. **Bericht.** Höchstens 6 Zeilen: was gebaut wurde, 3 bis 5 Dinge zum Ausprobieren, was offen blieb, welche offenen Punkte du nach Empfehlung entschieden hast. Letzte Zeile: „✅ Scheibe fertig. Tippe jetzt /clear und dann /scheibe." Danach nichts mehr tun, keine neue Scheibe beginnen.
 
 Grenzen:
 - Nichts außerhalb der Scheibe umbauen. Fällt etwas auf, kommt eine Zeile nach `docs/IDEEN.md`.

@@ -12,7 +12,6 @@ Gilt für alle meine Projekte. Projektdateien gehen vor, wenn sie etwas anderes 
 - Vor einer Aufgabe ein Plan in höchstens 10 Zeilen, dann auf mein Ja warten. Kleine klare Korrekturen (Tippfehler, Farbe, Text) setzt du direkt um.
 - Frag nur, was der Plan und die Projektdateien offen lassen. Stell alle Fragen auf einmal.
 - Ein Satz vor jedem größeren Schritt. Am Ende ein Bericht in höchstens 6 Zeilen: was getan, was ich prüfen soll, was offen ist.
-- ECC ist beim Programmieren Pflicht. Bestätige einmal je Aufgabe: „Ich setze dies unter Verwendung von ECC um." Ist ECC in der Sitzung nicht vorhanden, sag das einmal.
 - Subagenten nur nach meiner Freigabe. Nenne vorher: wofür, warum nicht direkt, grober Umfang.
 
 ## Qualität

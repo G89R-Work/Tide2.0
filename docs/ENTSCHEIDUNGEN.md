@@ -10,6 +10,7 @@ Eine Zeile je Entscheidung, neueste unten. Was hier steht, gilt und wird nicht n
 - 2026-11-11 · Tide läuft ohne KI. Statt „Kurz gesagt" gibt es den Erkannt-Kasten per Regel.
 - 2026-11-11 · Tempo geht vor Effekt. Bewegung steht ab Werk auf „Rückmeldung" und ist je Nutzer einstellbar.
 - 2026-11-11 · Die Gezeitenkurve ist auf jeder Seite eingeblendet, je Seite abschaltbar und nimmt am PC unten die volle Breite ein. Beim Ausblenden kommt keine Meldung.
+- 2026-11-11 · Kein ECC. Die eigenen Regeln in CLAUDE.md und `.claude/rules/` reichen und sparen Tokens. Nach jeder Scheibe `/clear`.
 - 2026-11-11 · Jeder Bereich hat zwei Ebenen. Handy: zweispaltiges Menü oben links, drei belegbare Knöpfe oben rechts, untere Leiste mit vier Plätzen und Plus.
 - 2026-11-11 · Alle Seiten bestehen aus Kacheln, die sich wie Widgets in One UI verschieben und in der Größe ändern lassen.
 - 2026-11-11 · Designs im Prototyp: Glut als Standard und Tinte. Helle Designs kommen später.
@@ -42,4 +43,3 @@ Zwölf Punkte sind offen. Bei jedem steht meine Empfehlung. Ohne Antwort gilt di
 | 9 | Diktat-Knopf im Prototyp | Ja, mit Hinweis, wohin der Ton geht | Vor Etappe 8 |
 | 10 | Rechtschreibprüfung | Eigener Server auf dem Homeserver | Server-Etappe S6 |
 | 11 | Helle Designs | Nach dem Prototyp | Später |
-| 12 | Umfang von ECC und die neu gefassten persönlichen Regeln | Schlank, wie im Abschnitt zu Claude Code | Vor der ersten Sitzung |
