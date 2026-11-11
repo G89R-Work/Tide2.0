@@ -5,3 +5,8 @@ dist/
 vorlage/*.html
 .claude/settings.local.json
 CLAUDE.local.md
+*.log
+dist-ssr
+*.local
+.DS_Store
+test-results/

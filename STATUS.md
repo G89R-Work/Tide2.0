@@ -1,21 +1,15 @@
 # Status
 
 Etappe: 0 Fundament
-Nächste Scheibe: `fundament`
-
-In Arbeit: fundament
-1. Vite-Vorlage React + TypeScript (strict), Tailwind über @tailwindcss/vite
-2. Vitest für Tests, ESLint (aus der Vite-Vorlage) für Stil
-3. `npm run dev` (auch im Netz fürs Handy), `npm run pruefen` gibt nur Fehler aus
-4. Leere App: eine Startseite, Ordner laut CLAUDE.md erst bei Bedarf
-5. Erste reine Funktion mit Test als Beweis, dass Tests laufen
-6. Prüfen am PC- und Handy-Format per Playwright, Einträge in BAUSTEINE.md
+Nächste Scheibe: `werte-und-bausteine`
 
 ## Stand
-Das Projekt ist leer. Das Startpaket liegt im Ordner. Noch kein Code.
+Leere App mit React, TypeScript (strict), Vite 8 und Tailwind 4 startet am PC und am Handy. `npm run pruefen` (Typen, Stil, Tests) zeigt nur Fehler, sonst „Alles grün.".
 
 ## Zuletzt erledigt
-- noch nichts
+- fundament: Projekt, `npm run dev` (auch im WLAN), `npm run pruefen`, erste Logik `src/logik/tageszeit.ts` mit Test
 
 ## Stolpersteine
-- noch keine
+- Stil prüft oxlint, nicht ESLint. Warnungen zählen als Fehler.
+- `npm run pruefen` steckt in `skripte/pruefen.mjs`; neue Prüfungen (Tempo-Grenzen) dort als eine Zeile anhängen.
+- Programmcode gepackt: 69 KB von erlaubten 200 KB.

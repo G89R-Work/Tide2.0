@@ -4,7 +4,7 @@ Eine Zeile je Scheibe. `/scheibe <name>` liest nur seine Zeile. Die Dateien hint
 Hintergrund zu den Etappen und zum Server: `docs/konzept/40-fahrplan.md`.
 
 ## Etappe 0: Fundament
-- [ ] `fundament` · liest: 01-prototyp.md, 02-tempo.md · Projekt mit React, TypeScript, Vite und Tailwind; Git; `npm run dev`; `npm run pruefen` mit Typen, Stil und Tests, das nur Fehler ausgibt · Fertig, wenn: die leere App am PC und am Handy startet und der Prüfbefehl nichts meldet
+- [x] `fundament` · liest: 01-prototyp.md, 02-tempo.md · Projekt mit React, TypeScript, Vite und Tailwind; Git; `npm run dev`; `npm run pruefen` mit Typen, Stil und Tests, das nur Fehler ausgibt · Fertig, wenn: die leere App am PC und am Handy startet und der Prüfbefehl nichts meldet
 - [ ] `werte-und-bausteine` · liest: 05-design.md · Werte-Datei mit den Glut-Farben und Inter; Design Tinte als zweite Werte-Datei; Bausteine Knopf und Fläche; Bausteine-Seite; Prüfung, dass keine Farbe und kein Abstand außerhalb der Werte-Datei steht · Fertig, wenn: die Bausteine-Seite alle Spielarten in Glut und Tinte zeigt
 - [ ] `attrappe-und-tempo` · liest: 01-prototyp.md, 02-tempo.md · Vertrag mit den Grundfeldern eines Eintrags; Attrappe mit Mock Service Worker, die sich Änderungen merkt; `npm run sicht`; Tempo-Grenzen im Prüfbefehl · Fertig, wenn: eine Beispielliste aus der Attrappe kommt, eine Änderung das Neuladen übersteht und eine verletzte Grenze den Prüfbefehl scheitern lässt
 
