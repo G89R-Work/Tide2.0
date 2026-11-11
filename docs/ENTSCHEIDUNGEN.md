@@ -1,0 +1,45 @@
+# Entscheidungen
+
+Eine Zeile je Entscheidung, neueste unten. Was hier steht, gilt und wird nicht neu verhandelt.
+
+## Entschieden
+- 2026-11-10 · Tide wird von Grund auf neu gebaut. Aus dem alten Prototyp wird kein Code übernommen.
+- 2026-11-10 · Tide läuft später online über die eigene Domain, mit mehreren Nutzern und Teilen über Räume. Das gehört in die Server-Etappen.
+- 2026-11-11 · Grundgerüst der Seiten ist die Beispielseite. Funktionen, Farben (Glut), Schrift (Inter), Kacheln und Gezeitenkurve kommen aus Prototyp 3.
+- 2026-11-11 · Zuerst entsteht der Prototyp als echtes Frontend mit Attrappen-Daten, danach der Server.
+- 2026-11-11 · Tide läuft ohne KI. Statt „Kurz gesagt" gibt es den Erkannt-Kasten per Regel.
+- 2026-11-11 · Tempo geht vor Effekt. Bewegung steht ab Werk auf „Rückmeldung" und ist je Nutzer einstellbar.
+- 2026-11-11 · Die Gezeitenkurve ist auf jeder Seite eingeblendet, je Seite abschaltbar und nimmt am PC unten die volle Breite ein. Beim Ausblenden kommt keine Meldung.
+- 2026-11-11 · Jeder Bereich hat zwei Ebenen. Handy: zweispaltiges Menü oben links, drei belegbare Knöpfe oben rechts, untere Leiste mit vier Plätzen und Plus.
+- 2026-11-11 · Alle Seiten bestehen aus Kacheln, die sich wie Widgets in One UI verschieben und in der Größe ändern lassen.
+- 2026-11-11 · Designs im Prototyp: Glut als Standard und Tinte. Helle Designs kommen später.
+- 2026-11-11 · Heute folgt Prototyp 3, ohne To-do-Liste. „Braucht dich" ist eine schmale Kachel. Die Uhrzeile gibt es nur auf Heute.
+- 2026-11-11 · Postfach mit allen Funktionen aus Prototyp 3. Regeln mit react-querybuilder und JsonLogic. Konten werden nur in den Einstellungen verwaltet.
+- 2026-11-11 · Kalender: links Monat oder Woche, rechts der Tag. Die Kalenderwoche ist sichtbar.
+- 2026-11-11 · To-dos sind die früheren Erinnerungen, mit Suche und Archiv.
+- 2026-11-11 · Einkauf und Kochen bleiben getrennt. Es gibt einen Einkaufsmodus. Ein Vorrat wird nicht geführt.
+- 2026-11-11 · Finanzen übernimmt den Aufbau der Beispielseite.
+- 2026-11-11 · Arbeit bekommt den Rhythmus-Baukasten. Der Urlaubsplaner ist eine kleine Kachel.
+- 2026-11-11 · Die Einstellungen sind eine eigene Seite. Aktionen und Einstellungen stehen je in einer zentralen Liste.
+- 2026-11-11 · Architektur, Mail-Abgleich und Sicherheit aus dem ersten Konzept gelten weiter und werden nach dem Prototyp gebraucht.
+- 2026-11-11 · Es baut immer nur ein Claude-Konto gleichzeitig. Beim Start wird der Stand automatisch geholt, nach jeder Antwort automatisch gesichert.
+- 2026-11-11 · Claude arbeitet eine Scheibe ohne Zwischenfragen ab und fragt nur bei wichtigen Entscheidungen. Offene Punkte entscheidet es nach der Empfehlung.
+
+## Offen
+
+Zwölf Punkte sind offen. Bei jedem steht meine Empfehlung. Ohne Antwort gilt die Empfehlung.
+
+| Nr. | Frage | Empfehlung | Wann nötig |
+| --- | --- | --- | --- |
+| 1 | Du zählst zehn Seiten und die Einstellungen. Ich zähle neun: Heute, Postfach, Kalender, To-dos, Einkauf, Kochen, Finanzen, Arbeit, Notizen. Fehlt eine? In deiner Version 3 sind „Braucht dich“ und „Urlaub“ eigene Seiten, hier sind sie eine Kachel auf Heute und ein Teil von Arbeit | Neun Bereiche und die Einstellungen | Vor Etappe 1 |
+| 2 | Kachel-Baustein | react-grid-layout, sofern der Versuch auf deinem Handy besteht | In Etappe 1 |
+| 3 | Bahn von Sonne und Mond ab Werk | Bogen, „Echt“ als Schalter | In Etappe 2 am Bildschirm |
+| 4 | Lage der Gezeitenkurve am Handy | Unten über der Leiste | In Etappe 2 |
+| 5 | Sichtbare Stunden ab Werk | 4 | In Etappe 2 |
+| 6 | Belegung am Handy ab Werk | Oben: Kurve, Suche, Einstellungen. Unten: Heute, Postfach, Plus, Kalender, To-dos | In Etappe 1 |
+| 7 | Notizen für die Arbeit | Derselbe Baustein im Raum Arbeit | Vor Etappe 4 |
+| 8 | Bons vom Foto | Später als Versuch hinter einem Schalter | Nach dem Prototyp |
+| 9 | Diktat-Knopf im Prototyp | Ja, mit Hinweis, wohin der Ton geht | Vor Etappe 8 |
+| 10 | Rechtschreibprüfung | Eigener Server auf dem Homeserver | Server-Etappe S6 |
+| 11 | Helle Designs | Nach dem Prototyp | Später |
+| 12 | Umfang von ECC und die neu gefassten persönlichen Regeln | Schlank, wie im Abschnitt zu Claude Code | Vor der ersten Sitzung |

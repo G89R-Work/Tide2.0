@@ -1,0 +1,7 @@
+node_modules/
+dist/
+.env
+.env.*
+vorlage/*.html
+.claude/settings.local.json
+CLAUDE.local.md
