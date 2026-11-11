@@ -64,7 +64,6 @@
 /* Hintergrund mit Sonne, Mond und Wellen (src/geruest/Hintergrund.tsx). Steht still:
    keine Animation, nur einmal pro Minute neue Lage über --x, --y, --licht. */
 :root {
-  --horizont: 38.2%;
   --wellen-anteil: 38.2;
   /* Wellen werden nie schmaler als Breite : Höhe = 3,9 : 1 (so am PC beim Goldenen Schnitt). */
   --wellen-verhaeltnis: 3.9;
@@ -79,22 +78,20 @@
   overflow: hidden;
   pointer-events: none;
   background: linear-gradient(var(--himmel-oben), var(--himmel-unten));
+  /* Horizont = Oberkante der Wellen, aus der gewählten Höhe. */
+  --horizont: calc(var(--wellen-anteil) * 1%);
 }
-/* Höhe der Wellen (Einstellung „Höhe der Wellen“), gesetzt über data-wellen am Hintergrund. */
+/* Höhe der Wellen in Prozent der Seite (Einstellung „Höhe der Wellen“), gesetzt über data-wellen am Hintergrund. */
 [data-wellen='viertel'] {
-  --horizont: 25%;
   --wellen-anteil: 25;
 }
 [data-wellen='drittel'] {
-  --horizont: 33.3%;
   --wellen-anteil: 33.3;
 }
 [data-wellen='gold'] {
-  --horizont: 38.2%;
   --wellen-anteil: 38.2;
 }
 [data-wellen='haelfte'] {
-  --horizont: 50%;
   --wellen-anteil: 50;
 }
 @utility himmelskoerper {
