@@ -121,6 +121,9 @@ Eine Zeile je Entscheidung, neueste unten. Was hier steht, gilt und wird nicht n
 - 2026-11-12 · Heute hat kein Kachel-Raster mehr, sondern einen festen Aufbau (Nutzer). Ersetzt für Heute „Alle Seiten bestehen aus Kacheln“ und `heute-kacheln`.
 - 2026-11-12 · Kopfzeile (Nutzer): nicht auf Heute; auf den übrigen Seiten Uhr, Wetter und die drei belegbaren Knöpfe nebeneinander. Die Seitenleiste reicht von ganz oben bis unten, nur Inhalt und Kurve beginnen unter der Kopfzeile.
 - 2026-11-12 · Reihenfolge: zuerst die sieben Scheiben `aussehen-*`, danach die Aufräum-Scheiben, weil sie sonst Code ordnen würden, der wegfällt (Empfehlung, ohne Widerspruch des Nutzers).
+- 2026-11-12 · Bilder des Nutzers in `docs/vorlage-aussehen/bilder/` zeigen genau, was aus der Vorlage kommt: Gezeitenkurve, Sonne und Mond, Wochenleiste mit Notiz und Woche, Ordnerleiste des Postfachs, mittlere Einstellungs-Spalte. Die Kurve klappt per Hoch-/Runterwischen auf und ein, eingeklappt guckt ein Rand hervor.
+- 2026-11-12 · Keine Erklär-Texte in der Oberfläche (Nutzer); neue Regel 11 in CLAUDE.md, Aufräumen in `aussehen-ohne-erklaerungen`.
+- 2026-11-12 · Heute bekommt einen festen Aufbau ohne Kacheln (Nutzer am Anfang: „Rasterlogik ignorieren“); „Braucht dich“ als Reiter bleibt im Plan (nach Empfehlung, ohne neue Antwort).
 
 ## Offen
 

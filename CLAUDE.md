@@ -62,6 +62,7 @@ Diese drei Regeln gehen allen anderen vor.
 7. Tide ruft keine KI auf.
 8. Die Tempo-Grenzen aus `docs/konzept/02-tempo.md` gelten immer.
 9. Nie sparen durch ungetesteten Code, geratene Schnittstellen oder fehlende Fehlerbehandlung.
+11. Keine Erklär-Texte in der Oberfläche: nur Beschriftungen, Werte und Fehlermeldungen. Erklärt wird nur, wenn der Nutzer es ausdrücklich verlangt.
 10. `vorlage/` enthält den alten Prototyp und wird nie gelesen. Fürs Aussehen gilt nur `docs/vorlage-aussehen/prototyp3.html`: als Bild ansehen, Werte gezielt per Grep, Code nie übernehmen.
 
 ## Compact instructions
