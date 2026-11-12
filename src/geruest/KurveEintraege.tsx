@@ -141,7 +141,7 @@ export function KurveEintraege(p: {
                 type="button"
                 {...griff(b.eintrag, k)}
                 title={`${b.titel} · in der Mitte ziehen verschiebt, an den Enden ändert die Dauer`}
-                className={cn(fokus, 'kurve-band kurve-schrift drueck absolute inset-0 flex cursor-grab touch-none items-center px-2 text-left text-text')}
+                className={cn(fokus, 'kurve-band kurve-schrift drueck absolute inset-0 flex cursor-grab touch-none items-center px-2 text-left text-text-gedaempft')}
               >
                 <span className="truncate">{neu ? `${zeitText(neu.beginn)}–${zeitText(neu.ende)}` : b.titel}</span>
               </button>
