@@ -1,9 +1,8 @@
-import { RotateCcw, Undo2 } from 'lucide-react'
+import { RotateCcw } from 'lucide-react'
 import { Auswahl } from '../../bausteine/Auswahl'
 import { Knopf } from '../../bausteine/Knopf'
 import { AktionKnopf } from '../../geruest/AktionKnopf'
 import { belegungErsetzen, platzBelegen, useBelegung } from '../../geruest/belegung'
-import { rueckgaengig, useKannRueckgaengig } from '../../geruest/rueckgaengig'
 import { abWerk, aktionen, mitteUnten, plaetze, type Ort } from '../../logik/aktionen'
 
 // Einstellungen › Navigation: je Platz eine Zeile mit der Liste aller Aktionen.
@@ -15,13 +14,9 @@ const gruppen: { ort: Ort; titel: string; platzName: (i: number) => string }[] =
 
 export function KnoepfeBelegen() {
   const belegung = useBelegung()
-  const kannZurueck = useKannRueckgaengig()
   return (
     <div className="mt-6 flex max-w-xl flex-col gap-6">
       <div className="flex flex-wrap gap-2">
-        <Knopf groesse="klein" disabled={!kannZurueck} onClick={rueckgaengig}>
-          <Undo2 aria-hidden className="size-4" /> Rückgängig
-        </Knopf>
         <Knopf groesse="klein" art="leise" onClick={() => belegungErsetzen(abWerk)}>
           <RotateCcw aria-hidden className="size-4" /> Ab Werk
         </Knopf>

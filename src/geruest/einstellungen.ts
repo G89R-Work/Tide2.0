@@ -1,7 +1,7 @@
 import { useSyncExternalStore } from 'react'
 import type { BereichId } from '../logik/bereiche'
 import { einstellungen, kurveZeigen, setze, unterschied, werteAendern, wertVon, type Einstellung, type Geraet, type Wert, type Werte } from '../logik/einstellungen'
-import { merke } from './rueckgaengig'
+import { merke, type Schritt } from './rueckgaengig'
 import { aendereEinstellungen, holeEinstellungen } from '../vertrag/einstellungen'
 import { istSchmal, useSchmal } from './useSchmal'
 
@@ -74,7 +74,7 @@ export function kurveUmschalten(bereich: BereichId) {
   const e = kurveZeigen(bereich)
   const geraet: Geraet = istSchmal() ? 'handy' : 'pc'
   const an = wertVon(e, zustand.werte, geraet) === true
-  einstellungenAendern(setze(zustand.werte, e, geraet, !an), `Kurve ${an ? 'aus' : 'ein'}`, true)
+  einstellungenAendern(setze(zustand.werte, e, geraet, !an), { text: `Kurve ${an ? 'aus' : 'ein'}`, still: true })
 }
 
 /** Speichert die Änderung von `alt` nach `neu`; scheitert es, gilt wieder `alt`. Liefert, ob es geklappt hat. */
@@ -92,16 +92,17 @@ async function speichern(alt: Werte, neu: Werte): Promise<boolean> {
 }
 
 /**
- * Neuer Stand. Ist er gespeichert, kommt der Weg zurück in den Rückgängig-Speicher: `text` erscheint als Meldung
- * (`still`: nur Alt+Z, keine Meldung); `null` merkt nichts (Modi wie Bearbeiten).
- * Zurückgenommen werden nur die geänderten Einträge, spätere Änderungen an anderen bleiben.
+ * Neuer Stand. Ist er gespeichert, kommt er in den Rückgängig-Speicher (`schritt`: Text, Seite, still);
+ * `null` merkt nichts (Modi wie Bearbeiten). Zurück und vor wirken nur auf die geänderten Einträge, andere bleiben.
  */
-export function einstellungenAendern(neu: Werte, text: string | null = 'Einstellung geändert', still = false) {
+export function einstellungenAendern(neu: Werte, schritt: Pick<Schritt, 'text' | 'still' | 'bereich'> | null) {
   const alt = zustand.werte
+  const hin = unterschied(alt, neu)
   const rueck = unterschied(neu, alt)
+  const anwenden = async (a: typeof hin) => {
+    await speichern(zustand.werte, werteAendern(zustand.werte, a))
+  }
   void speichern(alt, neu).then((ok) => {
-    if (ok && text !== null) merke(text, async () => {
-        await speichern(zustand.werte, werteAendern(zustand.werte, rueck))
-      }, still)
+    if (ok && schritt) merke({ ...schritt, zurueck: () => anwenden(rueck), vor: () => anwenden(hin) })
   })
 }

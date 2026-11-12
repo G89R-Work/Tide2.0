@@ -68,10 +68,12 @@ export function useAnordnung(seite: string, geraet: Geraet, plan: readonly Kache
       if (neu === alt) return
       void speichern(seite, geraet, plan, gemerkt, neu).then((ok) => {
         if (!ok) return
-        merke('Kacheln geändert', async () => {
+        // Zurück und vor setzen den gemerkten Stand; die Knöpfe der Seite wirken nur auf ihre eigenen Kacheln.
+        const auf = (ziel: Anordnung) => async () => {
           const jetzt = staende.get(schluessel)?.anordnung
-          if (jetzt) await speichern(seite, geraet, plan, jetzt, gemerkt)
-        })
+          if (jetzt) await speichern(seite, geraet, plan, jetzt, ziel)
+        }
+        merke({ text: 'Kacheln geändert', bereich: seite, zurueck: auf(gemerkt), vor: auf(neu) })
       })
     },
     [schluessel, seite, geraet, plan, fein],

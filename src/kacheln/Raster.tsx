@@ -76,6 +76,7 @@ export function Raster({ seite, kacheln, inhalt }: Props) {
     <div>
       {bearbeiten && (
         <BearbeitenLeiste
+          seite={seite}
           versteckt={kacheln.filter((k) => anordnung.versteckt.includes(k.id))}
           anordnung={anordnung}
           plan={kacheln}

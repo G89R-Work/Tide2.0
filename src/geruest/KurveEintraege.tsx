@@ -384,7 +384,7 @@ export function KurveKopfzeile({ schritt, fehler, meldung, className }: { schrit
       {schritt && (
         <p role="status" className="flex min-w-0 items-center gap-2 text-text">
           <span className="truncate">{schritt.text}</span>
-          <Knopf groesse="klein" art="leise" className="pointer-events-auto" onClick={rueckgaengig}>
+          <Knopf groesse="klein" art="leise" className="pointer-events-auto" onClick={() => rueckgaengig()}>
             Rückgängig
           </Knopf>
         </p>

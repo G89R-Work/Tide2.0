@@ -93,7 +93,8 @@ Eine Zeile je Entscheidung, neueste unten. Was hier steht, gilt und wird nicht n
 - 2026-11-12 · Aufräumen nach `docs/PRUEFUNG.md` als eigene Scheiben vor `heute-uhr-und-wetter`, nicht alles auf einmal. Ja des Nutzers zu date-fns, Zod, TanStack Query, Zustand, shadcn DropdownMenu/Popover und jscpd.
 - 2026-11-12 · Tastenkürzel bleiben ohne Bibliothek (Entscheidung vom 2026-11-11 gilt); PRUEFUNG E6 wird nur in `aufraeumen-waechter` neu angesehen.
 
-- 2026-11-12 · Ein Rückgängig-Speicher (`geruest/rueckgaengig.ts`): Einstellungen, Kacheln und Knöpfe-Belegung melden sich erst nach erfolgreichem Speichern mit `merke`; jeder Rückgängig-Knopf ruft `rueckgaengig()` und nimmt den letzten Schritt von ganz Tide zurück, nicht nur den eigenen Bereich.
+- 2026-11-12 · Ein Rückgängig-Speicher (`geruest/rueckgaengig.ts`): Einstellungen, Kacheln und Knöpfe-Belegung melden sich erst nach erfolgreichem Speichern mit `merke`; Korrektur des Nutzers: die Knöpfe einer Seite (Einstellungen, Bearbeiten-Leiste) wirken nur auf Schritte dieser Seite (`bereich`); Alt+Z und die Kopfzeile der Kurve auf den letzten Schritt von ganz Tide.
+- 2026-11-12 · Wiederherstellen neben jedem Rückgängig (gemeinsamer Baustein `RueckgaengigKnoepfe`), Aktion „Wiederherstellen“ mit Alt+Y. Strg+U geht nicht: Browser öffnen damit den Quelltext. Ein neuer Schritt verwirft das Wiederherstellen nur im eigenen Bereich.
 - 2026-11-12 · Ein- und Ausschalten des Bearbeiten-Modus (Alt+B, „Fertig“) ist kein Rückgängig-Schritt, damit Alt+Z nach „Fertig“ die letzte Kachel-Änderung zurücknimmt. Einstellungen nehmen beim Zurücknehmen nur ihre eigenen Einträge zurück.
 - 2026-11-12 · Dauern, die das Programm braucht, stehen in `src/werte/bewegung.ts` (zuerst `MELDUNG_MS`, 6 s).
 

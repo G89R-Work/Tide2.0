@@ -48,5 +48,6 @@ function ersetzen(neu: Belegung, text: string) {
   if (neu === stand) return
   const alt = stand
   setzen(neu)
-  merke(text, async () => setzen(alt))
+  // Knöpfe belegt man in den Einstellungen; deren Rückgängig-Knopf nimmt es zurück.
+  merke({ text, bereich: 'einstellungen', zurueck: async () => setzen(alt), vor: async () => setzen(neu) })
 }

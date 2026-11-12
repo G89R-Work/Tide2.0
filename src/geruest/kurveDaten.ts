@@ -44,7 +44,7 @@ export function useTermine(tagStart: number) {
     async (e: Eintrag, aenderung: Aenderung, text: string) => {
       const vorher: Aenderung = Object.fromEntries(Object.keys(aenderung).map((k) => [k, e[k as keyof Aenderung]]))
       await senden(e.id, aenderung)
-      merke(text, () => senden(e.id, vorher))
+      merke({ text, zurueck: () => senden(e.id, vorher), vor: () => senden(e.id, aenderung) })
     },
     [senden],
   )
