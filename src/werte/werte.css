@@ -375,11 +375,31 @@ html {
   font-weight: 600;
   text-align: center;
 }
+/* Band: ein langer, schmaler Streifen mit runden Ecken über der Stundenleiste, die Höhe der Kurve bleibt frei. */
 @utility kurve-band {
-  background: var(--akzent);
-  opacity: 0.1;
-  border-left: 1px solid var(--akzent);
-  border-right: 1px solid var(--akzent);
+  background: color-mix(in oklab, var(--akzent) 22%, transparent);
+  border: 1px solid color-mix(in oklab, var(--akzent) 45%, transparent);
+  border-radius: 0.375rem;
+}
+/* Griff an jedem Ende eines Bands: fingerbreite Zone, sichtbar nur als feiner Strich. */
+@utility kurve-band-griff {
+  position: absolute;
+  top: 50%;
+  width: 1.5rem;
+  height: 2rem;
+  margin-top: -1rem;
+  cursor: ew-resize;
+  touch-action: none;
+  &::after {
+    content: '';
+    position: absolute;
+    left: calc(50% - 1px);
+    top: 0.625rem;
+    width: 2px;
+    height: 0.75rem;
+    border-radius: 9999px;
+    background: var(--akzent);
+  }
 }
 @utility kurve-schrift {
   font-size: 0.6875rem;
@@ -398,6 +418,14 @@ html {
   left: calc(var(--x) * 1px);
   top: calc(var(--y) * 1px);
   width: min(18rem, calc(100vw - 1rem));
+}
+
+/* Inhalt läuft hinter Kurve und unterer Leiste durch (src/geruest/MitKurve.tsx). Der verdeckte Platz kommt als Zahl in Pixeln. */
+@utility inhalt-frei {
+  padding-top: calc(var(--frei-oben, 0) * 1px);
+  padding-bottom: calc(var(--frei-unten, 0) * 1px);
+  scroll-padding-top: calc(var(--frei-oben, 0) * 1px);
+  scroll-padding-bottom: calc(var(--frei-unten, 0) * 1px);
 }
 
 /* Seitenleiste am PC als Lage über ihrer Spalte (src/geruest/Geruest.tsx): Breite aus der Spalte, Ende oben und unten

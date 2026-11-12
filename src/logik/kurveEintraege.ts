@@ -75,3 +75,17 @@ export function hoeheBei(werte: readonly number[], minute: number): number {
   const anteil = stelle - i
   return werte[i] * (1 - anteil) + werte[(i + 1) % n] * anteil
 }
+
+export type Ziehart = 'lage' | 'beginn' | 'ende'
+
+/** Beginn und Ende nach dem Ziehen: in der Mitte verschoben, am Rand nur eine Seite. Bleibt mindestens ein Raster lang. */
+export function gezogen(e: Eintrag, art: Ziehart, minuten: number): { beginn: string; ende: string } {
+  if (art === 'lage') return verschoben(e, minuten)
+  if (!e.beginn || !e.ende) throw new Error(`Eintrag ${e.id} ist ohne Uhrzeit und lässt sich nicht ändern`)
+  const [b, en] = [new Date(e.beginn).getTime(), new Date(e.ende).getTime()]
+  const min = ZIEH_RASTER * 60_000
+  const neu = (ms: number) => new Date(ms).toISOString()
+  return art === 'beginn'
+    ? { beginn: neu(Math.min(b + minuten * 60_000, en - min)), ende: e.ende }
+    : { beginn: e.beginn, ende: neu(Math.max(en + minuten * 60_000, b + min)) }
+}

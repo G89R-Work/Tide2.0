@@ -1,5 +1,6 @@
 import { Suspense, useState, type CSSProperties } from 'react'
 import { Group, Panel, useDefaultLayout, usePanelRef } from 'react-resizable-panels'
+import { cn } from '../bausteine/cn'
 import { Trenner } from '../bausteine/Trenner'
 import { mitteUnten } from '../logik/aktionen'
 import { ebeneVon, ortAusMarke, type Ort } from '../logik/ebenen'
@@ -20,7 +21,8 @@ import { useTastenkuerzel } from './useTastenkuerzel'
 import { ZweiteEbene } from './ZweiteEbene'
 
 // Am PC: Seitenleiste mit ziehbarer Breite; unter der Mindestbreite rastet sie auf die Symbole ein, daneben die zweite Ebene und der offene Bereich.
-// Am Handy: oben das Menü mit Punkt und die belegbaren Knöpfe, frei ohne Fläche; darunter der Bereich.
+// Am Handy: oben das Menü mit Punkt und die belegbaren Knöpfe, frei ohne Fläche; darunter der Bereich, der hinter Kurve und
+// unterer Leiste weiterläuft.
 export function Geruest({ marke }: { marke: string }) {
   const ort = ortAusMarke(marke)
   const schmal = useSchmal()
@@ -59,18 +61,21 @@ function Handy({ ort, zahl }: { ort: Ort; zahl: number }) {
           </div>
         </div>
       </header>
-      <MitKurve>
-        <div className="flex-1 overflow-auto">
+      <MitKurve
+        fuss={
+          <nav aria-label="Untere Leiste" className="p-2 pt-0">
+            <div className="flaeche-leiste grid grid-cols-5 place-items-center p-1">
+              {unten.map((id, i) => (
+                <AktionKnopf key={i} id={id} art={i === mitteUnten ? 'haupt' : 'symbol'} className={i === mitteUnten ? 'w-11 px-0' : undefined} />
+              ))}
+            </div>
+          </nav>
+        }
+      >
+        <div className="inhalt-frei flex-1 overflow-auto">
           <Inhalt ort={ort} />
         </div>
       </MitKurve>
-      <nav aria-label="Untere Leiste" className="p-2 pt-0">
-        <div className="flaeche-leiste grid grid-cols-5 place-items-center p-1">
-          {unten.map((id, i) => (
-            <AktionKnopf key={i} id={id} art={i === mitteUnten ? 'haupt' : 'symbol'} className={i === mitteUnten ? 'w-11 px-0' : undefined} />
-          ))}
-        </div>
-      </nav>
     </div>
   )
 }
@@ -107,13 +112,13 @@ function Pc({ ort }: { ort: Ort }) {
           />
           <Panel id="inhalt" className="flex">
             {hatEbene && (
-              <nav aria-label="Zweite Ebene" className={kurveOben ? 'w-52 shrink-0 overflow-y-auto pb-2' : 'w-52 shrink-0 overflow-y-auto pt-2'}>
-                <div className="flaeche-leiste min-h-full p-2">
+              <nav aria-label="Zweite Ebene" className="inhalt-frei flex w-52 shrink-0 flex-col overflow-y-auto">
+                <div className={cn('flaeche-leiste flex-1 p-2', kurveOben ? 'mb-2' : 'mt-2')}>
                   <ZweiteEbene bereich={ort.bereich} aktiv={ort.unter} />
                 </div>
               </nav>
             )}
-            <div className="flex-1 overflow-auto">
+            <div className="inhalt-frei flex-1 overflow-auto">
               <Inhalt ort={ort} />
             </div>
           </Panel>

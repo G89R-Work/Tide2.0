@@ -65,6 +65,8 @@ Eine Zeile je Entscheidung, neueste unten. Was hier steht, gilt und wird nicht n
 - 2026-11-12 · Gezeitenkurve: Termine ab 3 Stunden sind Bänder hinter der Kurve, kürzere Punkte; Punkte näher als eine Fingerbreite (44 px) werden gebündelt; Treibgut = offene Aufgaben ohne Uhrzeit als Zähler an der Jetzt-Linie.
 - 2026-11-12 · Rückgängig für ganz Tide als Aktion „Rückgängig" (Alt+Z, nicht Strg+Z, damit Textfelder ihr eigenes Rückgängig behalten); Speicher in `src/geruest/rueckgaengig.ts`. Karte mit „15 Min. früher/später" als Weg ohne Ziehen (Tastatur).
 - 2026-11-12 · Einstellung „Wetter" (Zeile über der Kurve, ab Werk an); die Zeile lässt Beschriftungen der Punkte frei.
+- 2026-11-12 · Band der Gezeitenkurve als schmaler Streifen mit runden Ecken über der Stundenleiste statt über die ganze Höhe; an den Enden ziehbar (Beginn/Ende, mindestens 15 Minuten), in der Karte „15 Min. länger/kürzer". Wunsch des Nutzers.
+- 2026-11-12 · Inhalt läuft über die ganze Höhe hinter Gezeitenkurve und unterer Leiste (Handy) durch; beide liegen als Lage darüber, der verdeckte Platz kommt als `--frei-oben/--frei-unten` (`inhalt-frei`). Wunsch des Nutzers.
 
 ## Offen
 

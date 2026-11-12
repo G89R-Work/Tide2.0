@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { Eintrag } from '../vertrag/eintrag'
-import { BAND_AB, aufRaster, beschriftungsPlatz, buendeln, hoeheBei, ordne, treibgut, verschoben } from './kurveEintraege'
+import { BAND_AB, aufRaster, gezogen, beschriftungsPlatz, buendeln, hoeheBei, ordne, treibgut, verschoben } from './kurveEintraege'
 
 const tag = new Date(2026, 10, 12)
 const um = (h: number, m = 0) => new Date(2026, 10, 12, h, m).toISOString()
@@ -76,5 +76,22 @@ describe('hoeheBei', () => {
     expect(hoeheBei(werte, 12.5)).toBe(0.5)
     werte[0] = 1
     expect(hoeheBei(werte, 1437.5)).toBe(0.5)
+  })
+})
+
+describe('gezogen', () => {
+  const schicht = t('s', [13, 30], [18, 0])
+  it('Ziehen in der Mitte verschiebt den ganzen Termin', () => {
+    expect(gezogen(schicht, 'lage', 30)).toEqual({ beginn: um(14, 0), ende: um(18, 30) })
+  })
+  it('Ziehen am linken Rand ändert nur den Beginn', () => {
+    expect(gezogen(schicht, 'beginn', -30)).toEqual({ beginn: um(13, 0), ende: um(18, 0) })
+  })
+  it('Ziehen am rechten Rand ändert nur das Ende', () => {
+    expect(gezogen(schicht, 'ende', 60)).toEqual({ beginn: um(13, 30), ende: um(19, 0) })
+  })
+  it('ein Termin bleibt mindestens 15 Minuten lang', () => {
+    expect(gezogen(schicht, 'ende', -600)).toEqual({ beginn: um(13, 30), ende: um(13, 45) })
+    expect(gezogen(schicht, 'beginn', 600)).toEqual({ beginn: um(17, 45), ende: um(18, 0) })
   })
 })

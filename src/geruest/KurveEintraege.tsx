@@ -5,13 +5,14 @@ import { Eingabe } from '../bausteine/Eingabe'
 import { Flaeche } from '../bausteine/Flaeche'
 import { Knopf } from '../bausteine/Knopf'
 import { MIN_TAG, vonOben } from '../logik/gezeiten'
-import { ZIEH_RASTER, aufRaster, beschriftungsPlatz, buendeln, hoeheBei, verschoben, type Band, type Punkt } from '../logik/kurveEintraege'
+import { ZIEH_RASTER, aufRaster, beschriftungsPlatz, buendeln, gezogen, hoeheBei, verschoben, type Band, type Punkt, type Ziehart } from '../logik/kurveEintraege'
 import type { Aenderung, Eintrag } from '../vertrag/eintrag'
 import type { WetterStunde } from '../vertrag/wetter'
 import { rueckgaengig, useLetzterSchritt } from './rueckgaengig'
 
 // Einträge auf der Gezeitenkurve (docs/konzept/06-gezeitenkurve.md): Punkte mit Karte, Bänder dahinter, Bündel,
-// Überschneidung, Treibgut an der Jetzt-Linie, Wetterzeile. Termine zieht man im 15-Minuten-Raster; alles lässt sich zurücknehmen.
+// Überschneidung, Treibgut an der Jetzt-Linie, Wetterzeile. Termine zieht man im 15-Minuten-Raster, Bänder auch an ihren Enden
+// (Dauer); alles lässt sich zurücknehmen.
 // Liegt im selben Scrollbereich wie die Kurve, dreimal nebeneinander. Per Tastatur bedienbar ist nur die Kopie in der Mitte (`kopie`).
 
 /** Kleinster Abstand zweier Punkte in Pixeln, darunter werden sie gebündelt: eine Fingerbreite. */
@@ -46,14 +47,15 @@ export function KurveEintraege(p: {
   wetter?: Map<number, WetterStunde>
 }) {
   const { punkte, baender, werte, pxProMinute, aendere } = p
-  const [zug, setZug] = useState<{ id: string; delta: number } | null>(null)
+  const [zug, setZug] = useState<{ id: string; delta: number; art: Ziehart } | null>(null)
   const [karte, setKarte] = useState<Karte | null>(null)
   const start = useRef<{ x: number; bewegt: boolean } | null>(null)
   const geschoben = useRef(false)
 
-  const verschiebe = (e: Eintrag, delta: number) => {
-    const neu = verschoben(e, delta)
-    return aendere(e, neu, `„${e.titel}" auf ${zeitText(neu.beginn)}`)
+  const verschiebe = (e: Eintrag, delta: number, art: Ziehart = 'lage') => {
+    const neu = gezogen(e, art, delta)
+    const text = art === 'lage' ? `auf ${zeitText(neu.beginn)}` : `jetzt ${zeitText(neu.beginn)}–${zeitText(neu.ende)}`
+    return aendere(e, neu, `„${e.titel}" ${text}`)
   }
 
   const oeffne = (el: HTMLElement, art: Karte['art'], ids: string[]) => {
@@ -62,10 +64,8 @@ export function KurveEintraege(p: {
     setKarte({ art, ids, oben, x: Math.max(8, Math.min(r.left + r.width / 2 - 144, innerWidth - 296)), y: oben ? r.top - 8 : r.bottom + 8 })
   }
 
-  /** Zieh- und Klick-Verhalten für Punkt und Band. Ein Klick ohne Bewegung öffnet die Karte. */
-  const griff = (e: Eintrag, k: number) => ({
-    tabIndex: k === p.kopie ? 0 : -1,
-    'aria-hidden': k !== p.kopie || undefined,
+  /** Ziehen mit Maus oder Finger: in der Mitte die Lage, an den Enden eines Bands Beginn oder Ende. */
+  const ziehen = (e: Eintrag, art: Ziehart) => ({
     onPointerDown: (ev: React.PointerEvent<HTMLElement>) => {
       if (ev.button !== 0) return
       ev.currentTarget.setPointerCapture(ev.pointerId)
@@ -77,7 +77,7 @@ export function KurveEintraege(p: {
       const dx = ev.clientX - s.x
       if (!s.bewegt && Math.abs(dx) < 6) return
       s.bewegt = true
-      setZug({ id: e.id, delta: aufRaster(dx / pxProMinute) })
+      setZug({ id: e.id, delta: aufRaster(dx / pxProMinute), art })
     },
     onPointerUp: (ev: React.PointerEvent<HTMLElement>) => {
       const s = start.current
@@ -86,12 +86,19 @@ export function KurveEintraege(p: {
       geschoben.current = true
       const delta = aufRaster((ev.clientX - s.x) / pxProMinute)
       setZug(null)
-      if (delta) void verschiebe(e, delta)
+      if (delta) void verschiebe(e, delta, art)
     },
     onPointerCancel: () => {
       start.current = null
       setZug(null)
     },
+  })
+
+  /** Punkt oder Band: ziehen verschiebt, ein Klick ohne Bewegung öffnet die Karte. */
+  const griff = (e: Eintrag, k: number) => ({
+    ...ziehen(e, 'lage'),
+    tabIndex: k === p.kopie ? 0 : -1,
+    'aria-hidden': k !== p.kopie || undefined,
     onClick: (ev: React.MouseEvent<HTMLElement>) => {
       if (geschoben.current) return void (geschoben.current = false)
       oeffne(ev.currentTarget, 'termine', [e.id])
@@ -108,27 +115,34 @@ export function KurveEintraege(p: {
   )
   // Wetterzeile weicht den Beschriftungen aus: keine Angabe, wo eine Beschriftung steht (halbe Zahlbreite Puffer).
   const belegt = gruppen.flatMap((g, i) => (g.length === 1 && plaetze[i] >= BESCHRIFTUNG_MIN ? [[g[0].minute, g[0].minute + plaetze[i] / pxProMinute]] : []))
+  if (p.treibgut.length) belegt.push([p.minuteJetzt, p.minuteJetzt + FINGER / pxProMinute])
   const frei = (minute: number) => belegt.every(([von, bis]) => minute < von - FINGER / 2 / pxProMinute || minute > bis + FINGER / 2 / pxProMinute)
-  const einzeln = gruppen.map((g, i) => ({ g, platz: plaetze[i] }))
+  // Beschriftungen enden auch vor dem Treibgut-Zähler an der Jetzt-Linie.
+  const vorZaehler = (minute: number, platz: number) =>
+    p.treibgut.length && p.minuteJetzt > minute ? Math.min(platz, (p.minuteJetzt - minute) * pxProMinute - 8) : platz
+  const einzeln = gruppen.map((g, i) => ({ g, platz: vorZaehler(g[0].minute, plaetze[i]) }))
 
   return (
     <>
       {kopien.map((k) =>
         baender.map((b) => {
-          const von = b.von + versatz(b.id)
-          const breite = (b.bis - b.von) * pxProMinute
+          // Beim Ziehen zeigt das Band schon die neue Zeit; gerechnet wie beim Speichern (mindestens 15 Minuten lang).
+          const neu = zug?.id === b.id ? gezogen(b.eintrag, zug.art, zug.delta) : undefined
+          const um = (alt: string, jetzt?: string) => (jetzt ? (Date.parse(jetzt) - Date.parse(alt)) / 60_000 : 0)
+          const von = b.von + um(b.eintrag.beginn!, neu?.beginn)
+          const bis = b.bis + um(b.eintrag.ende!, neu?.ende)
           return (
-            <div key={`${k}-${b.id}`}>
-              <div className="kurve-band pointer-events-none absolute inset-y-0 -z-10" style={{ left: links(k, von), width: breite }} />
+            <div key={`${k}-${b.id}`} className="absolute bottom-5 h-5" style={{ left: links(k, von), width: (bis - von) * pxProMinute }}>
               <button
                 type="button"
                 {...griff(b.eintrag, k)}
-                title={`${b.titel} · ziehen zum Verschieben`}
-                className={cn(fokus, 'kurve-schrift drueck absolute bottom-5 cursor-grab touch-none truncate px-1 text-left text-text-gedaempft')}
-                style={{ left: links(k, von), maxWidth: breite }}
+                title={`${b.titel} · in der Mitte ziehen verschiebt, an den Enden ändert die Dauer`}
+                className={cn(fokus, 'kurve-band kurve-schrift drueck absolute inset-0 cursor-grab touch-none truncate px-2 text-left text-text')}
               >
-                {zug?.id === b.id ? zeitText(verschoben(b.eintrag, zug.delta).beginn) : b.titel}
+                {neu ? `${zeitText(neu.beginn)}–${zeitText(neu.ende)}` : b.titel}
               </button>
+              <span aria-hidden {...ziehen(b.eintrag, 'beginn')} title="Ziehen ändert den Beginn" className="kurve-band-griff left-0 -translate-x-1/2" />
+              <span aria-hidden {...ziehen(b.eintrag, 'ende')} title="Ziehen ändert das Ende" className="kurve-band-griff right-0 translate-x-1/2" />
             </div>
           )
         }),
@@ -184,7 +198,7 @@ export function KurveEintraege(p: {
             aria-hidden={k !== p.kopie || undefined}
             aria-label={`${p.treibgut.length} offene Aufgaben ohne Uhrzeit`}
             onClick={(ev) => oeffne(ev.currentTarget, 'treibgut', [])}
-            className={cn(fokus, 'kurve-schrift drueck absolute bottom-5 ml-1 flex cursor-pointer items-center gap-0.5 bg-knopf-ton px-1.5 text-text-gedaempft')}
+            className={cn(fokus, 'kurve-schrift drueck absolute top-0.5 ml-1 flex cursor-pointer items-center gap-0.5 bg-knopf-ton px-1.5 text-text-gedaempft')}
             style={{ left: links(k, p.minuteJetzt) }}
           >
             <ListTodo aria-hidden className="size-3" />
@@ -227,7 +241,7 @@ function KarteFenster(p: {
   waehle: (id: string) => void
   termine: (Punkt | Band)[]
   treibgut: Eintrag[]
-  verschiebe: (e: Eintrag, delta: number) => Promise<void>
+  verschiebe: (e: Eintrag, delta: number, art?: Ziehart) => Promise<void>
   aendere: Aendere
 }) {
   const fenster = useRef<HTMLDivElement>(null)
@@ -284,7 +298,7 @@ function KarteFenster(p: {
   )
 }
 
-function TerminKarte({ t, verschiebe, aendere }: { t: Punkt | Band; verschiebe: (e: Eintrag, delta: number) => Promise<void>; aendere: Aendere }) {
+function TerminKarte({ t, verschiebe, aendere }: { t: Punkt | Band; verschiebe: (e: Eintrag, delta: number, art?: Ziehart) => Promise<void>; aendere: Aendere }) {
   const [bearbeiten, setBearbeiten] = useState(false)
   const e = t.eintrag
   const ueberschneidet = 'ueberschneidet' in t ? t.ueberschneidet : []
@@ -318,6 +332,12 @@ function TerminKarte({ t, verschiebe, aendere }: { t: Punkt | Band; verschiebe: 
         </Knopf>
         <Knopf groesse="klein" onClick={() => void verschiebe(e, ZIEH_RASTER)}>
           {ZIEH_RASTER} Min. später
+        </Knopf>
+        <Knopf groesse="klein" onClick={() => void verschiebe(e, ZIEH_RASTER, 'ende')}>
+          {ZIEH_RASTER} Min. länger
+        </Knopf>
+        <Knopf groesse="klein" onClick={() => void verschiebe(e, -ZIEH_RASTER, 'ende')}>
+          {ZIEH_RASTER} Min. kürzer
         </Knopf>
         {!bearbeiten && (
           <Knopf groesse="klein" art="leise" onClick={() => setBearbeiten(true)}>

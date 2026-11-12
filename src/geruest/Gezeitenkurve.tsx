@@ -188,7 +188,7 @@ export function Gezeitenkurve({ className }: { className?: string }) {
       <div className="kurve-mitte" />
       {!folgt && (
         <>
-          <span className="pointer-events-none absolute top-1 left-1/2 ml-2 text-xs font-medium text-text tabular-nums">{uhrzeit(gezeigt)}</span>
+          <span className="pointer-events-none absolute top-0.5 left-1/2 ml-2 rounded-knopf bg-grund px-1 text-xs font-medium text-text tabular-nums">{uhrzeit(gezeigt)}</span>
           <Knopf groesse="klein" className="absolute top-1/2 right-2 -translate-y-1/2" onClick={zuJetzt}>
             Zu jetzt
           </Knopf>
