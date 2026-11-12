@@ -6,7 +6,9 @@ function stunde(zeit: Date): WetterStunde {
   const h = zeit.getHours()
   const grad = Math.round(6 - 3 * Math.cos(((h - 3) / 24) * 2 * Math.PI))
   const regen = h >= 16 && h <= 18 ? [0.4, 1.2, 0.3][h - 16] : 0
-  return { zeit: zeit.toISOString(), grad, regen }
+  // Wahrscheinlichkeit steigt zum Schauer hin und fällt danach wieder ab.
+  const regenChance = Math.max(0, Math.min(100, Math.round((90 - Math.abs(h - 17) * 15) / 10) * 10))
+  return { zeit: zeit.toISOString(), grad, regen, regenChance }
 }
 
 export const wetterAntworten = [

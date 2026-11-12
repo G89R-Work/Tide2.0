@@ -6,8 +6,8 @@ import { kurve } from '../werte/kurve'
 import { leiste } from '../werte/leiste'
 import { AktionKnopf } from './AktionKnopf'
 import { useBelegung } from './belegung'
-import { useEinstellung, useKurveOben, useKurveSichtbar } from './einstellungen'
-import { Gezeitenkurve } from './Gezeitenkurve'
+import { useEinstellung, useKurveEingeklappt, useKurveOben, useKurveSichtbar } from './einstellungen'
+import { Gezeitenkurve, KurveRand } from './Gezeitenkurve'
 import { useErinnerungen, useFalten, useMeldungen } from './meldungen'
 import { HandyMenue } from './HandyMenue'
 import { HinweiseUnten, MitKurve } from './MitKurve'
@@ -97,11 +97,16 @@ function Pc({ ort }: { ort: Ort }) {
   const kurveOben = useKurveOben()
   const pc = useBelegung().pc
   const mitEbene = ebeneVon(ort.bereich).length > 0
-  const kurveFeld = sichtbar && (
-    <div className="shrink-0" style={{ height: kurve.hoehePc }}>
-      <Gezeitenkurve className="h-full" />
-    </div>
-  )
+  const eingeklappt = useKurveEingeklappt()
+  const kurveFeld =
+    sichtbar &&
+    (eingeklappt ? (
+      <KurveRand className="shrink-0" />
+    ) : (
+      <div className="shrink-0" style={{ height: kurve.hoehePc }}>
+        <Gezeitenkurve className="h-full" />
+      </div>
+    ))
 
   // Wie in der Vorlage: Seitenleiste und zweite Ebene von ganz oben bis ganz unten; rechts daneben die Kopfzeile
   // (Wetter, Uhr, belegbare Knöpfe; auf Heute keine), der Inhalt und die Kurve. Nur der Inhalt scrollt.

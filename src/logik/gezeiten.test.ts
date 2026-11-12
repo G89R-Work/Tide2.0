@@ -9,6 +9,7 @@ import {
   naechste,
   scrollFuer,
   stundenSchritt,
+  ausduennen,
   tagBreite,
   tagesPfade,
   termineImZeitraum,
@@ -135,5 +136,15 @@ describe('termineImZeitraum', () => {
       e('ohne'),
     ]
     expect(termineImZeitraum(liste, um(8), um(12)).map((x) => x.id)).toEqual(['drin', 'ragt'])
+  })
+})
+
+describe('ausduennen', () => {
+  it('nimmt jede n-te Marke, so dass zwischen zwei gezeigten mindestens der Platz liegt', () => {
+    // Marken alle 2 Stunden, 30 px je Stunde: 60 px Abstand; 110 px verlangt jede zweite.
+    expect(ausduennen([0, 2, 4, 6, 8], 2, 30, 110)).toEqual([0, 4, 8])
+  })
+  it('lässt alle stehen, wenn genug Platz ist', () => {
+    expect(ausduennen([0, 1, 2], 1, 200, 110)).toEqual([0, 1, 2])
   })
 })

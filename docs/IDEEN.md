@@ -13,6 +13,7 @@ Was umgesetzt ist, wandert beim Abschluss einer Scheibe nach „Erledigt“, mit
 - Eigener LanguageTool-Server für die Rechtschreibprüfung (Server-Etappe S6)
 
 ## Neu
+- 2026-11-12 · Kurve: Schildchen eines Termins und Beschriftung eines Bands weichen einander noch nicht aus (Termin in einer Schicht).
 - 2026-11-12 · Buchstabe der Schicht auch am Handy in der Wochenleiste zeigen (z. B. als Farbe der Füllstands-Säule), dort fehlt der Platz neben dem Wochentag.
 - 2026-11-12 · Quellenangabe für die Feiertags-Daten (date-holidays, CC-BY-SA 4.0) auf einer Seite „Über Tide“.
 - Schalter „Namen im Menü“ (jetzt `tide.menue.namen`) in die Einstellungsliste übernehmen (Scheibe einstellungen-liste)

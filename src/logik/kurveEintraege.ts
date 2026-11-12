@@ -46,24 +46,12 @@ export function buendeln<T extends { minute: number }>(punkte: readonly T[], abs
   return gruppen
 }
 
-/** Breite der Beschriftung je Punkt in Pixeln: bis 8 px vor den nächsten Punkt (über Mitternacht weiter), höchstens `max`. */
-export function beschriftungsPlatz(minuten: readonly number[], pxProMinute: number, max: number): number[] {
+/** Höchste Breite eines Schilds, das mittig unter oder über seinem Punkt steht: bis 8 px vor die Mitte zum nächsten
+ *  und zum vorigen Punkt (über Mitternacht weiter), höchstens `max`. So berühren sich zwei Schilder nie. */
+export function schildBreite(minuten: readonly number[], pxProMinute: number, max: number): number[] {
   if (minuten.length < 2) return minuten.map(() => max)
-  return minuten.map((m, i) => {
-    const naechste = i + 1 < minuten.length ? minuten[i + 1] : minuten[0] + MIN_TAG
-    return Math.min(max, (naechste - m) * pxProMinute - 8)
-  })
-}
-
-/** Platz einer Beschriftung ab `minute` in der oberen Zeile, wenn dort Hindernisse (Minuten von–bis) stehen:
- *  endet 8 px vor dem nächsten, entfällt (0), wenn sie in einem beginnt. */
-export function platzVorHindernissen(minute: number, platz: number, hindernisse: readonly (readonly [number, number])[], pxProMinute: number): number {
-  let rest = platz
-  for (const [von, bis] of hindernisse) {
-    if (minute >= von && minute <= bis) return 0
-    if (von > minute) rest = Math.min(rest, (von - minute) * pxProMinute - 8)
-  }
-  return rest
+  const abstand = minuten.map((m, i) => ((i + 1 < minuten.length ? minuten[i + 1] : minuten[0] + MIN_TAG) - m) * pxProMinute)
+  return minuten.map((_, i) => Math.min(max, abstand[i] - 8, abstand[(i - 1 + minuten.length) % minuten.length] - 8))
 }
 
 /** Rundet eine Verschiebung in Minuten auf das Zieh-Raster. */

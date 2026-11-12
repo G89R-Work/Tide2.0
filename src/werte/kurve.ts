@@ -3,6 +3,12 @@
 export const kurve = {
   /** Am PC und Tablet, wie in der Vorlage (`.tline`, ca. 150 px). */
   hoehePc: 150,
+  /** Ab dieser Höhe (px) hat die Kurve eine Kopfzeile; darunter (Handy klein) nur Linie und Stunden. */
+  kopfAbPx: 120,
+  /** Eingeklappt guckt nur dieser Rand (px) hervor; an ihm wischt man sie wieder hoch. */
+  randPx: 18,
+  /** So weit (px) senkrecht ziehen klappt die Kurve ein oder auf, auch ohne schnelles Wischen. */
+  klappPx: 40,
   /** Höhe ab Werk und nach Doppelklick auf den Griff. */
   hoehe: '80px',
   /** Darunter passen Linie und Stundenleiste nicht mehr. */

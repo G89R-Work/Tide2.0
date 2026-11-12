@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { Eintrag } from '../vertrag/eintrag'
-import { BAND_AB, aufRaster, gezogen, platzVorHindernissen, beschriftungsPlatz, buendeln, hoeheBei, ordne, treibgut, verschoben } from './kurveEintraege'
+import { BAND_AB, aufRaster, gezogen, schildBreite, buendeln, hoeheBei, ordne, treibgut, verschoben } from './kurveEintraege'
 
 const tag = new Date(2026, 10, 12)
 const um = (h: number, m = 0) => new Date(2026, 10, 12, h, m).toISOString()
@@ -36,12 +36,13 @@ describe('buendeln', () => {
   })
 })
 
-describe('beschriftungsPlatz', () => {
-  it('reicht bis kurz vor den nächsten Punkt, ringförmig über Mitternacht', () => {
-    expect(beschriftungsPlatz([60, 120, 1400], 2, 300)).toEqual([120 - 8, 300, 200 - 8])
+describe('schildBreite', () => {
+  it('ein mittiges Schild reicht bis kurz vor die Mitte zum nächsten und vorigen Punkt, ringförmig über Mitternacht', () => {
+    // Abstände in px: 60→120 = 120, 120→1400 = 2560, 1400→60 (über Mitternacht) = 200.
+    expect(schildBreite([60, 120, 1400], 2, 300)).toEqual([120 - 8, 120 - 8, 200 - 8])
   })
   it('ein einzelner Punkt hat den Höchstwert', () => {
-    expect(beschriftungsPlatz([60], 2, 160)).toEqual([160])
+    expect(schildBreite([60], 2, 160)).toEqual([160])
   })
 })
 
@@ -96,15 +97,3 @@ describe('gezogen', () => {
   })
 })
 
-describe('platzVorHindernissen', () => {
-  it('Beschriftung endet 8 Pixel vor dem nächsten Hindernis in der Zeile', () => {
-    expect(platzVorHindernissen(600, 160, [[700, 720]], 2)).toBe(160)
-    expect(platzVorHindernissen(600, 300, [[700, 720]], 2)).toBe(192)
-  })
-  it('Beschriftung, die in einem Hindernis beginnt, entfällt', () => {
-    expect(platzVorHindernissen(705, 160, [[700, 720]], 2)).toBe(0)
-  })
-  it('Hindernisse vor der Beschriftung stören nicht', () => {
-    expect(platzVorHindernissen(800, 160, [[700, 720]], 2)).toBe(160)
-  })
-})

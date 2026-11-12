@@ -1,3 +1,4 @@
+import { useDrag } from '@use-gesture/react'
 import { useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties } from 'react'
 import { cn } from '../bausteine/cn'
 import { Knopf } from '../bausteine/Knopf'
@@ -17,7 +18,8 @@ import {
   zeitBei,
 } from '../logik/gezeiten'
 import { hoeheBei, ordne } from '../logik/kurveEintraege'
-import { useEinstellung } from './einstellungen'
+import { kurve } from '../werte/kurve'
+import { klappeKurve, setzeHier, useEinstellung, useKurveOben } from './einstellungen'
 import { KurveEintraege, KurveKopfzeile } from './KurveEintraege'
 import { Glocke } from './Glocke'
 import { useMeldungen } from './meldungen'
@@ -30,7 +32,14 @@ import { useMinute } from './useMinute'
 // Folgt der Uhrzeit, bis jemand selbst scrollt; „Zu jetzt" gleitet zurück. Die Mitte zeigt die Uhrzeit, die den Hintergrund steuert.
 // Im Ruhezustand läuft nichts: gerechnet wird nur beim Laden, beim Scrollen und einmal pro Minute.
 const nach = (id: string) => einstellungen.find((e) => e.id === id)!
-const e = { stunden: nach('kurve-stunden'), ganzerTag: nach('kurve-ganzer-tag'), wetter: nach('kurve-wetter'), band: nach('kurve-band-hoehe') }
+const e = {
+  stunden: nach('kurve-stunden'),
+  ganzerTag: nach('kurve-ganzer-tag'),
+  wetter: nach('kurve-wetter'),
+  band: nach('kurve-band-hoehe'),
+  ebbeModus: nach('ebbe-modus'),
+}
+
 
 const HOEHE = 100
 // Zweimal gemittelt über ±30 Minuten: weiche, ruhige Wellen (Wunsch des Nutzers); kurze Termine werden flache Hügel.
@@ -42,8 +51,12 @@ const uhrzeit = (m: number) => `${zweistellig(Math.floor(m / 60) % 24)}:${zweist
 // Gleiten nur, wenn der Browser das Ende meldet (scrollend) und keine reduzierte Bewegung gewünscht ist; sonst springen.
 const gleitenMoeglich = () => 'onscrollend' in window && !matchMedia('(prefers-reduced-motion: reduce)').matches
 
-/** `onAntippen`: Tippen auf eine freie Stelle der Kurve (am Handy: groß und wieder klein). */
+/** `onAntippen`: Tippen auf eine freie Stelle der Kurve (am Handy: groß und wieder klein).
+ *  Wischen zum Rand hin klappt sie ein; eingeklappt zeigt `KurveRand` nur einen Rand. */
 export function Gezeitenkurve({ className, onAntippen }: { className?: string; onAntippen?: () => void }) {
+  const oben = useKurveOben()
+  const ebbeModus = useEinstellung(e.ebbeModus) === true
+  const fenster = useMeldungen().fenster
   const jetzt = useMinute()
   const ganzerTag = useEinstellung(e.ganzerTag) === true
   const gewaehlt = Number(useEinstellung(e.stunden))
@@ -58,6 +71,7 @@ export function Gezeitenkurve({ className, onAntippen }: { className?: string; o
 
   const scroller = useRef<HTMLDivElement>(null)
   const [sichtbar, setSichtbar] = useState(0)
+  const [hoehe, setHoehe] = useState(0)
   const [folgt, setFolgt] = useState(true)
   const [kopie, setKopie] = useState(1)
   const [gezeigt, setGezeigt] = useState(() => minutenAmTag(jetzt))
@@ -76,8 +90,13 @@ export function Gezeitenkurve({ className, onAntippen }: { className?: string; o
   // Breite des Sichtfelds messen; ändert sich nur bei Größenänderung.
   useLayoutEffect(() => {
     const el = scroller.current!
-    const beobachter = new ResizeObserver(() => setSichtbar(el.clientWidth))
+    const flaeche = el.closest('section')!
+    const beobachter = new ResizeObserver(() => {
+      setSichtbar(el.clientWidth)
+      setHoehe(flaeche.clientHeight)
+    })
     beobachter.observe(el)
+    beobachter.observe(flaeche)
     return () => beobachter.disconnect()
   }, [])
 
@@ -160,6 +179,18 @@ export function Gezeitenkurve({ className, onAntippen }: { className?: string; o
 
   const fehler = [termine.fehler, treibgut.fehler, wetter.fehler].filter((f): f is string => !!f)
   const kopfzeileBelegt = !!frisch || !!meldung || fehler.length > 0
+  // Mit Kopfzeile (PC, Handy groß) stehen Meldungen dort; ohne (Handy klein) liegen sie über der oberen Zeile.
+  const mitKopf = hoehe >= kurve.kopfAbPx
+  const ueberdeckt = kopfzeileBelegt && !mitKopf
+
+  // Senkrecht wischen: zum Rand hin klappt die Kurve ein. Waagrecht scrollt der Browser die Kurve selbst.
+  const wischen = useDrag(
+    ({ last, movement: [, my], swipe: [, sy] }) => {
+      const richtung = oben ? -1 : 1
+      if (last && (sy === richtung || my * richtung > kurve.klappPx)) klappeKurve(true)
+    },
+    { axis: 'y', filterTaps: true },
+  )
 
   // Linie, Jetzt-Linie und Stundenzahlen: über dem Wasser und den Bändern, unter Punkten und Beschriftungen.
   const linie = (
@@ -174,7 +205,7 @@ export function Gezeitenkurve({ className, onAntippen }: { className?: string; o
       </svg>
       {marken.map((h) => (
         <span key={h} className="pointer-events-none absolute bottom-1 -translate-x-1/2 text-xs text-text-blass tabular-nums" style={{ left: `${(h / 72) * 100}%` }}>
-          {h % 24}
+          {uhrzeit((h % 24) * 60)}
         </span>
       ))}
       {/* Neue Meldung fließt an der Jetzt-Linie ein und steht dort, solange sie in der Kopfzeile steht. */}
@@ -191,11 +222,40 @@ export function Gezeitenkurve({ className, onAntippen }: { className?: string; o
 
   return (
     <section
+      {...wischen()}
       aria-label="Gezeitenkurve"
-      className={cn('flaeche-leiste relative h-full overflow-hidden', className)}
+      className={cn('flaeche-leiste relative flex h-full touch-pan-x flex-col overflow-hidden', className)}
       style={{ '--band-hoehe': bandHoehe } as CSSProperties}
     >
-      <div ref={scroller} tabIndex={0} onScroll={beimScrollen} className="kurve-scroller h-full outline-none">
+      {mitKopf && (
+        <header className="flex shrink-0 items-center gap-3 px-5 pt-2">
+          <div className="flex min-w-0 flex-1 items-baseline gap-3.5">
+            <h2 className="beschriftung shrink-0">Dein Tag als Gezeitenkurve</h2>
+            {kopfzeileBelegt ? (
+              <KurveKopfzeile schritt={frisch} fehler={fehler} meldung={meldung} className="min-w-0" />
+            ) : (
+              <>
+                {fenster && <span className="kurve-schrift truncate text-text-blass tabular-nums">{fenster}</span>}
+                <Knopf
+                  art="leise"
+                  groesse="klein"
+                  aria-pressed={ebbeModus}
+                  className={cn('beschriftung h-6 px-1.5', ebbeModus && 'text-akzent')}
+                  onClick={() => setzeHier(e.ebbeModus, !ebbeModus, { text: ebbeModus ? 'Ebbe-Modus aus' : 'Ebbe-Modus an' })}
+                >
+                  Ebbe-Modus
+                </Knopf>
+              </>
+            )}
+          </div>
+          {!folgt && <span className="text-sm text-text-gedaempft tabular-nums">Ansicht {uhrzeit(gezeigt)}</span>}
+          <Knopf groesse="klein" className="h-7 rounded-voll" onClick={zuJetzt}>
+            Zu jetzt
+          </Knopf>
+          <Glocke />
+        </header>
+      )}
+      <div ref={scroller} tabIndex={0} onScroll={beimScrollen} className="kurve-scroller min-h-0 flex-1 outline-none">
         {/* Ein Klick auf eine freie Stelle (nicht auf Punkt, Band oder Knopf) gilt als Antippen; nach Scrollen meldet der Browser keinen Klick. */}
         <div
           className="relative h-full"
@@ -223,7 +283,9 @@ export function Gezeitenkurve({ className, onAntippen }: { className?: string; o
               treibgut={treibgut.liste}
               wetter={wetter.stunden}
               linie={linie}
-              kopfzeileBelegt={kopfzeileBelegt}
+              kopfzeileBelegt={ueberdeckt}
+              schilder={mitKopf}
+              jetztText={`Jetzt ${uhrzeit(minuteJetzt)}`}
             />
           ) : (
             linie
@@ -231,19 +293,41 @@ export function Gezeitenkurve({ className, onAntippen }: { className?: string; o
         </div>
       </div>
       <div className="kurve-mitte" />
-      {!folgt && (
+      {!mitKopf && (
         <>
-          {/* Links der Mitte: rechts der Jetzt-Linie steht der Treibgut-Zähler. Eine Meldung hat die obere Zeile für sich. */}
-          {!kopfzeileBelegt && (
-            <span className="pointer-events-none absolute top-0.5 right-1/2 mr-2 text-xs font-medium text-text tabular-nums">{uhrzeit(gezeigt)}</span>
+          {!folgt && (
+            <Knopf groesse="klein" className="absolute top-1/2 right-10 -translate-y-1/2 rounded-voll" onClick={zuJetzt}>
+              Zu jetzt
+            </Knopf>
           )}
-          <Knopf groesse="klein" className="absolute top-1/2 right-10 -translate-y-1/2" onClick={zuJetzt}>
-            Zu jetzt
-          </Knopf>
+          {ueberdeckt && <KurveKopfzeile schritt={frisch} fehler={fehler} meldung={meldung} />}
+          <Glocke className="absolute top-1/2 right-1 -translate-y-1/2" />
         </>
       )}
-      {kopfzeileBelegt && <KurveKopfzeile schritt={frisch} fehler={fehler} meldung={meldung} />}
-      <Glocke className="absolute top-1/2 right-1 -translate-y-1/2" />
     </section>
+  )
+}
+
+/** Eingeklappte Kurve: nur ein Rand mit Griff. Hochwischen (oben: herunter) oder Antippen klappt sie wieder auf. */
+export function KurveRand({ className }: { className?: string }) {
+  const oben = useKurveOben()
+  const wischen = useDrag(
+    ({ last, movement: [, my], swipe: [, sy] }) => {
+      const richtung = oben ? 1 : -1
+      if (last && (sy === richtung || my * richtung > kurve.klappPx)) klappeKurve(false)
+    },
+    { axis: 'y', filterTaps: true },
+  )
+  return (
+    <button
+      type="button"
+      {...wischen()}
+      aria-label="Gezeitenkurve aufklappen"
+      onClick={() => klappeKurve(false)}
+      className={cn('flaeche-leiste kurve-rand grid w-full touch-none cursor-pointer place-items-center outline-none focus-visible:ring-2 focus-visible:ring-akzent', className)}
+      style={{ height: kurve.randPx }}
+    >
+      <span />
+    </button>
   )
 }

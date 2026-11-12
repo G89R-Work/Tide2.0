@@ -57,7 +57,7 @@ export function erinnerungen(termine: readonly Eintrag[], jetzt: Date): Meldung[
   })
 }
 
-/** „Gerade Flut, Ebbe ab 12:00" oder „Gerade Ebbe bis 14:00": Termine sind Flut, freie Zeit ab 45 Minuten Ebbe. Blickt 24 Stunden voraus. */
+/** „Gerade Flut · Ebbe ab 12:00" oder „Gerade Ebbe · Nächste Flut 14:00" (wie die Vorlage): Termine sind Flut, freie Zeit ab 45 Minuten Ebbe. Blickt 24 Stunden voraus. */
 export function ebbeFenster(termine: readonly { beginn: Date; ende: Date }[], jetzt: Date): string {
   const t = jetzt.getTime()
   const horizont = t + 24 * 60 * MIN_MS
@@ -80,7 +80,7 @@ export function ebbeFenster(termine: readonly { beginn: Date; ende: Date }[], je
   frei.push([ab, Infinity])
   const lang = (f: [number, number]) => f[1] - Math.max(f[0], t) >= EBBE_AB_MIN * MIN_MS || f[1] === Infinity
   const hier = frei.find(([von, bis]) => von <= t && t < bis)
-  if (hier && lang(hier)) return hier[1] === Infinity ? 'Gerade Ebbe' : `Gerade Ebbe bis ${uhr(new Date(hier[1]))}`
+  if (hier && lang(hier)) return hier[1] === Infinity ? 'Gerade Ebbe' : `Gerade Ebbe · Nächste Flut ${uhr(new Date(hier[1]))}`
   const naechste = frei.find((f) => f[0] > t && lang(f))
-  return naechste && naechste[0] < horizont ? `Gerade Flut, Ebbe ab ${uhr(new Date(naechste[0]))}` : 'Gerade Flut'
+  return naechste && naechste[0] < horizont ? `Gerade Flut · Ebbe ab ${uhr(new Date(naechste[0]))}` : 'Gerade Flut'
 }

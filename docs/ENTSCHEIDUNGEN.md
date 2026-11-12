@@ -135,6 +135,9 @@ Eine Zeile je Entscheidung, neueste unten. Was hier steht, gilt und wird nicht n
 - 2026-11-12 · Feiertage über date-holidays (Nutzer; feiertagejs war die Empfehlung), nur gesetzliche (`public`), nachgeladen.
 - 2026-11-12 · Kleiner Kalender wie die Vorlage: 6 Wochen, Punkte für Termine, Feiertage, Fuß mit Feiertagen des Monats und „Heute“; Jahr und Monat als Walze (Aufklapp), Bundesland-Kürzel ändert die bestehende Einstellung mit Rückgängig; Blättern im Kalender ändert die Wochenleiste erst beim Wählen eines Tags.
 - 2026-11-12 · Wochenleiste am Handy wie die Vorlage in einer Reihe mit schmalen Knöpfen (kurzer Monatsname); Buchstabe der Schicht nur am PC und Tablet.
+- 2026-11-12 · Vertrag Wetter: je Stunde zusätzlich `regenChance` (0–100 %), für „12° · 20 % Regen“ über der Kurve wie in der Vorlage (Ja des Nutzers).
+- 2026-11-12 · Kurve wie Vorlage: Kopfzeile ab 120 px Höhe (PC, Handy groß) mit Flut/Ebbe-Text („Gerade Flut · Ebbe ab …“, „Gerade Ebbe · Nächste Flut …“), Knopf „Ebbe-Modus“ (schaltet die Einstellung, mit Rückgängig), „Ansicht hh:mm“, „Zu jetzt“ und Glocke; Schildchen mittig am Punkt (darunter, wenn er oben liegt), in der kleinen Handy-Kurve keine Schildchen.
+- 2026-11-12 · Ein- und Ausklappen der Kurve per senkrechtem Wischen (oder 40 px ziehen), eingeklappt ein Rand von 18 px zum Hochwischen oder Antippen; neue Einstellung „Eingeklappt“ je Gerät; Handy-Groß per Antippen bleibt.
 
 ## Offen
 

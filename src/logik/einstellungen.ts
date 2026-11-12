@@ -76,6 +76,7 @@ export const einstellungen: readonly Einstellung[] = [
   { id: 'kurve-stunden', name: 'Sichtbare Stunden', abschnitt: 'kurve', art: 'zahl', standard: 4, standardHandy: 6, min: 3, max: 8, einheit: 'Std.', jeGeraet: true, wichtig: true, hilfe: 'Am Handy ab Werk mehr als am PC' },
   { id: 'kurve-ganzer-tag', name: 'Ganzer Tag', abschnitt: 'kurve', art: 'schalter', standard: false, jeGeraet: true, hilfe: 'Zeigt alle 24 Stunden auf einmal' },
   { id: 'kurve-band-hoehe', name: 'Höhe der Bänder', abschnitt: 'kurve', art: 'zahl', standard: 76, min: 20, max: 100, einheit: '%', jeGeraet: true, hilfe: 'Lange Termine wie Schichten, als Anteil der Kurvenhöhe' },
+  { id: 'kurve-eingeklappt', name: 'Eingeklappt', abschnitt: 'kurve', art: 'schalter', standard: false, jeGeraet: true },
   { id: 'kurve-wetter', name: 'Wetter', abschnitt: 'kurve', art: 'schalter', standard: true, jeGeraet: true, hilfe: 'Temperatur und Regen als feine Zeile über der Kurve' },
   { id: 'kurve-lage', name: 'Lage', abschnitt: 'kurve', art: 'auswahl', standard: 'unten', optionen: [['unten', 'Unten'], ['oben', 'Oben']], jeGeraet: true, hilfe: 'Am PC am oberen oder unteren Rand, am Handy über der Leiste' },
   { id: 'leiste-breite', name: 'Breite der Seitenleiste', abschnitt: 'navigation', art: 'auswahl', standard: 'schmal', optionen: [['schmal', 'Schmal, nur Symbole'], ['breit', 'Breit, mit Namen']], wichtig: true, hilfe: 'Am PC und Tablet' },

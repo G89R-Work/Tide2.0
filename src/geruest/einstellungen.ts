@@ -54,6 +54,18 @@ export function useKurveOben() {
   return useEinstellung(kurveLage) === 'oben'
 }
 
+const kurveEingeklappt = einstellungen.find((e) => e.id === 'kurve-eingeklappt')!
+
+/** Ist die Kurve eingeklappt (nur ein Rand guckt hervor)? Gemerkt je Gerät. */
+export function useKurveEingeklappt() {
+  return useEinstellung(kurveEingeklappt) === true
+}
+
+/** Kurve ein- oder ausklappen (gemerkt je Gerät, lässt sich zurücknehmen). Ändert nichts, wenn es schon so ist. */
+export function klappeKurve(zu: boolean) {
+  if (wertHier(kurveEingeklappt) !== zu) setzeHier(kurveEingeklappt, zu, { text: zu ? 'Kurve eingeklappt' : 'Kurve aufgeklappt', still: true })
+}
+
 /** Ist die Kurve auf dieser Seite eingeblendet? */
 export function useKurveSichtbar(bereich: BereichId) {
   return useEinstellung(kurveZeigen(bereich)) === true

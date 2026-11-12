@@ -7,6 +7,8 @@ export type WetterStunde = {
   grad: number
   /** Regen in Millimetern in dieser Stunde */
   regen: number
+  /** Wahrscheinlichkeit für Regen in dieser Stunde, 0 bis 100 Prozent */
+  regenChance: number
 }
 
 /** Je volle Stunde im Zeitraum ein Wert. */

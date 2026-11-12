@@ -86,3 +86,9 @@ export function stundenSchritt(pxProStunde: number): number {
 export function termineImZeitraum(liste: readonly Eintrag[], von: Date, bis: Date): Eintrag[] {
   return liste.filter((e) => e.beginn && e.ende && new Date(e.beginn) < bis && new Date(e.ende) > von)
 }
+
+/** Stundenmarken (Abstand `schritt` Stunden) so ausgedünnt, dass zwischen zwei gezeigten mindestens `mindestPx` liegen. */
+export function ausduennen(marken: readonly number[], schritt: number, pxProStunde: number, mindestPx: number): number[] {
+  const jede = Math.max(1, Math.ceil(mindestPx / (schritt * pxProStunde)))
+  return marken.filter((_, i) => i % jede === 0)
+}

@@ -1,20 +1,19 @@
 # Status
 Etappe: 2 Gezeitenkurve und Heute
-Nächste Scheibe: `aussehen-kurve`
+Nächste Scheibe: `aussehen-einstellungen`
 
 ## Stand
 Das Gerüst steht am PC (wie die Vorlage, ohne Zellraster: Leiste mit Logo von oben bis unten, Kopfzeile mit Uhr, Wetter und Knöpfen außer auf Heute) und am Handy mit Seitenleiste, zweiter Ebene, belegbaren Knöpfen, Einstellungsliste, Kacheln und Hintergrund. Die Gezeitenkurve zeigt den Beispieltag (PC unten über die volle Breite, Handy über der unteren Leiste; Einstellung „Lage“ je Gerät), scrollt endlos, folgt der Uhr und steuert beim Scrollen den Hintergrund. Der Himmel folgt dem Sonnenstand (Lichthof, Dämmerung, Mondschein nach Phase). Termine liegen als Punkte (mit Karte, Bündel, Überschneidung) oder Bänder auf ihr, lassen sich ziehen und zurücknehmen; dazu Treibgut und Wetterzeile. Die Kurve ist je Seite und Gerät abschaltbar; Meldungen fließen an der Jetzt-Linie ein und falten sich in die Glocke. Heute hat einen festen Aufbau (Gruß, Als Nächstes, Wetter, Uhr, Knöpfe, Braucht dich als Reiter mit aufklappender Liste, Wochenleiste wie die Vorlage mit kleinem Kalender samt Feiertagen, Notiz, Rückblick), Text ohne Hintergrund. **Aufräumen:** `docs/PRUEFUNG.md` wird in acht Scheiben `aufraeumen-*` abgearbeitet (siehe Fahrplan). Bausteine dafür sind freigegeben.
 
 ## Zuletzt erledigt
+- aussehen-kurve: Kopfzeile, Wetter „12° · 20 % Regen“ (Vertrag `regenChance`), Jetzt-Punkt mit Treibgut, Schildchen, „10:00“-Stunden, Einklappen per Wischen (`KurveRand`, `klappeKurve`)
 - aussehen-wochenleiste: Wochenleiste und kleiner Kalender wie Vorlage (`teile/Monat.tsx`, `Leistenknopf`), Feiertage `logik/feiertage.ts` + `useFeiertage`, `monatsRaster` immer 6 Wochen, `schichtBuchstabe`
 - aussehen-braucht-dich: Reiter wie Vorlage (Punkt, Titel, Ansehen, +n, Schließen mit Rückgängig, `geruest/brauchtDichZu.ts`), Liste über neuen Baustein `bausteine/Aufklapp.tsx` (Radix Popover) am Reiter
 - aussehen-heute: Heute fest aufgebaut aus `bereiche/heute/teile/`, Kachel-Raster, Bearbeiten-Modus und react-grid-layout entfernt
 - aussehen-himmel: `himmelsLicht` (hell, wärme, mond) in `logik/himmel.ts`; Sonne groß mit `lichthof`, `daemmerung` vom Horizont, Mond mit `mondschein`; Stärken über `--licht`, `--waerme`, `--mond-licht`
-- aussehen-kopfzeile: Raster des Gerüsts entfällt (Nutzer); Leiste 66/156 px und zweite Ebene volle Höhe, Logo der Vorlage (`bausteine/Logo.tsx`), Wischen breit/schmal mit Rückgängig (@use-gesture/react), Kopfzeile mit Wetter, Uhr, Knöpfen (nicht auf Heute), Kurve fest 150 px
 ## Stolpersteine
 - Stil prüft oxlint, nicht ESLint. Warnungen zählen als Fehler. Freie Tailwind-Werte wie `data-[…]` verbietet die Werte-Prüfung.
-- `npm run pruefen` steckt in `skripte/pruefen.mjs`; neue Prüfung = eine Zeile. Neue Seiten hinten an die Zeile „Tempo" hängen, dann wird auch der Wechsel gemessen.
-- Tempo-Grenzen nur in `src/logik/tempoGrenzen.ts`; `skripte/sicht.mjs` liest die Datei direkt (Node streicht die Typen).
+- `npm run pruefen` steckt in `skripte/pruefen.mjs`; neue Prüfung = eine Zeile. Neue Seiten hinten an die Zeile „Tempo" hängen, dann wird auch der Wechsel gemessen. Tempo-Grenzen nur in `src/logik/tempoGrenzen.ts`; `skripte/sicht.mjs` liest die Datei direkt (Node streicht die Typen).
 - `npm run sicht` meldet Konsolen-Fehler und -Warnungen der Seite als Fehler. Seiten mit Unterpunkt: `npm run sicht -- postfach/gesendet`.
 - Neue Anfrage: Typ und Funktion in `src/vertrag/`, Antwort in `src/attrappe/<bereich>.ts`, in `src/attrappe/start.ts` eintragen. Gespeichert wird unter `tide.attrappe.*` im localStorage.
 - In `node_modules` nur `.d.ts`, `README.md` und `package.json` lesen (Programmcode ist gesperrt); Schnittstellen dort nachlesen, nicht über Typfehler erraten. jsdelivr bleibt gesperrt. `.d.ts` unter `node_modules/*/dist` sperrt `Read(./dist/**)` mit; dann README und tsc.
@@ -28,6 +27,7 @@ Das Gerüst steht am PC (wie die Vorlage, ohne Zellraster: Leiste mit Logo von o
 - Hintergrund: Farben `--sonne`, `--welle-1…5`, `--nacht` je Design, Maße in `werte.css`, Wellenhöhe über `data-wellen` → `--horizont`; Lage kommt als `--x`/`--y` (0–1), Licht als `--licht`/`--waerme`/`--mond-licht`. Die Uhrzeit fest stellen für Bilder: Playwright `page.clock.setFixedTime`, Bahn über `localStorage['tide.attrappe.einstellungen']`.
 - Bedienung im Browser testen: Playwright (Finger über CDP `Input.dispatchTouchEvent`, langer Druck 700 ms). Animationen ohne `both`, sonst zählt `sicht` sie als laufend.
 - Gezeitenkurve: Rechnung in `src/logik/gezeiten.ts`, Oberfläche `src/geruest/Gezeitenkurve.tsx`, Farben `kurve-*` in `werte.css`, Größen in `src/werte/kurve.ts`; am Handy Lage und Höhe in `src/geruest/MitKurve.tsx`. Termine über `holeTermine` (Attrappe `src/attrappe/termine.ts`).
+- Kurve: Kopfzeile nur ab `kurve.kopfAbPx` Höhe (gemessen), sonst liegen Meldungen über der oberen Zeile; Einklappen über `klappeKurve` und `useKurveEingeklappt` (geruest/einstellungen.ts).
 - Gezeigte Uhrzeit der Kurve teilt `src/geruest/gezeigteZeit.ts` (null = folgt der Uhr); der Hintergrund liest sie.
 - Feiertage nur über `useFeiertage(jahr, land)` (lädt date-holidays nach, eigener großer Teil im Bau); nie `logik/feiertage` direkt in die Oberfläche importieren.
 - Schwebende Karte am Knopf: `Aufklapp`, `AufklappKnopf`, `AufklappAnker`, `AufklappInhalt` aus `bausteine/Aufklapp.tsx` (`breite="anker"` ab Werk, `"inhalt"` mit eigener Breite; scrollt bei wenig Platz).

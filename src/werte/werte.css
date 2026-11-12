@@ -591,6 +591,35 @@ html {
     background: var(--text-blass);
   }
 }
+/* Schildchen eines Termins unter oder über seinem Punkt (Vorlage .mk > span). */
+@utility kurve-schild {
+  font-size: 0.71875rem;
+  line-height: 1rem;
+  padding: 0.125rem 0.5rem;
+  border-radius: 0.4375rem;
+  border: 1px solid var(--linie);
+  background: color-mix(in srgb, var(--grund) 75%, transparent);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+/* Punkt oben an der Jetzt-Linie (Vorlage .nowline::before). */
+@utility kurve-jetzt-punkt {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 9999px;
+  background: var(--akzent);
+  box-shadow: 0 0 0.625rem var(--akzent);
+}
+/* Rand der eingeklappten Kurve mit kleinem Griff in der Mitte. */
+@utility kurve-rand {
+  & > span {
+    width: 2.5rem;
+    height: 0.25rem;
+    border-radius: 9999px;
+    background: var(--linie-stark);
+  }
+}
 @utility kurve-schrift {
   font-size: 0.6875rem;
   line-height: 1rem;

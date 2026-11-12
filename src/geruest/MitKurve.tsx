@@ -5,8 +5,8 @@ import { Trenner } from '../bausteine/Trenner'
 import { freierPlatz } from '../logik/freierPlatz'
 import { abstaende } from '../werte/abstaende'
 import { kurve } from '../werte/kurve'
-import { useGeraet, useKurveOben } from './einstellungen'
-import { Gezeitenkurve } from './Gezeitenkurve'
+import { useGeraet, useKurveEingeklappt, useKurveOben } from './einstellungen'
+import { Gezeitenkurve, KurveRand } from './Gezeitenkurve'
 import { Glocke } from './Glocke'
 import { KurveKopfzeile } from './KurveEintraege'
 import { useMeldungen } from './meldungen'
@@ -23,6 +23,7 @@ import { useFrischerSchritt } from './rueckgaengig'
 export function MitKurve({ children, fuss, sichtbar }: { children: ReactNode; fuss?: ReactNode; sichtbar: boolean }) {
   const geraet = useGeraet()
   const oben = useKurveOben()
+  const eingeklappt = useKurveEingeklappt()
   const hoehe = useDefaultLayout({ id: `tide.kurve-hoehe@${geraet}`, storage: localStorage })
   const kurveRef = usePanelRef()
   const lage = useRef<HTMLDivElement>(null)
@@ -42,7 +43,7 @@ export function MitKurve({ children, fuss, sichtbar }: { children: ReactNode; fu
     beobachter.observe(feld)
     beobachter.observe(lage.current!)
     return () => beobachter.disconnect()
-  }, [oben, sichtbar])
+  }, [oben, sichtbar, eingeklappt])
   const groesser = () => {
     const k = kurveRef.current
     if (!k) return
@@ -79,7 +80,13 @@ export function MitKurve({ children, fuss, sichtbar }: { children: ReactNode; fu
         {children}
       </div>
       <div className="pointer-events-none absolute inset-0 flex flex-col">
-        {sichtbar ? (
+        {sichtbar && eingeklappt ? (
+          <>
+            {oben && <KurveRand className="pointer-events-auto mx-rand mt-abstand w-auto" />}
+            <div ref={frei} className="min-h-0 flex-1" />
+            {!oben && <KurveRand className="pointer-events-auto mx-rand mb-abstand w-auto" />}
+          </>
+        ) : sichtbar ? (
           <Group key={String(oben)} {...hoehe} orientation="vertical" className="min-h-0 flex-1">
             {oben && streifen}
             {oben && griff}

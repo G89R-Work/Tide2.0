@@ -89,17 +89,17 @@ describe('Ebbe-Fenster', () => {
   it('nennt während eines Termins die nächste freie Zeit ab 45 Minuten', () => {
     const tag = [z(um(9), um(10)), z(um(10, 30), um(12)), z(um(13), um(14))]
     // 10:00–10:30 ist zu kurz, 12:00–13:00 reicht.
-    expect(ebbeFenster(tag, um(9, 15))).toBe('Gerade Flut, Ebbe ab 12:00')
+    expect(ebbeFenster(tag, um(9, 15))).toBe('Gerade Flut · Ebbe ab 12:00')
   })
   it('zählt eine kurze Lücke noch zur Flut', () => {
-    expect(ebbeFenster([z(um(9), um(10)), z(um(10, 30), um(12))], um(10, 10))).toBe('Gerade Flut, Ebbe ab 12:00')
+    expect(ebbeFenster([z(um(9), um(10)), z(um(10, 30), um(12))], um(10, 10))).toBe('Gerade Flut · Ebbe ab 12:00')
   })
   it('nennt in freier Zeit, bis wann sie reicht', () => {
-    expect(ebbeFenster([z(um(14), um(15))], um(11))).toBe('Gerade Ebbe bis 14:00')
+    expect(ebbeFenster([z(um(14), um(15))], um(11))).toBe('Gerade Ebbe · Nächste Flut 14:00')
     expect(ebbeFenster([z(um(8), um(9))], um(11))).toBe('Gerade Ebbe')
     expect(ebbeFenster([], um(11))).toBe('Gerade Ebbe')
   })
   it('verbindet überlappende Termine', () => {
-    expect(ebbeFenster([z(um(9), um(11)), z(um(10), um(12))], um(9, 30))).toBe('Gerade Flut, Ebbe ab 12:00')
+    expect(ebbeFenster([z(um(9), um(11)), z(um(10), um(12))], um(9, 30))).toBe('Gerade Flut · Ebbe ab 12:00')
   })
 })
