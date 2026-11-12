@@ -20,10 +20,10 @@ Im Bearbeiten-Modus zeigen alle Kacheln ihre Griffpunkte. „Fertig“ beendet i
 
 ## Regeln
 
-- **Raster (Stand 2026-11-12, Wunsch des Nutzers).** Am PC und Tablet besteht das Raster aus Linien im Abstand von 12 px (= Abstand). Jede Kachel belegt ein Vielfaches davon und hat rundherum 6 px unsichtbaren Rand; sichtbar bleibt zwischen Kacheln immer genau 12 px, und nur die sichtbare Fläche reagiert. Die Zahl der Linien je Bildschirm wird gerundet, damit die letzte Reihe genau 12 px vor der Kurve und die rechte Spalte genau am Rand endet; eine Kachel kann darum je Bildschirm um 1 px abweichen. Am Handy bleiben 2 Spalten und 12 Zeilen je Bildschirm. Kacheln rasten ein und bleiben, wo man sie lässt: Lücken bleiben, nichts rückt nach oben; liegt eine Kachel im Weg, weicht sie nach unten aus. Tablet im Hochformat: siehe docs/IDEEN.md.
+- **Raster (Stand 2026-11-12, Entscheidung des Nutzers: wie Samsung One UI).** Jede Seite ist ein Raster aus quadratischen Zellen. Jede Kachel belegt ganze Zellen, nichts dazwischen. Eingestellt wird nur die Zahl der Spalten (je Gerät, ab Werk 16, Handy 4); die Zellgröße ist Breite ÷ Spalten, die Reihen ergeben sich aus der Höhe, was beim Runden übrig bleibt, geht gleichmäßig an den Rand. Der Abstand zwischen Kacheln ist ein Fünftel der Zelle, rundherum gleich; jede Kachel hat dafür ein Zehntel unsichtbaren Rand, nur die sichtbare Fläche reagiert. Kacheln rasten in ganzen Zellen ein und bleiben, wo man sie lässt. Seitenleiste, Gezeitenkurve und Kopfzeile sind feste Teile des Rasters (Fahrplan `raster-geruest`).
 - **Andocken.** Jede Kachel hängt oben oder unten und links oder rechts, je nachdem, in welcher Hälfte ihre Mitte liegt. Auf größeren Bildschirmen wächst nur der Platz dazwischen; die Kacheln bleiben gleich groß.
 - **Gemerkt je Nutzer, Seite und Geräteart.** Dein Handy und dein PC haben getrennte Anordnungen.
-- **Größen.** Kleinste Kachel 24 × 24 px, Standard 48 × 48 px, dazwischen und darüber in 12er-Schritten. Mindestgrößen je Kachel gibt es nicht: Passt der Inhalt nicht, entscheidest du.
+- **Größen.** Kleinste Kachel ist eine Zelle (1 × 1). Mindestgrößen je Kachel gibt es nicht: Passt der Inhalt nicht, entscheidest du.
 - **Notizen sind Kacheln.** Eine wichtige Idee ziehst du groß, der Rest bleibt klein.
 - **Große Arbeitsflächen bleiben ganz.** Das Postfach mit Liste und Leser oder der Kalender mit Monat und Tag sind je eine Kachel-Gruppe mit ziehbaren Trennlinien, kein Puzzle aus Einzelteilen.
 - **Eine Glasebene.** Kacheln sind getönte Flächen. In einer Kachel liegt nie wieder Glas.

@@ -4,10 +4,10 @@ import type { Geraet } from '../logik/einstellungen'
 import type { Platz } from '../logik/kacheln'
 
 /** `ohneHintergrund`: Kacheln, die ohne Fläche gezeigt werden; fehlt das Feld, gilt der Werkszustand.
- *  Plätze am PC in 12-px-Linien, am Handy in 2 Spalten und 12 Zeilen je Bildschirm.
+ *  Plätze in quadratischen Zellen (`raster: 'zellen'`); Daten ohne diese Angabe stammen aus älteren Rastern und gelten als Werkszustand.
  *  Ein Platz mit `unten: true` hängt am unteren Rand, sein `y` zählt von dort; fehlt das Feld, hängt er oben.
  *  Ebenso `rechts: true` mit `x` vom rechten Rand; fehlt das Feld, hängt er links. */
-export type AnordnungDaten = { plaetze: Record<string, Platz>; versteckt: string[]; ohneHintergrund: string[] }
+export type AnordnungDaten = { raster: 'zellen'; plaetze: Record<string, Platz>; versteckt: string[]; ohneHintergrund: string[] }
 
 const adresse = (seite: string, geraet: Geraet) => `/api/kacheln/${encodeURIComponent(seite)}/${geraet}`
 

@@ -1,5 +1,5 @@
 import { Ellipsis } from 'lucide-react'
-import { useEffect, useMemo, useRef, useState, type KeyboardEvent, type MouseEvent, type ReactNode, type Ref } from 'react'
+import { useEffect, useMemo, useRef, useState, type CSSProperties, type KeyboardEvent, type MouseEvent, type ReactNode, type Ref } from 'react'
 import { createPortal } from 'react-dom'
 import { GridLayout, useContainerWidth } from 'react-grid-layout'
 import { noCompactor } from 'react-grid-layout/core'
@@ -7,10 +7,10 @@ import type { Layout, ResizeHandleAxis } from 'react-grid-layout'
 import { cn } from '../bausteine/cn'
 import { Flaeche } from '../bausteine/Flaeche'
 import { Knopf } from '../bausteine/Knopf'
-import { useGeraet } from '../geruest/einstellungen'
+import { useEinstellung, useGeraet } from '../geruest/einstellungen'
 import { useFreieHoehe } from '../geruest/freieHoehe'
-import { ablegen, alsLayout, getroffen, groesseAendern, hatHintergrund, linien, stehenLassen, verschiebe, type KachelPlan } from '../logik/kacheln'
-import { abstaende } from '../werte/abstaende'
+import { einstellungen } from '../logik/einstellungen'
+import { ablegen, alsLayout, getroffen, groesseAendern, hatHintergrund, stehenLassen, verschiebe, zellRaster, type KachelPlan } from '../logik/kacheln'
 import { VERWEILEN_MS } from '../werte/bewegung'
 import { kachelRaster } from '../werte/kacheln'
 import { useAnordnung } from './anordnung'
@@ -22,10 +22,10 @@ import { KachelMenue, type MenueOrt } from './KachelMenue'
 // hier nur der Bearbeiten-Modus drumherum: Griff, Griffpunkte, Menü der Kachel, Tastatur, Speichern.
 // Außerhalb des Modus gibt es weder langen Druck noch Rechtsklick-Menü. Im Modus sieht die Seite genauso aus wie danach:
 // das Bedienfeld liegt außerhalb (`BearbeitenOrt`), Rahmen und Griffpunkte liegen innerhalb der Kacheln.
-// Raster: am PC Linien im Abstand von 12 px, am Handy 2 Spalten und 12 Zeilen je Bildschirm (src/logik/kacheln.ts).
-// Jede Kachel hat rundherum einen halben Abstand unsichtbaren Rand (`kachel-platz`), das Raster selbst keinen Abstand;
-// darum ragt es rundherum um diesen halben Abstand über den Inhalt hinaus (`-m-kachelrand`). Nur die sichtbare Fläche reagiert.
-// So ist überall genau ein Abstand zu sehen, und die letzte Reihe endet genau einen Abstand vor der Kurve.
+// Raster: quadratische Zellen wie bei Samsung One UI, Zahl der Spalten aus der Einstellung (`zellRaster` in src/logik/kacheln.ts).
+// Jede Kachel hat rundherum einen halben Abstand unsichtbaren Rand (`kachel-platz`), das Raster selbst keinen; darum ragt es
+// rundherum um diesen halben Abstand über den Inhalt hinaus (`raster-ueberstand`). Beides misst `--kachelrand`, das hier gesetzt wird.
+// Nur die sichtbare Fläche reagiert. So ist überall genau ein Abstand zu sehen; was beim Runden übrig bleibt, liegt gleichmäßig am Rand.
 // Ziehen wie bei One UI: Die gezogene Kachel schwebt, alle anderen bleiben stehen (`stehenLassen` als Compactor des Bausteins);
 // wen sie trifft, zeigt seine Grenze. Bleibt der Zeiger `VERWEILEN_MS` lang im Umkreis `verweilPuffer`, weichen die anderen aus,
 // sichtbar mit der nächsten Regung des Zeigers oder beim Loslassen (der Baustein ordnet nur bei Bewegung). Kleines Zittern zählt nicht;
@@ -37,6 +37,8 @@ function punkt(e: Event): { x: number; y: number } | null {
 }
 
 const griffKlassen: Partial<Record<ResizeHandleAxis, string>> = { se: 'griff griff-se', e: 'griff griff-e', s: 'griff griff-s' }
+
+const spaltenEinstellung = einstellungen.find((e) => e.id === 'kacheln-spalten')!
 
 const pfeile: Record<string, [number, number]> = { ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, -1], ArrowDown: [0, 1] }
 
@@ -51,14 +53,12 @@ type Props = {
 export function Raster({ seite, kacheln, inhalt }: Props) {
   const geraet = useGeraet()
   const handy = geraet === 'handy'
-  const linie = abstaende.abstandPx
-  // Länge des Rasters: sichtbarer Platz plus ein Abstand (je ein halber Rand oben und unten, links und rechts).
-  // Gemessen wird der sichtbare Platz; das Raster darin ragt rundherum um den halben Abstand hinaus (`-m-kachelrand`).
-  const hoehe = useFreieHoehe() + linie
+  // Gemessen wird der sichtbare Platz: Breite des Inhalts, Höhe eines Bildschirms (zwischen Kopf und Kurve).
+  const hoehe = useFreieHoehe()
   const { width, containerRef, mounted } = useContainerWidth()
-  const breite = width + linie
-  const spalten = handy ? kachelRaster.handy.spalten : linien(breite, linie)
-  const zeilen = handy ? kachelRaster.handy.zeilen : linien(hoehe, linie)
+  const spalten = useEinstellung(spaltenEinstellung) as number
+  const zellen = zellRaster(width, hoehe, spalten, kachelRaster.abstandAnteil)
+  const zeilen = zellen.reihen
   const { anordnung, raster, fehler, aendern, zuruecksetzen } = useAnordnung(seite, geraet, kacheln, spalten, zeilen)
   const bearbeiten = useBearbeiten()
   const bedienOrt = useBearbeitenOrt()
@@ -70,7 +70,7 @@ export function Raster({ seite, kacheln, inhalt }: Props) {
   const gezogen = useRef<string | null>(null)
   // Wo die anderen beim Ziehen stehen: vor dem Ziehen, oder nach dem Verweilen ausgewichen.
   const basis = useRef<Layout>([])
-  const layout = useMemo(() => anordnung && alsLayout(anordnung, kacheln, geraet), [anordnung, kacheln, geraet])
+  const layout = useMemo(() => anordnung && alsLayout(anordnung, kacheln), [anordnung, kacheln])
   const ordnen = useMemo(() => ({ ...noCompactor, compact: (l: Layout) => (gezogen.current ? stehenLassen(l, basis.current, gezogen.current) : l) }), [])
   useEffect(() => () => clearTimeout(verweilen.current), [])
 
@@ -109,7 +109,7 @@ export function Raster({ seite, kacheln, inhalt }: Props) {
     setGrenze(treffer)
     if (treffer.length === 0) return
     verweilen.current = setTimeout(() => {
-      basis.current = alsLayout(ablegen(anordnung, kacheln, raster, hier, id), kacheln, geraet)
+      basis.current = alsLayout(ablegen(anordnung, kacheln, raster, hier, id), kacheln)
       setGrenze([])
     }, VERWEILEN_MS)
   }
@@ -153,14 +153,16 @@ export function Raster({ seite, kacheln, inhalt }: Props) {
           bedienOrt,
         )}
       {fehler && <p className="mb-2 text-sm text-warnung">{fehler}</p>}
-      <div ref={containerRef}>
-        {mounted && hoehe > linie && (
+      {/* Gemessen wird der äußere Kasten; der Rest beim Runden liegt innen als Rand, damit die Messung ihn nicht mitzählt. */}
+      <div ref={containerRef} style={{ '--kachelrand': `${zellen.abstand / 2}px` } as CSSProperties}>
+        {mounted && hoehe > 0 && (
+          <div style={{ paddingLeft: zellen.links, paddingTop: zellen.oben }}>
           <GridLayout
-            className="-m-kachelrand"
-            width={breite}
+            className="raster-ueberstand"
+            width={spalten * zellen.zelle}
             layout={layout}
             compactor={ordnen}
-            gridConfig={{ cols: spalten, rowHeight: hoehe / zeilen, margin: [0, 0], containerPadding: [0, 0] }}
+            gridConfig={{ cols: spalten, rowHeight: zellen.zelle, margin: [0, 0], containerPadding: [0, 0] }}
             // Am PC greift man den Kopf oder Griff; Klicks auf den Inhalt bleiben Klicks. Am Handy hebt langer Druck die ganze Kachel an,
             // auch auf Knöpfen; kurzes Antippen bleibt ein Klick, kurzes Wischen scrollt (allowMobileScroll).
             dragConfig={{ enabled: bearbeiten, handle: handy ? undefined : '.kachel-griff', cancel: '.griff, .kachel-menue-knopf', threshold: kachelRaster.ziehSchwelle, allowMobileScroll: true }}
@@ -229,6 +231,7 @@ export function Raster({ seite, kacheln, inhalt }: Props) {
               )
             })}
           </GridLayout>
+          </div>
         )}
       </div>
       <KachelMenue ort={menue} schliessen={() => setMenue(null)} anordnung={anordnung} plan={kacheln} raster={raster} aendern={aendern} zuruecksetzen={zuruecksetzen} />

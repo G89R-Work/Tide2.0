@@ -10,7 +10,7 @@ const gruppen = [
   ['morgen', 'Morgen'],
 ] as const
 
-/** Zahl und wichtigster Punkt; ein Klick fächert die Karten in einer schwebenden Karte auf. Die volle Liste steht unter To-dos.
+/** Zahl und wichtigster Punkt in zwei Zeilen; ein Klick fächert die Karten in einer schwebenden Karte auf. Die volle Liste steht unter To-dos.
  *  Wartet nichts, gibt die Seite der Kachel keinen Inhalt und sie verschwindet. */
 export function BrauchtDich({ daten, jetzt }: { daten: Daten<Eintrag>; jetzt: Date }) {
   const id = useId()
@@ -26,8 +26,10 @@ export function BrauchtDich({ daten, jetzt }: { daten: Daten<Eintrag>; jetzt: Da
         <span aria-hidden className="grid size-8 shrink-0 place-items-center rounded-voll bg-akzent text-sm font-semibold text-auf-akzent">
           {daten.zahl}
         </span>
-        <span className="min-w-0 flex-1">
-          <span className="font-medium">{satz}</span> <span className="text-text-gedaempft">{`${w.titel}, ${seitText(w.frist ?? '', jetzt)}.`}</span>
+        {/* Zwei Zeilen: oben die Zahl als Satz, darunter das Neueste. */}
+        <span className="grid min-w-0 flex-1 leading-tight">
+          <span className="truncate font-medium">{satz}</span>
+          <span className="truncate text-sm text-text-gedaempft">{`${w.titel}, ${seitText(w.frist ?? '', jetzt)}.`}</span>
         </span>
       </Knopf>
       <div id={id} popover="auto" aria-label="Braucht dich" className="flaeche-schwebend schwebende-karte p-4">

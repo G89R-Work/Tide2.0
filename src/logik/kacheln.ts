@@ -1,7 +1,6 @@
-// Kacheln: Anordnung je Seite und Geräteart (docs/konzept/04-kacheln.md).
-// Raster: am PC und Tablet Linien im Abstand von 12 px (= Abstand); die Zahl der Linien je Bildschirm wird gerundet (`linien`),
-// damit die letzte genau am Ende des Platzes liegt. Am Handy fest 2 Spalten und 12 Zeilen je Bildschirm.
-// Jede Kachel hat rundherum einen halben Abstand unsichtbaren Rand; sichtbar bleibt so überall genau ein Abstand.
+// Kacheln: Anordnung je Seite und Geräteart (docs/konzept/04-kacheln.md). Raster wie Samsung One UI:
+// quadratische Zellen, jede Kachel belegt ganze Zellen. Eingestellt wird die Zahl der Spalten; Zellgröße und Reihen
+// rechnet `zellRaster` aus dem Platz. Zwischen Kacheln bleibt ein fester Anteil der Zelle als Abstand (unsichtbarer Rand je Kachel).
 // Plätze sind frei: Eine Kachel bleibt, wo man sie lässt; nichts rückt nach oben. Liegt eine Kachel auf einer anderen,
 // weicht die andere nach unten aus. Jede Kachel hängt oben oder unten (`unten`) und links oder rechts (`rechts`);
 // auf größeren Bildschirmen wächst nur der Platz dazwischen. Gemerkt wird angedockt, gezeigt und bearbeitet
@@ -31,24 +30,29 @@ export type KachelPlan = {
 /** Ausgeblendete Kacheln haben keinen Platz. `ohneHintergrund` nennt die Kacheln ohne Fläche. */
 export type Anordnung = { plaetze: Readonly<Record<string, Platz>>; versteckt: readonly string[]; ohneHintergrund: readonly string[] }
 
-/** Wie viele Linien des Maßes `linie` auf ein Raster der Länge `laenge` passen, gerundet.
- *  Die Länge des Rasters ist der sichtbare Platz plus ein Abstand (je ein halber unsichtbarer Rand vorn und hinten). */
-export function linien(laenge: number, linie: number): number {
-  return Math.max(1, Math.round(laenge / linie))
+/** Zellraster auf einem sichtbaren Platz `breite` × `hoehe` mit `spalten` Spalten. `anteil`: Abstand zwischen Kacheln als Anteil der Zelle.
+ *  `zelle` ist die Teilung (Kachel plus Abstand); eine Kachel aus n Zellen ist sichtbar n · zelle − abstand groß.
+ *  Die Zellen bleiben quadratisch; was beim Runden der Reihen übrig bleibt, liegt gleichmäßig als `links`/`oben` am Rand. */
+export function zellRaster(breite: number, hoehe: number, spalten: number, anteil: number) {
+  const nachBreite = breite / (spalten - anteil)
+  const reihen = Math.max(1, Math.round(hoehe / nachBreite + anteil))
+  const zelle = hoehe > 0 ? Math.min(nachBreite, hoehe / (reihen - anteil)) : nachBreite
+  const abstand = zelle * anteil
+  return { zelle, reihen, abstand, links: Math.max(0, (breite - spalten * zelle + abstand) / 2), oben: Math.max(0, (hoehe - reihen * zelle + abstand) / 2) }
 }
 
-/** Kleiner wird keine Kachel. PC: 3 Linien sind 24 px sichtbar. Mindestgrößen je Kachel gibt es nicht. */
-export const kleinste: Record<Geraet, Groesse> = { pc: { w: 3, h: 3 }, handy: { w: 1, h: 1 } }
+/** Kleiner wird keine Kachel: eine Zelle. Mindestgrößen je Kachel gibt es nicht. */
+export const kleinste: Groesse = { w: 1, h: 1 }
 
-/** Feste Größen im Menü der Kachel; PC in Linien (sichtbar Linien × 12 − 12 px), „Breit“ nimmt die ganze Breite.
- *  „Klein“ ist die Standardgröße (48 × 48 px), mit der eine Kachel ohne Werksplatz kommt. */
+/** Feste Größen im Menü der Kachel, in Zellen; „Breit“ nimmt die ganze Breite.
+ *  „Klein“ ist die Standardgröße, mit der eine Kachel ohne Werksplatz kommt. */
 export const festeGroessen = {
-  klein: { pc: { w: 5, h: 5 }, handy: { w: 1, h: 2 } },
-  mittel: { pc: { w: 15, h: 10 }, handy: { w: 2, h: 2 } },
-  gross: { pc: { w: 30, h: 20 }, handy: { w: 2, h: 4 } },
-  breit: { pc: { w: Infinity, h: 10 }, handy: { w: Infinity, h: 2 } },
-  hoch: { pc: { w: 15, h: 25 }, handy: { w: 1, h: 4 } },
-} as const satisfies Record<string, Record<Geraet, Groesse>>
+  klein: { w: 1, h: 1 },
+  mittel: { w: 2, h: 2 },
+  gross: { w: 4, h: 4 },
+  breit: { w: Infinity, h: 2 },
+  hoch: { w: 2, h: 4 },
+} as const satisfies Record<string, Groesse>
 export type FesteGroesse = keyof typeof festeGroessen
 export const groessenNamen: Record<FesteGroesse, string> = { klein: 'Klein', mittel: 'Mittel', gross: 'Groß', breit: 'Breit', hoch: 'Hoch' }
 
@@ -56,14 +60,12 @@ const ganz = (n: unknown): n is number => typeof n === 'number' && Number.isInte
 
 /** Platz auf dem Bildschirm in die Grenzen bringen: kleinste Größe, Spaltenzahl, nicht über den Rand. */
 function begrenzt({ x, y, w, h }: Platz, r: Raster): Platz {
-  const min = kleinste[r.geraet]
-  const breite = Math.min(r.spalten, Math.max(min.w, w))
-  return { x: Math.max(0, Math.min(x, r.spalten - breite)), y: Math.max(0, y), w: breite, h: Math.max(min.h, h) }
+  const breite = Math.min(r.spalten, Math.max(kleinste.w, w))
+  return { x: Math.max(0, Math.min(x, r.spalten - breite)), y: Math.max(0, y), w: breite, h: Math.max(kleinste.h, h) }
 }
 
-export function alsLayout(a: Anordnung, plan: readonly KachelPlan[], g: Geraet): LayoutItem[] {
-  const min = kleinste[g]
-  return plan.filter((k) => !a.versteckt.includes(k.id) && a.plaetze[k.id]).map((k) => ({ i: k.id, ...a.plaetze[k.id], minW: min.w, minH: min.h }))
+export function alsLayout(a: Anordnung, plan: readonly KachelPlan[]): LayoutItem[] {
+  return plan.filter((k) => !a.versteckt.includes(k.id) && a.plaetze[k.id]).map((k) => ({ i: k.id, ...a.plaetze[k.id], minW: kleinste.w, minH: kleinste.h }))
 }
 
 /** Stand aus dem Layout des Bausteins übernehmen. Ohne Änderung bleibt das alte Objekt (wichtig für „Rückgängig"). */
@@ -81,8 +83,8 @@ export function ausLayout(a: Anordnung, layout: Layout): Anordnung {
 
 /** Überlappungen auf dem Bildschirm auflösen, ohne etwas nach oben zu holen: Wer im Weg liegt, rutscht unter das Hindernis.
  *  `zuerst` behält seinen Platz (die gerade bewegte Kachel). */
-function aufloesen(a: Anordnung, plan: readonly KachelPlan[], g: Geraet, zuerst?: string): Anordnung {
-  const sortiert = sortLayoutItemsByRowCol(alsLayout(a, plan, g))
+function aufloesen(a: Anordnung, plan: readonly KachelPlan[], zuerst?: string): Anordnung {
+  const sortiert = sortLayoutItemsByRowCol(alsLayout(a, plan))
   const reihe = zuerst ? [...sortiert.filter((l) => l.i === zuerst), ...sortiert.filter((l) => l.i !== zuerst)] : sortiert
   const gesetzt: LayoutItem[] = []
   for (const l of reihe) {
@@ -107,10 +109,10 @@ export function werkszustand(plan: readonly KachelPlan[], g: Geraet): Anordnung 
 }
 
 /** Gemerkte Anordnung lesen. Unbekanntes fällt weg, Fehlendes oder Unlesbares kommt aus dem Werk.
- *  Anordnungen aus dem alten Spalten-Raster (erkennbar an `fein`) passen nicht mehr in das Linien-Raster; für sie gilt das Werk. */
+ *  Anordnungen aus älteren Rastern (ohne `raster: 'zellen'`) passen nicht in das Zellraster; für sie gilt das Werk. */
 export function anordnungAusDaten(roh: unknown, plan: readonly KachelPlan[], g: Geraet): Anordnung {
   const d = typeof roh === 'object' && roh !== null ? (roh as Record<string, unknown>) : {}
-  if ('fein' in d) return werkszustand(plan, g)
+  if (d.raster !== 'zellen') return werkszustand(plan, g)
   const gemerkt = typeof d.plaetze === 'object' && d.plaetze !== null ? (d.plaetze as Record<string, Record<string, unknown>>) : {}
   const plaetze: Record<string, Platz> = {}
   const ids = new Set(plan.map((k) => k.id))
@@ -138,7 +140,7 @@ export function aufBildschirm(a: Anordnung, plan: readonly KachelPlan[], r: Rast
       return [id, begrenzt({ x: p.rechts ? r.spalten - w - p.x : p.x, y: p.unten ? r.zeilen - p.h - p.y : p.y, w, h: p.h }, r)]
     }),
   )
-  return aufloesen({ ...a, plaetze }, plan, r.geraet)
+  return aufloesen({ ...a, plaetze }, plan)
 }
 
 /** Umkehrung von `aufBildschirm` zum Speichern: Liegt die Mitte einer Kachel in der unteren (rechten) Hälfte, hängt sie unten (rechts).
@@ -162,11 +164,11 @@ function aendern(a: Anordnung, plan: readonly KachelPlan[], r: Raster, id: strin
   if (!alt || !plan.some((k) => k.id === id)) return a
   const p = begrenzt(neu(alt), r)
   if (p.x === alt.x && p.y === alt.y && p.w === alt.w && p.h === alt.h) return a
-  return aufloesen({ ...a, plaetze: { ...a.plaetze, [id]: p } }, plan, r.geraet, id)
+  return aufloesen({ ...a, plaetze: { ...a.plaetze, [id]: p } }, plan, id)
 }
 
 export function setzeGroesse(a: Anordnung, plan: readonly KachelPlan[], r: Raster, id: string, groesse: FesteGroesse): Anordnung {
-  return aendern(a, plan, r, id, (p) => ({ ...p, ...festeGroessen[groesse][r.geraet] }))
+  return aendern(a, plan, r, id, (p) => ({ ...p, ...festeGroessen[groesse] }))
 }
 
 /** Beim Ziehen: Kennungen der Kacheln, mit denen sich `id` gerade überschneidet (sie zeigen ihre Grenze). */
@@ -210,8 +212,8 @@ export function ausblenden(a: Anordnung, id: string): Anordnung {
 export function einblenden(a: Anordnung, plan: readonly KachelPlan[], r: Raster, id: string): Anordnung {
   const k = plan.find((x) => x.id === id)
   if (!k || !a.versteckt.includes(id)) return a
-  const ende = Math.max(0, ...alsLayout(a, plan, r.geraet).map((l) => l.y + l.h))
-  const { w, h } = k.werk[r.geraet] ?? festeGroessen.klein[r.geraet]
+  const ende = Math.max(0, ...alsLayout(a, plan).map((l) => l.y + l.h))
+  const { w, h } = k.werk[r.geraet] ?? festeGroessen.klein
   return { ...a, versteckt: a.versteckt.filter((v) => v !== id), plaetze: { ...a.plaetze, [id]: begrenzt({ x: 0, y: ende, w, h }, r) } }
 }
 

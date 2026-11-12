@@ -15,20 +15,20 @@ const k = (id: string, name: string, pc: Ort | null, handy: Ort | null, frei = f
   werk: { pc: platz(pc), handy: platz(handy) },
 })
 
-// PC: in 12-px-Linien, sichtbar ist Linien × 12 − 12 px (5 Linien = 48 px). Links oben Gruß und Als Nächstes, rechts oben Uhr, Wetter
-// und Knöpfe; unten Braucht dich und die Wochenleiste, rechts unten Notiz und Rückblick. Passt ab dem Tablet (70 Linien breit);
-// auf größeren Bildschirmen wächst nur der Himmel dazwischen.
-// Handy: 2 Spalten, 12 Zeilen je Bildschirm; Monat und Rückblick liegen darunter.
+// In ganzen Zellen (quadratisch, docs/konzept/04-kacheln.md). PC und Tablet (ab Werk 16 Spalten): links oben Gruß und Als Nächstes,
+// rechts oben Uhr, Wetter und Knöpfe; unten Braucht dich und die Wochenleiste (7 Zellen) mit Monat davor, rechts unten Notiz und Rückblick.
+// Passt ab 10 Spalten und 5 Reihen; auf größeren Bildschirmen wächst nur der Himmel dazwischen.
+// Handy (ab Werk 4 Spalten): oben Gruß, Als Nächstes, Uhr und Wetter; unten Braucht dich und die Woche; Monat und Rückblick darunter.
 //                                       PC: x, y, w, h, Kante      Handy: x, y, w, h, Kante   frei
 export const werkszustand: readonly KachelPlan[] = [
-  k('gruss', 'Gruß', [0, 0, 34, 5], [0, 0, 2, 2], true),
-  k('wetter', 'Wetter', [17, 0, 17, 10, 'r'], [1, 4, 1, 3], true),
-  k('uhr', 'Uhr', [0, 0, 17, 10, 'r'], [0, 4, 1, 3], true),
-  k('naechstes', 'Als Nächstes', [0, 5, 34, 14], [0, 2, 2, 2], true),
-  k('knoepfe', 'Knöpfe', [0, 10, 17, 5, 'r'], null, true),
-  k('braucht', 'Braucht dich', [0, 10, 34, 5, 'u'], [0, 3, 2, 2, 'u']),
-  k('monat', 'Monat', [0, 0, 8, 10, 'u'], [0, 12, 1, 2]),
-  k('woche', 'Woche', [8, 0, 38, 10, 'u'], [0, 0, 2, 3, 'u']),
-  k('notiz', 'Notiz', [8, 0, 8, 10, 'ur'], null),
-  k('rueckblick', 'Wochenrückblick', [0, 0, 8, 10, 'ur'], [1, 12, 1, 2]),
+  k('gruss', 'Gruß', [0, 0, 5, 1], [0, 0, 4, 1], true),
+  k('wetter', 'Wetter', [2, 0, 2, 2, 'r'], [2, 2, 2, 2], true),
+  k('uhr', 'Uhr', [0, 0, 2, 2, 'r'], [0, 2, 2, 2], true),
+  k('naechstes', 'Als Nächstes', [0, 1, 5, 2], [0, 1, 4, 1], true),
+  k('knoepfe', 'Knöpfe', [0, 2, 3, 1, 'r'], null, true),
+  k('braucht', 'Braucht dich', [0, 1, 5, 1, 'u'], [0, 1, 4, 1, 'u']),
+  k('monat', 'Monat', [0, 0, 1, 1, 'u'], [0, 8, 1, 1]),
+  k('woche', 'Woche', [1, 0, 7, 1, 'u'], [0, 0, 4, 1, 'u']),
+  k('notiz', 'Notiz', [1, 0, 1, 1, 'ur'], null),
+  k('rueckblick', 'Wochenrückblick', [0, 0, 1, 1, 'ur'], [1, 8, 1, 1]),
 ]

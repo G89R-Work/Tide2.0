@@ -1,7 +1,7 @@
-// Maße des Kachel-Rasters. Am PC und Tablet ist eine Linie so lang wie der Abstand (src/werte/abstaende.ts).
+// Maße des Kachel-Rasters (quadratische Zellen wie bei Samsung One UI; Spalten sind eine Einstellung).
 export const kachelRaster = {
-  /** Am Handy fest: 2 Spalten, eine Bildschirmhöhe fasst 12 Zeilen. */
-  handy: { spalten: 2, zeilen: 12 },
+  /** Abstand zwischen Kacheln als Anteil der Zelle; jede Kachel hat die Hälfte davon als unsichtbaren Rand. */
+  abstandAnteil: 0.2,
   /** Abstand des Kachel-Menüs zum Fensterrand. */
   menueRand: 8,
   /** Erst ab so vielen Pixeln Bewegung beginnt das Ziehen; ein Berühren oder Klicken verschiebt nichts. */

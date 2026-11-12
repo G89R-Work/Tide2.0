@@ -13,11 +13,11 @@ import {
   hatHintergrund,
   hintergrundUmschalten,
   kleinste,
-  linien,
   setzeGroesse,
   verankern,
   verschiebe,
   werkszustand,
+  zellRaster,
   type Anordnung,
   type KachelPlan,
   type Raster,
@@ -38,21 +38,42 @@ const ueberlappt = (a: Anordnung) => {
   return p.some((m, i) => p.some((n, j) => i < j && m.x < n.x + n.w && n.x < m.x + m.w && m.y < n.y + n.h && n.y < m.y + m.h))
 }
 
-describe('Raster aus Linien', () => {
-  it('Die Zahl der Linien wird gerundet, damit die letzte genau am Ende liegt', () => {
-    // Tablet: 833 px sichtbar plus ein Abstand = 845 px Raster, 70 Linien zu je 12,07 px.
-    expect(linien(845, 12)).toBe(70)
-    expect(linien(1285, 12)).toBe(107)
-    expect(linien(473, 12)).toBe(39)
+describe('Raster aus quadratischen Zellen', () => {
+  it('Die Zelle ist Breite durch Spalten; sichtbar bleibt zwischen Kacheln ein Fünftel der Zelle', () => {
+    // 16 Spalten auf 1200 px: Teilung t mit 16 t − t/5 = 1200, also t = 75,95 px; 12 Reihen passen in 900 px.
+    const r = zellRaster(1200, 900, 16, 0.2)
+    expect(r.zelle).toBeCloseTo(1200 / 15.8)
+    expect(r.reihen).toBe(12)
+    expect(r.abstand).toBeCloseTo(r.zelle * 0.2)
+    // Die letzte Spalte endet genau am Rand; der Rest der Höhe geht gleichmäßig nach oben und unten.
+    expect(r.links).toBeCloseTo(0)
+    expect(16 * r.zelle - r.abstand + 2 * r.links).toBeCloseTo(1200)
+    expect(r.reihen * r.zelle - r.abstand + 2 * r.oben).toBeCloseTo(900)
+    expect(r.oben).toBeGreaterThanOrEqual(0)
   })
 
-  it('Auch ohne Platz gibt es eine Linie', () => {
-    expect(linien(0, 12)).toBe(1)
+  it('Passt die Höhe nicht, wird die Zelle kleiner und bleibt quadratisch; der Rest geht nach links und rechts', () => {
+    // Rundet die Zahl der Reihen auf, wäre die letzte zu hoch: dann bestimmt die Höhe die Zelle.
+    const r = zellRaster(1000, 470, 16, 0.2)
+    expect(r.reihen).toBe(8)
+    expect(r.reihen * r.zelle - r.abstand).toBeCloseTo(470)
+    expect(r.links).toBeGreaterThan(0)
+    expect(16 * r.zelle - r.abstand + 2 * r.links).toBeCloseTo(1000)
   })
 
-  it('Kleinste Kachel ist am PC 3 Linien (24 px sichtbar), am Handy ein Feld', () => {
-    expect(kleinste.pc).toEqual({ w: 3, h: 3 })
-    expect(kleinste.handy).toEqual({ w: 1, h: 1 })
+  it('Jede Spaltenzahl gibt Quadrate, die den Platz füllen; ohne Platz gibt es eine Reihe', () => {
+    for (const s of [4, 12, 16, 22, 30]) {
+      const r = zellRaster(1456, 820, s, 0.2)
+      expect(r.links).toBeGreaterThanOrEqual(0)
+      expect(r.oben).toBeGreaterThanOrEqual(0)
+      // Der Rest ist kleiner als eine halbe Zelle.
+      expect(Math.min(r.links, r.oben)).toBeLessThan(r.zelle / 2)
+    }
+    expect(zellRaster(400, 0, 4, 0.2).reihen).toBe(1)
+  })
+
+  it('Kleinste Kachel ist eine Zelle', () => {
+    expect(kleinste).toEqual({ w: 1, h: 1 })
   })
 })
 
@@ -64,7 +85,7 @@ describe('kacheln', () => {
   })
 
   it('Gemerkte Daten: Unbekanntes fällt weg, Fehlendes kommt aus dem Werk, Unlesbares ergibt das Werk', () => {
-    const a = anordnungAusDaten({ plaetze: { a: { x: 0, y: 0, w: 4, h: 2, rechts: true }, zz: { x: 0, y: 0, w: 1, h: 1 }, b: { x: 'x' } }, versteckt: ['c', 'zz'] }, plan, 'pc')
+    const a = anordnungAusDaten({ raster: 'zellen', plaetze: { a: { x: 0, y: 0, w: 4, h: 2, rechts: true }, zz: { x: 0, y: 0, w: 1, h: 1 }, b: { x: 'x' } }, versteckt: ['c', 'zz'] }, plan, 'pc')
     expect(a.plaetze.a).toEqual({ x: 0, y: 0, w: 4, h: 2, rechts: true })
     expect(a.plaetze.zz).toBeUndefined()
     expect(a.plaetze.b).toEqual(plan[1].werk.pc)
@@ -73,8 +94,9 @@ describe('kacheln', () => {
     expect(anordnungAusDaten(null, plan, 'pc')).toEqual(werkszustand(plan, 'pc'))
   })
 
-  it('Anordnungen aus dem alten Spalten-Raster (mit `fein`) ergeben das Werk', () => {
+  it('Anordnungen aus einem älteren Raster (ohne `raster: zellen`) ergeben das Werk', () => {
     expect(anordnungAusDaten({ plaetze: { a: { x: 0, y: 0, w: 6, h: 3 } }, versteckt: ['b'], fein: 1 }, plan, 'pc')).toEqual(werkszustand(plan, 'pc'))
+    expect(anordnungAusDaten({ plaetze: { a: { x: 0, y: 0, w: 6, h: 3 } }, versteckt: ['b'] }, plan, 'pc')).toEqual(werkszustand(plan, 'pc'))
   })
 
   it('Auf dem Bildschirm: unten und rechts angedockte Kacheln zählen vom Rand, gezeigt wird von oben links', () => {
@@ -117,11 +139,11 @@ describe('kacheln', () => {
     }
   })
 
-  it('Eine 24er-Kachel lässt sich anlegen, kleiner geht es nicht', () => {
+  it('Eine Kachel aus einer Zelle lässt sich anlegen, kleiner geht es nicht', () => {
     const r = pc(70, 39)
     const bild = aufBildschirm(werkszustand(plan, 'pc'), plan, r)
-    expect(groesseAendern(bild, plan, r, 'c', -17, -2).plaetze.c).toMatchObject({ w: 3, h: 3 })
-    expect(groesseAendern(bild, plan, r, 'c', -30, -9).plaetze.c).toMatchObject({ w: 3, h: 3 })
+    expect(groesseAendern(bild, plan, r, 'c', -19, -4).plaetze.c).toMatchObject({ w: 1, h: 1 })
+    expect(groesseAendern(bild, plan, r, 'c', -30, -9).plaetze.c).toMatchObject({ w: 1, h: 1 })
   })
 
   it('Umschalt und Pfeiltasten ändern die Größe nur bis zum Rand', () => {
@@ -137,7 +159,7 @@ describe('kacheln', () => {
     const breit = setzeGroesse(bild, plan, r, 'a', 'breit')
     expect(breit.plaetze.a).toMatchObject({ x: 0, w: 70 })
     expect(ueberlappt(breit)).toBe(false)
-    expect(setzeGroesse(bild, plan, r, 'a', 'klein').plaetze.a).toMatchObject({ w: 5, h: 5 })
+    expect(setzeGroesse(bild, plan, r, 'a', 'klein').plaetze.a).toMatchObject({ w: 1, h: 1 })
   })
 
   it('Ziehen über eine andere Kachel: getroffen ist nur, wer sich mit der gezogenen überschneidet', () => {
@@ -155,7 +177,7 @@ describe('kacheln', () => {
   it('Ablegen: die gezogene Kachel bleibt, wo sie losgelassen wird; wer im Weg liegt, weicht nach unten aus', () => {
     const r = pc(70, 39)
     const bild = aufBildschirm(werkszustand(plan, 'pc'), plan, r)
-    const layout = alsLayout(bild, plan, 'pc').map((l) => (l.i === 'c' ? { ...l, x: 0, y: 0 } : l))
+    const layout = alsLayout(bild, plan).map((l) => (l.i === 'c' ? { ...l, x: 0, y: 0 } : l))
     const neu = ablegen(bild, plan, r, layout, 'c')
     expect(neu.plaetze.c).toMatchObject({ x: 0, y: 0 })
     expect(neu.plaetze.a.y).toBe(5)
@@ -181,8 +203,8 @@ describe('kacheln', () => {
   it('Ablegen am alten Platz oder ohne die Kachel ändert nichts', () => {
     const r = pc(70, 39)
     const bild = aufBildschirm(werkszustand(plan, 'pc'), plan, r)
-    expect(ablegen(bild, plan, r, alsLayout(bild, plan, 'pc'), 'c')).toBe(bild)
-    expect(ablegen(bild, plan, r, alsLayout(bild, plan, 'pc'), 'x')).toBe(bild)
+    expect(ablegen(bild, plan, r, alsLayout(bild, plan), 'c')).toBe(bild)
+    expect(ablegen(bild, plan, r, alsLayout(bild, plan), 'x')).toBe(bild)
   })
 
   it('Pfeiltasten verschieben um eine Linie; wer im Weg liegt, weicht nach unten aus', () => {
@@ -200,7 +222,7 @@ describe('kacheln', () => {
     const w = aufBildschirm(werkszustand(plan, 'pc'), plan, r)
     const weg = ausblenden(w, 'b')
     expect(weg.versteckt).toEqual(['b'])
-    expect(alsLayout(weg, plan, 'pc').map((l) => l.i)).toEqual(['a', 'c'])
+    expect(alsLayout(weg, plan).map((l) => l.i)).toEqual(['a', 'c'])
     const da = einblenden(weg, plan, r, 'b')
     expect(da.versteckt).toEqual([])
     expect(da.plaetze.b).toMatchObject({ w: 20, h: 10 })
@@ -209,8 +231,8 @@ describe('kacheln', () => {
 
   it('Layout des Bausteins hin und zurück, mit kleinster Größe', () => {
     const w = werkszustand(plan, 'pc')
-    const l = alsLayout(w, plan, 'pc')
-    expect(l[0]).toMatchObject({ i: 'a', minW: 3, minH: 3 })
+    const l = alsLayout(w, plan)
+    expect(l[0]).toMatchObject({ i: 'a', minW: 1, minH: 1 })
     const neu = ausLayout(w, [{ i: 'a', x: 0, y: 0, w: 8, h: 3 }])
     expect(neu.plaetze.a.w).toBe(8)
     expect(neu.plaetze.b).toEqual(w.plaetze.b)
@@ -222,9 +244,9 @@ describe('kacheln', () => {
     const w = werkszustand(mit, 'handy')
     expect(w.versteckt).toEqual(['nurPc'])
     expect(w.plaetze.nurPc).toBeUndefined()
-    expect(anordnungAusDaten({ plaetze: {}, versteckt: [] }, mit, 'handy').versteckt).toEqual(['nurPc'])
+    expect(anordnungAusDaten({ raster: 'zellen', plaetze: {}, versteckt: [] }, mit, 'handy').versteckt).toEqual(['nurPc'])
     const da = einblenden(aufBildschirm(w, mit, handy), mit, handy, 'nurPc')
-    expect(da.plaetze.nurPc).toMatchObject({ x: 0, w: 1, h: 2 })
+    expect(da.plaetze.nurPc).toMatchObject({ x: 0, w: 1, h: 1 })
     expect(ueberlappt(da)).toBe(false)
     expect(werkszustand(mit, 'pc').versteckt).toEqual([])
   })
@@ -237,12 +259,12 @@ describe('kacheln', () => {
     const neu = hintergrundUmschalten(hintergrundUmschalten(w, 'a'), 'b')
     expect([hatHintergrund(neu, 'a'), hatHintergrund(neu, 'b')]).toEqual([true, false])
     expect(hintergrundUmschalten(neu, 'b')).toEqual({ ...neu, ohneHintergrund: [] })
-    const gelesen = anordnungAusDaten({ plaetze: neu.plaetze, versteckt: [], ohneHintergrund: ['b', 'zz', 3] }, ohne, 'pc')
+    const gelesen = anordnungAusDaten({ raster: 'zellen', plaetze: neu.plaetze, versteckt: [], ohneHintergrund: ['b', 'zz', 3] }, ohne, 'pc')
     expect(gelesen.ohneHintergrund).toEqual(['b'])
   })
 
   it('Daten ohne Angabe zum Hintergrund nehmen den Werkszustand', () => {
     const ohne: readonly KachelPlan[] = [{ ...plan[0], hintergrund: false }, plan[1], plan[2]]
-    expect(anordnungAusDaten({ plaetze: {}, versteckt: [] }, ohne, 'pc').ohneHintergrund).toEqual(['a'])
+    expect(anordnungAusDaten({ raster: 'zellen', plaetze: {}, versteckt: [] }, ohne, 'pc').ohneHintergrund).toEqual(['a'])
   })
 })

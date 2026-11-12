@@ -35,7 +35,7 @@ async function speichern(seite: string, geraet: Geraet, plan: readonly KachelPla
   try {
     // Gleich dem Werkszustand: nichts merken, damit spätere Änderungen am Werk ankommen.
     if (JSON.stringify(neu) === JSON.stringify(werkszustand(plan, geraet))) await loescheAnordnung(seite, geraet)
-    else await speichereAnordnung(seite, geraet, { plaetze: { ...neu.plaetze }, versteckt: [...neu.versteckt], ohneHintergrund: [...neu.ohneHintergrund] })
+    else await speichereAnordnung(seite, geraet, { raster: 'zellen', plaetze: { ...neu.plaetze }, versteckt: [...neu.versteckt], ohneHintergrund: [...neu.ohneHintergrund] })
     return true
   } catch (f) {
     melden(schluessel, { anordnung: alt, fehler: `${(f as Error).message}. Die Änderung wurde nicht übernommen.` })

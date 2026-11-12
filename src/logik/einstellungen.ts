@@ -81,6 +81,7 @@ export const einstellungen: readonly Einstellung[] = [
   { id: 'kurve-lage', name: 'Lage', abschnitt: 'kurve', art: 'auswahl', standard: 'unten', optionen: [['unten', 'Unten'], ['oben', 'Oben']], jeGeraet: true, hilfe: 'Am PC über die volle Breite, am Handy über der Leiste' },
   // Sichtbar je Seite: ein Schalter je Bereich (docs/konzept/06-gezeitenkurve.md).
   ...bereiche.map((b) => ({ id: `kurve-zeigen-${b.id}`, name: `Zeigen auf ${b.name}`, abschnitt: 'kurve' as const, art: 'schalter' as const, standard: true, jeGeraet: true as const, hilfe: `Kurve auf der Seite ${b.name}; der Knopf „Gezeitenkurve ein/aus“ schaltet die offene Seite` })),
+  { id: 'kacheln-spalten', name: 'Spalten', abschnitt: 'kacheln', art: 'zahl', standard: 16, standardHandy: 4, min: 3, max: 30, jeGeraet: true, wichtig: true, hilfe: 'Wie viele quadratische Zellen nebeneinander passen; die Reihen ergeben sich aus der Höhe' },
   { id: 'kacheln-bearbeiten', name: 'Kacheln bearbeiten', abschnitt: 'kacheln', art: 'schalter', standard: false, jeGeraet: true, wichtig: true, hilfe: 'Auf jeder Seite verschieben, Größe und Hintergrund ändern; „Fertig“ beendet' },
   { id: 'name', name: 'Dein Name', abschnitt: 'nutzer', art: 'text', standard: 'Moritz', laenge: 30, wichtig: true, hilfe: 'Für die Begrüßung auf Heute; leer lässt den Namen weg' },
   { id: 'heute-uhr', name: 'Uhr', abschnitt: 'heute', art: 'schalter', standard: true, jeGeraet: true, hilfe: 'Uhrzeit mit Anteil des Tages und der Schicht' },
