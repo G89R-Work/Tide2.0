@@ -6,7 +6,7 @@
 // weicht die andere nach unten aus. Jede Kachel hängt oben oder unten (`unten`) und links oder rechts (`rechts`);
 // auf größeren Bildschirmen wächst nur der Platz dazwischen. Gemerkt wird angedockt, gezeigt und bearbeitet
 // wird auf dem Bildschirm, von oben links gezählt (`aufBildschirm`, `verankern`).
-import { getFirstCollision, sortLayoutItemsByRowCol } from 'react-grid-layout/core'
+import { collides, getFirstCollision, sortLayoutItemsByRowCol } from 'react-grid-layout/core'
 import type { Layout, LayoutItem } from 'react-grid-layout'
 import type { Geraet } from './einstellungen'
 
@@ -167,6 +167,29 @@ function aendern(a: Anordnung, plan: readonly KachelPlan[], r: Raster, id: strin
 
 export function setzeGroesse(a: Anordnung, plan: readonly KachelPlan[], r: Raster, id: string, groesse: FesteGroesse): Anordnung {
   return aendern(a, plan, r, id, (p) => ({ ...p, ...festeGroessen[groesse][r.geraet] }))
+}
+
+/** Beim Ziehen: Kennungen der Kacheln, mit denen sich `id` gerade überschneidet (sie zeigen ihre Grenze). */
+export function getroffen(layout: Layout, id: string): string[] {
+  const gezogen = layout.find((l) => l.i === id)
+  return gezogen ? layout.filter((l) => l.i !== id && collides(l, gezogen)).map((l) => l.i) : []
+}
+
+/** Beim Ziehen: Alle außer `id` stehen, wo sie in `basis` stehen (vor dem Ziehen oder nach dem Ausweichen); nichts wird weggeschoben. */
+export function stehenLassen(layout: Layout, basis: Layout, id: string): Layout {
+  const platz = new Map(basis.map((l) => [l.i, l]))
+  return layout.map((l) => {
+    const b = platz.get(l.i)
+    return l.i === id || !b ? l : { ...l, x: b.x, y: b.y, w: b.w, h: b.h }
+  })
+}
+
+/** Ziehen oder Größe ändern beendet (oder lange genug verweilt): `id` bleibt, wo sie im Layout des Bausteins steht;
+ *  wer im Weg liegt, weicht nach unten aus. Ohne Änderung bleibt das alte Objekt. */
+export function ablegen(a: Anordnung, plan: readonly KachelPlan[], r: Raster, layout: Layout, id: string): Anordnung {
+  const l = layout.find((x) => x.i === id)
+  const rest = ausLayout(a, layout.filter((x) => x.i !== id))
+  return l ? aendern(rest, plan, r, id, () => ({ x: l.x, y: l.y, w: l.w, h: l.h })) : rest
 }
 
 /** Umschalt und Pfeiltasten: Breite und Höhe um je eine Linie, nach rechts nur bis zum Rand. */

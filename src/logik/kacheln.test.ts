@@ -2,10 +2,13 @@ import { describe, expect, it } from 'vitest'
 import {
   alsLayout,
   anordnungAusDaten,
+  ablegen,
   aufBildschirm,
   ausblenden,
   ausLayout,
   einblenden,
+  getroffen,
+  stehenLassen,
   groesseAendern,
   hatHintergrund,
   hintergrundUmschalten,
@@ -135,6 +138,51 @@ describe('kacheln', () => {
     expect(breit.plaetze.a).toMatchObject({ x: 0, w: 70 })
     expect(ueberlappt(breit)).toBe(false)
     expect(setzeGroesse(bild, plan, r, 'a', 'klein').plaetze.a).toMatchObject({ w: 5, h: 5 })
+  })
+
+  it('Ziehen über eine andere Kachel: getroffen ist nur, wer sich mit der gezogenen überschneidet', () => {
+    const layout = [
+      { i: 'a', x: 0, y: 0, w: 10, h: 10 },
+      { i: 'b', x: 10, y: 0, w: 10, h: 10 },
+      { i: 'c', x: 5, y: 5, w: 10, h: 10 },
+    ]
+    expect(getroffen(layout, 'c')).toEqual(['a', 'b'])
+    expect(getroffen(layout, 'a')).toEqual(['c'])
+    expect(getroffen([{ i: 'a', x: 0, y: 0, w: 10, h: 10 }, { i: 'b', x: 10, y: 0, w: 5, h: 5 }], 'a')).toEqual([])
+    expect(getroffen(layout, 'x')).toEqual([])
+  })
+
+  it('Ablegen: die gezogene Kachel bleibt, wo sie losgelassen wird; wer im Weg liegt, weicht nach unten aus', () => {
+    const r = pc(70, 39)
+    const bild = aufBildschirm(werkszustand(plan, 'pc'), plan, r)
+    const layout = alsLayout(bild, plan, 'pc').map((l) => (l.i === 'c' ? { ...l, x: 0, y: 0 } : l))
+    const neu = ablegen(bild, plan, r, layout, 'c')
+    expect(neu.plaetze.c).toMatchObject({ x: 0, y: 0 })
+    expect(neu.plaetze.a.y).toBe(5)
+    expect(ueberlappt(neu)).toBe(false)
+  })
+
+  it('Beim Ziehen bleiben alle anderen auf ihrem Platz, nur die gezogene bewegt sich', () => {
+    const basis = [
+      { i: 'a', x: 0, y: 0, w: 10, h: 10 },
+      { i: 'b', x: 10, y: 0, w: 10, h: 10 },
+    ]
+    const geschoben = [
+      { i: 'a', x: 5, y: 0, w: 10, h: 10 },
+      { i: 'b', x: 10, y: 10, w: 10, h: 10 },
+    ]
+    expect(stehenLassen(geschoben, basis, 'a')).toEqual([
+      { i: 'a', x: 5, y: 0, w: 10, h: 10 },
+      { i: 'b', x: 10, y: 0, w: 10, h: 10 },
+    ])
+    expect(stehenLassen([...geschoben, { i: 'c', x: 0, y: 0, w: 1, h: 1 }], basis, 'a')[2]).toEqual({ i: 'c', x: 0, y: 0, w: 1, h: 1 })
+  })
+
+  it('Ablegen am alten Platz oder ohne die Kachel ändert nichts', () => {
+    const r = pc(70, 39)
+    const bild = aufBildschirm(werkszustand(plan, 'pc'), plan, r)
+    expect(ablegen(bild, plan, r, alsLayout(bild, plan, 'pc'), 'c')).toBe(bild)
+    expect(ablegen(bild, plan, r, alsLayout(bild, plan, 'pc'), 'x')).toBe(bild)
   })
 
   it('Pfeiltasten verschieben um eine Linie; wer im Weg liegt, weicht nach unten aus', () => {

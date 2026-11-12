@@ -111,6 +111,9 @@ Eine Zeile je Entscheidung, neueste unten. Was hier steht, gilt und wird nicht n
 - 2026-11-12 · Reihenfolge: `raster-12`, `raster-kurve`, `raster-seitenleiste` vor den übrigen Aufräum-Scheiben, je eine frische Sitzung.
 - 2026-11-12 · Ziehen wie bei One UI (Nutzer): Andere Kacheln weichen erst nach Verweilen aus, vorher schwebt die gezogene Kachel; an Grenzen eine dezente rote gestrichelte Linie; weniger empfindlich. Kacheln docken an Kurve und Seitenleiste und wandern mit, wenn diese ihre Größe ändern; dahinter wird nichts umsortiert. Neue Scheibe `raster-ziehen` vor `raster-kurve`.
 - 2026-11-12 · raster-12 (nach Konzept entschieden): Linien gerundet, darum weichen Kacheln je Bildschirm um bis zu 1 px ab. Der Rand von 6 px liegt als Innenabstand in jeder Kachel, das Raster ragt dafür 6 px über den Inhalt. Anordnungen aus dem alten Spalten-Raster (`fein`) gelten als Werk. Auch am Handy gibt es keine Mindestgröße je Kachel mehr (kleinste 1 × 1). Feste Größen: Klein = Standard 48 × 48, Breit = ganze Breite.
+- 2026-11-12 · Kacheln ziehen (raster-ziehen): kein Umweg, wenn der Baustein nur bei Bewegung neu ordnet. Kleines Zittern bis 16 px zählt als Verweilen (Wunsch des Nutzers: Absicht erkennen). Nach 650 ms weichen die anderen bei der nächsten Regung oder beim Loslassen aus. Weiterziehen über den Umkreis bringt sie zurück.
+- 2026-11-12 · Loslassen über einer anderen Kachel vor dem Verweilen: Die anderen weichen nach unten aus (wie bei den Pfeiltasten), nichts springt zurück.
+- 2026-11-12 · Grenze beim Ziehen in eigener Farbe `--grenze` (rot) in beiden Designs, auch in Tinte.
 
 ## Offen
 

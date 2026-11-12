@@ -376,6 +376,10 @@ html {
   outline: 1.5px dashed var(--akzent);
   outline-offset: -1.5px;
   user-select: none;
+  /* Eine gezogene Kachel liegt über dieser: dezente rote gestrichelte Grenze. */
+  &[data-grenze] {
+    outline-color: var(--grenze);
+  }
 }
 @utility kachel-gewaehlt {
   outline: 2px solid var(--akzent);

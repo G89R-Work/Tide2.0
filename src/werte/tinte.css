@@ -26,6 +26,7 @@
   --auf-akzent: #121212;
   --warnung: #f2f2f0; /* Warnung und Erfolg gleich; Unterschied nur über Symbol */
   --erfolg: #f2f2f0;
+  --grenze: rgba(229, 115, 115, 0.7); /* Einzige Farbe in Tinte: Grenze beim Ziehen einer Kachel über eine andere (Wunsch des Nutzers) */
   --raum-1: #c9c9c6;
   --raum-2: #7a7a77;
   --raum-3: #a9a9a6; /* Eigene Wahl: Tinte kennt nur zwei Räume */

@@ -4,4 +4,8 @@ export const kachelRaster = {
   handy: { spalten: 2, zeilen: 12 },
   /** Abstand des Kachel-Menüs zum Fensterrand. */
   menueRand: 8,
+  /** Erst ab so vielen Pixeln Bewegung beginnt das Ziehen; ein Berühren oder Klicken verschiebt nichts. */
+  ziehSchwelle: 8,
+  /** Beim Ziehen: Bewegungen innerhalb dieses Umkreises (px) gelten als Verweilen, nicht als neue Absicht. */
+  verweilPuffer: 16,
 } as const

@@ -26,6 +26,7 @@
   --akzent-2: #b8673a;
   --auf-akzent: #1a120e;
   --warnung: #e58a76;
+  --grenze: rgba(229, 115, 100, 0.75); /* Grenze beim Ziehen einer Kachel über eine andere */
   --erfolg: #9cc192;
   --raum-1: #8fbcb6;
   --raum-2: #bba3dc;

@@ -1,5 +1,5 @@
 import { Ellipsis } from 'lucide-react'
-import { useEffect, useState, type KeyboardEvent, type MouseEvent, type ReactNode, type Ref } from 'react'
+import { useEffect, useMemo, useRef, useState, type KeyboardEvent, type MouseEvent, type ReactNode, type Ref } from 'react'
 import { createPortal } from 'react-dom'
 import { GridLayout, useContainerWidth } from 'react-grid-layout'
 import { noCompactor } from 'react-grid-layout/core'
@@ -9,8 +9,9 @@ import { Flaeche } from '../bausteine/Flaeche'
 import { Knopf } from '../bausteine/Knopf'
 import { useGeraet } from '../geruest/einstellungen'
 import { useFreieHoehe } from '../geruest/freieHoehe'
-import { alsLayout, ausLayout, groesseAendern, hatHintergrund, linien, verschiebe, type KachelPlan } from '../logik/kacheln'
+import { ablegen, alsLayout, getroffen, groesseAendern, hatHintergrund, linien, stehenLassen, verschiebe, type KachelPlan } from '../logik/kacheln'
 import { abstaende } from '../werte/abstaende'
+import { VERWEILEN_MS } from '../werte/bewegung'
 import { kachelRaster } from '../werte/kacheln'
 import { useAnordnung } from './anordnung'
 import { bearbeitenBeenden, meldeZuruecksetzer, useBearbeiten, useBearbeitenOrt } from './bearbeiten'
@@ -25,6 +26,15 @@ import { KachelMenue, type MenueOrt } from './KachelMenue'
 // Jede Kachel hat rundherum einen halben Abstand unsichtbaren Rand (`kachel-platz`), das Raster selbst keinen Abstand;
 // darum ragt es rundherum um diesen halben Abstand über den Inhalt hinaus (`-m-kachelrand`). Nur die sichtbare Fläche reagiert.
 // So ist überall genau ein Abstand zu sehen, und die letzte Reihe endet genau einen Abstand vor der Kurve.
+// Ziehen wie bei One UI: Die gezogene Kachel schwebt, alle anderen bleiben stehen (`stehenLassen` als Compactor des Bausteins);
+// wen sie trifft, zeigt seine Grenze. Bleibt der Zeiger `VERWEILEN_MS` lang im Umkreis `verweilPuffer`, weichen die anderen aus,
+// sichtbar mit der nächsten Regung des Zeigers oder beim Loslassen (der Baustein ordnet nur bei Bewegung). Kleines Zittern zählt nicht;
+// wer über den Umkreis hinaus weiterzieht, beginnt von vorn, und die anderen kehren an ihren Platz zurück.
+
+function punkt(e: Event): { x: number; y: number } | null {
+  const p = e instanceof MouseEvent ? e : e instanceof TouchEvent ? e.touches[0] : undefined
+  return p ? { x: p.clientX, y: p.clientY } : null
+}
 
 const griffKlassen: Partial<Record<ResizeHandleAxis, string>> = { se: 'griff griff-se', e: 'griff griff-e', s: 'griff griff-s' }
 
@@ -53,6 +63,16 @@ export function Raster({ seite, kacheln, inhalt }: Props) {
   const bearbeiten = useBearbeiten()
   const bedienOrt = useBearbeitenOrt()
   const [menue, setMenue] = useState<MenueOrt | null>(null)
+  // Beim Ziehen: getroffene Kacheln und, nach dem Verweilen, das Layout, in dem die anderen ausgewichen sind.
+  const [grenze, setGrenze] = useState<readonly string[]>([])
+  const verweilen = useRef<ReturnType<typeof setTimeout>>(undefined)
+  const anker = useRef<{ x: number; y: number } | null>(null)
+  const gezogen = useRef<string | null>(null)
+  // Wo die anderen beim Ziehen stehen: vor dem Ziehen, oder nach dem Verweilen ausgewichen.
+  const basis = useRef<Layout>([])
+  const layout = useMemo(() => anordnung && alsLayout(anordnung, kacheln, geraet), [anordnung, kacheln, geraet])
+  const ordnen = useMemo(() => ({ ...noCompactor, compact: (l: Layout) => (gezogen.current ? stehenLassen(l, basis.current, gezogen.current) : l) }), [])
+  useEffect(() => () => clearTimeout(verweilen.current), [])
 
   // Zurücksetzen per Aktion wirkt auf diese Seite.
   useEffect(() => {
@@ -69,9 +89,38 @@ export function Raster({ seite, kacheln, inhalt }: Props) {
     return () => removeEventListener('keydown', taste, true)
   }, [bearbeiten])
 
-  if (!anordnung) return <div ref={containerRef} />
+  if (!anordnung || !layout) return <div ref={containerRef} />
 
-  const uebernehmen = (layout: Layout) => aendern(ausLayout(anordnung, layout))
+  const begonnen = (id: string) => {
+    gezogen.current = id
+    basis.current = layout
+    anker.current = null
+  }
+
+  const bewegt = (jetzt: Layout, id: string, e: Event) => {
+    const p = punkt(e)
+    const a = anker.current
+    if (!p || (a && Math.hypot(p.x - a.x, p.y - a.y) <= kachelRaster.verweilPuffer)) return
+    anker.current = p
+    clearTimeout(verweilen.current)
+    basis.current = layout
+    const hier = stehenLassen(jetzt, layout, id)
+    const treffer = getroffen(hier, id)
+    setGrenze(treffer)
+    if (treffer.length === 0) return
+    verweilen.current = setTimeout(() => {
+      basis.current = alsLayout(ablegen(anordnung, kacheln, raster, hier, id), kacheln, geraet)
+      setGrenze([])
+    }, VERWEILEN_MS)
+  }
+
+  const losgelassen = (jetzt: Layout, id: string) => {
+    clearTimeout(verweilen.current)
+    gezogen.current = null
+    anker.current = null
+    setGrenze([])
+    aendern(ablegen(anordnung, kacheln, raster, jetzt, id))
+  }
 
   const taste = (e: KeyboardEvent, id: string) => {
     if (e.target !== e.currentTarget) return
@@ -109,20 +158,23 @@ export function Raster({ seite, kacheln, inhalt }: Props) {
           <GridLayout
             className="-m-kachelrand"
             width={breite}
-            layout={alsLayout(anordnung, kacheln, geraet)}
-            // Freie Plätze: nichts rückt nach oben; wer im Weg liegt, weicht nach unten aus.
-            compactor={noCompactor}
+            layout={layout}
+            compactor={ordnen}
             gridConfig={{ cols: spalten, rowHeight: hoehe / zeilen, margin: [0, 0], containerPadding: [0, 0] }}
             // Am PC greift man den Kopf oder Griff; Klicks auf den Inhalt bleiben Klicks. Am Handy hebt langer Druck die ganze Kachel an,
             // auch auf Knöpfen; kurzes Antippen bleibt ein Klick, kurzes Wischen scrollt (allowMobileScroll).
-            dragConfig={{ enabled: bearbeiten, handle: handy ? undefined : '.kachel-griff', cancel: '.griff, .kachel-menue-knopf', threshold: 3, allowMobileScroll: true }}
+            dragConfig={{ enabled: bearbeiten, handle: handy ? undefined : '.kachel-griff', cancel: '.griff, .kachel-menue-knopf', threshold: kachelRaster.ziehSchwelle, allowMobileScroll: true }}
             resizeConfig={{
               enabled: bearbeiten,
               handles: bearbeiten ? ['e', 's', 'se'] : [],
               handleComponent: (achse: ResizeHandleAxis, ref: Ref<HTMLElement>) => <span ref={ref as Ref<HTMLSpanElement>} className={griffKlassen[achse]} aria-hidden />,
             }}
-            onDragStop={uebernehmen}
-            onResizeStop={uebernehmen}
+            onDragStart={(_jetzt, _alt, neu) => neu && begonnen(neu.i)}
+            onResizeStart={(_jetzt, _alt, neu) => neu && begonnen(neu.i)}
+            onDrag={(jetzt, _alt, neu, _platz, e) => neu && bewegt(jetzt, neu.i, e)}
+            onResize={(jetzt, _alt, neu, _platz, e) => neu && bewegt(jetzt, neu.i, e)}
+            onDragStop={(jetzt, _alt, neu) => neu && losgelassen(jetzt, neu.i)}
+            onResizeStop={(jetzt, _alt, neu) => neu && losgelassen(jetzt, neu.i)}
           >
             {sichtbar.map((k) => {
               // Gerade leer (inhalt null): unsichtbar, behält aber den Platz, damit nichts nachrückt. Im Bearbeiten-Modus greifbar.
@@ -160,6 +212,7 @@ export function Raster({ seite, kacheln, inhalt }: Props) {
                 role: 'group',
                 'aria-label': bearbeiten ? `${k.name}. Pfeiltasten verschieben, Umschalt und Pfeiltasten ändern die Größe, Eingabe beendet.` : k.name,
                 tabIndex: bearbeiten ? 0 : -1,
+                'data-grenze': grenze.includes(k.id) || undefined,
                 className: cn('relative flex h-full flex-col', flaeche && 'overflow-hidden', bearbeiten ? 'kachel-bearbeiten focus-visible:kachel-gewaehlt' : 'outline-none'),
                 onKeyDown: bearbeiten ? (e: KeyboardEvent) => taste(e, k.id) : undefined,
                 onContextMenu: bearbeiten
