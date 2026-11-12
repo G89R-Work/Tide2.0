@@ -1,18 +1,14 @@
-// Standard- und Mindestbreite der Seitenleiste in Pixeln (Rechnung siehe unten).
-const standardPx = 147
-
-// Seitenleiste am PC: eingeklappt nur Symbole, ausgefahren mit Namen und bis `hoechstens` ziehbar.
+// Seitenleiste und zweite Ebene am PC und Tablet. Ihre Breite belegt ganze Zellen (src/logik/geruestRaster.ts);
+// diese Werte sagen, wie breit sie mindestens sichtbar sein müssen.
 export const leiste = {
-  symbole: '64px',
   /**
-   * Standard- und Mindestbreite: so breit wie der längste Bereichsname („Finanzen", 61 px) mit gleichem Abstand
-   * links und rechts (je 25 px): 8 Abstand + 1 Rand + 8 + 16 Knopf + 20 Symbol + 8 Lücke + 61 + 16 + 8 + 1.
+   * Breite Leiste mit Namen: so breit wie der längste Bereichsname („Finanzen", 61 px) mit gleichem Abstand
+   * links und rechts: 1 Rand + 8 + 16 Knopf + 20 Symbol + 8 Lücke + 61 + 16 + 8 + 1 = 139 px.
    * „Einstellungen" passt nicht und zeigt nur das Zahnrad.
    */
-  standard: `${standardPx}px`,
-  standardPx,
-  /** Weiter lässt sie sich nicht ziehen. */
-  hoechstens: '360px',
+  namenPx: 139,
+  /** Zweite Ebene (Ordner, Listen). */
+  ebenePx: 208,
   /** Unter dieser Fensterbreite gilt die Handy-Ansicht mit Menü statt Seitenleiste. */
   schmalUnter: 768,
 } as const

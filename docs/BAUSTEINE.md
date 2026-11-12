@@ -70,6 +70,11 @@ Muster für einen Eintrag:
 - Grund: steht im Konzept als geprüft; Einrasten und Merken bringt er mit; Ja des Nutzers.
 - Link: https://github.com/bvaughn/react-resizable-panels
 - Eingebaut in Scheibe: geruest-seitenleiste
+- Stand 2026-11-12 (raster-geruest): am PC und Tablet ersetzt durch das Zellraster (react-grid-layout rechnet die Kacheln, das Gerüst eine reine Funktion); weiter genutzt für die Höhe der Kurve am Handy (`Trenner`).
+
+## 2026-11-12 · Zellraster des Gerüsts
+- Geprüft: react-grid-layout (schon im Projekt) für Leiste und Kurve, CSS Grid.
+- Entscheidung: kein neuer Baustein. Leiste, Kurve und Inhalt sind feste Felder; ihre Lage ist eine kleine reine Rechnung (`src/logik/geruestRaster.ts`) aus `zellRaster`, die Kacheln darin verschiebt weiter react-grid-layout.
 
 ## 2026-11-11 · Symbole
 - Kandidaten: lucide-react (Standard bei shadcn/ui, nur genutzte Symbole im Paket), eigene SVGs

@@ -5,35 +5,35 @@ import { Trenner } from '../bausteine/Trenner'
 import { useBearbeiten } from '../kacheln/bearbeiten'
 import { freierPlatz } from '../logik/freierPlatz'
 import { abstaende } from '../werte/abstaende'
+import { einstellungen } from '../logik/einstellungen'
 import { kurve } from '../werte/kurve'
-import { useGeraet, useKurveOben } from './einstellungen'
+import { useEinstellung, useGeraet, useKurveOben } from './einstellungen'
 import { Gezeitenkurve } from './Gezeitenkurve'
 import { Glocke } from './Glocke'
 import { KurveKopfzeile } from './KurveEintraege'
 import { useMeldungen } from './meldungen'
-import { FreieHoehe } from './freieHoehe'
+import { RasterPlatz } from './rasterPlatz'
 import { useFrischerSchritt } from './rueckgaengig'
 
-// Legt die Gezeitenkurve über oder unter den Inhalt, über die volle Breite (PC und Handy gleich).
-// Der Inhalt läuft über die ganze Höhe durch und scrollt hinter Kurve und `fuss` (untere Leiste am Handy) vorbei;
+// Am Handy: legt die Gezeitenkurve über oder unter den Inhalt, über die volle Breite.
+// Der Inhalt läuft über die ganze Höhe durch und scrollt hinter Kurve und `fuss` (untere Leiste) vorbei;
 // beide liegen als Lage darüber. Den verdeckten Platz oben und unten bekommt der Inhalt als --frei-oben/--frei-unten
 // (Werkzeug `inhalt-frei` in werte.css), damit sich auch die letzte Kachel ganz freischieben lässt.
-// Höhe am Griff zum Inhalt ziehbar, am PC auch die Breite an beiden Seiten; beides nur im Bearbeiten-Modus, dort mit sichtbaren Griffen. Gemerkt je Geräteart im Browser,
-// Doppelklick auf einen Griff stellt den Werkszustand her. `onPlatz` meldet Höhe des Streifens und freien Platz links
-// (für die Seitenleiste, siehe src/logik/leisteLage.ts). Ist die Kurve auf der Seite aus (`sichtbar`), stehen Hinweise und Glocke
-// am unteren Rand. Am Handy macht Antippen die Kurve groß und wieder klein.
-export type Platz = { hoehe: number; links: number }
+// Höhe am Griff zum Inhalt ziehbar, nur im Bearbeiten-Modus, dort mit sichtbarem Griff. Gemerkt im Browser,
+// Doppelklick auf den Griff stellt den Werkszustand her. Ist die Kurve auf der Seite aus (`sichtbar`), stehen Hinweise und Glocke
+// am unteren Rand. Antippen macht die Kurve groß und wieder klein. Am PC und Tablet liegt die Kurve im Zellraster (Geruest.tsx).
+const spaltenEinstellung = einstellungen.find((e) => e.id === 'kacheln-spalten')!
 
-export function MitKurve({ children, fuss, onPlatz, sichtbar }: { children: ReactNode; fuss?: ReactNode; onPlatz?: (platz: Platz) => void; sichtbar: boolean }) {
+export function MitKurve({ children, fuss, sichtbar }: { children: ReactNode; fuss?: ReactNode; sichtbar: boolean }) {
   const geraet = useGeraet()
   const oben = useKurveOben()
   const hoehe = useDefaultLayout({ id: `tide.kurve-hoehe@${geraet}`, storage: localStorage })
   const kurveRef = usePanelRef()
-  const platz = useRef<Platz>({ hoehe: 0, links: 0 })
   const lage = useRef<HTMLDivElement>(null)
   const frei = useRef<HTMLDivElement>(null)
   const [verdeckt, setVerdeckt] = useState({ oben: 0, unten: 0, hoehe: 0 })
   const bearbeiten = useBearbeiten()
+  const spalten = useEinstellung(spaltenEinstellung) as number
 
   // Verdeckt ist, was nicht im leeren Feld „inhalt" zwischen Kurve und Rand liegt. Ändert sich nur beim Ziehen und bei Größenänderung.
   useLayoutEffect(() => {
@@ -49,11 +49,6 @@ export function MitKurve({ children, fuss, onPlatz, sichtbar }: { children: Reac
     beobachter.observe(lage.current!)
     return () => beobachter.disconnect()
   }, [oben, sichtbar])
-  const melde = (neu: Partial<Platz>) => {
-    platz.current = { ...platz.current, ...neu }
-    onPlatz?.(platz.current)
-  }
-
   const groesser = () => {
     const k = kurveRef.current
     if (!k) return
@@ -77,20 +72,19 @@ export function MitKurve({ children, fuss, onPlatz, sichtbar }: { children: Reac
       minSize={kurve.hoeheMin}
       maxSize={kurve.hoeheMax}
       defaultSize={kurve.hoehe}
-      onResize={(g) => melde({ hoehe: Math.round(g.inPixels) })}
-      // Am PC liegt die Kurve am Bildschirmrand, am Handy zwischen Kopfzeile und unterer Leiste.
-      className={cn('pointer-events-auto', geraet === 'pc' ? (oben ? 'pt-rand' : 'pb-rand') : oben ? 'pt-abstand' : 'pb-abstand')}
+      // Zwischen Kopfzeile und unterer Leiste.
+      className={cn('pointer-events-auto', oben ? 'pt-abstand' : 'pb-abstand')}
     >
-      {geraet === 'pc' ? <ZiehbareBreite bearbeiten={bearbeiten} onLinks={(links) => melde({ links })} /> : <Gezeitenkurve className="mx-rand" onAntippen={groesser} />}
+      <Gezeitenkurve className="mx-rand" onAntippen={groesser} />
     </Panel>
   )
 
-  const platzFrei = freierPlatz({ verdeckt, kurve: sichtbar ? (oben ? 'oben' : 'unten') : 'aus', kopfzeile: geraet === 'handy', rand: abstaende.randPx, abstand: abstaende.abstandPx })
+  const platzFrei = freierPlatz({ verdeckt, kurve: sichtbar ? (oben ? 'oben' : 'unten') : 'aus', kopfzeile: true, rand: abstaende.randPx, abstand: abstaende.abstandPx })
 
   return (
     <div ref={lage} className="relative min-h-0 flex-1">
       <div className="absolute inset-0 flex" style={{ '--frei-oben': platzFrei.oben, '--frei-unten': platzFrei.unten } as CSSProperties}>
-        <FreieHoehe.Provider value={Math.max(0, verdeckt.hoehe - platzFrei.oben - platzFrei.unten)}>{children}</FreieHoehe.Provider>
+        <RasterPlatz.Provider value={{ spalten, hoehe: Math.max(0, verdeckt.hoehe - platzFrei.oben - platzFrei.unten) }}>{children}</RasterPlatz.Provider>
       </div>
       <div className="pointer-events-none absolute inset-0 flex flex-col">
         {sichtbar ? (
@@ -115,27 +109,8 @@ export function MitKurve({ children, fuss, onPlatz, sichtbar }: { children: Reac
   )
 }
 
-/** Links und rechts je eine leere Fläche, ab Werk null breit; die Griffe dazwischen verschieben die Ränder der Kurve. */
-function ZiehbareBreite({ bearbeiten, onLinks }: { bearbeiten: boolean; onLinks: (px: number) => void }) {
-  const breite = useDefaultLayout({ id: 'tide.kurve-breite', storage: localStorage })
-  const links = usePanelRef()
-  const rechts = usePanelRef()
-  const titel = bearbeiten ? 'Ziehen ändert die Breite der Kurve, Doppelklick stellt die volle Breite her' : undefined
-  return (
-    <Group {...breite} disabled={!bearbeiten} orientation="horizontal" className="h-full">
-      <Panel id="links" panelRef={links} minSize="0%" defaultSize="0%" onResize={(g) => onLinks(Math.round(g.inPixels))} />
-      <Trenner dicke="rand" griff={bearbeiten} title={titel} onDoubleClick={() => links.current?.resize('0%')} />
-      <Panel id="kurve" minSize={kurve.breiteMin}>
-        <Gezeitenkurve />
-      </Panel>
-      <Trenner dicke="rand" griff={bearbeiten} title={titel} onDoubleClick={() => rechts.current?.resize('0%')} />
-      <Panel id="rechts" panelRef={rechts} minSize="0%" defaultSize="0%" />
-    </Group>
-  )
-}
-
 /** Kurve aus: Hinweise und Glocke am unteren Rand, rechts, damit links nichts verdeckt wird. */
-function HinweiseUnten() {
+export function HinweiseUnten() {
   const schritt = useFrischerSchritt()
   const meldung = useMeldungen().frisch
   const handy = useGeraet() === 'handy'

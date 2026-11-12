@@ -7,7 +7,7 @@ import { useTermine } from './useTermine'
 import { useWetter } from './useWetter'
 import { Wetter } from './Wetter'
 
-/** Klein in der Kopfzeile jeder Seite außer Heute: Wetter und Uhrzeit. Ein Klick zeigt die volle Ansicht wie auf Heute. */
+/** Klein in der Kopfzeile des Gerüsts am PC und Tablet, immer sichtbar: Wetter und Uhrzeit. Ein Klick zeigt die volle Ansicht wie auf Heute. */
 export function UhrUndWetter() {
   const jetzt = useMinute()
   const { termine } = useTermine(0, 1, jetzt)

@@ -24,12 +24,12 @@ Die Wisch-Leiste mit Ordnern oben im Postfach am Handy entfällt. Du fandest sie
 ## PC und Tablet
 
 - **Seitenleiste.** Sie zeigt die Bereiche als Symbole oder als Symbole mit Namen. Rechts daneben klappt die zweite Ebene auf.
-- **Breite ziehen.** Die Kante der Leiste lässt sich mit Maus oder Finger ziehen. Standard- und Mindestbreite ist der längste Bereichsname mit gleichem Abstand links und rechts; „Einstellungen“ zeigt immer nur das Zahnrad, mittig. Unter der Mindestbreite rastet sie auf die Symbol-Leiste ein, ein Doppelklick stellt die Standardbreite her, ein zweiter klappt ein. Dafür gibt es den Baustein [react-resizable-panels](https://cdn.jsdelivr.net/npm/react-resizable-panels@4.7.6/README.md), der Mindestbreite, Einklappen und gemerkte Breiten mitbringt.
+- **Breite (Stand 2026-11-12, Entscheidung des Nutzers).** Leiste, zweite Ebene, Inhalt und Gezeitenkurve liegen im selben Zellraster wie die Kacheln (docs/konzept/04-kacheln.md) und stehen fest. Die Leiste ist schmal (nur Symbole, eine Zelle) oder breit (mit Namen); das ist eine Einstellung. Eine zweite Einstellung sagt, wer am Rand der Kurve bis zum Bildschirmrand reicht: die Kurve über die ganze Breite oder die Leiste über die ganze Höhe.
 - **Logo.** Ein Klick auf das Tide-Logo oder den Namen führt immer zu Heute.
 - **Suche.** Das Suchfeld sitzt oben in der Seitenleiste und durchsucht alle Bereiche.
 - **Reihenfolge.** Bereiche werden gezogen, nicht mit Pfeilen verschoben. Der Knopf „Anordnen“ entfällt aus der Leiste und liegt in den Einstellungen. Ein langer Druck oder Rechtsklick auf einen Eintrag startet das Verschieben ebenfalls.
-- **Gezeitenkurve.** Sie nimmt unten die volle Breite ein. Die Seitenleiste endet darüber.
-- **Kopfzeile der Seite.** Titel links, rechts bis zu drei frei belegbare Knöpfe. Die Zeile mit Uhrzeit und Tagesfortschritt gibt es nur noch auf Heute.
+- **Gezeitenkurve.** Sie belegt ab Werk unten zwei Reihen über die volle Breite (einstellbar 1 bis 3). Die Seitenleiste endet darüber.
+- **Kopfzeile.** Ganz oben eine schmale, feste Zeile mit Uhrzeit und Wetter, immer sichtbar. Die Kopfzeile der Seite hat den Titel links und rechts bis zu drei frei belegbare Knöpfe.
 
 ## Handy
 

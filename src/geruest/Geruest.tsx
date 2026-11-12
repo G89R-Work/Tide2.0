@@ -1,27 +1,30 @@
-import { Suspense, useEffect, useState, type CSSProperties, type Ref } from 'react'
-import { Group, Panel, useDefaultLayout, usePanelRef } from 'react-resizable-panels'
-import { Trenner } from '../bausteine/Trenner'
+import { Suspense, useEffect, useLayoutEffect, useRef, useState, type Ref } from 'react'
 import { BearbeitenOrt } from '../kacheln/bearbeiten'
 import { mitteUnten } from '../logik/aktionen'
 import { ebeneVon, ortAusMarke, type Ort } from '../logik/ebenen'
-import { leisteLage } from '../logik/leisteLage'
-import { abstaende } from '../werte/abstaende'
+import { einstellungen } from '../logik/einstellungen'
+import { flaeche, geruestRaster } from '../logik/geruestRaster'
+import { kachelRaster } from '../werte/kacheln'
 import { leiste } from '../werte/leiste'
 import { AktionKnopf } from './AktionKnopf'
 import { useBelegung } from './belegung'
-import { useKurveOben, useKurveSichtbar } from './einstellungen'
+import { useEinstellung, useKurveOben, useKurveSichtbar } from './einstellungen'
+import { Gezeitenkurve } from './Gezeitenkurve'
 import { useErinnerungen, useFalten, useMeldungen } from './meldungen'
 import { HandyMenue } from './HandyMenue'
-import { MitKurve, type Platz } from './MitKurve'
+import { HinweiseUnten, MitKurve } from './MitKurve'
+import { RasterPlatz } from './rasterPlatz'
 import { Hintergrund } from './Hintergrund'
 import { seiten } from './seiten'
 import { Seitenleiste } from './Seitenleiste'
 import { useBrauchtDich } from './useBrauchtDich'
 import { useSchmal } from './useSchmal'
 import { useTastenkuerzel } from './useTastenkuerzel'
+import { UhrUndWetter } from './UhrUndWetter'
 import { ZweiteEbene } from './ZweiteEbene'
 
-// Am PC: Seitenleiste mit ziehbarer Breite; unter der Mindestbreite rastet sie auf die Symbole ein, daneben die zweite Ebene und der offene Bereich.
+// Am PC und Tablet: oben eine schmale Kopfzeile mit Uhrzeit und Wetter, darunter alles im Zellraster: Seitenleiste (schmal oder breit),
+// zweite Ebene, der offene Bereich und die Gezeitenkurve.
 // Am Handy: oben das Menü mit Punkt und die belegbaren Knöpfe, frei ohne Fläche; darunter der Bereich, der hinter Kurve und
 // unterer Leiste weiterläuft.
 export function Geruest({ marke }: { marke: string }) {
@@ -93,53 +96,75 @@ function Handy({ ort, zahl, bearbeitenRef }: { ort: Ort; zahl: number; bearbeite
   )
 }
 
-function Pc({ ort, bearbeitenRef }: { ort: Ort; bearbeitenRef: Ref<HTMLDivElement> }) {
-  const leisteRef = usePanelRef()
-  const gemerkt = useDefaultLayout({ id: 'tide.leiste', storage: localStorage })
-  const [breite, setBreite] = useState<number>(leiste.standardPx)
-  const hatEbene = ebeneVon(ort.bereich).length > 0
-  const kurveOben = useKurveOben()
-  const sichtbar = useKurveSichtbar(ort.bereich)
-  const [platz, setPlatz] = useState<Platz>({ hoehe: 0, links: 0 })
-  const lage = leisteLage({ leiste: breite, links: platz.links, kurve: sichtbar ? platz.hoehe : 0, griff: abstaende.abstandPx, rand: abstaende.randPx, kurveOben })
+const e = {
+  spalten: einstellungen.find((x) => x.id === 'kacheln-spalten')!,
+  leiste: einstellungen.find((x) => x.id === 'leiste-breite')!,
+  vorrang: einstellungen.find((x) => x.id === 'leiste-vorrang')!,
+  kurve: einstellungen.find((x) => x.id === 'kurve-reihen')!,
+}
 
-  // Die Kurve liegt über die volle Breite. Die Seitenleiste liegt als eigene Lage über ihrer Spalte: Die Spalte (Panel „leiste")
-  // gibt die ziehbare Breite vor, die Leiste endet am Kurven-Streifen oder reicht bis zum Rand, wenn die Kurve links Platz lässt.
+function Pc({ ort, bearbeitenRef }: { ort: Ort; bearbeitenRef: Ref<HTMLDivElement> }) {
+  const sichtbar = useKurveSichtbar(ort.bereich)
+  const leisteBreite = useEinstellung(e.leiste) as 'schmal' | 'breit'
+  const kurveReihen = useEinstellung(e.kurve) as number
+  const spalten = useEinstellung(e.spalten) as number
+  const vorrang = useEinstellung(e.vorrang) as 'kurve' | 'leiste'
+  const kurveOben = useKurveOben()
+  const feld = useRef<HTMLDivElement>(null)
+  const [platz, setPlatz] = useState({ breite: 0, hoehe: 0 })
+  useLayoutEffect(() => {
+    const beobachter = new ResizeObserver(([f]) => setPlatz({ breite: f.contentRect.width, hoehe: f.contentRect.height }))
+    beobachter.observe(feld.current!)
+    return () => beobachter.disconnect()
+  }, [])
+  const g = geruestRaster({
+    ...platz,
+    spalten,
+    anteil: kachelRaster.abstandAnteil,
+    leiste: leisteBreite,
+    leisteNamenPx: leiste.namenPx,
+    ebenePx: ebeneVon(ort.bereich).length > 0 ? leiste.ebenePx : 0,
+    kurve: sichtbar ? kurveReihen : 0,
+    kurveOben,
+    vorrang,
+  })
+  const inhalt = flaeche(g, g.inhalt)
+
+  // Unter der Kopfzeile ein Zellraster über die ganze Seite: Leiste, zweite Ebene, Inhalt und Kurve belegen ganze Zellen
+  // (src/logik/geruestRaster.ts). Nur der Inhalt scrollt; Leiste und Kurve stehen fest.
   return (
-    <div className="relative flex h-dvh flex-col">
-      <MitKurve onPlatz={setPlatz} sichtbar={sichtbar}>
-        <Group {...gemerkt} orientation="horizontal" className="h-full">
-          <Panel
-            id="leiste"
-            panelRef={leisteRef}
-            collapsible
-            collapsedSize={leiste.symbole}
-            minSize={leiste.standard}
-            maxSize={leiste.hoechstens}
-            defaultSize={leiste.standard}
-            // Die gemeldete Größe ist verlässlicher als isCollapsed(), das nach dem Neuladen veraltet sein kann.
-            onResize={(groesse) => setBreite(Math.round(groesse.inPixels))}
-          />
-          <Trenner
-            title="Ziehen ändert die Breite, Doppelklick stellt die Standardbreite her (ein zweiter klappt ein)"
-            onDoubleClick={() => (breite === leiste.standardPx ? leisteRef.current?.collapse() : leisteRef.current?.resize(leiste.standard))}
-          />
-          <Panel id="inhalt" className="flex">
-            {hatEbene && (
-              <nav aria-label="Zweite Ebene" className="inhalt-frei flex w-55 shrink-0 flex-col overflow-y-auto pr-abstand">
-                <div className="flaeche-leiste flex-1 p-2">
-                  <ZweiteEbene bereich={ort.bereich} aktiv={ort.unter} />
-                </div>
+    <div className="flex h-dvh flex-col">
+      <header className="flex h-9 shrink-0 items-center justify-end gap-1 px-rand">
+        <UhrUndWetter />
+      </header>
+      <div ref={feld} className="relative mx-rand mb-rand min-h-0 flex-1">
+        {platz.breite > 0 && (
+          <>
+            <div className="absolute" style={flaeche(g, g.leiste)}>
+              <Seitenleiste offen={ort.bereich} mitNamen={leisteBreite === 'breit'} bearbeitenRef={bearbeitenRef} />
+            </div>
+            {g.ebene && (
+              <nav aria-label="Zweite Ebene" className="flaeche-leiste absolute overflow-y-auto p-2" style={flaeche(g, g.ebene)}>
+                <ZweiteEbene bereich={ort.bereich} aktiv={ort.unter} />
               </nav>
             )}
-            <div className="inhalt-frei flex-1 overflow-auto">
-              <Inhalt ort={ort} />
+            <div className="absolute overflow-auto" style={inhalt}>
+              <RasterPlatz.Provider value={{ spalten: g.inhalt.w, hoehe: inhalt.height }}>
+                <Inhalt ort={ort} />
+              </RasterPlatz.Provider>
             </div>
-          </Panel>
-        </Group>
-      </MitKurve>
-      <div className="leiste-lage" style={{ '--breite': breite, '--oben': lage.oben, '--unten': lage.unten } as CSSProperties}>
-        <Seitenleiste offen={ort.bereich} mitNamen={breite >= leiste.standardPx} bearbeitenRef={bearbeitenRef} />
+            {g.kurve && (
+              <div className="absolute" style={flaeche(g, g.kurve)}>
+                <Gezeitenkurve className="h-full" />
+              </div>
+            )}
+          </>
+        )}
+        {!sichtbar && (
+          <div className="absolute inset-x-0 bottom-0">
+            <HinweiseUnten />
+          </div>
+        )}
       </div>
     </div>
   )

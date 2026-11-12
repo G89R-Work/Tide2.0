@@ -389,12 +389,12 @@ html {
   outline: 2px solid var(--akzent);
   outline-offset: -2px;
 }
-/* Inhalt links und rechts: Rand zum Bildschirm. Am PC liegt links der Trenner zur Seitenleiste (Abstand) davor,
-   darum dort links nichts. Oben und unten setzt MitKurve den Platz über --frei-oben/--frei-unten (inhalt-frei). */
+/* Inhalt links und rechts am Handy: Rand zum Bildschirm. Oben und unten setzt MitKurve den Platz (inhalt-frei).
+   Am PC und Tablet liegt der Inhalt genau auf seinen Zellen (src/logik/geruestRaster.ts), dort ohne Rand. */
 @utility seiten-rand {
   padding-inline: var(--spacing-rand);
   @media (width >= 48rem) {
-    padding-left: 0;
+    padding-inline: 0;
   }
 }
 /* Bearbeiten-Modus: Kopf oder Griff zum Ziehen (PC), Menü-Knopf oben rechts. */
@@ -630,15 +630,3 @@ html {
   scroll-padding-bottom: calc(var(--frei-unten, 0) * 1px);
 }
 
-/* Seitenleiste am PC als Lage über ihrer Spalte (src/geruest/Geruest.tsx): Breite aus der Spalte, Ende oben und unten
-   aus src/logik/leisteLage.ts (Abstand zum Rand). Werte kommen als Zahlen in Pixeln über --breite, --oben, --unten. */
-@utility leiste-lage {
-  position: absolute;
-  left: var(--spacing-rand);
-  width: calc(var(--breite) * 1px - var(--spacing-rand));
-  top: calc(var(--oben) * 1px);
-  bottom: calc(var(--unten) * 1px);
-  transition:
-    top var(--dauer-sanft) var(--kurve),
-    bottom var(--dauer-sanft) var(--kurve);
-}

@@ -7,9 +7,8 @@ import type { Layout, ResizeHandleAxis } from 'react-grid-layout'
 import { cn } from '../bausteine/cn'
 import { Flaeche } from '../bausteine/Flaeche'
 import { Knopf } from '../bausteine/Knopf'
-import { useEinstellung, useGeraet } from '../geruest/einstellungen'
-import { useFreieHoehe } from '../geruest/freieHoehe'
-import { einstellungen } from '../logik/einstellungen'
+import { useGeraet } from '../geruest/einstellungen'
+import { useRasterPlatz } from '../geruest/rasterPlatz'
 import { ablegen, alsLayout, getroffen, groesseAendern, hatHintergrund, stehenLassen, verschiebe, zellRaster, type KachelPlan } from '../logik/kacheln'
 import { VERWEILEN_MS } from '../werte/bewegung'
 import { kachelRaster } from '../werte/kacheln'
@@ -22,7 +21,7 @@ import { KachelMenue, type MenueOrt } from './KachelMenue'
 // hier nur der Bearbeiten-Modus drumherum: Griff, Griffpunkte, Menü der Kachel, Tastatur, Speichern.
 // Außerhalb des Modus gibt es weder langen Druck noch Rechtsklick-Menü. Im Modus sieht die Seite genauso aus wie danach:
 // das Bedienfeld liegt außerhalb (`BearbeitenOrt`), Rahmen und Griffpunkte liegen innerhalb der Kacheln.
-// Raster: quadratische Zellen wie bei Samsung One UI, Zahl der Spalten aus der Einstellung (`zellRaster` in src/logik/kacheln.ts).
+// Raster: quadratische Zellen wie bei Samsung One UI, Spalten vom Gerüst (`RasterPlatz`), Zellen aus `zellRaster` (src/logik/kacheln.ts).
 // Jede Kachel hat rundherum einen halben Abstand unsichtbaren Rand (`kachel-platz`), das Raster selbst keinen; darum ragt es
 // rundherum um diesen halben Abstand über den Inhalt hinaus (`raster-ueberstand`). Beides misst `--kachelrand`, das hier gesetzt wird.
 // Nur die sichtbare Fläche reagiert. So ist überall genau ein Abstand zu sehen; was beim Runden übrig bleibt, liegt gleichmäßig am Rand.
@@ -39,8 +38,6 @@ function punkt(e: Event): { x: number; y: number } | null {
 
 const griffKlassen: Partial<Record<ResizeHandleAxis, string>> = { se: 'griff griff-se', e: 'griff griff-e', s: 'griff griff-s' }
 
-const spaltenEinstellung = einstellungen.find((e) => e.id === 'kacheln-spalten')!
-
 const pfeile: Record<string, [number, number]> = { ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, -1], ArrowDown: [0, 1] }
 
 type Props = {
@@ -54,10 +51,9 @@ type Props = {
 export function Raster({ seite, kacheln, inhalt }: Props) {
   const geraet = useGeraet()
   const handy = geraet === 'handy'
-  // Gemessen wird der sichtbare Platz: Breite des Inhalts, Höhe eines Bildschirms (zwischen Kopf und Kurve).
-  const hoehe = useFreieHoehe()
+  // Spalten und Höhe eines Bildschirms gibt das Gerüst vor; gemessen wird die Breite des Inhalts.
+  const { spalten, hoehe } = useRasterPlatz()
   const { width, containerRef, mounted } = useContainerWidth()
-  const spalten = useEinstellung(spaltenEinstellung) as number
   const zellen = zellRaster(width, hoehe, spalten, kachelRaster.abstandAnteil)
   const zeilen = zellen.reihen
   const { anordnung, raster, fehler, aendern, zuruecksetzen } = useAnordnung(seite, geraet, kacheln, spalten, zeilen)

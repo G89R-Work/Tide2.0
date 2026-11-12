@@ -116,6 +116,7 @@ Eine Zeile je Entscheidung, neueste unten. Was hier steht, gilt und wird nicht n
 - 2026-11-12 · Grenze beim Ziehen in eigener Farbe `--grenze` (rot) in beiden Designs, auch in Tinte.
 - 2026-11-12 · Kacheln 1:1 wie Samsung One UI: quadratische Zellen, nur ganze Zellen, Einstellung „Spalten“ je Gerät (16, Handy 4), Reihen aus der Höhe, Abstand ein Fünftel der Zelle; Loslassen auf Besetztem ohne Verweilen → nächste freie Lücke, sonst zurück; „Braucht dich“ eine Reihe hoch und zweizeilig. Seitenleiste (schmal/breit), Kurve (1–3 Reihen) und Kopfzeile (Uhr, Wetter) fest im Raster; Einstellung, ob unten Leiste oder Kurve Vorrang hat (Nutzer). Ersetzt die 12-px-Linien und die Scheiben `raster-kurve`, `raster-seitenleiste`.
 - 2026-11-12 · Arbeit in Paketen aus drei Scheiben nacheinander, danach `/clear` (Nutzer).
+- 2026-11-12 · Gerüst: Kurve ab Werk 2 Reihen, Leiste ab Werk breit (Namen), Vorrang ab Werk Kurve; „Lage oben/unten“ der Kurve bleibt auch am PC; Uhr und Wetter fest in einer schmalen Kopfzeile, nicht mehr im Seitenkopf (raster-geruest).
 
 ## Offen
 

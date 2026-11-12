@@ -1,4 +1,4 @@
-// Größe der Gezeitenkurve. Die Höhe zieht man am Rand zum Inhalt, die Breite am PC an den Seiten.
+// Größe der Gezeitenkurve am Handy (am PC und Tablet belegt sie ganze Reihen des Zellrasters). Die Höhe zieht man am Rand zum Inhalt.
 // Höhen zählen den Abstand zum Bildschirmrand (8 px) mit: 80 px ergeben 72 px sichtbare Kurve.
 export const kurve = {
   /** Höhe ab Werk und nach Doppelklick auf den Griff. */
@@ -9,6 +9,4 @@ export const kurve = {
   hoeheMax: '38.2%',
   /** Am Handy nach dem Antippen: so groß wie erlaubt. Ein zweites Antippen stellt `hoehe` her. */
   hoeheGross: '38.2%',
-  /** Schmaler wird sie nie; ab Werk volle Breite. */
-  breiteMin: '240px',
 } as const
