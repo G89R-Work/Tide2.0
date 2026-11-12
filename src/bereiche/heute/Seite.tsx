@@ -49,8 +49,6 @@ export default function Seite() {
   }
 
   return (
-    <div className="p-4 md:p-6">
-      <Raster seite="heute" kacheln={werkszustand} inhalt={inhalt} />
-    </div>
+    <Raster seite="heute" kacheln={werkszustand} inhalt={inhalt} />
   )
 }

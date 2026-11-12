@@ -363,6 +363,14 @@ html {
   outline: 2px solid var(--akzent);
   outline-offset: 2px;
 }
+/* Abstand des Inhalts zum Rand: so groß wie der Rand der Seitenleiste und der Leisten am Handy (8 px).
+   Am PC liegt links der Trenner der Seitenleiste davor, der genauso breit ist; darum dort links kein eigener Abstand. */
+@utility seiten-rand {
+  padding: --spacing(2);
+  @media (width >= 48rem) {
+    padding-left: 0;
+  }
+}
 /* Bearbeiten-Modus: Kopf oder Griff zum Ziehen (PC), Menü-Knopf oben rechts. */
 @utility kachel-griff {
   cursor: grab;

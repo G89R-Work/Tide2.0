@@ -2,7 +2,7 @@ import { CalendarDays, ChevronLeft, ChevronRight } from 'lucide-react'
 import { useId, useRef } from 'react'
 import { Knopf } from '../../../bausteine/Knopf'
 import { cn } from '../../../bausteine/cn'
-import { monatsRaster, tagSchluessel, type Wochenbeginn } from '../../../logik/heute'
+import { monatsRaster, tagSchluessel, wochenTage, type Wochenbeginn } from '../../../logik/heute'
 import { monatJahr, monatName, tagKurz, tagLang } from '../format'
 
 const plusMonat = (d: Date, n: number) => new Date(d.getFullYear(), d.getMonth() + n, 1)
@@ -14,7 +14,7 @@ export function Monat({ monat, jetzt, beginn, waehle, blaettern }: Props) {
   const id = useId()
   const karte = useRef<HTMLDivElement>(null)
   const heute = tagSchluessel(jetzt)
-  const kopf = monatsRaster(monat, beginn)[1].map((t) => tagKurz(t!).slice(0, 2))
+  const kopf = wochenTage(monat, beginn, 0).map((t) => tagKurz(t).slice(0, 2))
 
   return (
     <>

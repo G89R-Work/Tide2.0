@@ -29,7 +29,7 @@ export default function Seite() {
     : [{ titel: undefined, liste: sichtbar }]
 
   return (
-    <div className="p-6">
+    <div>
       <Seitenkopf titel="Einstellungen" />
       <p className="mt-1 text-lg text-text-gedaempft">{sucht ? 'Suche' : abschnitt.name}</p>
 

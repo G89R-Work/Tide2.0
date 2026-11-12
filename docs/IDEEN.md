@@ -1,6 +1,7 @@
 # Ideenspeicher
 
 Hier landet alles, was nicht zur laufenden Scheibe gehört. Einmal im Monat wird sortiert: Die besten zwei oder drei Ideen werden Scheiben im Fahrplan.
+Was umgesetzt ist, wandert beim Abschluss einer Scheibe nach „Erledigt“, mit Datum und Scheibe.
 
 ## Für später vorgemerkt
 - Kassenbons vom Foto lesen, als Versuch hinter einem Schalter, mit Kontrolle über die Bonsumme
@@ -21,7 +22,6 @@ Hier landet alles, was nicht zur laufenden Scheibe gehört. Einmal im Monat wird
 - Die Einstellungen wirken noch nicht (Design, Schriftgröße, Bewegung …); je Verbraucher `useEinstellung` aus `src/geruest/einstellungen.ts` anschließen, Design ohne Flackern beim Start (einstellungen-liste)
 - Ort nach Namen suchen (Ortsliste oder Dienst) und „Standort vom Gerät übernehmen“ für Breite/Länge (hintergrund)
 - Einstellung „Wellen“ (ab Werk an) passt nicht zum Konzept „Wellen bewegen sich“ (ab Werk aus); umbenennen, sobald Wellen sich bewegen können (hintergrund)
-- Nach dem langen Druck gleich weiterziehen können, ohne den Finger abzusetzen (wie One UI) (kacheln)
 - Jede Kachel zeigt je nach Größe eine Darstellung klein/mittel/groß; kommt mit den echten Kacheln der Bereiche (kacheln)
 - MSW meldet beim Neuladen „GET / ohne Antwort“ als Warnung; `onUnhandledRequest: 'bypass'` für Seitenaufrufe prüfen (kacheln)
 - Gruß in der Heute-Kachel („Guten Morgen“) folgt der gezeigten Uhrzeit der Kurve (kurve-grund)
@@ -30,7 +30,12 @@ Hier landet alles, was nicht zur laufenden Scheibe gehört. Einmal im Monat wird
 - Rückgängig-Schritte auch in der Glocke auflisten; Glocke als eigene Aktion belegbar machen (kurve-ebbe-und-meldungen)
 - Ruhezeit des Ebbe-Modus einstellbar machen (kurve-ebbe-und-meldungen)
 - Bausteine-Seite wieder von der Oberfläche aus erreichbar machen, etwa in Einstellungen › Darstellung (heute)
-- Wochenleiste: Tag antippen zeigt dessen Termine; Monat als aufklappbare Kachel statt Sprung (heute)
+- Wochenleiste: Tag antippen zeigt dessen Termine (heute)
 - Die Knöpfe „Notiz“ und „Woche“ neben der Wochenleiste endgültig festlegen; heute: Sprung zu Notizen und Wochenrückblick (heute-kacheln)
 - Wochenleiste: Buchstaben für Früh- und Spätschicht an den Tagen, sobald Arbeit die Schichtart kennt (heute-kacheln)
 - Höhe der Wellen in der Gezeitenkurve am Handy prüfen, vielleicht zu viel (heute-kacheln)
+
+## Erledigt
+- 2026-11-12 · Nach dem langen Druck gleich weiterziehen, ohne den Finger abzusetzen (heute-kacheln)
+- 2026-11-12 · Monat als aufklappbarer Kalender statt Sprung (heute-kacheln)
+- 2026-11-12 · Jede bewegliche Kachel kann ohne Hintergrund stehen (heute-kacheln)

@@ -1,12 +1,19 @@
 import { CloudRain, Moon, Sun } from 'lucide-react'
 import { useEffect, useState } from 'react'
+import { useEinstellung } from '../../../geruest/einstellungen'
+import { einstellungen } from '../../../logik/einstellungen'
 import { wetterHeute } from '../../../logik/heute'
+import { himmel } from '../../../logik/himmel'
 import { holeWetter, type WetterStunde } from '../../../vertrag/wetter'
+
+const breite = einstellungen.find((e) => e.id === 'ort-breite')!
+const laenge = einstellungen.find((e) => e.id === 'ort-laenge')!
 
 /** Wetter als Zeile: Symbol, Temperatur, Spanne des Tages, nächster Regen. Aufklappen kommt mit heute-uhr-und-wetter. */
 export function Wetter({ jetzt }: { jetzt: Date }) {
   const [stunden, setStunden] = useState<WetterStunde[]>()
   const [fehler, setFehler] = useState<string>()
+  const ort = { breite: Number(useEinstellung(breite)), laenge: Number(useEinstellung(laenge)) }
   const tag = jetzt.toDateString()
   useEffect(() => {
     let aktuell = true
@@ -23,8 +30,8 @@ export function Wetter({ jetzt }: { jetzt: Date }) {
   if (!stunden) return <p className="text-sm text-text-gedaempft">Lädt …</p>
   const w = wetterHeute(stunden, jetzt)
   if (!w) return <p className="text-sm text-text-gedaempft">Für heute liegen keine Werte vor.</p>
-  const nacht = jetzt.getHours() < 7 || jetzt.getHours() >= 18
-  const Symbol = w.regnet ? CloudRain : nacht ? Moon : Sun
+  // Sonne oder Mond nach dem echten Sonnenstand am eingestellten Ort.
+  const Symbol = w.regnet ? CloudRain : himmel(jetzt, ort, 'bogen').tag ? Sun : Moon
   const regen = w.regnet ? 'Regen' : w.regenAb ? `Regen ab ${w.regenAb.getHours()} Uhr` : 'Trocken'
   return (
     <div className="grid gap-1">

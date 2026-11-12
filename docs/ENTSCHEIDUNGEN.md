@@ -85,6 +85,7 @@ Eine Zeile je Entscheidung, neueste unten. Was hier steht, gilt und wird nicht n
 - 2026-11-12 · Kacheln: Hintergrund je Kachel abschaltbar (Vertrag `ohneHintergrund` in der Anordnung); Werk kann eine Kachel je Gerät ausblenden (`werk: null`).
 - 2026-11-12 · Heute: alles ist eine Kachel, kein fester Kopf, kein „Anpassen“-Knopf. Die drei PC-Knöpfe sind eine eigene Kachel unter Uhr und Wetter. Eine leere Kachel („Braucht dich“ ohne Punkte) bleibt unsichtbar an ihrem Platz, damit nichts nachrückt.
 - 2026-11-12 · Heute: Wochenleiste nach Beispielbild; Wischen innerhalb des Monats, andere Monate über den Monatskalender. Wetter vorerst als Zeile aus den Stundenwerten (Regen statt Bewölkung, die liefert der Vertrag noch nicht).
+- 2026-11-12 · Rand des Inhalts überall 8 px wie der Rand der Seitenleiste; gesetzt einmal im Gerüst (`seiten-rand`), Seiten haben keinen eigenen Rand. Am Handy hebt langer Druck im Bearbeiten-Modus auch Kacheln an, die nur aus einem Knopf bestehen.
 
 ## Offen
 

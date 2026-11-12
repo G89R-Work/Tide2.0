@@ -1,4 +1,6 @@
+import { Check } from 'lucide-react'
 import { useEffect, useLayoutEffect, useRef, type KeyboardEvent } from 'react'
+import { cn } from '../bausteine/cn'
 import { Knopf } from '../bausteine/Knopf'
 import type { Geraet } from '../logik/einstellungen'
 import { ausblenden, festeGroessen, groessenNamen, hatHintergrund, hintergrundUmschalten, setzeGroesse, type Anordnung, type FesteGroesse, type KachelPlan } from '../logik/kacheln'
@@ -78,7 +80,7 @@ export function KachelMenue({ ort, schliessen, anordnung, plan, geraet, aendern,
   return (
     <div ref={ref} popover="manual" role="menu" aria-label="Kachel" onKeyDown={taste} className="flaeche-schwebend fixed inset-auto m-0 hidden min-w-48 open:flex flex-col p-1 text-text">
       <Knopf art="leise" groesse="klein" role="menuitemcheckbox" aria-checked={hatHintergrund(anordnung, id)} className={eintrag} onClick={tun(() => aendern(hintergrundUmschalten(anordnung, id)))}>
-        <span aria-hidden className="w-4">{hatHintergrund(anordnung, id) ? '✓' : ''}</span>
+        <Check aria-hidden className={cn('size-4', !hatHintergrund(anordnung, id) && 'invisible')} />
         Hintergrund
       </Knopf>
       <hr className="my-1 border-linie" />

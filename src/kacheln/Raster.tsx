@@ -91,8 +91,9 @@ export function Raster({ seite, kacheln, inhalt }: Props) {
             width={width}
             layout={alsLayout(anordnung, kacheln, geraet)}
             gridConfig={{ cols: spalten[geraet], rowHeight: kachelRaster.zeile, margin: [kachelRaster.abstand, kachelRaster.abstand], containerPadding: [0, 0] }}
-            // Am PC greift man den Kopf oder Griff, am Handy die ganze Kachel nach langem Druck. Bedienelemente bleiben klickbar.
-            dragConfig={{ enabled: bearbeiten, handle: handy ? undefined : '.kachel-griff', cancel: '.griff, button, a, input, textarea, select, [role="slider"]', threshold: 3, allowMobileScroll: true }}
+            // Am PC greift man den Kopf oder Griff; Klicks auf den Inhalt bleiben Klicks. Am Handy hebt langer Druck die ganze Kachel an,
+            // auch auf Knöpfen; kurzes Antippen bleibt ein Klick, kurzes Wischen scrollt (allowMobileScroll).
+            dragConfig={{ enabled: bearbeiten, handle: handy ? undefined : '.kachel-griff', cancel: '.griff, .kachel-menue-knopf', threshold: 3, allowMobileScroll: true }}
             resizeConfig={{
               enabled: bearbeiten,
               handles: bearbeiten ? ['e', 's', 'se'] : [],

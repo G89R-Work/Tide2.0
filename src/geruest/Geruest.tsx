@@ -47,7 +47,7 @@ export function Geruest({ marke }: { marke: string }) {
 function Inhalt({ ort }: { ort: Ort }) {
   const Seite = seiten[ort.bereich]
   return (
-    <main className="min-w-0 flex-1">
+    <main className="seiten-rand min-w-0 flex-1">
       <Suspense>
         <Seite />
       </Suspense>
@@ -123,7 +123,7 @@ function Pc({ ort }: { ort: Ort }) {
           />
           <Panel id="inhalt" className="flex">
             {hatEbene && (
-              <nav aria-label="Zweite Ebene" className="inhalt-frei flex w-52 shrink-0 flex-col overflow-y-auto">
+              <nav aria-label="Zweite Ebene" className="inhalt-frei flex w-54 shrink-0 flex-col overflow-y-auto pr-2">
                 <div className={cn('flaeche-leiste flex-1 p-2', kurveOben ? 'mb-2' : 'mt-2')}>
                   <ZweiteEbene bereich={ort.bereich} aktiv={ort.unter} />
                 </div>
