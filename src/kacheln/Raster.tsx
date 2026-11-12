@@ -9,7 +9,7 @@ import { Flaeche } from '../bausteine/Flaeche'
 import { Knopf } from '../bausteine/Knopf'
 import { useGeraet } from '../geruest/einstellungen'
 import { useFreieHoehe } from '../geruest/freieHoehe'
-import { alsLayout, ausLayout, groesseAendern, hatHintergrund, spaltenVon, verschiebe, zeilenHoehe, type KachelPlan } from '../logik/kacheln'
+import { alsLayout, ausLayout, groesseAendern, hatHintergrund, spaltenVon, verschiebe, zeilenHoehe, zeilenZahl, type KachelPlan } from '../logik/kacheln'
 import { abstaende } from '../werte/abstaende'
 import { kachelRaster } from '../werte/kacheln'
 import { useAnordnung } from './anordnung'
@@ -21,7 +21,7 @@ import { KachelMenue, type MenueOrt } from './KachelMenue'
 // hier nur der Bearbeiten-Modus drumherum: Griff, Griffpunkte, Menü der Kachel, Tastatur, Speichern.
 // Außerhalb des Modus gibt es weder langen Druck noch Rechtsklick-Menü. Im Modus sieht die Seite genauso aus wie danach:
 // das Bedienfeld liegt außerhalb (`BearbeitenOrt`), Rahmen und Griffpunkte liegen innerhalb der Kacheln.
-// Eine Bildschirmhöhe fasst immer gleich viele Zeilen (`zeilenHoehe`), die unterste endet einen Abstand vor der Kurve.
+// Zeilen: am PC fest etwa 48 px (`zeilenZahl`), am Handy 12 je Bildschirm; die letzte endet genau einen Abstand vor der Kurve.
 
 const griffKlassen: Partial<Record<ResizeHandleAxis, string>> = { se: 'griff griff-se', e: 'griff griff-e', s: 'griff griff-s' }
 
@@ -38,10 +38,12 @@ type Props = {
 export function Raster({ seite, kacheln, inhalt }: Props) {
   const geraet = useGeraet()
   const handy = geraet === 'handy'
-  const { anordnung, fehler, aendern, zuruecksetzen } = useAnordnung(seite, geraet, kacheln)
+  const frei = useFreieHoehe()
+  const zeilen = handy ? kachelRaster.zeilenHandy : zeilenZahl(frei, kachelRaster.zeilePc, abstaende.abstandPx)
+  const zeile = zeilenHoehe(frei, zeilen, abstaende.abstandPx)
+  const { anordnung, fehler, aendern, zuruecksetzen } = useAnordnung(seite, geraet, kacheln, zeilen)
   const bearbeiten = useBearbeiten()
   const bedienOrt = useBearbeitenOrt()
-  const zeile = zeilenHoehe(useFreieHoehe(), kachelRaster.zeilenJeBildschirm[geraet], abstaende.abstandPx)
   const { width, containerRef, mounted } = useContainerWidth()
   const [menue, setMenue] = useState<MenueOrt | null>(null)
 

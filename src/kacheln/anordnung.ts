@@ -1,8 +1,8 @@
-import { useCallback, useSyncExternalStore } from 'react'
+import { useCallback, useMemo, useSyncExternalStore } from 'react'
 import { useEinstellung } from '../geruest/einstellungen'
 import { merke } from '../geruest/rueckgaengig'
 import { einstellungen, type Geraet } from '../logik/einstellungen'
-import { anordnungAusDaten, umrechnen, werkszustand, type Anordnung, type Feinheit, type KachelPlan } from '../logik/kacheln'
+import { anordnungAusDaten, aufBildschirm, umrechnen, verankern, werkszustand, type Anordnung, type Feinheit, type KachelPlan } from '../logik/kacheln'
 import { holeAnordnung, loescheAnordnung, speichereAnordnung } from '../vertrag/kacheln'
 
 // Anordnung je Seite und Geräteart, geholt und gespeichert über den Vertrag.
@@ -52,34 +52,36 @@ const abonnieren = (h: () => void) => {
   return () => hoerer.delete(h)
 }
 
-export function useAnordnung(seite: string, geraet: Geraet, plan: readonly KachelPlan[]) {
+/** Anordnung einer Seite auf dem Bildschirm mit `zeilen` Zeilen. Gezeigt und bearbeitet wird von oben gezählt,
+ *  gemerkt angedockt (oben oder unten, `verankern`), damit sie auf jedem Bildschirm passt. */
+export function useAnordnung(seite: string, geraet: Geraet, plan: readonly KachelPlan[], zeilen: number) {
   const schluessel = `${seite}/${geraet}`
   const fein: Feinheit = useEinstellung(feinheit) === 'doppelt' ? 2 : 1
   holen(seite, geraet, plan, fein)
   const stand = useSyncExternalStore(abonnieren, () => staende.get(schluessel) ?? leer)
   // Wurde das Raster umgestellt, gilt die Anordnung umgerechnet; gespeichert wird sie bei der nächsten Änderung.
-  const anordnung = stand.anordnung && umrechnen(stand.anordnung, plan, geraet, fein)
+  const gemerkt = stand.anordnung
+  const anordnung = useMemo(() => gemerkt && aufBildschirm(umrechnen(gemerkt, plan, geraet, fein), plan, geraet, zeilen), [gemerkt, plan, geraet, fein, zeilen])
 
   const aendern = useCallback(
     (neu: Anordnung) => {
       const gemerkt = staende.get(schluessel)?.anordnung
-      if (!gemerkt) return
-      const alt = umrechnen(gemerkt, plan, geraet, fein)
-      if (neu === alt) return
-      void speichern(seite, geraet, plan, gemerkt, neu).then((ok) => {
+      if (!gemerkt || !anordnung || neu === anordnung) return
+      const angedockt = verankern(neu, zeilen)
+      void speichern(seite, geraet, plan, gemerkt, angedockt).then((ok) => {
         if (!ok) return
         // Zurück und vor setzen den gemerkten Stand; die Knöpfe der Seite wirken nur auf ihre eigenen Kacheln.
         const auf = (ziel: Anordnung) => async () => {
           const jetzt = staende.get(schluessel)?.anordnung
           if (jetzt) await speichern(seite, geraet, plan, jetzt, ziel)
         }
-        merke({ text: 'Kacheln geändert', bereich: seite, zurueck: auf(gemerkt), vor: auf(neu) })
+        merke({ text: 'Kacheln geändert', bereich: seite, zurueck: auf(gemerkt), vor: auf(angedockt) })
       })
     },
-    [schluessel, seite, geraet, plan, fein],
+    [schluessel, seite, geraet, plan, anordnung, zeilen],
   )
 
-  const zuruecksetzen = useCallback(() => aendern(werkszustand(plan, geraet, fein)), [aendern, plan, geraet, fein])
+  const zuruecksetzen = useCallback(() => aendern(aufBildschirm(werkszustand(plan, geraet, fein), plan, geraet, zeilen)), [aendern, plan, geraet, fein, zeilen])
 
   return { ...stand, anordnung, aendern, zuruecksetzen }
 }

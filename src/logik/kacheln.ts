@@ -1,14 +1,17 @@
 // Kacheln: Anordnung je Seite und Geräteart (docs/konzept/04-kacheln.md).
 // Plätze sind frei: Eine Kachel bleibt, wo man sie lässt; nichts rückt nach oben. Liegt eine Kachel auf einer anderen,
 // weicht die andere nach unten aus. Das Raster hat am PC 12 und am Handy 2 Spalten, in der Feinheit „doppelt“ 24 und 4.
-// Eine Bildschirmhöhe hat je Gerät gleich viele Zeilen (`src/werte/kacheln.ts`); tiefer liegende Kacheln erreicht man durch Scrollen.
+// Zeilen: am PC fest etwa 48 px hoch (die Zahl je Bildschirm wird gerundet, damit die letzte Zeile genau einen Abstand vor der Kurve endet),
+// am Handy 12 je Bildschirm. Jede Kachel hängt oben oder unten (`unten`); auf größeren Bildschirmen wächst nur der Platz dazwischen.
+// Gemerkt wird angedockt, gezeigt und bearbeitet wird auf dem Bildschirm (`aufBildschirm`, `verankern`).
 // Pläne (Werk, Mindestgrößen, feste Größen) stehen im einfachen Raster und werden für „doppelt“ umgerechnet.
 import { getFirstCollision, sortLayoutItemsByRowCol } from 'react-grid-layout/core'
 import type { Layout, LayoutItem } from 'react-grid-layout'
 import type { Geraet } from './einstellungen'
 
 export type Groesse = { w: number; h: number }
-export type Platz = Groesse & { x: number; y: number }
+/** `unten`: hängt am unteren Rand; `y` zählt dann die Zeilen zwischen ihrer Unterkante und der letzten Zeile des Bildschirms. */
+export type Platz = Groesse & { x: number; y: number; unten?: true }
 /** Wie fein das Raster ist: 1 = einfach (12 / 2 Spalten), 2 = doppelt (24 / 4). */
 export type Feinheit = 1 | 2
 
@@ -40,6 +43,11 @@ export function zeilenHoehe(frei: number, zeilen: number, abstand: number): numb
   return Math.max(0, (frei - (zeilen - 1) * abstand) / zeilen)
 }
 
+/** Wie viele Zeilen der Höhe `ziel` auf eine Bildschirmhöhe passen, gerundet: Die echte Höhe weicht so nur wenig vom Ziel ab. */
+export function zeilenZahl(frei: number, ziel: number, abstand: number): number {
+  return Math.max(1, Math.round((frei + abstand) / (ziel + abstand)))
+}
+
 export const festeGroessen = {
   klein: { pc: { w: 3, h: 2 }, handy: { w: 1, h: 2 } },
   mittel: { pc: { w: 4, h: 3 }, handy: { w: 2, h: 2 } },
@@ -68,7 +76,7 @@ function begrenzt(p: Platz, k: KachelPlan, g: Geraet, fein: Feinheit): Platz {
   const spalten = spaltenVon(g, fein)
   const w = Math.min(spalten, Math.max(min.w, p.w))
   const h = Math.max(min.h, p.h)
-  return { x: Math.max(0, Math.min(p.x, spalten - w)), y: Math.max(0, p.y), w, h }
+  return { ...p, x: Math.max(0, Math.min(p.x, spalten - w)), y: Math.max(0, p.y), w, h }
 }
 
 export function alsLayout(a: Anordnung, plan: readonly KachelPlan[], g: Geraet): LayoutItem[] {
@@ -87,15 +95,25 @@ export function ausLayout(a: Anordnung, layout: Layout): Anordnung {
   for (const { i, x, y, w, h } of layout) {
     const alt = plaetze[i]
     if (alt && alt.x === x && alt.y === y && alt.w === w && alt.h === h) continue
-    plaetze[i] = { x, y, w, h }
+    plaetze[i] = alt ? { ...alt, x, y, w, h } : { x, y, w, h }
     anders = true
   }
   return anders ? { ...a, plaetze } : a
 }
 
 /** Überlappungen auflösen, ohne etwas nach oben zu holen: Wer im Weg liegt, rutscht unter das Hindernis.
- *  `zuerst` behält seinen Platz (die gerade bewegte Kachel). */
+ *  `zuerst` behält seinen Platz (die gerade bewegte Kachel). Oben und unten angedockte Kacheln zählen getrennt,
+ *  denn ihre `y` messen von verschiedenen Rändern; zwischen beiden löst `aufBildschirm` auf. */
 function aufloesen(a: Anordnung, plan: readonly KachelPlan[], g: Geraet, zuerst?: string): Anordnung {
+  const eintraege = Object.entries(a.plaetze)
+  if (!eintraege.some(([, p]) => p.unten)) return aufloesenGruppe(a, plan, g, zuerst)
+  const gruppe = (unten: boolean) => aufloesenGruppe({ ...a, plaetze: Object.fromEntries(eintraege.filter(([, p]) => (p.unten === true) === unten)) }, plan, g, zuerst).plaetze
+  const neu = { ...gruppe(false), ...gruppe(true) }
+  if (eintraege.every(([id, p]) => neu[id] === p)) return a
+  return { ...a, plaetze: Object.fromEntries(eintraege.map(([id]) => [id, neu[id]])) }
+}
+
+function aufloesenGruppe(a: Anordnung, plan: readonly KachelPlan[], g: Geraet, zuerst?: string): Anordnung {
   const sortiert = sortLayoutItemsByRowCol(alsLayout(a, plan, g))
   const reihe = zuerst ? [...sortiert.filter((l) => l.i === zuerst), ...sortiert.filter((l) => l.i !== zuerst)] : sortiert
   const gesetzt: LayoutItem[] = []
@@ -133,13 +151,35 @@ export function anordnungAusDaten(roh: unknown, plan: readonly KachelPlan[], g: 
   for (const k of plan) {
     const p = gemerkt[k.id]
     const gut = p && ganz(p.x) && ganz(p.y) && ganz(p.w) && ganz(p.h)
-    const roherPlatz = gut ? waagrecht({ x: p.x as number, y: p.y as number, w: p.w as number, h: p.h as number }, gemerktFein, fein) : k.werk[g] && waagrecht(k.werk[g], 1, fein)
+    const gelesen: Platz | undefined = gut ? { x: p.x as number, y: p.y as number, w: p.w as number, h: p.h as number, ...(p.unten === true ? { unten: true as const } : {}) } : undefined
+    const roherPlatz = gelesen ? waagrecht(gelesen, gemerktFein, fein) : k.werk[g] && waagrecht(k.werk[g], 1, fein)
     // Ohne Platz (ab Werk ausgeblendet und nie geholt) bleibt die Kachel ausgeblendet.
     if (roherPlatz) plaetze[k.id] = begrenzt(roherPlatz, k, g, fein)
     else if (!versteckt.includes(k.id)) versteckt.push(k.id)
   }
   const ohneHintergrund = bekannte(d.ohneHintergrund) ?? ohneHintergrundAbWerk(plan)
   return aufloesen({ plaetze, versteckt, ohneHintergrund, fein }, plan, g)
+}
+
+/** Die gemerkte, angedockte Anordnung auf einem Bildschirm mit `zeilen` Zeilen: Unten hängende Kacheln enden an der letzten Zeile.
+ *  Ist der Bildschirm zu klein, rutscht, was im Weg liegt, nach unten. Das Ergebnis hat nur Plätze von oben gezählt. */
+export function aufBildschirm(a: Anordnung, plan: readonly KachelPlan[], g: Geraet, zeilen: number): Anordnung {
+  const plaetze = Object.fromEntries(
+    Object.entries(a.plaetze).map(([id, { x, y, w, h, unten }]) => [id, { x, y: unten ? Math.max(0, zeilen - h - y) : y, w, h }]),
+  )
+  return aufloesen({ ...a, plaetze }, plan, g)
+}
+
+/** Umkehrung von `aufBildschirm` zum Speichern: Liegt die Mitte einer Kachel in der unteren Hälfte des Bildschirms, hängt sie unten.
+ *  Was ganz oder teilweise unter dem Bildschirm liegt (erst durch Scrollen sichtbar), hängt oben. */
+export function verankern(a: Anordnung, zeilen: number): Anordnung {
+  const plaetze = Object.fromEntries(
+    Object.entries(a.plaetze).map(([id, { x, y, w, h }]) => [
+      id,
+      y + h / 2 >= zeilen / 2 && y + h <= zeilen ? { x, y: zeilen - h - y, w, h, unten: true as const } : { x, y, w, h },
+    ]),
+  )
+  return { ...a, plaetze }
 }
 
 /** Dieselbe Anordnung in einem anderen Raster. */

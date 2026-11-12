@@ -1,6 +1,9 @@
 import { describe, expect, it } from 'vitest'
 import {
+  aufBildschirm,
+  verankern,
   zeilenHoehe,
+  zeilenZahl,
   alsLayout,
   anordnungAusDaten,
   ausblenden,
@@ -189,5 +192,56 @@ describe('zeilenHoehe', () => {
   })
   it('wird nie negativ, solange noch nichts gemessen ist', () => {
     expect(zeilenHoehe(0, 12, 12)).toBe(0)
+  })
+})
+
+describe('Zeilen am PC: feste Höhe, oben und unten angedockt', () => {
+  it('rundet die Zahl der Zeilen, damit die Höhe fast gleich bleibt (Tablet und großer PC je etwa 47 px)', () => {
+    const tablet = zeilenZahl(460, 48, 12)
+    const pc = zeilenZahl(808, 48, 12)
+    expect([tablet, pc]).toEqual([8, 14])
+    expect(zeilenHoehe(460, tablet, 12)).toBeCloseTo(47, 0)
+    expect(zeilenHoehe(808, pc, 12)).toBeCloseTo(46.6, 1)
+  })
+  it('hat immer mindestens eine Zeile', () => {
+    expect(zeilenZahl(0, 48, 12)).toBe(1)
+  })
+
+  const geankert: Anordnung = {
+    plaetze: { a: { x: 0, y: 0, w: 6, h: 3 }, b: { x: 6, y: 0, w: 6, h: 3 }, c: { x: 0, y: 0, w: 4, h: 2, unten: true } },
+    versteckt: [],
+    ohneHintergrund: [],
+    fein: 1,
+  }
+
+  it('legt unten angedockte Kacheln an das Ende des Bildschirms, oben bleibt gleich', () => {
+    expect(aufBildschirm(geankert, plan, 'pc', 8).plaetze.c).toEqual({ x: 0, y: 6, w: 4, h: 2 })
+    expect(aufBildschirm(geankert, plan, 'pc', 14).plaetze.c).toEqual({ x: 0, y: 12, w: 4, h: 2 })
+    expect(aufBildschirm(geankert, plan, 'pc', 14).plaetze.a).toEqual({ x: 0, y: 0, w: 6, h: 3 })
+  })
+
+  it('schiebt auf zu kleinem Bildschirm die untere Kachel unter die obere statt darüber', () => {
+    const klein = aufBildschirm(geankert, plan, 'pc', 4)
+    expect(ueberlappt(klein)).toBe(false)
+    expect(klein.plaetze.c.y).toBe(3)
+  })
+
+  it('dockt beim Speichern an die nähere Hälfte an; was unter dem Bildschirm liegt, bleibt oben', () => {
+    const bild: Anordnung = { ...geankert, plaetze: { a: { x: 0, y: 0, w: 6, h: 3 }, b: { x: 6, y: 9, w: 6, h: 3 }, c: { x: 0, y: 12, w: 4, h: 2 } } }
+    const v = verankern(bild, 14)
+    expect(v.plaetze.a).toEqual({ x: 0, y: 0, w: 6, h: 3 })
+    expect(v.plaetze.b).toEqual({ x: 6, y: 2, w: 6, h: 3, unten: true })
+    expect(v.plaetze.c).toEqual({ x: 0, y: 0, w: 4, h: 2, unten: true })
+    expect(verankern({ ...bild, plaetze: { c: { x: 0, y: 14, w: 4, h: 2 } } }, 14).plaetze.c).toEqual({ x: 0, y: 14, w: 4, h: 2 })
+  })
+
+  it('Hin und zurück ergibt dieselbe Anordnung', () => {
+    expect(verankern(aufBildschirm(geankert, plan, 'pc', 10), 10)).toEqual(geankert)
+  })
+
+  it('liest „hängt unten“ aus gespeicherten Daten; alte Daten ohne Angabe hängen oben', () => {
+    const a = anordnungAusDaten({ plaetze: { a: { x: 0, y: 0, w: 4, h: 2 }, c: { x: 0, y: 0, w: 4, h: 2, unten: true } }, versteckt: ['b'] }, plan, 'pc')
+    expect(a.plaetze.c).toEqual({ x: 0, y: 0, w: 4, h: 2, unten: true })
+    expect(a.plaetze.a).toEqual({ x: 0, y: 0, w: 4, h: 2 })
   })
 })
