@@ -79,8 +79,11 @@
   /* Wellen werden nie schmaler als Breite : Höhe = 3,9 : 1 (so am PC beim Goldenen Schnitt). */
   --wellen-verhaeltnis: 3.9;
   --himmel-rand: 14%;
-  --sonne-groesse: 3.25rem;
-  --mond-groesse: 2.25rem;
+  /* Sonne und Mond groß wie in der Vorlage (docs/vorlage-aussehen/bilder/himmel.jpg), mit weitem Lichthof. */
+  --sonne-groesse: 8.5rem;
+  --mond-groesse: 6rem;
+  --lichthof-groesse: 90vmax;
+  --mondschein-groesse: 28rem;
 }
 @utility hintergrund {
   position: fixed;
@@ -116,15 +119,35 @@
   height: var(--sonne-groesse);
   border-radius: 9999px;
   background: var(--sonne);
-  box-shadow:
-    0 0 2rem 0.5rem color-mix(in srgb, var(--sonne-schein) 55%, transparent),
-    0 0 7rem 3rem color-mix(in srgb, var(--sonne-schein) 18%, transparent);
+  box-shadow: 0 0 3rem 0.25rem color-mix(in srgb, var(--sonne-schein) 30%, transparent);
+}
+/* Weiter Lichthof um die Sonne; so hell wie der Himmel (--licht). */
+@utility lichthof {
+  width: var(--lichthof-groesse);
+  height: var(--lichthof-groesse);
+  border-radius: 9999px;
+  background: radial-gradient(closest-side, color-mix(in srgb, var(--sonne-schein) 45%, transparent), transparent);
+  opacity: var(--licht);
 }
 @utility mond {
   width: var(--mond-groesse);
   height: var(--mond-groesse);
   overflow: visible;
-  filter: drop-shadow(0 0 0.75rem color-mix(in srgb, var(--sonne-schein) 35%, transparent));
+}
+/* Schwacher Schein um den Mond, nachts nach seiner Phase (--mond-licht). */
+@utility mondschein {
+  width: var(--mondschein-groesse);
+  height: var(--mondschein-groesse);
+  border-radius: 9999px;
+  background: radial-gradient(closest-side, color-mix(in srgb, var(--sonne) 12%, transparent), transparent);
+  opacity: var(--mond-licht);
+}
+/* Warmes Licht vom Horizont bei Auf- und Untergang (--waerme). */
+@utility daemmerung {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, color-mix(in srgb, var(--daemmerung) 55%, transparent), transparent 75%);
+  opacity: var(--waerme);
 }
 @utility nacht {
   position: absolute;

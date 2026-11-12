@@ -46,10 +46,17 @@ export function Hintergrund() {
   const wellenHoehe = String(useEinstellung(e.wellenHoehe))
   const h = himmel(zeit, ort, bahn)
   const mondZeigen = h.mond.sichtbar && !(mondNachts && h.tag)
+  // Ohne „Folgt der Tageszeit“ bleibt der Himmel wie mittags.
+  const licht = (
+    folgtTageszeit ? { '--licht': h.licht, '--waerme': h.waerme, '--mond-licht': h.mondLicht } : { '--licht': 1, '--waerme': 0, '--mond-licht': 0 }
+  ) as CSSProperties
 
   return (
-    <div aria-hidden className="hintergrund" data-wellen={wellenHoehe} style={{ '--licht': folgtTageszeit ? h.licht : 1 } as CSSProperties}>
+    <div aria-hidden className="hintergrund" data-wellen={wellenHoehe} style={licht}>
+      {h.sonne.sichtbar && <div className="himmelskoerper lichthof" style={lage(h.sonne)} />}
       <div className="nacht" />
+      <div className="daemmerung" />
+      {mondZeigen && <div className="himmelskoerper mondschein" style={lage(h.mond)} />}
       {h.sonne.sichtbar && <div className="himmelskoerper sonne" style={lage(h.sonne)} />}
       {mondZeigen && (
         <svg className="himmelskoerper mond" viewBox="-1 -1 2 2" style={lage(h.mond)}>

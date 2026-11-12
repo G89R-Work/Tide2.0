@@ -19,8 +19,36 @@ export type Himmel = {
   untergang: Date | null
   /** Sonne über dem Horizont. */
   tag: boolean
-  /** Helligkeit 0 (Nacht) bis 1 (Tag), mit Dämmerung bis 6° unter dem Horizont. */
+  /** Helligkeit des Himmels 0 (Nacht) bis 1 (Mittag), mit Dämmerung bis 6° unter dem Horizont. */
   licht: number
+  /** Warmes Licht bei Auf- und Untergang, 0 bis 1. */
+  waerme: number
+  /** Schein des Mondes in der Nacht nach seiner Phase, 0 bis 1. */
+  mondLicht: number
+}
+
+/** So hell ist der Himmel, wenn die Sonne genau am Horizont steht (Anteil vom Mittag). */
+const HELL_AM_HORIZONT = 0.3
+/** Dämmerung: ab so viel Grad unter dem Horizont wird es heller (bürgerliche Dämmerung). */
+const DAEMMERUNG = 6
+/** Am wärmsten bei dieser Sonnenhöhe; bis 12° darüber klingt die Wärme ab. */
+const WAERMSTE_HOEHE = 1
+const WAERME_BIS = 12
+
+/**
+ * Licht des Himmels aus der Sonnenhöhe (Grad), der Höhe zur Mittagszeit des Tages und dem Mond.
+ * Mittag ist immer am hellsten, im November wie im Juni; nachts leuchtet nur der Mond nach seiner Phase.
+ */
+export function himmelsLicht(sonne: number, mittag: number, mond: { hoehe: number; beleuchtet: number }) {
+  const hell =
+    sonne <= -DAEMMERUNG
+      ? 0
+      : sonne < 0
+        ? (HELL_AM_HORIZONT * (sonne + DAEMMERUNG)) / DAEMMERUNG
+        : HELL_AM_HORIZONT + (1 - HELL_AM_HORIZONT) * begrenzt(sonne / Math.max(mittag, 1))
+  const abstand = sonne - WAERMSTE_HOEHE
+  const waerme = begrenzt(1 - abstand / (abstand < 0 ? DAEMMERUNG + WAERMSTE_HOEHE : WAERME_BIS - WAERMSTE_HOEHE) * Math.sign(abstand))
+  return { hell, waerme, mond: mond.hoehe > 0 ? (1 - hell) * begrenzt(mond.beleuchtet) : 0 }
 }
 
 const STUNDE = 3_600_000
@@ -77,6 +105,10 @@ export function himmel(zeit: Date, ort: Standort, bahn: Bahn): Himmel {
       : aufgang && untergang
         ? aufBogen(zeit, aufgang, untergang)
         : ohneZeiten(zeit, zeiten.solarNoon, s.altitude)
+  const l = himmelsLicht(s.altitude, SunCalc.getPosition(zeiten.solarNoon, ort.breite, ort.laenge).altitude, {
+    hoehe: m.altitude,
+    beleuchtet: phase.fraction,
+  })
   const mondLage = bahn === 'echt' ? echt(m.azimuth, m.altitude) : mondBogen(zeit, ort, m.altitude)
 
   return {
@@ -85,7 +117,9 @@ export function himmel(zeit: Date, ort: Standort, bahn: Bahn): Himmel {
     aufgang,
     untergang,
     tag: s.altitude > 0,
-    licht: begrenzt((s.altitude + 6) / 6),
+    licht: l.hell,
+    waerme: l.waerme,
+    mondLicht: l.mond,
   }
 }
 

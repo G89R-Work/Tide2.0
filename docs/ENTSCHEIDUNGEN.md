@@ -128,14 +128,15 @@ Eine Zeile je Entscheidung, neueste unten. Was hier steht, gilt und wird nicht n
 - 2026-11-12 · Raster fällt komplett weg (Nutzer, ersetzt das Zellraster des Gerüsts vom 12.11.): Gerüst am PC und Tablet in Pixeln wie die Vorlage. Seitenleiste 66 px schmal (156 px breit, mit Namen) und zweite Ebene laufen von ganz oben bis unten; rechts daneben Kopfzeile, Inhalt, Kurve (fest 150 px). Einstellungen „Höhe“ der Kurve in Reihen und „Am Rand der Kurve“ entfallen; Leiste ab Werk schmal. Das Kachel-Raster verschwindet mit `aussehen-heute`.
 - 2026-11-12 · Kopfzeile am PC: Wetter, Uhr und die drei belegbaren Knöpfe in einer Zeile über Inhalt und Kurve (nicht mehr im Seitenkopf); auf Heute keine Kopfzeile. Einträge der Leiste bleiben 44 px (zwei Knopf-Größen), Logo wie Vorlage (Wellen mit Sonne auf Akzent-Verlauf, 50 px).
 - 2026-11-12 · Wischen über @use-gesture/react (Ja des Nutzers, auch für weitere Gesten): Wischen nach rechts macht die Leiste breit, nach links schmal, mit Rückgängig.
+- 2026-11-12 · Offen Nr. 3 nach Empfehlung: Bahn ab Werk „Bogen“, „Echt“ bleibt als Auswahl in den Einstellungen.
+- 2026-11-12 · Himmel nach Vorlage: Sonne groß (8,5 rem) mit weitem Lichthof, Mond als Sichel (6 rem) mit schwachem Schein nach Phase, nur nachts. Helligkeit über `himmelsLicht`: Mittag immer am hellsten (Sonnenhöhe geteilt durch Mittagshöhe des Tages), am Horizont 30 %, Dämmerung bis 6° darunter; Wärme am größten bei 1° Sonnenhöhe, neue Farbe `--daemmerung` je Design.
 
 ## Offen
 
-Sieben Punkte sind offen. Bei jedem steht meine Empfehlung. Ohne Antwort gilt die Empfehlung.
+Sechs Punkte sind offen. Bei jedem steht meine Empfehlung. Ohne Antwort gilt die Empfehlung.
 
 | Nr. | Frage | Empfehlung | Wann nötig |
 | --- | --- | --- | --- |
-| 3 | Bahn von Sonne und Mond ab Werk | Bogen, „Echt“ als Schalter | In Etappe 2 am Bildschirm |
 | 6 | Belegung am Handy ab Werk | Oben: Kurve, Suche, Einstellungen. Unten: Heute, Postfach, Plus, Kalender, To-dos | In Etappe 1 |
 | 7 | Notizen für die Arbeit | Derselbe Baustein im Raum Arbeit | Vor Etappe 4 |
 | 8 | Bons vom Foto | Später als Versuch hinter einem Schalter | Nach dem Prototyp |
