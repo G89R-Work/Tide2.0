@@ -3,7 +3,7 @@ import { useId, useRef } from 'react'
 import { Knopf } from '../../../bausteine/Knopf'
 import { cn } from '../../../bausteine/cn'
 import { monatsRaster, tagSchluessel, wochenTage, type Wochenbeginn } from '../../../logik/heute'
-import { monatJahr, monatName, tagKurz, tagLang } from '../format'
+import { monatJahr, monatName, tagKurz, tagLang } from '../../../geruest/format'
 
 const plusMonat = (d: Date, n: number) => new Date(d.getFullYear(), d.getMonth() + n, 1)
 

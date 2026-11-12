@@ -9,7 +9,8 @@ import {
   hatHintergrund,
   hintergrundUmschalten,
   setzeGroesse,
-  spalten,
+  spaltenVon,
+  umrechnen,
   verschiebe,
   werkszustand,
   type Anordnung,
@@ -28,8 +29,8 @@ const ueberlappt = (a: Anordnung) => {
 }
 
 describe('kacheln', () => {
-  it('Raster hat 12 Spalten am PC und 2 am Handy', () => {
-    expect(spalten).toEqual({ pc: 12, handy: 2 })
+  it('Raster hat 12 Spalten am PC und 2 am Handy, doppelt fein 24 und 4', () => {
+    expect([spaltenVon('pc', 1), spaltenVon('handy', 1), spaltenVon('pc', 2), spaltenVon('handy', 2)]).toEqual([12, 2, 24, 4])
   })
 
   it('Werkszustand nimmt die Plätze aus dem Plan, nichts ist ausgeblendet', () => {
@@ -74,11 +75,49 @@ describe('kacheln', () => {
     expect(rechts.plaetze.b.x).toBe(6)
   })
 
-  it('nach unten verschieben tauscht mit der Kachel darunter, ohne Überlappung', () => {
+  it('Freie Plätze: eine Kachel nach unten gerückt lässt oben eine Lücke, nichts rückt nach', () => {
+    const w = werkszustand(plan, 'pc')
+    const a = verschiebe(w, plan, 'pc', 'b', 0, 2)
+    expect(a.plaetze.b).toMatchObject({ x: 6, y: 2 })
+    expect(a.plaetze.a).toEqual(w.plaetze.a)
+    expect(a.plaetze.c).toEqual(w.plaetze.c)
+    expect(anordnungAusDaten(a, plan, 'pc').plaetze.b.y).toBe(2)
+  })
+
+  it('Liegt eine Kachel im Weg, weicht sie nach unten aus und die bewegte behält ihren Platz', () => {
     const w = werkszustand(plan, 'handy')
-    const a = verschiebe(w, plan, 'handy', 'a', 0, 1)
-    expect(a.plaetze.a.y).toBeGreaterThan(0)
+    const a = verschiebe(w, plan, 'handy', 'b', 0, -1)
+    expect(a.plaetze.b.y).toBe(2)
+    expect(a.plaetze.a.y).toBe(4)
     expect(ueberlappt(a)).toBe(false)
+  })
+
+  it('Ausblenden lässt die Lücke stehen', () => {
+    const weg = ausblenden(werkszustand(plan, 'pc'), 'a')
+    expect(anordnungAusDaten(weg, plan, 'pc').plaetze.c).toMatchObject({ x: 0, y: 3 })
+  })
+
+  it('Doppelt fein: Werk, Mindestgröße und feste Größen verdoppeln sich in der Breite', () => {
+    const w = werkszustand(plan, 'pc', 2)
+    expect(w.plaetze.b).toEqual({ x: 12, y: 0, w: 12, h: 3 })
+    expect(alsLayout(w, plan, 'pc')[0]).toMatchObject({ minW: 6, minH: 2 })
+    expect(setzeGroesse(w, plan, 'pc', 'c', 'breit').plaetze.c.w).toBe(24)
+    expect(groesseAendern(w, plan, 'pc', 'c', 1, 0).plaetze.c.w).toBe(9)
+  })
+
+  it('Umrechnen zwischen einfach und doppelt erhält die Anordnung, auch über das Speichern', () => {
+    const einfach = verschiebe(werkszustand(plan, 'pc'), plan, 'pc', 'c', 3, 1)
+    const doppelt = umrechnen(einfach, plan, 'pc', 2)
+    expect(doppelt.plaetze.c).toEqual({ x: 6, y: 4, w: 8, h: 2 })
+    expect(umrechnen(doppelt, plan, 'pc', 1)).toEqual(einfach)
+    expect(anordnungAusDaten(doppelt, plan, 'pc', 1)).toEqual(einfach)
+    expect(anordnungAusDaten({ plaetze: einfach.plaetze, versteckt: [] }, plan, 'pc', 2).plaetze.c).toEqual(doppelt.plaetze.c)
+  })
+
+  it('Halbieren einer ungeraden Lage rundet und löst Überlappungen nach unten auf', () => {
+    const d = werkszustand(plan, 'pc', 2)
+    const schmal = groesseAendern(d, plan, 'pc', 'a', 1, 0)
+    expect(ueberlappt(umrechnen(schmal, plan, 'pc', 1))).toBe(false)
   })
 
   it('Umschalt und Pfeiltasten ändern die Größe innerhalb der Grenzen', () => {

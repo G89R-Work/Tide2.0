@@ -20,7 +20,7 @@ Im Bearbeiten-Modus zeigen alle Kacheln ihre Griffpunkte. „Fertig“ beendet i
 
 ## Regeln
 
-- **Raster.** 12 Spalten am PC, 6 am Tablet im Hochformat, 2 am Handy. Kacheln rasten ein.
+- **Raster.** 12 Spalten am PC, 2 am Handy; in der Einstellung „Raster: Doppelt“ 24 und 4. Kacheln rasten ein und bleiben, wo man sie lässt: Lücken bleiben, nichts rückt nach oben; liegt eine Kachel im Weg, weicht sie nach unten aus (Stand 2026-11-12, Wunsch des Nutzers). Tablet im Hochformat: siehe docs/IDEEN.md.
 - **Gemerkt je Nutzer, Seite und Geräteart.** Dein Handy und dein PC haben getrennte Anordnungen.
 - **Mindestgröße je Kachel.** Eine Kachel kann nicht so klein werden, dass ihr Inhalt bricht. Jede Kachel kennt zwei oder drei Darstellungen für klein, mittel und groß.
 - **Notizen sind Kacheln.** Eine wichtige Idee ziehst du groß, der Rest bleibt klein.

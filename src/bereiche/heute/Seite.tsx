@@ -2,6 +2,9 @@ import { useState } from 'react'
 import { useEinstellung } from '../../geruest/einstellungen'
 import { useBrauchtDich } from '../../geruest/useBrauchtDich'
 import { useMinute } from '../../geruest/useMinute'
+import { Uhr } from '../../geruest/Uhr'
+import { useTermine } from '../../geruest/useTermine'
+import { Wetter } from '../../geruest/Wetter'
 import { Raster } from '../../kacheln/Raster'
 import { einstellungen } from '../../logik/einstellungen'
 import { wochenrueckblick, wochenTage, type Wochenbeginn } from '../../logik/heute'
@@ -12,10 +15,7 @@ import { Knoepfe } from './kacheln/Knoepfe'
 import { Monat } from './kacheln/Monat'
 import { Notiz } from './kacheln/Notiz'
 import { Rueckblick } from './kacheln/Rueckblick'
-import { Uhr } from './kacheln/Uhr'
-import { Wetter } from './kacheln/Wetter'
 import { Woche } from './kacheln/Woche'
-import { useTermine } from './useTermine'
 import { werkszustand } from './werkszustand'
 
 const wochenbeginn = einstellungen.find((e) => e.id === 'wochenbeginn')!
@@ -24,7 +24,7 @@ const wochenbeginn = einstellungen.find((e) => e.id === 'wochenbeginn')!
 export default function Seite() {
   const jetzt = useMinute()
   const beginn = useEinstellung(wochenbeginn) as Wochenbeginn
-  const { termine, fehler } = useTermine()
+  const { termine, fehler } = useTermine(14, 42, jetzt)
   const braucht = useBrauchtDich()
   // Gezeigter Monat der Wochenleiste und der Tag, der vorn steht: ab Werk der Beginn der laufenden Woche, im Monat gehalten.
   const [wahl, setWahl] = useState<{ monat: Date; fokus: Date }>(() => {

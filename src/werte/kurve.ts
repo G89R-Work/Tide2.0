@@ -11,6 +11,4 @@ export const kurve = {
   hoeheGross: '38.2%',
   /** Schmaler wird sie nie; ab Werk volle Breite. */
   breiteMin: '240px',
-  /** Dicke des Zieh-Griffs (Trenner, h-2/w-2) in Pixeln; so weit endet die Seitenleiste vor dem Streifen. */
-  griffPx: 8,
 } as const

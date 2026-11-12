@@ -4,10 +4,15 @@ import { cn } from './cn'
 
 // Zieh-Griff zwischen zwei Flächen (react-resizable-panels). Unsichtbar, beim Darüberfahren eine feine Linie.
 // `richtung`: „senkrecht" trennt links und rechts, „waagrecht" oben und unten.
-export function Trenner({ richtung = 'senkrecht', className, ...rest }: ComponentProps<typeof Separator> & { richtung?: 'senkrecht' | 'waagrecht' }) {
+// `dicke`: „abstand" zwischen zwei Flächen (ab Werk), „rand" wenn der Griff am Bildschirmrand liegt.
+const dicken = { abstand: { senkrecht: 'w-abstand', waagrecht: 'h-abstand' }, rand: { senkrecht: 'w-rand', waagrecht: 'h-rand' } } as const
+
+type Props = ComponentProps<typeof Separator> & { richtung?: 'senkrecht' | 'waagrecht'; dicke?: keyof typeof dicken }
+
+export function Trenner({ richtung = 'senkrecht', dicke = 'abstand', className, ...rest }: Props) {
   const senkrecht = richtung === 'senkrecht'
   return (
-    <Separator className={cn('group flex items-center justify-center outline-none', senkrecht ? 'w-2' : 'h-2', className)} {...rest}>
+    <Separator className={cn('group flex items-center justify-center outline-none', dicken[dicke][richtung], className)} {...rest}>
       <div
         className={cn(
           'bg-durchsichtig group-hover:bg-linie-stark group-focus-visible:bg-akzent',

@@ -34,8 +34,11 @@ Was umgesetzt ist, wandert beim Abschluss einer Scheibe nach „Erledigt“, mit
 - Die Knöpfe „Notiz“ und „Woche“ neben der Wochenleiste endgültig festlegen; heute: Sprung zu Notizen und Wochenrückblick (heute-kacheln)
 - Wochenleiste: Buchstaben für Früh- und Spätschicht an den Tagen, sobald Arbeit die Schichtart kennt (heute-kacheln)
 - Höhe der Wellen in der Gezeitenkurve am Handy prüfen, vielleicht zu viel (heute-kacheln)
+- Monatskalender auf Heute klappt aus dem Knopf „Monat“ heraus statt mittig aufzugehen, und ist ein voll bedienbarer kleiner Kalender wie die Kalenderseite (heute-kacheln, Wunsch des Nutzers)
+- Tablet im Hochformat mit 6 Spalten (Konzept 04) widerspricht der Regel „Tablet und PC nutzen dieselbe Ansicht“; klären, bevor es gebaut wird (heute-kacheln)
 
 ## Erledigt
 - 2026-11-12 · Nach dem langen Druck gleich weiterziehen, ohne den Finger abzusetzen (heute-kacheln)
 - 2026-11-12 · Monat als aufklappbarer Kalender statt Sprung (heute-kacheln)
 - 2026-11-12 · Jede bewegliche Kachel kann ohne Hintergrund stehen (heute-kacheln)
+- 2026-11-12 · Kalenderwoche an der Wochenleiste (heute-kacheln)

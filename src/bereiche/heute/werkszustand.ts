@@ -20,8 +20,7 @@ export const werkszustand: readonly KachelPlan[] = [
   k('wetter', 'Wetter', [2, 2], [1, 2], [6, 0, 3, 2], [1, 3, 1, 2], true),
   k('uhr', 'Uhr', [2, 2], [1, 2], [9, 0, 3, 2], [0, 3, 1, 2], true),
   k('naechstes', 'Als Nächstes', [3, 2], [2, 2], [0, 1, 6, 3], [0, 1, 2, 2], true),
-  // Die Knöpfe reichen bis über „Braucht dich“, damit die Kacheln darunter nicht in die Lücke rechts aufrücken.
-  k('knoepfe', 'Knöpfe', [2, 1], [1, 1], [6, 2, 6, 3], null, true),
+  k('knoepfe', 'Knöpfe', [2, 1], [1, 1], [9, 2, 3, 1], null, true),
   k('braucht', 'Braucht dich', [3, 1], [2, 1], [0, 4, 6, 1], [0, 5, 2, 1]),
   k('monat', 'Monat', [1, 2], [1, 1], [0, 5, 1, 2], [0, 8, 1, 1]),
   k('woche', 'Woche', [4, 2], [2, 2], [1, 5, 7, 2], [0, 6, 2, 2]),

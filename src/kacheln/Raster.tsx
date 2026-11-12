@@ -1,12 +1,14 @@
 import { Ellipsis } from 'lucide-react'
 import { useEffect, useState, type KeyboardEvent, type MouseEvent, type ReactNode, type Ref } from 'react'
 import { GridLayout, useContainerWidth } from 'react-grid-layout'
+import { noCompactor } from 'react-grid-layout/core'
 import type { Layout, ResizeHandleAxis } from 'react-grid-layout'
 import { cn } from '../bausteine/cn'
 import { Flaeche } from '../bausteine/Flaeche'
 import { Knopf } from '../bausteine/Knopf'
 import { useGeraet } from '../geruest/einstellungen'
-import { alsLayout, ausLayout, groesseAendern, hatHintergrund, spalten, verschiebe, type KachelPlan } from '../logik/kacheln'
+import { alsLayout, ausLayout, groesseAendern, hatHintergrund, spaltenVon, verschiebe, type KachelPlan } from '../logik/kacheln'
+import { abstaende } from '../werte/abstaende'
 import { kachelRaster } from '../werte/kacheln'
 import { useAnordnung } from './anordnung'
 import { bearbeitenBeenden, meldeZuruecksetzer, useBearbeiten } from './bearbeiten'
@@ -90,7 +92,9 @@ export function Raster({ seite, kacheln, inhalt }: Props) {
           <GridLayout
             width={width}
             layout={alsLayout(anordnung, kacheln, geraet)}
-            gridConfig={{ cols: spalten[geraet], rowHeight: kachelRaster.zeile, margin: [kachelRaster.abstand, kachelRaster.abstand], containerPadding: [0, 0] }}
+            // Freie Plätze: nichts rückt nach oben; wer im Weg liegt, weicht nach unten aus.
+            compactor={noCompactor}
+            gridConfig={{ cols: spaltenVon(geraet, anordnung.fein), rowHeight: kachelRaster.zeile, margin: [abstaende.abstandPx, abstaende.abstandPx], containerPadding: [0, 0] }}
             // Am PC greift man den Kopf oder Griff; Klicks auf den Inhalt bleiben Klicks. Am Handy hebt langer Druck die ganze Kachel an,
             // auch auf Knöpfen; kurzes Antippen bleibt ein Klick, kurzes Wischen scrollt (allowMobileScroll).
             dragConfig={{ enabled: bearbeiten, handle: handy ? undefined : '.kachel-griff', cancel: '.griff, .kachel-menue-knopf', threshold: 3, allowMobileScroll: true }}

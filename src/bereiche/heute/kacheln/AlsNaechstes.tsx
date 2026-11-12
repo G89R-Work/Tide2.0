@@ -1,6 +1,6 @@
 import { alsNaechstes } from '../../../logik/heute'
 import type { Eintrag } from '../../../vertrag/eintrag'
-import { uhrzeit } from '../format'
+import { uhrzeit } from '../../../geruest/format'
 
 /** Die eine große Überschrift: in den nächsten 30 Minuten groß, weiter weg kleiner. */
 export function AlsNaechstes({ termine, jetzt, fehler }: { termine: readonly Eintrag[]; jetzt: Date; fehler?: string }) {

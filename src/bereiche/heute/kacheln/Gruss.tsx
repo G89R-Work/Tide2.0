@@ -1,7 +1,7 @@
 import { useEinstellung } from '../../../geruest/einstellungen'
 import { einstellungen } from '../../../logik/einstellungen'
 import { begruessung } from '../../../logik/tageszeit'
-import { datumLang } from '../format'
+import { datumLang } from '../../../geruest/format'
 
 const name = einstellungen.find((e) => e.id === 'name')!
 

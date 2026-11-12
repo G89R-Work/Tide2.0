@@ -12,6 +12,9 @@
   --font-*: initial;
   --font-sans: 'Inter Variable', system-ui, sans-serif;
   --spacing: 0.25rem;
+  /* Äußerster Rand und Abstand zwischen allem anderen, in px wie in src/werte/abstaende.ts (das Raster rechnet in px, auch bei anderer Schriftgröße). */
+  --spacing-rand: 8px;
+  --spacing-abstand: 12px;
   --radius-knopf: 0.75rem;
   --radius-voll: 9999px;
 }
@@ -363,10 +366,10 @@ html {
   outline: 2px solid var(--akzent);
   outline-offset: 2px;
 }
-/* Abstand des Inhalts zum Rand: so groß wie der Rand der Seitenleiste und der Leisten am Handy (8 px).
-   Am PC liegt links der Trenner der Seitenleiste davor, der genauso breit ist; darum dort links kein eigener Abstand. */
+/* Inhalt links und rechts: Rand zum Bildschirm. Am PC liegt links der Trenner zur Seitenleiste (Abstand) davor,
+   darum dort links nichts. Oben und unten setzt MitKurve den Platz über --frei-oben/--frei-unten (inhalt-frei). */
 @utility seiten-rand {
-  padding: --spacing(2);
+  padding-inline: var(--spacing-rand);
   @media (width >= 48rem) {
     padding-left: 0;
   }
@@ -597,8 +600,8 @@ html {
    aus src/logik/leisteLage.ts (Abstand zum Rand). Werte kommen als Zahlen in Pixeln über --breite, --oben, --unten. */
 @utility leiste-lage {
   position: absolute;
-  left: --spacing(2);
-  width: calc(var(--breite) * 1px - --spacing(2));
+  left: var(--spacing-rand);
+  width: calc(var(--breite) * 1px - var(--spacing-rand));
   top: calc(var(--oben) * 1px);
   bottom: calc(var(--unten) * 1px);
   transition:

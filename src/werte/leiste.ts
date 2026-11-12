@@ -11,8 +11,6 @@ export const leiste = {
    */
   standard: `${standardPx}px`,
   standardPx,
-  /** Abstand zum Bildschirmrand oben und unten (wie p-2), wenn keine Kurve dazwischen liegt. */
-  randPx: 8,
   /** Weiter lässt sie sich nicht ziehen. */
   hoechstens: '360px',
   /** Unter dieser Fensterbreite gilt die Handy-Ansicht mit Menü statt Seitenleiste. */

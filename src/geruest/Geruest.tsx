@@ -1,11 +1,10 @@
 import { Suspense, useEffect, useState, type CSSProperties } from 'react'
 import { Group, Panel, useDefaultLayout, usePanelRef } from 'react-resizable-panels'
-import { cn } from '../bausteine/cn'
 import { Trenner } from '../bausteine/Trenner'
 import { mitteUnten } from '../logik/aktionen'
 import { ebeneVon, ortAusMarke, type Ort } from '../logik/ebenen'
 import { leisteLage } from '../logik/leisteLage'
-import { kurve } from '../werte/kurve'
+import { abstaende } from '../werte/abstaende'
 import { leiste } from '../werte/leiste'
 import { AktionKnopf } from './AktionKnopf'
 import { useBelegung } from './belegung'
@@ -60,7 +59,7 @@ function Handy({ ort, zahl }: { ort: Ort; zahl: number }) {
   const sichtbar = useKurveSichtbar(ort.bereich)
   return (
     <div className="flex h-dvh flex-col">
-      <header className="p-2 pb-0">
+      <header className="px-rand pt-rand">
         <div className="flex items-center p-1">
           <HandyMenue ort={ort} zahl={zahl} />
           <div className="ml-auto flex">
@@ -73,7 +72,7 @@ function Handy({ ort, zahl }: { ort: Ort; zahl: number }) {
       <MitKurve
         sichtbar={sichtbar}
         fuss={
-          <nav aria-label="Untere Leiste" className="p-2 pt-0">
+          <nav aria-label="Untere Leiste" className="px-rand pb-rand">
             <div className="flaeche-leiste grid grid-cols-5 place-items-center p-1">
               {unten.map((id, i) => (
                 <AktionKnopf key={i} id={id} art={i === mitteUnten ? 'haupt' : 'symbol'} className={i === mitteUnten ? 'w-11 px-0' : undefined} />
@@ -98,7 +97,7 @@ function Pc({ ort }: { ort: Ort }) {
   const kurveOben = useKurveOben()
   const sichtbar = useKurveSichtbar(ort.bereich)
   const [platz, setPlatz] = useState<Platz>({ hoehe: 0, links: 0 })
-  const lage = leisteLage({ leiste: breite, links: platz.links, kurve: sichtbar ? platz.hoehe : 0, griff: kurve.griffPx, rand: leiste.randPx, kurveOben })
+  const lage = leisteLage({ leiste: breite, links: platz.links, kurve: sichtbar ? platz.hoehe : 0, griff: abstaende.abstandPx, rand: abstaende.randPx, kurveOben })
 
   // Die Kurve liegt über die volle Breite. Die Seitenleiste liegt als eigene Lage über ihrer Spalte: Die Spalte (Panel „leiste")
   // gibt die ziehbare Breite vor, die Leiste endet am Kurven-Streifen oder reicht bis zum Rand, wenn die Kurve links Platz lässt.
@@ -123,8 +122,8 @@ function Pc({ ort }: { ort: Ort }) {
           />
           <Panel id="inhalt" className="flex">
             {hatEbene && (
-              <nav aria-label="Zweite Ebene" className="inhalt-frei flex w-54 shrink-0 flex-col overflow-y-auto pr-2">
-                <div className={cn('flaeche-leiste flex-1 p-2', kurveOben ? 'mb-2' : 'mt-2')}>
+              <nav aria-label="Zweite Ebene" className="inhalt-frei flex w-55 shrink-0 flex-col overflow-y-auto pr-abstand">
+                <div className="flaeche-leiste flex-1 p-2">
                   <ZweiteEbene bereich={ort.bereich} aktiv={ort.unter} />
                 </div>
               </nav>

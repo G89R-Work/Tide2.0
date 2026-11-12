@@ -1,18 +1,22 @@
 // Kacheln: Anordnung je Seite und Geräteart (docs/konzept/04-kacheln.md).
-// Verschieben, Kollisionen und Nachrücken rechnet react-grid-layout; hier nur Regeln, Prüfen und feste Größen.
-import { moveElement, verticalCompactor } from 'react-grid-layout/core'
+// Plätze sind frei: Eine Kachel bleibt, wo man sie lässt; nichts rückt nach oben. Liegt eine Kachel auf einer anderen,
+// weicht die andere nach unten aus. Das Raster hat am PC 12 und am Handy 2 Spalten, in der Feinheit „doppelt“ 24 und 4.
+// Pläne (Werk, Mindestgrößen, feste Größen) stehen im einfachen Raster und werden für „doppelt“ umgerechnet.
+import { getFirstCollision, sortLayoutItemsByRowCol } from 'react-grid-layout/core'
 import type { Layout, LayoutItem } from 'react-grid-layout'
 import type { Geraet } from './einstellungen'
 
 export type Groesse = { w: number; h: number }
 export type Platz = Groesse & { x: number; y: number }
+/** Wie fein das Raster ist: 1 = einfach (12 / 2 Spalten), 2 = doppelt (24 / 4). */
+export type Feinheit = 1 | 2
 
 export type KachelPlan = {
   id: string
   name: string
-  /** Kleiner wird die Kachel nicht, damit ihr Inhalt nicht bricht. */
+  /** Kleiner wird die Kachel nicht, damit ihr Inhalt nicht bricht. Im einfachen Raster. */
   min: Record<Geraet, Groesse>
-  /** Werkszustand; null heißt: auf diesem Gerät ab Werk ausgeblendet. */
+  /** Werkszustand im einfachen Raster; null heißt: auf diesem Gerät ab Werk ausgeblendet. */
   werk: Record<Geraet, Platz | null>
   /** Ab Werk ohne Hintergrund (freier Text auf dem Himmel). Umschaltbar im Menü der Kachel. */
   hintergrund?: false
@@ -20,10 +24,14 @@ export type KachelPlan = {
   titel?: false
 }
 
-/** Ausgeblendete Kacheln haben keinen Platz. `ohneHintergrund` nennt die Kacheln ohne Fläche. */
-export type Anordnung = { plaetze: Readonly<Record<string, Platz>>; versteckt: readonly string[]; ohneHintergrund: readonly string[] }
+/** Ausgeblendete Kacheln haben keinen Platz. `ohneHintergrund` nennt die Kacheln ohne Fläche. `fein`: Raster der Plätze. */
+export type Anordnung = { plaetze: Readonly<Record<string, Platz>>; versteckt: readonly string[]; ohneHintergrund: readonly string[]; fein: Feinheit }
 
-export const spalten: Record<Geraet, number> = { pc: 12, handy: 2 }
+const grundSpalten: Record<Geraet, number> = { pc: 12, handy: 2 }
+
+export function spaltenVon(g: Geraet, fein: Feinheit): number {
+  return grundSpalten[g] * fein
+}
 
 export const festeGroessen = {
   klein: { pc: { w: 3, h: 2 }, handy: { w: 1, h: 2 } },
@@ -36,18 +44,33 @@ export type FesteGroesse = keyof typeof festeGroessen
 export const groessenNamen: Record<FesteGroesse, string> = { klein: 'Klein', mittel: 'Mittel', gross: 'Groß', breit: 'Breit', hoch: 'Hoch' }
 
 const ganz = (n: unknown): n is number => typeof n === 'number' && Number.isInteger(n)
+const istFeinheit = (n: unknown): n is Feinheit => n === 1 || n === 2
+
+/** Breiten und waagrechte Lagen von einer Feinheit in eine andere. Halbieren rundet; Überlappungen löst `aufloesen`. */
+function waagrecht<T extends { w: number; x?: number }>(p: T, von: Feinheit, nach: Feinheit): T {
+  if (von === nach) return p
+  const f = nach / von
+  return { ...p, w: Math.max(1, Math.round(p.w * f)), ...(p.x === undefined ? {} : { x: Math.round(p.x * f) }) }
+}
+
+const minVon = (k: KachelPlan, g: Geraet, fein: Feinheit): Groesse => waagrecht(k.min[g], 1, fein)
 
 /** Platz in die Grenzen bringen: Mindestgröße, Spaltenzahl, nicht über den Rand. */
-function begrenzt(p: Platz, k: KachelPlan, g: Geraet): Platz {
-  const w = Math.min(spalten[g], Math.max(k.min[g].w, p.w))
-  const h = Math.max(k.min[g].h, p.h)
-  return { x: Math.max(0, Math.min(p.x, spalten[g] - w)), y: Math.max(0, p.y), w, h }
+function begrenzt(p: Platz, k: KachelPlan, g: Geraet, fein: Feinheit): Platz {
+  const min = minVon(k, g, fein)
+  const spalten = spaltenVon(g, fein)
+  const w = Math.min(spalten, Math.max(min.w, p.w))
+  const h = Math.max(min.h, p.h)
+  return { x: Math.max(0, Math.min(p.x, spalten - w)), y: Math.max(0, p.y), w, h }
 }
 
 export function alsLayout(a: Anordnung, plan: readonly KachelPlan[], g: Geraet): LayoutItem[] {
   return plan
     .filter((k) => !a.versteckt.includes(k.id) && a.plaetze[k.id])
-    .map((k) => ({ i: k.id, ...a.plaetze[k.id], minW: k.min[g].w, minH: k.min[g].h }))
+    .map((k) => {
+      const min = minVon(k, g, a.fein)
+      return { i: k.id, ...a.plaetze[k.id], minW: min.w, minH: min.h }
+    })
 }
 
 /** Stand aus dem Layout des Bausteins übernehmen. Ohne Änderung bleibt das alte Objekt (wichtig für „Rückgängig"). */
@@ -63,27 +86,38 @@ export function ausLayout(a: Anordnung, layout: Layout): Anordnung {
   return anders ? { ...a, plaetze } : a
 }
 
-/** Überlappungen auflösen und nach oben nachrücken, wie es der Baustein beim Ziehen tut. */
-function ordnen(a: Anordnung, plan: readonly KachelPlan[], g: Geraet): Anordnung {
-  return ausLayout(a, verticalCompactor.compact(alsLayout(a, plan, g), spalten[g]))
+/** Überlappungen auflösen, ohne etwas nach oben zu holen: Wer im Weg liegt, rutscht unter das Hindernis.
+ *  `zuerst` behält seinen Platz (die gerade bewegte Kachel). */
+function aufloesen(a: Anordnung, plan: readonly KachelPlan[], g: Geraet, zuerst?: string): Anordnung {
+  const sortiert = sortLayoutItemsByRowCol(alsLayout(a, plan, g))
+  const reihe = zuerst ? [...sortiert.filter((l) => l.i === zuerst), ...sortiert.filter((l) => l.i !== zuerst)] : sortiert
+  const gesetzt: LayoutItem[] = []
+  for (const l of reihe) {
+    const item = { ...l }
+    for (let hindernis = getFirstCollision(gesetzt, item); hindernis; hindernis = getFirstCollision(gesetzt, item)) item.y = hindernis.y + hindernis.h
+    gesetzt.push(item)
+  }
+  return ausLayout(a, gesetzt)
 }
 
 const ohneHintergrundAbWerk = (plan: readonly KachelPlan[]) => plan.filter((k) => k.hintergrund === false).map((k) => k.id)
 
-export function werkszustand(plan: readonly KachelPlan[], g: Geraet): Anordnung {
+export function werkszustand(plan: readonly KachelPlan[], g: Geraet, fein: Feinheit = 1): Anordnung {
   const plaetze: Record<string, Platz> = {}
   const versteckt: string[] = []
   for (const k of plan) {
     const p = k.werk[g]
-    if (p) plaetze[k.id] = p
+    if (p) plaetze[k.id] = waagrecht(p, 1, fein)
     else versteckt.push(k.id)
   }
-  return { plaetze, versteckt, ohneHintergrund: ohneHintergrundAbWerk(plan) }
+  return { plaetze, versteckt, ohneHintergrund: ohneHintergrundAbWerk(plan), fein }
 }
 
-/** Gemerkte Anordnung lesen. Unbekanntes fällt weg, Fehlendes oder Unlesbares kommt aus dem Werk. */
-export function anordnungAusDaten(roh: unknown, plan: readonly KachelPlan[], g: Geraet): Anordnung {
+/** Gemerkte Anordnung lesen und ins Raster `fein` umrechnen. Unbekanntes fällt weg, Fehlendes oder Unlesbares kommt aus dem Werk.
+ *  Daten ohne Angabe zur Feinheit stammen aus dem einfachen Raster. */
+export function anordnungAusDaten(roh: unknown, plan: readonly KachelPlan[], g: Geraet, fein: Feinheit = 1): Anordnung {
   const d = typeof roh === 'object' && roh !== null ? (roh as Record<string, unknown>) : {}
+  const gemerktFein = istFeinheit(d.fein) ? d.fein : 1
   const gemerkt = typeof d.plaetze === 'object' && d.plaetze !== null ? (d.plaetze as Record<string, Record<string, unknown>>) : {}
   const plaetze: Record<string, Platz> = {}
   const ids = new Set(plan.map((k) => k.id))
@@ -92,47 +126,49 @@ export function anordnungAusDaten(roh: unknown, plan: readonly KachelPlan[], g: 
   for (const k of plan) {
     const p = gemerkt[k.id]
     const gut = p && ganz(p.x) && ganz(p.y) && ganz(p.w) && ganz(p.h)
-    const platz = gut ? begrenzt({ x: p.x as number, y: p.y as number, w: p.w as number, h: p.h as number }, k, g) : k.werk[g]
+    const roherPlatz = gut ? waagrecht({ x: p.x as number, y: p.y as number, w: p.w as number, h: p.h as number }, gemerktFein, fein) : k.werk[g] && waagrecht(k.werk[g], 1, fein)
     // Ohne Platz (ab Werk ausgeblendet und nie geholt) bleibt die Kachel ausgeblendet.
-    if (platz) plaetze[k.id] = platz
+    if (roherPlatz) plaetze[k.id] = begrenzt(roherPlatz, k, g, fein)
     else if (!versteckt.includes(k.id)) versteckt.push(k.id)
   }
   const ohneHintergrund = bekannte(d.ohneHintergrund) ?? ohneHintergrundAbWerk(plan)
-  return ordnen({ plaetze, versteckt, ohneHintergrund }, plan, g)
+  return aufloesen({ plaetze, versteckt, ohneHintergrund, fein }, plan, g)
+}
+
+/** Dieselbe Anordnung in einem anderen Raster. */
+export function umrechnen(a: Anordnung, plan: readonly KachelPlan[], g: Geraet, fein: Feinheit): Anordnung {
+  if (a.fein === fein) return a
+  const plaetze = Object.fromEntries(
+    Object.entries(a.plaetze).map(([id, p]) => {
+      const k = plan.find((x) => x.id === id)
+      const neu = waagrecht(p, a.fein, fein)
+      return [id, k ? begrenzt(neu, k, g, fein) : neu]
+    }),
+  )
+  return aufloesen({ ...a, plaetze, fein }, plan, g)
 }
 
 function aendern(a: Anordnung, plan: readonly KachelPlan[], g: Geraet, id: string, neu: (p: Platz) => Platz): Anordnung {
   const k = plan.find((x) => x.id === id)
   const alt = a.plaetze[id]
   if (!k || !alt) return a
-  const p = begrenzt(neu(alt), k, g)
+  const p = begrenzt(neu(alt), k, g, a.fein)
   if (p.x === alt.x && p.y === alt.y && p.w === alt.w && p.h === alt.h) return a
-  return ordnen({ ...a, plaetze: { ...a.plaetze, [id]: p } }, plan, g)
+  return aufloesen({ ...a, plaetze: { ...a.plaetze, [id]: p } }, plan, g, id)
 }
 
 export function setzeGroesse(a: Anordnung, plan: readonly KachelPlan[], g: Geraet, id: string, groesse: FesteGroesse): Anordnung {
-  return aendern(a, plan, g, id, (p) => ({ ...p, ...festeGroessen[groesse][g] }))
+  return aendern(a, plan, g, id, (p) => ({ ...p, ...waagrecht(festeGroessen[groesse][g], 1, a.fein) }))
 }
 
-/** Umschalt und Pfeiltasten: Breite und Höhe um je eine Stufe. */
+/** Umschalt und Pfeiltasten: Breite und Höhe um je ein Feld. */
 export function groesseAendern(a: Anordnung, plan: readonly KachelPlan[], g: Geraet, id: string, dw: number, dh: number): Anordnung {
-  return aendern(a, plan, g, id, (p) => ({ ...p, w: Math.min(p.w + dw, spalten[g] - p.x), h: p.h + dh }))
+  return aendern(a, plan, g, id, (p) => ({ ...p, w: Math.min(p.w + dw, spaltenVon(g, a.fein) - p.x), h: p.h + dh }))
 }
 
-/** Pfeiltasten: wie Ziehen um ein Feld. Kacheln im Weg weichen aus. */
+/** Pfeiltasten: um ein Feld, wie Ziehen. Kacheln im Weg weichen nach unten aus, Lücken bleiben. */
 export function verschiebe(a: Anordnung, plan: readonly KachelPlan[], g: Geraet, id: string, dx: number, dy: number): Anordnung {
-  const k = plan.find((x) => x.id === id)
-  const alt = a.plaetze[id]
-  if (!k || !alt) return a
-  const ziel = begrenzt({ ...alt, x: alt.x + dx, y: alt.y + dy }, k, g)
-  if (ziel.x === alt.x && ziel.y === alt.y) return a
-  const layout = alsLayout(a, plan, g)
-  const item = layout.find((l) => l.i === id)
-  if (!item) return a
-  // Nach unten über die Kachel darunter springen, sonst rückt sie gleich wieder nach oben.
-  const unten = dy > 0 ? Math.max(ziel.y, ...layout.filter((l) => l.i !== id && l.y === alt.y + alt.h && l.x < alt.x + alt.w && alt.x < l.x + l.w).map((l) => l.y + l.h - alt.h + 1)) : ziel.y
-  const bewegt = moveElement(layout, item, ziel.x, unten, true, false, 'vertical', spalten[g])
-  return ausLayout(a, verticalCompactor.compact(bewegt, spalten[g]))
+  return aendern(a, plan, g, id, (p) => ({ ...p, x: p.x + dx, y: p.y + dy }))
 }
 
 export function ausblenden(a: Anordnung, id: string): Anordnung {
@@ -143,11 +179,9 @@ export function ausblenden(a: Anordnung, id: string): Anordnung {
 export function einblenden(a: Anordnung, plan: readonly KachelPlan[], g: Geraet, id: string): Anordnung {
   const k = plan.find((x) => x.id === id)
   if (!k || !a.versteckt.includes(id)) return a
-  const sichtbar = alsLayout(a, plan, g)
-  const ende = Math.max(0, ...sichtbar.map((l) => l.y + l.h))
-  const groesse = k.werk[g] ?? k.min[g]
-  const neu = { ...a, versteckt: a.versteckt.filter((v) => v !== id), plaetze: { ...a.plaetze, [id]: { w: groesse.w, h: groesse.h, x: 0, y: ende } } }
-  return ordnen(neu, plan, g)
+  const ende = Math.max(0, ...alsLayout(a, plan, g).map((l) => l.y + l.h))
+  const groesse = waagrecht(k.werk[g] ?? k.min[g], 1, a.fein)
+  return { ...a, versteckt: a.versteckt.filter((v) => v !== id), plaetze: { ...a.plaetze, [id]: { w: groesse.w, h: groesse.h, x: 0, y: ende } } }
 }
 
 export function hatHintergrund(a: Anordnung, id: string): boolean {

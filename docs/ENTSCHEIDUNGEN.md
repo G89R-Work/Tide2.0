@@ -86,6 +86,9 @@ Eine Zeile je Entscheidung, neueste unten. Was hier steht, gilt und wird nicht n
 - 2026-11-12 · Heute: alles ist eine Kachel, kein fester Kopf, kein „Anpassen“-Knopf. Die drei PC-Knöpfe sind eine eigene Kachel unter Uhr und Wetter. Eine leere Kachel („Braucht dich“ ohne Punkte) bleibt unsichtbar an ihrem Platz, damit nichts nachrückt.
 - 2026-11-12 · Heute: Wochenleiste nach Beispielbild; Wischen innerhalb des Monats, andere Monate über den Monatskalender. Wetter vorerst als Zeile aus den Stundenwerten (Regen statt Bewölkung, die liefert der Vertrag noch nicht).
 - 2026-11-12 · Rand des Inhalts überall 8 px wie der Rand der Seitenleiste; gesetzt einmal im Gerüst (`seiten-rand`), Seiten haben keinen eigenen Rand. Am Handy hebt langer Druck im Bearbeiten-Modus auch Kacheln an, die nur aus einem Knopf bestehen.
+- 2026-11-12 · Kacheln: freie Plätze ohne Nachrücken; im Weg liegende Kacheln weichen nach unten aus. Einstellung „Raster“ je Gerät: Einfach (12/2 Spalten) oder Doppelt (24/4); Anordnungen merken ihr Raster (Vertrag `fein`) und werden umgerechnet. Zeilenhöhe bleibt fest.
+- 2026-11-12 · Abstände: zwei Werte für alles, Rand 8 px (zum Bildschirmrand) und Abstand 12 px (zwischen allem anderen), in `src/werte/abstaende.ts` und als `p-rand`/`gap-abstand` in werte.css.
+- 2026-11-12 · Uhr und Wetter liegen im Gerüst; auf jeder Seite außer Heute klein links neben den belegbaren Knöpfen, ein Klick zeigt die volle Ansicht. Die Uhr zeigt außerhalb einer Schicht den Anteil des Tages, in einer Schicht den der Schicht; nur dann schaltet ein Klick um.
 
 ## Offen
 

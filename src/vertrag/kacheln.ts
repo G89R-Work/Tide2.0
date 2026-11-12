@@ -1,10 +1,11 @@
 // Vertrag: Anordnung der Kacheln je Seite und Geräteart. Gemerkt wird nur, was vom Werkszustand abweicht;
 // null heißt „Werkszustand". Geprüft wird beim Lesen in src/logik/kacheln.ts.
 import type { Geraet } from '../logik/einstellungen'
-import type { Platz } from '../logik/kacheln'
+import type { Feinheit, Platz } from '../logik/kacheln'
 
-/** `ohneHintergrund`: Kacheln, die ohne Fläche gezeigt werden. Fehlt das Feld, gilt der Werkszustand. */
-export type AnordnungDaten = { plaetze: Record<string, Platz>; versteckt: string[]; ohneHintergrund: string[] }
+/** `ohneHintergrund`: Kacheln, die ohne Fläche gezeigt werden; fehlt das Feld, gilt der Werkszustand.
+ *  `fein`: Raster der Plätze (1 = 12 / 2 Spalten, 2 = 24 / 4); fehlt das Feld, gilt 1. */
+export type AnordnungDaten = { plaetze: Record<string, Platz>; versteckt: string[]; ohneHintergrund: string[]; fein: Feinheit }
 
 const adresse = (seite: string, geraet: Geraet) => `/api/kacheln/${encodeURIComponent(seite)}/${geraet}`
 

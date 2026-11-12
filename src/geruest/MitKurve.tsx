@@ -1,6 +1,9 @@
 import { useLayoutEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react'
 import { Group, Panel, useDefaultLayout, usePanelRef } from 'react-resizable-panels'
+import { cn } from '../bausteine/cn'
 import { Trenner } from '../bausteine/Trenner'
+import { freierPlatz } from '../logik/freierPlatz'
+import { abstaende } from '../werte/abstaende'
 import { kurve } from '../werte/kurve'
 import { useGeraet, useKurveOben } from './einstellungen'
 import { Gezeitenkurve } from './Gezeitenkurve'
@@ -71,15 +74,18 @@ export function MitKurve({ children, fuss, onPlatz, sichtbar }: { children: Reac
       maxSize={kurve.hoeheMax}
       defaultSize={kurve.hoehe}
       onResize={(g) => melde({ hoehe: Math.round(g.inPixels) })}
-      className={oben ? 'pointer-events-auto pt-2' : 'pointer-events-auto pb-2'}
+      // Am PC liegt die Kurve am Bildschirmrand, am Handy zwischen Kopfzeile und unterer Leiste.
+      className={cn('pointer-events-auto', geraet === 'pc' ? (oben ? 'pt-rand' : 'pb-rand') : oben ? 'pt-abstand' : 'pb-abstand')}
     >
-      {geraet === 'pc' ? <ZiehbareBreite onLinks={(links) => melde({ links })} /> : <Gezeitenkurve className="mx-2" onAntippen={groesser} />}
+      {geraet === 'pc' ? <ZiehbareBreite onLinks={(links) => melde({ links })} /> : <Gezeitenkurve className="mx-rand" onAntippen={groesser} />}
     </Panel>
   )
 
+  const platzFrei = freierPlatz({ verdeckt, kurve: sichtbar ? (oben ? 'oben' : 'unten') : 'aus', kopfzeile: geraet === 'handy', rand: abstaende.randPx, abstand: abstaende.abstandPx })
+
   return (
     <div ref={lage} className="relative min-h-0 flex-1">
-      <div className="absolute inset-0 flex" style={{ '--frei-oben': verdeckt.oben, '--frei-unten': verdeckt.unten } as CSSProperties}>
+      <div className="absolute inset-0 flex" style={{ '--frei-oben': platzFrei.oben, '--frei-unten': platzFrei.unten } as CSSProperties}>
         {children}
       </div>
       <div className="pointer-events-none absolute inset-0 flex flex-col">
@@ -114,11 +120,11 @@ function ZiehbareBreite({ onLinks }: { onLinks: (px: number) => void }) {
   return (
     <Group {...breite} orientation="horizontal" className="h-full">
       <Panel id="links" panelRef={links} minSize="0%" defaultSize="0%" onResize={(g) => onLinks(Math.round(g.inPixels))} />
-      <Trenner title={titel} onDoubleClick={() => links.current?.resize('0%')} />
+      <Trenner dicke="rand" title={titel} onDoubleClick={() => links.current?.resize('0%')} />
       <Panel id="kurve" minSize={kurve.breiteMin}>
         <Gezeitenkurve />
       </Panel>
-      <Trenner title={titel} onDoubleClick={() => rechts.current?.resize('0%')} />
+      <Trenner dicke="rand" title={titel} onDoubleClick={() => rechts.current?.resize('0%')} />
       <Panel id="rechts" panelRef={rechts} minSize="0%" defaultSize="0%" />
     </Group>
   )
@@ -128,8 +134,9 @@ function ZiehbareBreite({ onLinks }: { onLinks: (px: number) => void }) {
 function HinweiseUnten() {
   const schritt = useFrischerSchritt()
   const meldung = useMeldungen().frisch
+  const handy = useGeraet() === 'handy'
   return (
-    <div className="flex justify-end px-2 pb-2">
+    <div className={cn('flex justify-end px-rand', handy ? 'pb-abstand' : 'pb-rand')}>
       <div className="flaeche-leiste pointer-events-auto flex min-w-0 items-center gap-2 py-1 pr-1 pl-3">
         {(schritt || meldung) && <KurveKopfzeile schritt={schritt} meldung={meldung} fehler={[]} className="min-w-0" />}
         <Glocke />

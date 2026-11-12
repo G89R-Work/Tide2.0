@@ -6,5 +6,6 @@ export default defineConfig({
   plugins: [react(), tailwindcss()],
   // host: auch im WLAN erreichbar, damit die App am Handy geöffnet werden kann
   server: { host: true },
-  test: { include: ['src/**/*.test.ts'] },
+  // css: werte.css als Text lesbar (src/werte/abstaende.test.ts prüft die Abstände gegen den Code).
+  test: { include: ['src/**/*.test.ts'], css: { include: [/werte\.css/] } },
 })
