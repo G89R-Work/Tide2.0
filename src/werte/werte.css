@@ -4,7 +4,6 @@
 @import '@fontsource-variable/inter';
 @import './glut.css';
 @import './tinte.css';
-@import 'react-grid-layout/css/styles.css';
 
 @theme {
   /* Nur unsere Farben gibt es; Tailwinds eigene sind abgeschaltet. */
@@ -52,12 +51,12 @@
   --dauer-sanft: 0ms;
   --druck: 0.96;
   --kurve: cubic-bezier(0.2, 0.8, 0.2, 1);
-  /* Kacheln rücken beim Ziehen nach: gehört zur Rückmeldung, darum auch ohne „sanft". */
-  --dauer-ordnen: 180ms;
+  /* Meldungen fließen an der Jetzt-Linie ein: gehört zur Rückmeldung, darum auch ohne „sanft". */
+  --dauer-einfliessen: 180ms;
 }
 [data-bewegung='aus'] {
   --dauer-rueckmeldung: 0ms;
-  --dauer-ordnen: 0ms;
+  --dauer-einfliessen: 0ms;
   --druck: 1;
 }
 [data-bewegung='sanft'] {
@@ -67,7 +66,7 @@
   :root {
     --dauer-rueckmeldung: 0ms;
     --dauer-sanft: 0ms;
-    --dauer-ordnen: 0ms;
+    --dauer-einfliessen: 0ms;
     --druck: 1;
   }
 }
@@ -374,131 +373,13 @@ html {
   -webkit-font-smoothing: antialiased;
 }
 
-/* Kachel-Raster (react-grid-layout): Nachrücken, Vorschau des Ziels, Griffpunkte im Bearbeiten-Modus. */
-.react-grid-item.react-grid-item {
-  transition-duration: var(--dauer-ordnen);
-  transition-timing-function: var(--kurve);
-}
-.react-grid-item.react-grid-placeholder {
-  background: var(--akzent);
-  background-clip: content-box;
-  padding: var(--kachelrand);
-  opacity: 0.18;
-  border-radius: var(--kachel-rundung);
-  transition-duration: var(--dauer-ordnen);
-}
-.react-grid-item.react-draggable-dragging {
-  z-index: 3;
-}
-/* Platz einer Kachel im Raster: rundherum der unsichtbare Rand; nur die sichtbare Fläche und die Griffpunkte reagieren. */
-/* Unsichtbarer Rand je Kachel (--kachelrand: halber Abstand, wächst mit der Zelle; gesetzt vom Raster aus src/werte/kacheln.ts).
-   Das Raster ragt um diesen Rand über den Inhalt hinaus, damit die äußeren Kacheln bündig mit dem Inhalt abschließen. */
-@utility raster-ueberstand {
-  margin: calc(var(--kachelrand) * -1);
-}
-@utility kachel-platz {
-  padding: var(--kachelrand);
-  pointer-events: none;
-  & > * {
-    pointer-events: auto;
-  }
-}
-/* Rahmen und Griffpunkte liegen innerhalb der Kachel: nichts ragt über den Rand, nichts wird abgeschnitten. */
-@utility kachel-bearbeiten {
-  outline: 1.5px dashed var(--akzent);
-  outline-offset: -1.5px;
-  user-select: none;
-  /* Eine gezogene Kachel liegt über dieser: dezente rote gestrichelte Grenze. */
-  &[data-grenze] {
-    outline-color: var(--grenze);
-  }
-}
-@utility kachel-gewaehlt {
-  outline: 2px solid var(--akzent);
-  outline-offset: -2px;
-}
 /* Inhalt links und rechts am Handy: Rand zum Bildschirm. Oben und unten setzt MitKurve den Platz (inhalt-frei).
-   Am PC und Tablet liegt der Inhalt genau auf seinen Zellen (src/logik/geruestRaster.ts), dort ohne Rand. */
+   Am PC und Tablet setzt das Gerüst die Abstände, dort ohne Rand. */
 @utility seiten-rand {
   padding-inline: var(--spacing-rand);
   @media (width >= 48rem) {
     padding-inline: 0;
   }
-}
-/* Bearbeiten-Modus: Kopf oder Griff zum Ziehen (PC), Menü-Knopf oben rechts. */
-/* Rückfrage „Bearbeiten starten“ rechts neben ihrem Knopf in der Seitenleiste (CSS-Anker). */
-@utility anker-bearbeiten {
-  anchor-name: --bearbeiten-start;
-}
-@utility schwebt-am-anker {
-  position-anchor: --bearbeiten-start;
-  position-area: right span-top;
-  margin: 0 0 0 var(--spacing-abstand);
-}
-@utility kachel-griff {
-  cursor: grab;
-  touch-action: none;
-}
-/* Griff oben in der Kachel, neben dem Menü-Knopf (2,25rem rechts). Auf breiten Kacheln mittig (links ebenso viel frei),
-   auf schmalen rückt er nach links, damit der Knopf ihn nie verdeckt (auch bei 1 × 1). */
-@utility kachel-griff-leiste {
-  position: absolute;
-  z-index: 2;
-  top: 0;
-  left: clamp(0px, calc(100% - 6.75rem), 2.25rem);
-  right: 2.25rem;
-  height: 1.25rem;
-  display: grid;
-  place-items: center;
-  &::after {
-    content: '';
-    width: min(2.25rem, 100%);
-    height: 0.3125rem;
-    border-radius: 9999px;
-    background: var(--akzent);
-  }
-}
-/* Liegt über den Griffpunkten: bei niedrigen Kacheln reicht der rechte Griffpunkt sonst bis an den Knopf. */
-@utility kachel-menue-knopf {
-  position: absolute;
-  z-index: 3;
-  top: 0.25rem;
-  right: 0.25rem;
-}
-/* Griffpunkt: sichtbar klein, zum Anfassen groß (44 px Fläche). */
-@utility griff {
-  position: absolute;
-  z-index: 2;
-  width: 2.75rem;
-  height: 2.75rem;
-  display: grid;
-  place-items: center;
-  touch-action: none;
-  &::after {
-    content: '';
-    width: 0.875rem;
-    height: 0.875rem;
-    border-radius: 9999px;
-    background: var(--akzent);
-    border: 2px solid var(--auf-akzent);
-    box-shadow: var(--kachel-schatten);
-  }
-}
-/* Mitte des Punkts 0.5rem innerhalb der sichtbaren Kante (also innerhalb des unsichtbaren Rands); die 44-px-Fläche darf darüber hinausreichen. */
-@utility griff-se {
-  right: calc(var(--kachelrand) - 0.875rem);
-  bottom: calc(var(--kachelrand) - 0.875rem);
-  cursor: nwse-resize;
-}
-@utility griff-e {
-  right: calc(var(--kachelrand) - 0.875rem);
-  top: calc(50% - 1.375rem);
-  cursor: ew-resize;
-}
-@utility griff-s {
-  bottom: calc(var(--kachelrand) - 0.875rem);
-  left: calc(50% - 1.375rem);
-  cursor: ns-resize;
 }
 
 /* Gezeitenkurve (src/geruest/Gezeitenkurve.tsx): ein Glasstreifen, darin scrollt der Browser waagrecht.
@@ -575,7 +456,7 @@ html {
   box-shadow:
     0 0 0 2px var(--grund),
     0 0 0 4px var(--akzent);
-  animation: einfliessen var(--dauer-ordnen) var(--kurve);
+  animation: einfliessen var(--dauer-einfliessen) var(--kurve);
 }
 @keyframes einfliessen {
   from {

@@ -2,12 +2,9 @@ import { aktionen } from '../logik/aktionen'
 import { ortAusMarke } from '../logik/ebenen'
 import { kurveUmschalten } from './einstellungen'
 import { rueckgaengig, wiederherstellen } from './rueckgaengig'
-import { bearbeitenUmschalten, kachelnZuruecksetzen } from '../kacheln/bearbeiten'
 
 // Was Aktionen mit `befehl` tun. Eine neue Befehls-Aktion braucht hier eine Zeile.
 const befehle: Record<string, () => void> = {
-  'kacheln-anpassen': bearbeitenUmschalten,
-  'kacheln-zuruecksetzen': kachelnZuruecksetzen,
   rueckgaengig: () => rueckgaengig(),
   wiederherstellen: () => wiederherstellen(),
   kurve: () => kurveUmschalten(ortAusMarke(location.hash).bereich),

@@ -11,7 +11,7 @@ const gruppen = [
 ] as const
 
 /** Zahl und wichtigster Punkt in zwei Zeilen; ein Klick fächert die Karten in einer schwebenden Karte auf. Die volle Liste steht unter To-dos.
- *  Wartet nichts, gibt die Seite der Kachel keinen Inhalt und sie verschwindet. */
+ *  Wartet nichts, gibt die Seite keinen Inhalt und die Fläche verschwindet. */
 export function BrauchtDich({ daten, jetzt }: { daten: Daten<Eintrag>; jetzt: Date }) {
   const id = useId()
   const w = daten.wichtigster

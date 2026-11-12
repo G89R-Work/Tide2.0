@@ -5,7 +5,7 @@ import { datumLang } from '../../../geruest/format'
 
 const name = einstellungen.find((e) => e.id === 'name')!
 
-/** Gruß mit Namen und Datum; die Überschrift der Seite. Eng gesetzt, damit er in eine Kachelzeile (etwa 48 px) passt. */
+/** Gruß mit Namen und Datum; die Überschrift der Seite. */
 export function Gruss({ jetzt }: { jetzt: Date }) {
   const wer = String(useEinstellung(name)).trim()
   return (

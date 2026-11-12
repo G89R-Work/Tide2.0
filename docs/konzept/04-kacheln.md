@@ -2,6 +2,8 @@
 
 Stand 2026-11-12 · Teil des Gesamtkonzepts. „Deine Version" meint den alten Prototyp 3, „meine Beispielseite" die Beispielseite vom 10.11.
 
+**Entfällt (Nutzer, 2026-11-12): Das Kachel-Raster fällt ganz weg; Seiten haben einen festen Aufbau. Nur noch als Rückblick.**
+
 Jede Seite besteht aus Kacheln, die du wie Widgets in One UI verschiebst und in der Größe änderst. Das Verhalten wird einmal gebaut und gilt dann für alle Seiten.
 
 ## So funktioniert es

@@ -20,7 +20,7 @@ describe('aktionen', () => {
 
   it('führen irgendwohin, führen einen Befehl aus oder sagen, wann sie kommen – genau eins davon', () => {
     for (const a of aktionen) expect([a.ziel, a.befehl, a.kommt].filter(Boolean)).toHaveLength(1)
-    expect(aktionVon('kacheln-anpassen')).toMatchObject({ befehl: true, kuerzel: 'Alt+B' })
+    expect(aktionVon('kurve')).toMatchObject({ befehl: true, kuerzel: 'Alt+K' })
   })
 
   it('enthält je Bereich eine Aktion zum Öffnen', () => {

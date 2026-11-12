@@ -4,6 +4,6 @@
 export const abstaende = {
   /** Vom äußersten Bildschirmrand bis zur ersten Fläche. */
   randPx: 8,
-  /** Zwischen allem anderen: Kacheln, Seitenleiste, zweite Ebene, Inhalt, Kurve, Leisten. */
+  /** Zwischen allem anderen: Flächen, Seitenleiste, zweite Ebene, Inhalt, Kurve, Leisten. */
   abstandPx: 12,
 } as const

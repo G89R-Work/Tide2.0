@@ -1,7 +1,7 @@
 import { AktionKnopf } from '../../../geruest/AktionKnopf'
 import { useBelegung } from '../../../geruest/belegung'
 
-/** Die drei belegbaren Knöpfe des PCs als Kachel; auf Heute gibt es keine Kopfzeile. */
+/** Die drei belegbaren Knöpfe des PCs unter Uhr und Wetter; auf Heute gibt es keine Kopfzeile. */
 export function Knoepfe() {
   const pc = useBelegung().pc
   return (

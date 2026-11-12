@@ -104,6 +104,7 @@ Muster für einen Eintrag:
 - Grund: Empfehlung im Konzept; Ja des Nutzers ohne eigenen Handy-Versuch. Langer Druck, Griffpunkte, Menü, Tastatur und Speichern sind selbst gebaut.
 - Link: https://github.com/react-grid-layout/react-grid-layout
 - Eingebaut in Scheibe: kacheln
+- Stand 2026-11-12 (aussehen-heute): entfernt, das Kachel-Raster fällt ganz weg (Nutzer).
 
 ## 2026-11-11 · Rechtsklick-Menü der Kacheln
 - Kandidaten: shadcn/ui Context Menu (@radix-ui/react-context-menu, neue Abhängigkeit), natives Popover
@@ -111,6 +112,7 @@ Muster für einen Eintrag:
 - Grund: keine neue Abhängigkeit; muss auch beim langen Druck aufgehen, das kann Radix' Kontextmenü auf iOS nicht.
 - Link: https://developer.mozilla.org/docs/Web/API/Popover_API
 - Eingebaut in Scheibe: kacheln
+- Stand 2026-11-12 (aussehen-heute): entfällt mit dem Kachel-Raster.
 
 ## 2026-11-11 · Glatte Gezeitenkurve
 - Kandidaten: d3-shape (bewährte Kurvenformen für SVG-Pfade, klein), eigene Spline-Rechnung

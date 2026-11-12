@@ -1,5 +1,4 @@
-import { Suspense, useEffect, useLayoutEffect, useRef, useState, type Ref } from 'react'
-import { BearbeitenOrt } from '../kacheln/bearbeiten'
+import { Suspense, useEffect } from 'react'
 import { mitteUnten } from '../logik/aktionen'
 import { ebeneVon, ortAusMarke, type Ort } from '../logik/ebenen'
 import { einstellungen } from '../logik/einstellungen'
@@ -12,7 +11,6 @@ import { Gezeitenkurve } from './Gezeitenkurve'
 import { useErinnerungen, useFalten, useMeldungen } from './meldungen'
 import { HandyMenue } from './HandyMenue'
 import { HinweiseUnten, MitKurve } from './MitKurve'
-import { RasterPlatz } from './rasterPlatz'
 import { Hintergrund } from './Hintergrund'
 import { seiten } from './seiten'
 import { Seitenleiste } from './Seitenleiste'
@@ -37,19 +35,18 @@ export function Geruest({ marke }: { marke: string }) {
   useTastenkuerzel()
   useErinnerungen()
   useFalten(useMeldungen().frischeIds)
-  const [bearbeitenOrt, setBearbeitenOrt] = useState<HTMLElement | null>(null)
   return (
-    <BearbeitenOrt.Provider value={bearbeitenOrt}>
+    <>
       <Hintergrund />
-      {schmal ? <Handy ort={ort} zahl={zahl} bearbeitenRef={setBearbeitenOrt} /> : <Pc ort={ort} bearbeitenRef={setBearbeitenOrt} />}
-    </BearbeitenOrt.Provider>
+      {schmal ? <Handy ort={ort} zahl={zahl} /> : <Pc ort={ort} />}
+    </>
   )
 }
 
 function Inhalt({ ort }: { ort: Ort }) {
   const Seite = seiten[ort.bereich]
   return (
-    <main className="seiten-rand min-w-0 flex-1">
+    <main className="seiten-rand flex min-w-0 flex-1 flex-col">
       <Suspense>
         <Seite />
       </Suspense>
@@ -57,7 +54,7 @@ function Inhalt({ ort }: { ort: Ort }) {
   )
 }
 
-function Handy({ ort, zahl, bearbeitenRef }: { ort: Ort; zahl: number; bearbeitenRef: Ref<HTMLDivElement> }) {
+function Handy({ ort, zahl }: { ort: Ort; zahl: number }) {
   const { oben, unten } = useBelegung()
   const sichtbar = useKurveSichtbar(ort.bereich)
   return (
@@ -75,9 +72,7 @@ function Handy({ ort, zahl, bearbeitenRef }: { ort: Ort; zahl: number; bearbeite
       <MitKurve
         sichtbar={sichtbar}
         fuss={
-          <nav aria-label="Untere Leiste" className="relative px-rand pb-rand">
-            {/* Bedienfeld im Bearbeiten-Modus: schwebt über der Leiste und ändert ihre Höhe nicht. */}
-            <div ref={bearbeitenRef} className="absolute inset-x-rand bottom-full mb-abstand" />
+          <nav aria-label="Untere Leiste" className="px-rand pb-rand">
             <div className="flaeche-leiste grid grid-cols-5 place-items-center p-1">
               {unten.map((id, i) => (
                 <AktionKnopf key={i} id={id} art={i === mitteUnten ? 'haupt' : 'symbol'} className={i === mitteUnten ? 'w-11 px-0' : undefined} />
@@ -86,7 +81,7 @@ function Handy({ ort, zahl, bearbeitenRef }: { ort: Ort; zahl: number; bearbeite
           </nav>
         }
       >
-        <div className="inhalt-frei flex-1 overflow-auto">
+        <div className="inhalt-frei flex flex-1 flex-col overflow-auto">
           <Inhalt ort={ort} />
         </div>
       </MitKurve>
@@ -94,26 +89,14 @@ function Handy({ ort, zahl, bearbeitenRef }: { ort: Ort; zahl: number; bearbeite
   )
 }
 
-const e = {
-  spalten: einstellungen.find((x) => x.id === 'kacheln-spalten')!,
-  leiste: einstellungen.find((x) => x.id === 'leiste-breite')!,
-}
+const leisteBreite = einstellungen.find((x) => x.id === 'leiste-breite')!
 
-function Pc({ ort, bearbeitenRef }: { ort: Ort; bearbeitenRef: Ref<HTMLDivElement> }) {
+function Pc({ ort }: { ort: Ort }) {
   const sichtbar = useKurveSichtbar(ort.bereich)
-  const leisteBreite = useEinstellung(e.leiste) as 'schmal' | 'breit'
-  const spalten = useEinstellung(e.spalten) as number
+  const mitNamen = useEinstellung(leisteBreite) === 'breit'
   const kurveOben = useKurveOben()
   const pc = useBelegung().pc
   const mitEbene = ebeneVon(ort.bereich).length > 0
-  // Höhe des Inhalts für die Kacheln der Seite (`RasterPlatz`).
-  const feld = useRef<HTMLDivElement>(null)
-  const [hoehe, setHoehe] = useState(0)
-  useLayoutEffect(() => {
-    const beobachter = new ResizeObserver(([f]) => setHoehe(f.contentRect.height))
-    beobachter.observe(feld.current!)
-    return () => beobachter.disconnect()
-  }, [])
   const kurveFeld = sichtbar && (
     <div className="shrink-0" style={{ height: kurve.hoehePc }}>
       <Gezeitenkurve className="h-full" />
@@ -124,7 +107,7 @@ function Pc({ ort, bearbeitenRef }: { ort: Ort; bearbeitenRef: Ref<HTMLDivElemen
   // (Wetter, Uhr, belegbare Knöpfe; auf Heute keine), der Inhalt und die Kurve. Nur der Inhalt scrollt.
   return (
     <div className="flex h-dvh gap-abstand p-rand">
-      <Seitenleiste offen={ort.bereich} mitNamen={leisteBreite === 'breit'} bearbeitenRef={bearbeitenRef} />
+      <Seitenleiste offen={ort.bereich} mitNamen={mitNamen} />
       {mitEbene && (
         <nav aria-label="Zweite Ebene" className="flaeche-leiste shrink-0 overflow-y-auto p-2" style={{ width: leiste.ebenePx }}>
           <ZweiteEbene bereich={ort.bereich} aktiv={ort.unter} />
@@ -140,10 +123,8 @@ function Pc({ ort, bearbeitenRef }: { ort: Ort; bearbeitenRef: Ref<HTMLDivElemen
           </header>
         )}
         {kurveOben && kurveFeld}
-        <div ref={feld} className="min-h-0 flex-1 overflow-auto">
-          <RasterPlatz.Provider value={{ spalten, hoehe }}>
-            <Inhalt ort={ort} />
-          </RasterPlatz.Provider>
+        <div className="flex min-h-0 flex-1 flex-col overflow-auto">
+          <Inhalt ort={ort} />
         </div>
         {!kurveOben && kurveFeld}
         {!sichtbar && <HinweiseUnten />}

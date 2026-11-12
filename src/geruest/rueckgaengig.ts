@@ -12,7 +12,7 @@ export type Schritt = {
   zeit: number
   /** Lässt sich zurücknehmen, erscheint aber nicht als Meldung (etwa beim Ausblenden der Kurve). */
   still?: boolean
-  /** Seite, auf der die Änderung entstand (Bereich, etwa „einstellungen“ oder die Seite der Kacheln). */
+  /** Seite, auf der die Änderung entstand (Bereich, etwa „einstellungen“ oder heute). */
   bereich?: string
 }
 

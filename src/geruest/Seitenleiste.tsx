@@ -1,10 +1,7 @@
 import { useDrag } from '@use-gesture/react'
-import type { Ref } from 'react'
 import { Knopf } from '../bausteine/Knopf'
 import { Logo } from '../bausteine/Logo'
 import { cn } from '../bausteine/cn'
-import { BearbeitenStarten } from '../kacheln/BearbeitenStarten'
-import { useBearbeiten } from '../kacheln/bearbeiten'
 import { bereiche, type BereichId } from '../logik/bereiche'
 import { einstellungen as alleEinstellungen } from '../logik/einstellungen'
 import { leiste } from '../werte/leiste'
@@ -14,9 +11,8 @@ import { symbole, vorladen } from './seiten'
 const breite = alleEinstellungen.find((e) => e.id === 'leiste-breite')!
 
 // Links die Bereiche, von ganz oben bis ganz unten; oben das Logo (führt zu Heute). Schmal nur Symbole (Name als Hinweis),
-// breit Symbole mit Namen. Wischen nach rechts macht sie breit, nach links schmal (mit Rückgängig). Unten liegt im
-// Bearbeiten-Modus das Bedienfeld der Kacheln (`bearbeitenRef`, gefüllt vom Raster der offenen Seite).
-export function Seitenleiste({ offen, mitNamen, bearbeitenRef }: { offen: BereichId; mitNamen: boolean; bearbeitenRef: Ref<HTMLDivElement> }) {
+// breit Symbole mit Namen. Wischen nach rechts macht sie breit, nach links schmal (mit Rückgängig). Unten das Zahnrad.
+export function Seitenleiste({ offen, mitNamen }: { offen: BereichId; mitNamen: boolean }) {
   const wischen = useDrag(
     ({ swipe: [x] }) => {
       if (x === 1 && !mitNamen) setzeHier(breite, 'breit', { text: 'Seitenleiste breit' })
@@ -51,9 +47,8 @@ export function Seitenleiste({ offen, mitNamen, bearbeitenRef }: { offen: Bereic
   }
 
   const einstellungen = bereiche.at(-1)!
-  const bearbeiten = useBearbeiten()
   return (
-    // Oben die Bereiche, bei wenig Höhe scrollbar; unten Bedienfeld und Zahnrad, die immer sichtbar bleiben.
+    // Oben die Bereiche, bei wenig Höhe scrollbar; unten das Zahnrad, immer sichtbar.
     <nav
       {...wischen()}
       aria-label="Bereiche"
@@ -74,16 +69,7 @@ export function Seitenleiste({ offen, mitNamen, bearbeitenRef }: { offen: Bereic
         </a>
         {bereiche.slice(0, -1).map((b) => eintrag(b))}
       </div>
-      <div ref={bearbeitenRef} className="@container shrink-0" />
-      {/* Unten: Bearbeiten (mit Rückfrage; im Modus steht dort das Bedienfeld) und das Zahnrad, nebeneinander, schmal untereinander. */}
-      <div className="flex shrink-0 flex-wrap justify-center">
-        {!bearbeiten && (
-          <div className="min-w-11 flex-1">
-            <BearbeitenStarten />
-          </div>
-        )}
-        <div className="min-w-11 flex-1">{eintrag(einstellungen, true)}</div>
-      </div>
+      <div className="shrink-0">{eintrag(einstellungen, true)}</div>
     </nav>
   )
 }

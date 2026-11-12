@@ -17,7 +17,6 @@ export const abschnitte = [
   { id: 'darstellung', name: 'Darstellung', gruppe: 'Allgemein' },
   { id: 'navigation', name: 'Seitenleiste und Leisten', gruppe: 'Allgemein' },
   { id: 'kurve', name: 'Gezeitenkurve', gruppe: 'Allgemein' },
-  { id: 'kacheln', name: 'Kacheln', gruppe: 'Allgemein' },
   { id: 'schreiben', name: 'Sprache und Schreiben', gruppe: 'Allgemein' },
   { id: 'raeume', name: 'Privat und Arbeit', gruppe: 'Allgemein' },
   { id: 'daten', name: 'Daten und Sicherung', gruppe: 'Allgemein' },
@@ -82,8 +81,6 @@ export const einstellungen: readonly Einstellung[] = [
   { id: 'leiste-breite', name: 'Breite der Seitenleiste', abschnitt: 'navigation', art: 'auswahl', standard: 'schmal', optionen: [['schmal', 'Schmal, nur Symbole'], ['breit', 'Breit, mit Namen']], wichtig: true, hilfe: 'Am PC und Tablet' },
   // Sichtbar je Seite: ein Schalter je Bereich (docs/konzept/06-gezeitenkurve.md).
   ...bereiche.map((b) => ({ id: `kurve-zeigen-${b.id}`, name: `Zeigen auf ${b.name}`, abschnitt: 'kurve' as const, art: 'schalter' as const, standard: true, jeGeraet: true as const, hilfe: `Kurve auf der Seite ${b.name}; der Knopf „Gezeitenkurve ein/aus“ schaltet die offene Seite` })),
-  { id: 'kacheln-spalten', name: 'Spalten', abschnitt: 'kacheln', art: 'zahl', standard: 16, standardHandy: 4, min: 3, max: 30, jeGeraet: true, wichtig: true, hilfe: 'Wie viele quadratische Zellen nebeneinander passen; die Reihen ergeben sich aus der Höhe' },
-  { id: 'kacheln-bearbeiten', name: 'Kacheln bearbeiten', abschnitt: 'kacheln', art: 'schalter', standard: false, jeGeraet: true, wichtig: true, hilfe: 'Auf jeder Seite verschieben, Größe und Hintergrund ändern; „Fertig“ beendet' },
   { id: 'name', name: 'Dein Name', abschnitt: 'nutzer', art: 'text', standard: 'Moritz', laenge: 30, wichtig: true, hilfe: 'Für die Begrüßung auf Heute; leer lässt den Namen weg' },
   { id: 'heute-uhr', name: 'Uhr', abschnitt: 'heute', art: 'schalter', standard: true, jeGeraet: true, hilfe: 'Uhrzeit mit Anteil des Tages und der Schicht' },
   { id: 'rechtschreibung', name: 'Rechtschreibprüfung', abschnitt: 'schreiben', art: 'schalter', standard: true },
