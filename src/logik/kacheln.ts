@@ -186,12 +186,45 @@ export function stehenLassen(layout: Layout, basis: Layout, id: string): Layout 
   })
 }
 
-/** Ziehen oder Größe ändern beendet (oder lange genug verweilt): `id` bleibt, wo sie im Layout des Bausteins steht;
- *  wer im Weg liegt, weicht nach unten aus. Ohne Änderung bleibt das alte Objekt. */
-export function ablegen(a: Anordnung, plan: readonly KachelPlan[], r: Raster, layout: Layout, id: string): Anordnung {
+/** Nächster freier Platz in der Größe von `ziel`, so nah wie möglich daran; alle anderen bleiben stehen (wie beim Android-Startbildschirm).
+ *  Gesucht wird auf dem Bildschirm, bei einem Ziel darunter bis dorthin; der eigene alte Platz zählt mit (dann springt sie zurück).
+ *  null: Es ist nirgends Platz. */
+export function naechsteLuecke(a: Anordnung, plan: readonly KachelPlan[], r: Raster, id: string, ziel: Platz): Platz | null {
+  const andere = alsLayout(a, plan).filter((l) => l.i !== id)
+  const z = begrenzt(ziel, r)
+  let beste: Platz | null = null
+  let weite = Infinity
+  for (let y = 0; y <= Math.max(r.zeilen - z.h, z.y); y++)
+    for (let x = 0; x <= r.spalten - z.w; x++) {
+      const d = (x - z.x) ** 2 + (y - z.y) ** 2
+      if (d < weite && !getFirstCollision(andere, { i: id, x, y, w: z.w, h: z.h })) {
+        beste = { x, y, w: z.w, h: z.h }
+        weite = d
+      }
+    }
+  return beste
+}
+
+/** Ziehen oder Größe ändern beendet: `id` will dorthin, wo sie im Layout des Bausteins steht.
+ *  `ausweichen` (nach dem Verweilen): Wer im Weg liegt, weicht nach unten aus. Sonst bleiben alle anderen stehen, und `id` kommt
+ *  in die nächste freie Lücke (`naechsteLuecke`, ihr alter Platz zählt mit). Ohne Änderung bleibt das alte Objekt. */
+export function ablegen(a: Anordnung, plan: readonly KachelPlan[], r: Raster, layout: Layout, id: string, ausweichen: boolean): Anordnung {
   const l = layout.find((x) => x.i === id)
   const rest = ausLayout(a, layout.filter((x) => x.i !== id))
-  return l ? aendern(rest, plan, r, id, () => ({ x: l.x, y: l.y, w: l.w, h: l.h })) : rest
+  if (!l) return rest
+  const ziel = { x: l.x, y: l.y, w: l.w, h: l.h }
+  if (!ausweichen) {
+    const platz = naechsteLuecke(rest, plan, r, id, ziel)
+    return platz ? aendern(rest, plan, r, id, () => platz) : rest
+  }
+  // Wer im Weg liegt, rückt in die nächste freie Lücke; gibt es keine, rutscht er nach unten (`aufloesen`).
+  if (!rest.plaetze[id]) return rest
+  let neu: Anordnung = { ...rest, plaetze: { ...rest.plaetze, [id]: begrenzt(ziel, r) } }
+  for (const weg of getroffen(alsLayout(neu, plan), id)) {
+    const platz = naechsteLuecke(neu, plan, r, weg, neu.plaetze[weg])
+    if (platz) neu = { ...neu, plaetze: { ...neu.plaetze, [weg]: platz } }
+  }
+  return aufloesen(neu, plan, id)
 }
 
 /** Umschalt und Pfeiltasten: Breite und Höhe um je eine Linie, nach rechts nur bis zum Rand. */

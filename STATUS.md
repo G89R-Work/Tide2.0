@@ -1,16 +1,16 @@
 # Status
 Etappe: 2 Gezeitenkurve und Heute
-Nächste Scheibe: `raster-ziehen-2` (Zwischenetappe „Ein Raster für alles“, danach `raster-geruest`, dann weiter mit `aufraeumen-datum`)
+Nächste Scheibe: `raster-geruest` (Zwischenetappe „Ein Raster für alles“, dann weiter mit `aufraeumen-datum`)
 
 ## Stand
 Das Gerüst steht am PC und am Handy mit Seitenleiste, zweiter Ebene, belegbaren Knöpfen, Einstellungsliste, Kacheln und Hintergrund. Die Gezeitenkurve zeigt den Beispieltag (PC unten über die volle Breite, Handy über der unteren Leiste; Einstellung „Lage“ je Gerät), scrollt endlos, folgt der Uhr und steuert beim Scrollen den Hintergrund. Termine liegen als Punkte (mit Karte, Bündel, Überschneidung) oder Bänder auf ihr, lassen sich ziehen und zurücknehmen; dazu Treibgut und Wetterzeile. Die Kurve ist je Seite und Gerät abschaltbar; Meldungen fließen an der Jetzt-Linie ein und falten sich in die Glocke. Heute besteht nur aus Kacheln (Gruß, Als Nächstes, Uhr, Wetter, Knöpfe, Braucht dich, Monat, Woche, Notiz, Rückblick), Text ohne Hintergrund; bearbeitet wird nur über Einstellungen › Kacheln. **Aufräumen:** `docs/PRUEFUNG.md` wird in acht Scheiben `aufraeumen-*` abgearbeitet (siehe Fahrplan). Bausteine dafür sind freigegeben.
 
 ## Zuletzt erledigt
+- raster-ziehen-2: Loslassen ohne Verweilen → `naechsteLuecke` (alter Platz zählt mit), nach Verweilen rücken Verdrängte in die nächste Lücke, sonst nach unten (`ablegen(…, ausweichen)`); Griff neben dem Menü-Knopf auch bei 1 × 1
 - raster-zellen: quadratische Zellen wie One UI (`zellRaster`, Einstellung `kacheln-spalten` 16/Handy 4, Abstand = Zelle × `abstandAnteil`), `--kachelrand` vom Raster gesetzt, `raster-ueberstand`, Gemerktes mit `raster: 'zellen'`, Heute in Zellen, „Braucht dich“ zweizeilig
 - raster-ziehen: Ziehen wie One UI. Andere bleiben stehen (Compactor `stehenLassen`), rote Grenze (`getroffen`, `--grenze`), Verweilen `VERWEILEN_MS` im Umkreis `verweilPuffer` lässt ausweichen, Ablegen über `ablegen`, Schwelle `ziehSchwelle`
 - raster-12: Kachel-Raster aus 12-px-Linien (gerundet je Bildschirm), 6 px unsichtbarer Rand je Kachel (`kachel-platz`, `-m-kachelrand`), Andocken oben/unten und links/rechts (Vertrag `rechts`), Einstellung „Raster“ und Mindestgrößen entfallen, Werk Heute in Linien
 - Nachtrag Kacheln: feste Zeilenhöhe am PC (48 px), oben/unten angedockt, Bedienfeld und Knopf „Bearbeiten“ (Rückfrage) in der Seitenleiste, Kurve nur im Modus ziehbar
-- aufraeumen-rueckgaengig: ein Rückgängig-Speicher mit Wiederherstellen (Alt+Y) und Knöpfen je Seite; `src/werte/bewegung.ts` (`MELDUNG_MS`)
 ## Stolpersteine
 - Stil prüft oxlint, nicht ESLint. Warnungen zählen als Fehler. Freie Tailwind-Werte wie `data-[…]` verbietet die Werte-Prüfung.
 - `npm run pruefen` steckt in `skripte/pruefen.mjs`; neue Prüfung = eine Zeile. Neue Seiten hinten an die Zeile „Tempo" hängen, dann wird auch der Wechsel gemessen.

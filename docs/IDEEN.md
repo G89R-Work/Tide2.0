@@ -36,10 +36,12 @@ Was umgesetzt ist, wandert beim Abschluss einer Scheibe nach „Erledigt“, mit
 - Höhe der Wellen in der Gezeitenkurve am Handy prüfen, vielleicht zu viel (heute-kacheln)
 - Monatskalender auf Heute klappt aus dem Knopf „Monat“ heraus statt mittig aufzugehen, und ist ein voll bedienbarer kleiner Kalender wie die Kalenderseite (heute-kacheln, Wunsch des Nutzers)
 - Tablet im Hochformat mit 6 Spalten (Konzept 04) widerspricht der Regel „Tablet und PC nutzen dieselbe Ansicht“; klären, bevor es gebaut wird (heute-kacheln)
-- Kacheln genau 12-px-genau statt ±1 px: Rest der gerundeten Linien oben oder links statt in den Kacheln unterbringen (Abwägung mit dem Rand)
 - Eigene Kacheln/Widgets anlegen und festlegen, auf welchen Seiten sie verfügbar sind (Wunsch des Nutzers, 2026-11-12)
+- Bei 1 × 1-Kacheln deckt der Menü-Knopf „…“ im Bearbeiten-Modus den Inhalt; Menü dort lieber über Rechtsklick/langen Druck oder Knopf außerhalb (raster-ziehen-2)
+- Inhalt kleiner Kacheln (1 × 1) passt nicht immer, z. B. „November“ im Monat; Darstellung je Größe (raster-ziehen-2)
 
 ## Erledigt
+- 2026-11-12 · Kacheln 12-px-genau: entfällt, Raster aus quadratischen Zellen (raster-zellen)
 - 2026-11-12 · Nach dem langen Druck gleich weiterziehen, ohne den Finger abzusetzen (heute-kacheln)
 - 2026-11-12 · Monat als aufklappbarer Kalender statt Sprung (heute-kacheln)
 - 2026-11-12 · Jede bewegliche Kachel kann ohne Hintergrund stehen (heute-kacheln)

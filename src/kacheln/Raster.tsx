@@ -30,6 +30,7 @@ import { KachelMenue, type MenueOrt } from './KachelMenue'
 // wen sie trifft, zeigt seine Grenze. Bleibt der Zeiger `VERWEILEN_MS` lang im Umkreis `verweilPuffer`, weichen die anderen aus,
 // sichtbar mit der nächsten Regung des Zeigers oder beim Loslassen (der Baustein ordnet nur bei Bewegung). Kleines Zittern zählt nicht;
 // wer über den Umkreis hinaus weiterzieht, beginnt von vorn, und die anderen kehren an ihren Platz zurück.
+// Loslassen ohne Verweilen verschiebt nie andere: Die Kachel kommt in die nächste freie Lücke oder an ihren alten Platz (`ablegen`).
 
 function punkt(e: Event): { x: number; y: number } | null {
   const p = e instanceof MouseEvent ? e : e instanceof TouchEvent ? e.touches[0] : undefined
@@ -109,7 +110,7 @@ export function Raster({ seite, kacheln, inhalt }: Props) {
     setGrenze(treffer)
     if (treffer.length === 0) return
     verweilen.current = setTimeout(() => {
-      basis.current = alsLayout(ablegen(anordnung, kacheln, raster, hier, id), kacheln)
+      basis.current = alsLayout(ablegen(anordnung, kacheln, raster, hier, id, true), kacheln)
       setGrenze([])
     }, VERWEILEN_MS)
   }
@@ -119,7 +120,8 @@ export function Raster({ seite, kacheln, inhalt }: Props) {
     gezogen.current = null
     anker.current = null
     setGrenze([])
-    aendern(ablegen(anordnung, kacheln, raster, jetzt, id))
+    // Verweilt (die anderen stehen ausgewichen): ablegen wie gezeigt. Sonst nächste freie Lücke oder zurück.
+    aendern(ablegen(anordnung, kacheln, raster, jetzt, id, basis.current !== layout))
   }
 
   const taste = (e: KeyboardEvent, id: string) => {

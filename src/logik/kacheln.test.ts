@@ -8,6 +8,7 @@ import {
   ausLayout,
   einblenden,
   getroffen,
+  naechsteLuecke,
   stehenLassen,
   groesseAendern,
   hatHintergrund,
@@ -178,10 +179,56 @@ describe('kacheln', () => {
     const r = pc(70, 39)
     const bild = aufBildschirm(werkszustand(plan, 'pc'), plan, r)
     const layout = alsLayout(bild, plan).map((l) => (l.i === 'c' ? { ...l, x: 0, y: 0 } : l))
-    const neu = ablegen(bild, plan, r, layout, 'c')
+    const neu = ablegen(bild, plan, r, layout, 'c', true)
     expect(neu.plaetze.c).toMatchObject({ x: 0, y: 0 })
     expect(neu.plaetze.a.y).toBe(5)
     expect(ueberlappt(neu)).toBe(false)
+  })
+
+  it('Loslassen ohne Verweilen auf Besetztem: die Kachel kommt in die nächste freie Lücke, die anderen bleiben stehen', () => {
+    const r = pc(10, 6)
+    const a: Anordnung = { plaetze: { a: { x: 0, y: 0, w: 4, h: 2 }, b: { x: 6, y: 0, w: 2, h: 2 } }, versteckt: [], ohneHintergrund: [] }
+    const zwei: readonly KachelPlan[] = plan.slice(0, 2)
+    // b wird auf a gezogen (x 1, y 0): am nächsten frei ist es direkt unter a (2 Zellen), rechts neben a wären es 3.
+    expect(naechsteLuecke(a, zwei, r, 'b', { x: 1, y: 0, w: 2, h: 2 })).toEqual({ x: 1, y: 2, w: 2, h: 2 })
+    expect(naechsteLuecke(a, zwei, pc(10, 2), 'b', { x: 1, y: 0, w: 2, h: 2 })).toEqual({ x: 4, y: 0, w: 2, h: 2 })
+    const layout = [{ i: 'a', x: 0, y: 0, w: 4, h: 2 }, { i: 'b', x: 1, y: 0, w: 2, h: 2 }]
+    const neu = ablegen(a, zwei, r, layout, 'b', false)
+    expect(neu.plaetze.a).toEqual({ x: 0, y: 0, w: 4, h: 2 })
+    expect(neu.plaetze.b).toEqual({ x: 1, y: 2, w: 2, h: 2 })
+  })
+
+  it('Gibt es keine freie Lücke, springt die Kachel an ihren alten Platz zurück', () => {
+    const r = pc(4, 2)
+    const a: Anordnung = { plaetze: { a: { x: 0, y: 0, w: 2, h: 2 }, b: { x: 2, y: 0, w: 2, h: 2 } }, versteckt: [], ohneHintergrund: [] }
+    const zwei: readonly KachelPlan[] = plan.slice(0, 2)
+    // Der eigene alte Platz ist die einzige Lücke.
+    expect(naechsteLuecke(a, zwei, r, 'b', { x: 0, y: 0, w: 2, h: 2 })).toEqual({ x: 2, y: 0, w: 2, h: 2 })
+    expect(naechsteLuecke({ ...a, plaetze: { ...a.plaetze, a: { x: 0, y: 0, w: 4, h: 2 } } }, zwei, r, 'b', { x: 0, y: 0, w: 2, h: 2 })).toBeNull()
+    expect(ablegen(a, zwei, r, [{ i: 'a', x: 0, y: 0, w: 2, h: 2 }, { i: 'b', x: 0, y: 0, w: 2, h: 2 }], 'b', false)).toBe(a)
+  })
+
+  it('Nach dem Verweilen rückt, wer im Weg liegt, in die nächste freie Lücke; nur ohne Lücke rutscht er nach unten', () => {
+    const r = pc(10, 3)
+    const zwei: readonly KachelPlan[] = plan.slice(0, 2)
+    const a: Anordnung = { plaetze: { a: { x: 0, y: 2, w: 7, h: 1 }, b: { x: 8, y: 2, w: 1, h: 1 } }, versteckt: [], ohneHintergrund: [] }
+    // b auf die Mitte von a: a passt eine Reihe darüber, statt unter den Bildschirm zu rutschen.
+    const neu = ablegen(a, zwei, r, [{ i: 'a', x: 0, y: 2, w: 7, h: 1 }, { i: 'b', x: 3, y: 2, w: 1, h: 1 }], 'b', true)
+    expect(neu.plaetze.b).toEqual({ x: 3, y: 2, w: 1, h: 1 })
+    expect(neu.plaetze.a).toEqual({ x: 0, y: 1, w: 7, h: 1 })
+    // Ist der Bildschirm sonst voll, rutscht a nach unten.
+    const voll = ablegen(a, zwei, pc(7, 1), [{ i: 'a', x: 0, y: 0, w: 7, h: 1 }, { i: 'b', x: 3, y: 0, w: 1, h: 1 }], 'b', true)
+    expect(voll.plaetze.a.y).toBe(1)
+  })
+
+  it('Nach dem Verweilen weichen die anderen aus; in keinem Fall bleibt eine Überlappung', () => {
+    const r = pc(70, 39)
+    const bild = aufBildschirm(werkszustand(plan, 'pc'), plan, r)
+    for (const ausweichen of [true, false])
+      for (const [x, y] of [[0, 0], [5, 3], [60, 0], [10, 34]]) {
+        const layout = alsLayout(bild, plan).map((l) => (l.i === 'c' ? { ...l, x, y } : l))
+        expect(ueberlappt(ablegen(bild, plan, r, layout, 'c', ausweichen))).toBe(false)
+      }
   })
 
   it('Beim Ziehen bleiben alle anderen auf ihrem Platz, nur die gezogene bewegt sich', () => {
@@ -203,8 +250,8 @@ describe('kacheln', () => {
   it('Ablegen am alten Platz oder ohne die Kachel ändert nichts', () => {
     const r = pc(70, 39)
     const bild = aufBildschirm(werkszustand(plan, 'pc'), plan, r)
-    expect(ablegen(bild, plan, r, alsLayout(bild, plan), 'c')).toBe(bild)
-    expect(ablegen(bild, plan, r, alsLayout(bild, plan), 'x')).toBe(bild)
+    expect(ablegen(bild, plan, r, alsLayout(bild, plan), 'c', false)).toBe(bild)
+    expect(ablegen(bild, plan, r, alsLayout(bild, plan), 'x', false)).toBe(bild)
   })
 
   it('Pfeiltasten verschieben um eine Linie; wer im Weg liegt, weicht nach unten aus', () => {
