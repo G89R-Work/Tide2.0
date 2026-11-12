@@ -13,6 +13,7 @@ import { rueckgaengig, useLetzterSchritt } from './rueckgaengig'
 // Einträge auf der Gezeitenkurve (docs/konzept/06-gezeitenkurve.md): Punkte mit Karte, Bänder dahinter, Bündel,
 // Überschneidung, Treibgut an der Jetzt-Linie, Wetterzeile. Termine zieht man im 15-Minuten-Raster, Bänder auch an ihren Enden
 // (Dauer); alles lässt sich zurücknehmen.
+// Steht im Code vor der Linie der Kurve: Bänder liegen dahinter, alles andere mit z-10 davor.
 // Liegt im selben Scrollbereich wie die Kurve, dreimal nebeneinander. Per Tastatur bedienbar ist nur die Kopie in der Mitte (`kopie`).
 
 /** Kleinster Abstand zweier Punkte in Pixeln, darunter werden sie gebündelt: eine Fingerbreite. */
@@ -132,14 +133,14 @@ export function KurveEintraege(p: {
           const von = b.von + um(b.eintrag.beginn!, neu?.beginn)
           const bis = b.bis + um(b.eintrag.ende!, neu?.ende)
           return (
-            <div key={`${k}-${b.id}`} className="absolute bottom-5 h-5" style={{ left: links(k, von), width: (bis - von) * pxProMinute }}>
+            <div key={`${k}-${b.id}`} className="kurve-band-lage" style={{ left: links(k, von), width: (bis - von) * pxProMinute }}>
               <button
                 type="button"
                 {...griff(b.eintrag, k)}
                 title={`${b.titel} · in der Mitte ziehen verschiebt, an den Enden ändert die Dauer`}
-                className={cn(fokus, 'kurve-band kurve-schrift drueck absolute inset-0 cursor-grab touch-none truncate px-2 text-left text-text')}
+                className={cn(fokus, 'kurve-band kurve-schrift drueck absolute inset-0 flex cursor-grab touch-none items-center px-2 text-left text-text')}
               >
-                {neu ? `${zeitText(neu.beginn)}–${zeitText(neu.ende)}` : b.titel}
+                <span className="truncate">{neu ? `${zeitText(neu.beginn)}–${zeitText(neu.ende)}` : b.titel}</span>
               </button>
               <span aria-hidden {...ziehen(b.eintrag, 'beginn')} title="Ziehen ändert den Beginn" className="kurve-band-griff left-0 -translate-x-1/2" />
               <span aria-hidden {...ziehen(b.eintrag, 'ende')} title="Ziehen ändert das Ende" className="kurve-band-griff right-0 translate-x-1/2" />
@@ -162,7 +163,7 @@ export function KurveEintraege(p: {
                 aria-hidden={k !== p.kopie || undefined}
                 aria-label={`${g.length} Termine, auffächern`}
                 onClick={(ev) => oeffne(ev.currentTarget, 'termine', g.map((x) => x.id))}
-                className={cn(fokus, 'drueck absolute grid size-11 -translate-1/2 cursor-pointer place-items-center')}
+                className={cn(fokus, 'drueck absolute z-10 grid size-11 -translate-1/2 cursor-pointer place-items-center')}
                 style={lage}
               >
                 <span className={cn('kurve-buendel', g.some((x) => x.ueberschneidet.length) && 'kurve-punkt-ueberschneidet')}>{g.length}</span>
@@ -170,7 +171,7 @@ export function KurveEintraege(p: {
             )
           const zeit = zeitText(zug?.id === erster.id ? verschoben(erster.eintrag, zug.delta).beginn : erster.eintrag.beginn!)
           return (
-            <div key={`${k}-${erster.id}`} className="absolute" style={lage}>
+            <div key={`${k}-${erster.id}`} className="absolute z-10" style={lage}>
               <button
                 type="button"
                 {...griff(erster.eintrag, k)}
@@ -198,7 +199,7 @@ export function KurveEintraege(p: {
             aria-hidden={k !== p.kopie || undefined}
             aria-label={`${p.treibgut.length} offene Aufgaben ohne Uhrzeit`}
             onClick={(ev) => oeffne(ev.currentTarget, 'treibgut', [])}
-            className={cn(fokus, 'kurve-schrift drueck absolute top-0.5 ml-1 flex cursor-pointer items-center gap-0.5 bg-knopf-ton px-1.5 text-text-gedaempft')}
+            className={cn(fokus, 'kurve-schrift drueck absolute top-0.5 z-10 ml-1 flex cursor-pointer items-center gap-0.5 bg-knopf-ton px-1.5 text-text-gedaempft')}
             style={{ left: links(k, p.minuteJetzt) }}
           >
             <ListTodo aria-hidden className="size-3" />
@@ -213,7 +214,7 @@ export function KurveEintraege(p: {
           return (
             <span
               key={h}
-              className="kurve-schrift pointer-events-none absolute top-0.5 flex -translate-x-1/2 items-center gap-0.5 text-text-blass tabular-nums"
+              className="kurve-schrift pointer-events-none absolute top-0.5 z-10 flex -translate-x-1/2 items-center gap-0.5 text-text-blass tabular-nums"
               style={{ left: `${(h / 72) * 100}%` }}
             >
               {w.grad}°{w.regen >= 0.1 && <Droplet aria-label={`${w.regen} mm Regen`} className="size-2.5 text-regen" />}

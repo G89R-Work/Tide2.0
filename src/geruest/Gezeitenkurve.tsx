@@ -151,7 +151,20 @@ export function Gezeitenkurve({ className }: { className?: string }) {
     <section aria-label="Gezeitenkurve" className={cn('flaeche-leiste relative h-full overflow-hidden', className)}>
       <div ref={scroller} tabIndex={0} onScroll={beimScrollen} className="kurve-scroller h-full outline-none">
         <div className="relative h-full" style={{ width: tag * 3 }}>
-          <svg viewBox={`0 0 ${MIN_TAG * 3} ${HOEHE}`} preserveAspectRatio="none" className="absolute inset-0 h-full w-full" aria-hidden>
+          {tag > 0 && (
+            <KurveEintraege
+              {...eintraege}
+              werte={werte}
+              pxProMinute={tag / MIN_TAG}
+              minuteJetzt={minuteJetzt}
+              kopie={kopie}
+              marken={marken}
+              aendere={termine.aendere}
+              treibgut={treibgut.liste}
+              wetter={wetter.stunden}
+            />
+          )}
+          <svg viewBox={`0 0 ${MIN_TAG * 3} ${HOEHE}`} preserveAspectRatio="none" className="pointer-events-none absolute inset-0 h-full w-full" aria-hidden>
             <defs>
               <g id="kurve-tag">
                 <path d={pfade.flaeche} className="kurve-wasser" />
@@ -170,19 +183,6 @@ export function Gezeitenkurve({ className }: { className?: string }) {
               {h % 24}
             </span>
           ))}
-          {tag > 0 && (
-            <KurveEintraege
-              {...eintraege}
-              werte={werte}
-              pxProMinute={tag / MIN_TAG}
-              minuteJetzt={minuteJetzt}
-              kopie={kopie}
-              marken={marken}
-              aendere={termine.aendere}
-              treibgut={treibgut.liste}
-              wetter={wetter.stunden}
-            />
-          )}
         </div>
       </div>
       <div className="kurve-mitte" />

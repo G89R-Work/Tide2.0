@@ -375,7 +375,13 @@ html {
   font-weight: 600;
   text-align: center;
 }
-/* Band: ein langer, schmaler Streifen mit runden Ecken über der Stundenleiste, die Höhe der Kurve bleibt frei. */
+/* Band: ein langer Streifen mit runden Ecken, 38 % der Kurvenhöhe hoch und senkrecht mittig. Es steht im Code vor dem SVG
+   und liegt so hinter der Linie; das SVG lässt Klicks durch. */
+@utility kurve-band-lage {
+  position: absolute;
+  top: 31%;
+  height: 38%;
+}
 @utility kurve-band {
   background: color-mix(in oklab, var(--akzent) 22%, transparent);
   border: 1px solid color-mix(in oklab, var(--akzent) 45%, transparent);
