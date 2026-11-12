@@ -11,3 +11,6 @@ const abonnieren = (neu: () => void) => {
 export function useSchmal() {
   return useSyncExternalStore(abonnieren, () => abfrage.matches)
 }
+
+/** Dasselbe außerhalb von React, etwa für Befehle. */
+export const istSchmal = () => abfrage.matches

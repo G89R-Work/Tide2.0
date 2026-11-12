@@ -25,7 +25,7 @@ export const aktionen: readonly Aktion[] = [
   { id: 'kacheln-anpassen', name: 'Kacheln anpassen', befehl: true, kuerzel: 'Alt+B' },
   { id: 'kacheln-zuruecksetzen', name: 'Kacheln zurücksetzen', befehl: true },
   { id: 'rueckgaengig', name: 'Rückgängig', befehl: true, kuerzel: 'Alt+Z' },
-  { id: 'kurve', name: 'Gezeitenkurve ein/aus', kommt: 'Kommt mit der Gezeitenkurve', kuerzel: 'Alt+K' },
+  { id: 'kurve', name: 'Gezeitenkurve ein/aus', befehl: true, kuerzel: 'Alt+K' },
   { id: 'suche', name: 'Suche', kommt: 'Kommt mit der Suche', kuerzel: 'Strg+K' },
   { id: 'diktat', name: 'Diktat', kommt: 'Kommt mit dem Diktat', kuerzel: 'Alt+D' },
 ]

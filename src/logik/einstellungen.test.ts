@@ -10,6 +10,7 @@ import {
   werteAendern,
   werteAusDaten,
   wertVon,
+  kurveZeigen,
   zuruecksetzen,
   type Einstellung,
 } from './einstellungen'
@@ -113,5 +114,42 @@ describe('Austausch mit dem Server', () => {
     const alt = { design: 'tinte', 'kurve-stunden': 6 }
     expect(werteAendern(alt, { design: null, 'kurve-stunden': 8 })).toEqual({ 'kurve-stunden': 8 })
     expect(alt).toEqual({ design: 'tinte', 'kurve-stunden': 6 })
+  })
+})
+
+describe('Standard je Gerät', () => {
+  it('Die Kurve zeigt am Handy ab Werk mehr Stunden als am PC', () => {
+    expect(wertVon(stunden, {}, 'pc')).toBe(4)
+    expect(wertVon(stunden, {}, 'handy')).toBe(6)
+  })
+  it('Der Handy-Standard gilt als Standard und wird nicht gemerkt', () => {
+    expect(istStandard(stunden, {}, 'handy')).toBe(true)
+    expect(setze({ 'kurve-stunden@handy': 5 }, stunden, 'handy', 6)).toEqual({})
+    expect(setze({}, stunden, 'handy', 4)).toEqual({ 'kurve-stunden@handy': 4 })
+  })
+  it('Jeder Handy-Standard ist gültig und gilt nur für Einstellungen je Gerät', () => {
+    for (const e of einstellungen.filter((e) => e.standardHandy !== undefined)) {
+      expect(e.jeGeraet, e.id).toBe(true)
+      expect(werteAusDaten({ [`${e.id}@handy`]: e.standardHandy })).toEqual({ [`${e.id}@handy`]: e.standardHandy })
+    }
+  })
+})
+
+describe('Kurve je Seite', () => {
+  it('Jeder Bereich hat einen Schalter, ab Werk an', () => {
+    for (const b of ['heute', 'postfach', 'einstellungen'] as const) {
+      const e = kurveZeigen(b)
+      expect(e.abschnitt).toBe('kurve')
+      expect(wertVon(e, {}, 'pc')).toBe(true)
+    }
+  })
+  it('Ausgeschaltet gilt nur für diese Seite und dieses Gerät', () => {
+    const werte = setze({}, kurveZeigen('postfach'), 'handy', false)
+    expect(wertVon(kurveZeigen('postfach'), werte, 'handy')).toBe(false)
+    expect(wertVon(kurveZeigen('postfach'), werte, 'pc')).toBe(true)
+    expect(wertVon(kurveZeigen('heute'), werte, 'handy')).toBe(true)
+  })
+  it('Die Suche findet den Schalter einer Seite', () => {
+    expect(suche('kurve postfach')).toContain(kurveZeigen('postfach'))
   })
 })

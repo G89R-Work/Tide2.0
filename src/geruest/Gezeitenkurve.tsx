@@ -13,11 +13,14 @@ import {
   stundenSchritt,
   tagBreite,
   tagesPfade,
+  vonOben,
   zeitBei,
 } from '../logik/gezeiten'
-import { ordne } from '../logik/kurveEintraege'
+import { hoeheBei, ordne } from '../logik/kurveEintraege'
 import { useEinstellung } from './einstellungen'
 import { KurveEintraege, KurveKopfzeile } from './KurveEintraege'
+import { Glocke } from './Glocke'
+import { useMeldungen } from './meldungen'
 import { useFrischerSchritt } from './rueckgaengig'
 import { useTermine, useTreibgut, useWetter } from './kurveDaten'
 import { setzeGezeigteZeit } from './gezeigteZeit'
@@ -39,7 +42,8 @@ const uhrzeit = (m: number) => `${zweistellig(Math.floor(m / 60) % 24)}:${zweist
 // Gleiten nur, wenn der Browser das Ende meldet (scrollend) und keine reduzierte Bewegung gewünscht ist; sonst springen.
 const gleitenMoeglich = () => 'onscrollend' in window && !matchMedia('(prefers-reduced-motion: reduce)').matches
 
-export function Gezeitenkurve({ className }: { className?: string }) {
+/** `onAntippen`: Tippen auf eine freie Stelle der Kurve (am Handy: groß und wieder klein). */
+export function Gezeitenkurve({ className, onAntippen }: { className?: string; onAntippen?: () => void }) {
   const jetzt = useMinute()
   const ganzerTag = useEinstellung(e.ganzerTag) === true
   const gewaehlt = Number(useEinstellung(e.stunden))
@@ -47,6 +51,7 @@ export function Gezeitenkurve({ className }: { className?: string }) {
   const tagStart = tagBeginnVon(jetzt).getTime()
   const bandHoehe = Number(useEinstellung(e.band))
   const frisch = useFrischerSchritt()
+  const meldung = useMeldungen().frisch
   const termine = useTermine(tagStart)
   const treibgut = useTreibgut()
   const wetter = useWetter(tagStart, useEinstellung(e.wetter) === true)
@@ -154,7 +159,7 @@ export function Gezeitenkurve({ className }: { className?: string }) {
   const marken = useMemo(() => Array.from({ length: (72 / schritt) | 0 }, (_, i) => i * schritt), [schritt])
 
   const fehler = [termine.fehler, treibgut.fehler, wetter.fehler].filter((f): f is string => !!f)
-  const kopfzeileBelegt = !!frisch || fehler.length > 0
+  const kopfzeileBelegt = !!frisch || !!meldung || fehler.length > 0
 
   // Linie, Jetzt-Linie und Stundenzahlen: über dem Wasser und den Bändern, unter Punkten und Beschriftungen.
   const linie = (
@@ -172,6 +177,15 @@ export function Gezeitenkurve({ className }: { className?: string }) {
           {h % 24}
         </span>
       ))}
+      {/* Neue Meldung fließt an der Jetzt-Linie ein und steht dort, solange sie in der Kopfzeile steht. */}
+      {meldung &&
+        [0, 1, 2].map((k) => (
+          <span
+            key={`${meldung.id}-${k}`}
+            className="kurve-meldung pointer-events-none absolute -translate-1/2"
+            style={{ left: `${((k * MIN_TAG + minuteJetzt) / (MIN_TAG * 3)) * 100}%`, top: `${vonOben(hoeheBei(werte, minuteJetzt)) * 100}%` }}
+          />
+        ))}
     </>
   )
 
@@ -182,7 +196,15 @@ export function Gezeitenkurve({ className }: { className?: string }) {
       style={{ '--band-hoehe': bandHoehe } as CSSProperties}
     >
       <div ref={scroller} tabIndex={0} onScroll={beimScrollen} className="kurve-scroller h-full outline-none">
-        <div className="relative h-full" style={{ width: tag * 3 }}>
+        {/* Ein Klick auf eine freie Stelle (nicht auf Punkt, Band oder Knopf) gilt als Antippen; nach Scrollen meldet der Browser keinen Klick. */}
+        <div
+          className="relative h-full"
+          style={{ width: tag * 3 }}
+          onClick={(ev) => {
+            const ziel = (ev.target as HTMLElement).closest('button, [tabindex]')
+            if (onAntippen && !(ziel && ev.currentTarget.contains(ziel))) onAntippen()
+          }}
+        >
           <svg viewBox={`0 0 ${MIN_TAG * 3} ${HOEHE}`} preserveAspectRatio="none" className="pointer-events-none absolute inset-0 h-full w-full" aria-hidden>
             {[0, 1, 2].map((k) => (
               <path key={k} d={pfade.flaeche} transform={`translate(${k * MIN_TAG} 0)`} className="kurve-wasser" />
@@ -215,12 +237,13 @@ export function Gezeitenkurve({ className }: { className?: string }) {
           {!kopfzeileBelegt && (
             <span className="pointer-events-none absolute top-0.5 right-1/2 mr-2 text-xs font-medium text-text tabular-nums">{uhrzeit(gezeigt)}</span>
           )}
-          <Knopf groesse="klein" className="absolute top-1/2 right-2 -translate-y-1/2" onClick={zuJetzt}>
+          <Knopf groesse="klein" className="absolute top-1/2 right-10 -translate-y-1/2" onClick={zuJetzt}>
             Zu jetzt
           </Knopf>
         </>
       )}
-      {kopfzeileBelegt && <KurveKopfzeile schritt={frisch} fehler={fehler} />}
+      {kopfzeileBelegt && <KurveKopfzeile schritt={frisch} fehler={fehler} meldung={meldung} />}
+      <Glocke className="absolute top-1/2 right-1 -translate-y-1/2" />
     </section>
   )
 }

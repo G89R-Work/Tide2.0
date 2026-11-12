@@ -1,7 +1,9 @@
 import { useSyncExternalStore } from 'react'
-import { einstellungen, unterschied, wertVon, type Einstellung, type Geraet, type Werte } from '../logik/einstellungen'
+import type { BereichId } from '../logik/bereiche'
+import { einstellungen, kurveZeigen, setze, unterschied, wertVon, type Einstellung, type Geraet, type Werte } from '../logik/einstellungen'
+import { merke } from './rueckgaengig'
 import { aendereEinstellungen, holeEinstellungen } from '../vertrag/einstellungen'
-import { useSchmal } from './useSchmal'
+import { istSchmal, useSchmal } from './useSchmal'
 
 // Die Einstellungen des Nutzers, geholt und gespeichert über den Vertrag. Änderungen gelten sofort
 // und lassen sich rückgängig machen; scheitert das Speichern, gilt wieder der Stand des Servers.
@@ -51,6 +53,20 @@ const kurveLage = einstellungen.find((e) => e.id === 'kurve-lage')!
 /** Liegt die Gezeitenkurve oben? Der Inhalt braucht dann den Abstand unten statt oben. */
 export function useKurveOben() {
   return useEinstellung(kurveLage) === 'oben'
+}
+
+/** Ist die Kurve auf dieser Seite eingeblendet? */
+export function useKurveSichtbar(bereich: BereichId) {
+  return useEinstellung(kurveZeigen(bereich)) === true
+}
+
+/** Kurve auf der Seite ein- oder ausblenden, für dieses Gerät. Ohne Meldung (docs/konzept/03-geruest.md), aber mit Rückgängig (Alt+Z). */
+export function kurveUmschalten(bereich: BereichId) {
+  const e = kurveZeigen(bereich)
+  const geraet: Geraet = istSchmal() ? 'handy' : 'pc'
+  const vorher = wertVon(e, zustand.werte, geraet)
+  einstellungenAendern(setze(zustand.werte, e, geraet, !vorher))
+  merke(`Kurve ${vorher ? 'aus' : 'ein'}`, async () => einstellungenAendern(setze(zustand.werte, e, geraet, vorher)), true)
 }
 
 async function speichern(alt: Werte, neu: Werte) {

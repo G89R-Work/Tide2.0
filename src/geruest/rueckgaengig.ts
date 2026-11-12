@@ -2,14 +2,15 @@ import { useEffect, useState, useSyncExternalStore } from 'react'
 
 // Rückgängig für ganz Tide (Regel 6): wer etwas ändert, merkt sich hier den Weg zurück.
 // Aktion „Rückgängig" (Alt+Z) nimmt den letzten Schritt zurück. `zurueck` meldet eigene Fehler selbst.
-export type Schritt = { text: string; zurueck: () => Promise<void>; zeit: number }
+export type Schritt = { text: string; zurueck: () => Promise<void>; zeit: number; still?: boolean }
 
 let stapel: readonly Schritt[] = []
 const hoerer = new Set<() => void>()
 const melde = () => hoerer.forEach((h) => h())
 
-export function merke(text: string, zurueck: () => Promise<void>) {
-  stapel = [...stapel.slice(-19), { text, zurueck, zeit: Date.now() }]
+/** `still`: lässt sich zurücknehmen, erscheint aber nicht als Meldung (etwa beim Ausblenden der Kurve). */
+export function merke(text: string, zurueck: () => Promise<void>, still = false) {
+  stapel = [...stapel.slice(-19), { text, zurueck, zeit: Date.now(), still }]
   melde()
 }
 
@@ -41,5 +42,5 @@ export function useFrischerSchritt() {
     const t = setTimeout(() => setAlt(schritt), Math.max(0, schritt.zeit + MELDUNG_MS - Date.now()))
     return () => clearTimeout(t)
   }, [schritt])
-  return schritt && alt !== schritt ? schritt : undefined
+  return schritt && !schritt.still && alt !== schritt ? schritt : undefined
 }

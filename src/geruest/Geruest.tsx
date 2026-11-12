@@ -9,7 +9,8 @@ import { kurve } from '../werte/kurve'
 import { leiste } from '../werte/leiste'
 import { AktionKnopf } from './AktionKnopf'
 import { useBelegung } from './belegung'
-import { useKurveOben } from './einstellungen'
+import { useKurveOben, useKurveSichtbar } from './einstellungen'
+import { useErinnerungen, useFalten, useMeldungen } from './meldungen'
 import { HandyMenue } from './HandyMenue'
 import { MitKurve, type Platz } from './MitKurve'
 import { Hintergrund } from './Hintergrund'
@@ -28,6 +29,8 @@ export function Geruest({ marke }: { marke: string }) {
   const schmal = useSchmal()
   const zahl = useBrauchtDich()
   useTastenkuerzel()
+  useErinnerungen()
+  useFalten(useMeldungen().frischeIds)
   return (
     <>
       <Hintergrund />
@@ -49,6 +52,7 @@ function Inhalt({ ort }: { ort: Ort }) {
 
 function Handy({ ort, zahl }: { ort: Ort; zahl: number }) {
   const { oben, unten } = useBelegung()
+  const sichtbar = useKurveSichtbar(ort.bereich)
   return (
     <div className="flex h-dvh flex-col">
       <header className="p-2 pb-0">
@@ -62,6 +66,7 @@ function Handy({ ort, zahl }: { ort: Ort; zahl: number }) {
         </div>
       </header>
       <MitKurve
+        sichtbar={sichtbar}
         fuss={
           <nav aria-label="Untere Leiste" className="p-2 pt-0">
             <div className="flaeche-leiste grid grid-cols-5 place-items-center p-1">
@@ -86,14 +91,15 @@ function Pc({ ort }: { ort: Ort }) {
   const [breite, setBreite] = useState<number>(leiste.standardPx)
   const hatEbene = ebeneVon(ort.bereich).length > 0
   const kurveOben = useKurveOben()
+  const sichtbar = useKurveSichtbar(ort.bereich)
   const [platz, setPlatz] = useState<Platz>({ hoehe: 0, links: 0 })
-  const lage = leisteLage({ leiste: breite, links: platz.links, kurve: platz.hoehe, griff: kurve.griffPx, rand: leiste.randPx, kurveOben })
+  const lage = leisteLage({ leiste: breite, links: platz.links, kurve: sichtbar ? platz.hoehe : 0, griff: kurve.griffPx, rand: leiste.randPx, kurveOben })
 
   // Die Kurve liegt über die volle Breite. Die Seitenleiste liegt als eigene Lage über ihrer Spalte: Die Spalte (Panel „leiste")
   // gibt die ziehbare Breite vor, die Leiste endet am Kurven-Streifen oder reicht bis zum Rand, wenn die Kurve links Platz lässt.
   return (
     <div className="relative flex h-dvh flex-col">
-      <MitKurve onPlatz={setPlatz}>
+      <MitKurve onPlatz={setPlatz} sichtbar={sichtbar}>
         <Group {...gemerkt} orientation="horizontal" className="h-full">
           <Panel
             id="leiste"

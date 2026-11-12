@@ -4,6 +4,10 @@ import { Trenner } from '../bausteine/Trenner'
 import { kurve } from '../werte/kurve'
 import { useGeraet, useKurveOben } from './einstellungen'
 import { Gezeitenkurve } from './Gezeitenkurve'
+import { Glocke } from './Glocke'
+import { KurveKopfzeile } from './KurveEintraege'
+import { useMeldungen } from './meldungen'
+import { useFrischerSchritt } from './rueckgaengig'
 
 // Legt die Gezeitenkurve über oder unter den Inhalt, über die volle Breite (PC und Handy gleich).
 // Der Inhalt läuft über die ganze Höhe durch und scrollt hinter Kurve und `fuss` (untere Leiste am Handy) vorbei;
@@ -11,10 +15,11 @@ import { Gezeitenkurve } from './Gezeitenkurve'
 // (Werkzeug `inhalt-frei` in werte.css), damit sich auch die letzte Kachel ganz freischieben lässt.
 // Höhe am Griff zum Inhalt ziehbar, am PC auch die Breite an beiden Seiten. Gemerkt je Geräteart im Browser,
 // Doppelklick auf einen Griff stellt den Werkszustand her. `onPlatz` meldet Höhe des Streifens und freien Platz links
-// (für die Seitenleiste, siehe src/logik/leisteLage.ts).
+// (für die Seitenleiste, siehe src/logik/leisteLage.ts). Ist die Kurve auf der Seite aus (`sichtbar`), stehen Hinweise und Glocke
+// am unteren Rand. Am Handy macht Antippen die Kurve groß und wieder klein.
 export type Platz = { hoehe: number; links: number }
 
-export function MitKurve({ children, fuss, onPlatz }: { children: ReactNode; fuss?: ReactNode; onPlatz?: (platz: Platz) => void }) {
+export function MitKurve({ children, fuss, onPlatz, sichtbar }: { children: ReactNode; fuss?: ReactNode; onPlatz?: (platz: Platz) => void; sichtbar: boolean }) {
   const geraet = useGeraet()
   const oben = useKurveOben()
   const hoehe = useDefaultLayout({ id: `tide.kurve-hoehe@${geraet}`, storage: localStorage })
@@ -37,10 +42,17 @@ export function MitKurve({ children, fuss, onPlatz }: { children: ReactNode; fus
     beobachter.observe(feld)
     beobachter.observe(lage.current!)
     return () => beobachter.disconnect()
-  }, [oben])
+  }, [oben, sichtbar])
   const melde = (neu: Partial<Platz>) => {
     platz.current = { ...platz.current, ...neu }
     onPlatz?.(platz.current)
+  }
+
+  const groesser = () => {
+    const k = kurveRef.current
+    if (!k) return
+    const gross = k.getSize().asPercentage >= parseFloat(kurve.hoeheGross) - 0.5
+    k.resize(gross ? kurve.hoehe : kurve.hoeheGross)
   }
 
   const griff = (
@@ -61,7 +73,7 @@ export function MitKurve({ children, fuss, onPlatz }: { children: ReactNode; fus
       onResize={(g) => melde({ hoehe: Math.round(g.inPixels) })}
       className={oben ? 'pointer-events-auto pt-2' : 'pointer-events-auto pb-2'}
     >
-      {geraet === 'pc' ? <ZiehbareBreite onLinks={(links) => melde({ links })} /> : <Gezeitenkurve className="mx-2" />}
+      {geraet === 'pc' ? <ZiehbareBreite onLinks={(links) => melde({ links })} /> : <Gezeitenkurve className="mx-2" onAntippen={groesser} />}
     </Panel>
   )
 
@@ -71,15 +83,22 @@ export function MitKurve({ children, fuss, onPlatz }: { children: ReactNode; fus
         {children}
       </div>
       <div className="pointer-events-none absolute inset-0 flex flex-col">
-        <Group key={String(oben)} {...hoehe} orientation="vertical" className="min-h-0 flex-1">
-          {oben && streifen}
-          {oben && griff}
-          <Panel id="inhalt">
-            <div ref={frei} className="h-full" />
-          </Panel>
-          {!oben && griff}
-          {!oben && streifen}
-        </Group>
+        {sichtbar ? (
+          <Group key={String(oben)} {...hoehe} orientation="vertical" className="min-h-0 flex-1">
+            {oben && streifen}
+            {oben && griff}
+            <Panel id="inhalt">
+              <div ref={frei} className="h-full" />
+            </Panel>
+            {!oben && griff}
+            {!oben && streifen}
+          </Group>
+        ) : (
+          <>
+            <div ref={frei} className="min-h-0 flex-1" />
+            <HinweiseUnten />
+          </>
+        )}
         {fuss && <div className="pointer-events-auto">{fuss}</div>}
       </div>
     </div>
@@ -102,5 +121,19 @@ function ZiehbareBreite({ onLinks }: { onLinks: (px: number) => void }) {
       <Trenner title={titel} onDoubleClick={() => rechts.current?.resize('0%')} />
       <Panel id="rechts" panelRef={rechts} minSize="0%" defaultSize="0%" />
     </Group>
+  )
+}
+
+/** Kurve aus: Hinweise und Glocke am unteren Rand, rechts, damit links nichts verdeckt wird. */
+function HinweiseUnten() {
+  const schritt = useFrischerSchritt()
+  const meldung = useMeldungen().frisch
+  return (
+    <div className="flex justify-end px-2 pb-2">
+      <div className="flaeche-leiste pointer-events-auto flex min-w-0 items-center gap-2 py-1 pr-1 pl-3">
+        {(schritt || meldung) && <KurveKopfzeile schritt={schritt} meldung={meldung} fehler={[]} className="min-w-0" />}
+        <Glocke />
+      </div>
+    </div>
   )
 }

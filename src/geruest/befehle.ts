@@ -1,4 +1,6 @@
 import { aktionen } from '../logik/aktionen'
+import { ortAusMarke } from '../logik/ebenen'
+import { kurveUmschalten } from './einstellungen'
 import { rueckgaengig } from './rueckgaengig'
 import { bearbeitenStarten, kachelnZuruecksetzen } from '../kacheln/bearbeiten'
 
@@ -7,6 +9,7 @@ const befehle: Record<string, () => void> = {
   'kacheln-anpassen': bearbeitenStarten,
   'kacheln-zuruecksetzen': kachelnZuruecksetzen,
   rueckgaengig,
+  kurve: () => kurveUmschalten(ortAusMarke(location.hash).bereich),
 }
 
 if (import.meta.env.DEV)

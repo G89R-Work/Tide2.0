@@ -375,6 +375,38 @@ html {
   font-weight: 600;
   text-align: center;
 }
+/* Neue Meldung (src/geruest/Gezeitenkurve.tsx): Punkt an der Jetzt-Linie, fließt einmal ein und steht dann still. */
+@utility kurve-meldung {
+  width: 0.625rem;
+  height: 0.625rem;
+  border-radius: 9999px;
+  background: var(--akzent);
+  box-shadow:
+    0 0 0 2px var(--grund),
+    0 0 0 4px var(--akzent);
+  animation: einfliessen var(--dauer-ordnen) var(--kurve);
+}
+@keyframes einfliessen {
+  from {
+    scale: 0;
+    opacity: 0;
+  }
+}
+/* Zahl an der Glocke (src/geruest/Glocke.tsx). */
+@utility glocke-zahl {
+  position: absolute;
+  top: 0;
+  right: 0;
+  min-width: 1rem;
+  height: 1rem;
+  padding: 0 0.25rem;
+  border-radius: 9999px;
+  background: var(--akzent);
+  color: var(--auf-akzent);
+  font-size: 0.625rem;
+  line-height: 1rem;
+  font-weight: 600;
+}
 /* Band: ein langer Streifen mit runden Ecken, senkrecht mittig. Die Höhe in Prozent der Kurve kommt aus der Einstellung
    „Höhe der Bänder" als --band-hoehe. Es steht im Code vor dem SVG und liegt so hinter der Linie; das SVG lässt Klicks durch. */
 @utility kurve-band-lage {

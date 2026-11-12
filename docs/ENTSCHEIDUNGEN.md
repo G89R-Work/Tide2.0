@@ -72,6 +72,11 @@ Eine Zeile je Entscheidung, neueste unten. Was hier steht, gilt und wird nicht n
 - 2026-11-12 · Obere Zeile der Kurve als echte Zeile: Beschriftungen stehen dort über ihrem Punkt und enden vor Treibgut-Zähler und gezeigter Uhrzeit (links der Mitte); Wetter weicht aus; eine Meldung oder ein Fehler hat die Zeile allein, ohne eigenen Hintergrund.
 - 2026-11-12 · „Zu jetzt" gleitet nur, wenn der Browser `scrollend` kennt und keine reduzierte Bewegung gewünscht ist, sonst springt es; das nachgeschobene künstliche Ende-Ereignis ist entfernt.
 - 2026-11-12 · „Termin fällt in Schicht" liegt als Bezug in `src/logik/bezuege/terminInSchicht.ts` (Regel aus .claude/rules/bereiche.md).
+- 2026-11-12 · Meldungen kommen im Prototyp aus Erinnerungen 15 Minuten vor Terminen (über `holeTermine`); weitere Quellen (Mail, Fristen) melden sich später über `melde`. Kein neuer Vertrag.
+- 2026-11-12 · Ebbe-Modus hält Meldungen aus 22:30–7:00 bis 7:00 zurück; Wichtiges (z. B. Fehler) kommt sofort. Ruhezeit fest, nicht einstellbar.
+- 2026-11-12 · Kurve sichtbar je Seite und je Gerät; der Knopf „Gezeitenkurve ein/aus“ (Alt+K) schaltet die offene Seite still, Alt+Z nimmt es zurück.
+- 2026-11-12 · Glocke sitzt rechts in der Kurve, „Zu jetzt“ links daneben; ist die Kurve aus, stehen Glocke und Hinweise unten rechts. Das Ebbe-Fenster steht oben in der Liste der Glocke.
+- 2026-11-12 · Am Handy zeigt die Kurve ab Werk 6 Stunden (PC 4); Antippen einer freien Stelle macht sie groß (38,2 %) und wieder klein.
 
 ## Offen
 

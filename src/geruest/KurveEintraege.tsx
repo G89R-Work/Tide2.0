@@ -6,6 +6,7 @@ import { Flaeche } from '../bausteine/Flaeche'
 import { Knopf } from '../bausteine/Knopf'
 import { MIN_TAG, vonOben } from '../logik/gezeiten'
 import { ZIEH_RASTER, aufRaster, beschriftungsPlatz, buendeln, gezogen, hoeheBei, platzVorHindernissen, verschoben, type Band, type Punkt, type Ziehart } from '../logik/kurveEintraege'
+import type { Meldung } from '../logik/meldungen'
 import type { Aenderung, Eintrag } from '../vertrag/eintrag'
 import type { WetterStunde } from '../vertrag/wetter'
 import { rueckgaengig, type Schritt } from './rueckgaengig'
@@ -365,15 +366,21 @@ function TerminKarte({ t, verschiebe, aendere }: { t: Punkt | Band; verschiebe: 
   )
 }
 
-/** Kopfzeile der Kurve: Fehler und der frische Schritt mit „Rückgängig". Ohne eigene Fläche; die übrige obere Zeile macht Platz. */
-export function KurveKopfzeile({ schritt, fehler }: { schritt?: Schritt; fehler: string[] }) {
+/** Kopfzeile der Kurve: Fehler, eine frische Meldung und der frische Schritt mit „Rückgängig". Ohne eigene Fläche; die übrige obere
+ *  Zeile macht Platz. Ist die Kurve aus, steht derselbe Inhalt am unteren Rand (`className` setzt dann die Lage). */
+export function KurveKopfzeile({ schritt, fehler, meldung, className }: { schritt?: Schritt; fehler: string[]; meldung?: Meldung; className?: string }) {
   return (
-    <div className="kurve-schrift pointer-events-none absolute inset-x-2 top-0.5 flex min-w-0 items-center gap-3">
+    <div className={cn('kurve-schrift pointer-events-none flex min-w-0 items-center gap-3', className ?? 'absolute top-0.5 right-10 left-2')}>
       {fehler.map((f) => (
         <p key={f} role="alert" className="truncate text-warnung">
           {f}
         </p>
       ))}
+      {meldung && (
+        <p role="status" className={cn('truncate', meldung.wichtig ? 'text-warnung' : 'text-text')}>
+          {meldung.text}
+        </p>
+      )}
       {schritt && (
         <p role="status" className="flex min-w-0 items-center gap-2 text-text">
           <span className="truncate">{schritt.text}</span>

@@ -27,3 +27,5 @@ Hier landet alles, was nicht zur laufenden Scheibe gehört. Einmal im Monat wird
 - Gruß in der Heute-Kachel („Guten Morgen“) folgt der gezeigten Uhrzeit der Kurve (kurve-grund)
 - Hosting für Tablet und Handy nur für den Nutzer: Cloudflare Pages + Cloudflare Access (Code per Mail, kostenlos, Konto vorhanden); Alternative Tailscale über den Homeserver. Mit den Server-Etappen (kurve-grund)
 - Zieh-Grenzen der Kurve: Termin über Mitternacht ziehen und am Rand der Sicht mitscrollen (kurve-eintraege)
+- Rückgängig-Schritte auch in der Glocke auflisten; Glocke als eigene Aktion belegbar machen (kurve-ebbe-und-meldungen)
+- Ruhezeit des Ebbe-Modus einstellbar machen (kurve-ebbe-und-meldungen)

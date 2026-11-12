@@ -1,6 +1,7 @@
 // Zentrale Liste aller Einstellungen (docs/konzept/20-einstellungen.md).
 // Neue Option = eine Zeile in `einstellungen`. Seite, Suche und „Auf Standard" entstehen daraus.
 // Gemerkt werden nur Abweichungen vom Standard; je Geräteart unter „<id>@pc" bzw. „<id>@handy".
+import { bereiche, type BereichId } from './bereiche'
 
 export type Geraet = 'pc' | 'handy'
 export type Wert = boolean | number | string
@@ -41,6 +42,8 @@ type Basis = {
   jeGeraet?: true
   /** Erscheint zusätzlich unter „Grundlegendes". */
   wichtig?: true
+  /** Abweichender Standard am Handy; nur mit `jeGeraet`. */
+  standardHandy?: Wert
 }
 export type Einstellung = Basis &
   (
@@ -58,7 +61,7 @@ const bundeslaender = [
 
 export const einstellungen: readonly Einstellung[] = [
   { id: 'morgen-zusammenfassung', name: 'Morgen-Zusammenfassung', abschnitt: 'benachrichtigungen', art: 'schalter', standard: true, wichtig: true, hilfe: 'Am Morgen ein Überblick über den Tag' },
-  { id: 'ebbe-modus', name: 'Ebbe-Modus', abschnitt: 'benachrichtigungen', art: 'schalter', standard: false, hilfe: 'Nur Wichtiges meldet sich' },
+  { id: 'ebbe-modus', name: 'Ebbe-Modus', abschnitt: 'benachrichtigungen', art: 'schalter', standard: false, hilfe: 'Von 22:30 bis 7:00 warten Meldungen bis zum Morgen; Wichtiges kommt sofort' },
   { id: 'design', name: 'Design', abschnitt: 'darstellung', art: 'auswahl', standard: 'glut', optionen: [['glut', 'Glut'], ['tinte', 'Tinte']], wichtig: true },
   { id: 'schriftgroesse', name: 'Schriftgröße', abschnitt: 'darstellung', art: 'auswahl', standard: 'normal', optionen: [['klein', 'Klein'], ['normal', 'Normal'], ['gross', 'Groß']], jeGeraet: true, wichtig: true },
   { id: 'bahn', name: 'Bahn von Sonne und Mond', abschnitt: 'darstellung', art: 'auswahl', standard: 'bogen', optionen: [['bogen', 'Bogen'], ['echt', 'Echt']] },
@@ -69,17 +72,24 @@ export const einstellungen: readonly Einstellung[] = [
   { id: 'wellen-hoehe', name: 'Höhe der Wellen', abschnitt: 'darstellung', art: 'auswahl', standard: 'gold', optionen: [['viertel', 'Viertel'], ['drittel', 'Drittel'], ['gold', 'Goldener Schnitt'], ['haelfte', 'Hälfte']], hilfe: 'Anteil der Seitenhöhe' },
   { id: 'wellen', name: 'Wellen', abschnitt: 'darstellung', art: 'schalter', standard: true },
   { id: 'bewegung', name: 'Bewegung', abschnitt: 'darstellung', art: 'schalter', standard: true, hilfe: 'Aus: keine Animationen' },
-  { id: 'kurve-stunden', name: 'Sichtbare Stunden', abschnitt: 'kurve', art: 'zahl', standard: 4, min: 3, max: 8, einheit: 'Std.', jeGeraet: true, wichtig: true },
+  { id: 'kurve-stunden', name: 'Sichtbare Stunden', abschnitt: 'kurve', art: 'zahl', standard: 4, standardHandy: 6, min: 3, max: 8, einheit: 'Std.', jeGeraet: true, wichtig: true, hilfe: 'Am Handy ab Werk mehr als am PC' },
   { id: 'kurve-ganzer-tag', name: 'Ganzer Tag', abschnitt: 'kurve', art: 'schalter', standard: false, jeGeraet: true, hilfe: 'Zeigt alle 24 Stunden auf einmal' },
   { id: 'kurve-band-hoehe', name: 'Höhe der Bänder', abschnitt: 'kurve', art: 'zahl', standard: 76, min: 20, max: 100, einheit: '%', jeGeraet: true, hilfe: 'Lange Termine wie Schichten, als Anteil der Kurvenhöhe' },
   { id: 'kurve-wetter', name: 'Wetter', abschnitt: 'kurve', art: 'schalter', standard: true, jeGeraet: true, hilfe: 'Temperatur und Regen als feine Zeile über der Kurve' },
   { id: 'kurve-lage', name: 'Lage', abschnitt: 'kurve', art: 'auswahl', standard: 'unten', optionen: [['unten', 'Unten'], ['oben', 'Oben']], jeGeraet: true, hilfe: 'Am PC über die volle Breite, am Handy über der Leiste' },
+  // Sichtbar je Seite: ein Schalter je Bereich (docs/konzept/06-gezeitenkurve.md).
+  ...bereiche.map((b) => ({ id: `kurve-zeigen-${b.id}`, name: `Zeigen auf ${b.name}`, abschnitt: 'kurve' as const, art: 'schalter' as const, standard: true, jeGeraet: true as const, hilfe: `Kurve auf der Seite ${b.name}; der Knopf „Gezeitenkurve ein/aus“ schaltet die offene Seite` })),
   { id: 'rechtschreibung', name: 'Rechtschreibprüfung', abschnitt: 'schreiben', art: 'schalter', standard: true },
   { id: 'wochenbeginn', name: 'Wochenbeginn', abschnitt: 'kalender', art: 'auswahl', standard: 'montag', optionen: [['montag', 'Montag'], ['sonntag', 'Sonntag']], wichtig: true },
   { id: 'kalenderwoche', name: 'Kalenderwoche anzeigen', abschnitt: 'kalender', art: 'schalter', standard: true },
   { id: 'bundesland', name: 'Bundesland für Feiertage', abschnitt: 'kalender', art: 'auswahl', standard: 'bund', optionen: bundeslaender },
   { id: 'archivfrist', name: 'Erledigtes ins Archiv nach', abschnitt: 'todos', art: 'zahl', standard: 30, min: 1, max: 365, einheit: 'Tagen' },
 ]
+
+const zeigen = new Map(bereiche.map((b) => [b.id, einstellungen.find((e) => e.id === `kurve-zeigen-${b.id}`)!]))
+
+/** Schalter „Kurve zeigen" einer Seite. */
+export const kurveZeigen = (bereich: BereichId): Einstellung => zeigen.get(bereich)!
 
 export function einstellungenIn(abschnitt: AbschnittId): Einstellung[] {
   return einstellungen.filter((e) => (abschnitt === 'start' ? e.wichtig : e.abschnitt === abschnitt))
@@ -88,6 +98,8 @@ export function einstellungenIn(abschnitt: AbschnittId): Einstellung[] {
 const schluessel = (e: Einstellung, geraet: Geraet) => (e.jeGeraet ? `${e.id}@${geraet}` : e.id)
 
 const imRaster = (w: number, schritt: number) => Math.abs(w / schritt - Math.round(w / schritt)) < 1e-6
+
+const standardVon = (e: Einstellung, geraet: Geraet): Wert => (geraet === 'handy' && e.standardHandy !== undefined ? e.standardHandy : e.standard)
 
 function gueltig(e: Einstellung, w: unknown): w is Wert {
   switch (e.art) {
@@ -102,18 +114,18 @@ function gueltig(e: Einstellung, w: unknown): w is Wert {
 
 export function wertVon(e: Einstellung, werte: Werte, geraet: Geraet): Wert {
   const w = werte[schluessel(e, geraet)]
-  return gueltig(e, w) ? w : e.standard
+  return gueltig(e, w) ? w : standardVon(e, geraet)
 }
 
 export function istStandard(e: Einstellung, werte: Werte, geraet: Geraet): boolean {
-  return wertVon(e, werte, geraet) === e.standard
+  return wertVon(e, werte, geraet) === standardVon(e, geraet)
 }
 
 /** Neuer Stand mit diesem Wert. Ungültiges ändert nichts (gleiches Objekt zurück). */
 export function setze(werte: Werte, e: Einstellung, geraet: Geraet, wert: Wert): Werte {
   if (!gueltig(e, wert)) return werte
   const { [schluessel(e, geraet)]: _, ...rest } = werte
-  return wert === e.standard ? rest : { ...rest, [schluessel(e, geraet)]: wert }
+  return wert === standardVon(e, geraet) ? rest : { ...rest, [schluessel(e, geraet)]: wert }
 }
 
 export function zuruecksetzen(werte: Werte, liste: readonly Einstellung[], geraet: Geraet): Werte {
