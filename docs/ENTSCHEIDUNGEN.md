@@ -106,6 +106,10 @@ Eine Zeile je Entscheidung, neueste unten. Was hier steht, gilt und wird nicht n
 - 2026-11-12 · Gezeitenkurve: Höhe und Breite lassen sich nur noch im Bearbeiten-Modus ziehen, dort mit sichtbaren Griffen (`Trenner griff`); außerhalb ist sie fest.
 - 2026-11-12 · Rückfrage als Popover des Browsers (wie das Kachel-Menü), nicht Radix Popover: die Installation wurde in dieser Sitzung nicht freigegeben; der Wechsel aller Menüs bleibt bei `aufraeumen-menues`.
 
+- 2026-11-12 · Ein Raster für alles (Nutzer): Raster aus 12-px-Linien, jede Kachel mit 6 px unsichtbarem Rand (sichtbarer Abstand immer 12 px); kleinste Kachel 24 × 24, Standard 48 × 48, Größen in 12er-Schritten, keine Mindestgrößen (passt der Text nicht, entscheidet der Nutzer). 48er-Zellen mit halben Schritten (kleinste 18) und 24er-Zellen (Standard 60) wurden verworfen. Kacheln docken oben/unten und links/rechts an.
+- 2026-11-12 · Gezeitenkurve und Seitenleiste (mit zweiter Ebene) werden am PC und Tablet Kacheln je Seite. Seitenleiste mit zwei einstellbaren Breiten (nur Symbole / mit Namen), Ziehen rastet auf eine davon ein. Handy-Ansicht bleibt wie sie ist.
+- 2026-11-12 · Reihenfolge: `raster-12`, `raster-kurve`, `raster-seitenleiste` vor den übrigen Aufräum-Scheiben, je eine frische Sitzung.
+
 ## Offen
 
 Sieben Punkte sind offen. Bei jedem steht meine Empfehlung. Ohne Antwort gilt die Empfehlung.
