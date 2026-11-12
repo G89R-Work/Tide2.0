@@ -37,6 +37,13 @@ Alle weiteren Bausteine: `docs/konzept/30-bausteine.md` und `docs/BAUSTEINE.md`.
 - Jeder Befehl, den du für Tide einrichtest, nennt bei einem Fehler den Grund (Datei, Zeile, Meldung). Nie Fehler verschlucken, etwa mit `--quiet`. Das spart die Suche im Code.
 - Ideen außerhalb der Scheibe: eine Zeile in `docs/IDEEN.md`, nicht bauen.
 
+## Höchste Priorität
+Diese zwei Regeln gehen allen anderen vor.
+
+**A. Nie einen Umweg.** Umweg heißt: Workaround, etwas Erzwungenes (`!important`, `as any`, `@ts-ignore`, `oxlint-disable`, `eslint-disable`, `setTimeout` gegen Zeitprobleme, Überschreiben an anderer Stelle, „das wird ignoriert, stattdessen …“) oder jede andere Art, Bestehendes zu ändern, ohne an die Quelle zu gehen. Erlaubt ist nur: zurückgehen bis zum Ursprung, dort den Fehler oder die zu ändernde Stelle finden und genau dort an die neue Anforderung anpassen. Es gibt immer nur eine Quelle der Wahrheit.
+
+**B. Nie Eigenbau ohne Suche.** Bevor du für eine Idee eigenen Code schreibst, prüfe im Internet (npm, GitHub, shadcn/ui, Radix, bekannte Bibliotheken), ob es dafür schon einen fertigen, bewährten Baustein gibt. Gibt es einen, nimm ihn (Eintrag in `docs/BAUSTEINE.md`, Ja des Nutzers). Eigenbau nur, wenn nachweislich nichts Passendes existiert; dann kurz in `docs/BAUSTEINE.md` vermerken, was geprüft wurde und warum es nicht passt.
+
 ## Feste Regeln
 1. Baustein vor Eigenbau. Neue Abhängigkeit nur mit Eintrag in `docs/BAUSTEINE.md` und Ja des Nutzers.
 2. Farben, Abstände, Glas und Bewegung kommen nur aus `src/werte/`. Kein Bereich hat eigene Knöpfe.
