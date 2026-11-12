@@ -114,6 +114,8 @@ Eine Zeile je Entscheidung, neueste unten. Was hier steht, gilt und wird nicht n
 - 2026-11-12 · Kacheln ziehen (raster-ziehen): kein Umweg, wenn der Baustein nur bei Bewegung neu ordnet. Kleines Zittern bis 16 px zählt als Verweilen (Wunsch des Nutzers: Absicht erkennen). Nach 650 ms weichen die anderen bei der nächsten Regung oder beim Loslassen aus. Weiterziehen über den Umkreis bringt sie zurück.
 - 2026-11-12 · Loslassen über einer anderen Kachel vor dem Verweilen: Die anderen weichen nach unten aus (wie bei den Pfeiltasten), nichts springt zurück.
 - 2026-11-12 · Grenze beim Ziehen in eigener Farbe `--grenze` (rot) in beiden Designs, auch in Tinte.
+- 2026-11-12 · Kacheln 1:1 wie One UI: Grundzelle 48 × 48, halbe Zelle 24, nur halbe oder ganze Zellen, keine Ausnahmen; Loslassen auf Besetztem ohne Verweilen → nächste freie Lücke, sonst zurück; „Braucht dich“ 24 hoch und zweizeilig (Nutzer).
+- 2026-11-12 · Arbeit in Paketen aus drei Scheiben nacheinander, danach `/clear` (Nutzer).
 
 ## Offen
 

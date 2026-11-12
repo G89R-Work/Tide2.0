@@ -26,12 +26,12 @@ Alle weiteren Bausteine: `docs/konzept/30-bausteine.md` und `docs/BAUSTEINE.md`.
 - `src/logik/` reine Funktionen mit Tests
 
 ## Arbeitsweise
-- Gearbeitet wird in Scheiben über `/scheibe`. Eine Scheibe je Sitzung, von Anfang bis Abschluss ohne Pause.
+- Gearbeitet wird in Paketen aus drei Scheiben über `/scheibe`: drei Scheiben nacheinander (nicht gleichzeitig), jede von Anfang bis Abschluss ohne Pause, jede wie nach `/clear` neu begonnen.
 - Der Nutzer will möglichst wenig zu tun haben. Entscheide selbst nach Konzept und Empfehlung. Halte nur an bei: neuer Abhängigkeit, Änderung am Vertrag, Abweichung vom Konzept, schwer Umkehrbarem, Kosten. Dann alle Fragen auf einmal.
 - Zu Beginn nur `STATUS.md` lesen. Aus `docs/konzept/` nur die Dateien, die `docs/FAHRPLAN.md` für die Scheibe nennt. Nie das ganze Konzept.
 - Offene Punkte aus `docs/ENTSCHEIDUNGEN.md` (Abschnitt „Offen") entscheidest du nach der dortigen Empfehlung und vermerkst das. Frag nur, wenn der Punkt dort als wichtig markiert ist.
 - Es arbeitet immer nur ein Claude-Konto gleichzeitig. Der Stand wird beim Start automatisch geholt und nach jeder Antwort automatisch gesichert.
-- Ist eine Scheibe fertig, beginne keine neue. Sag kurz Bescheid, damit der Nutzer `/clear` tippt. Das spart Tokens.
+- Ist eine Scheibe fertig, beginnt sofort die nächste, bis drei fertig sind. Danach keine weitere: kurz Bescheid sagen, damit der Nutzer `/clear` tippt. Das spart Tokens.
 - Subagenten nur nach Freigabe: wofür, warum nicht direkt, grober Umfang.
 - Ein Satz vor jedem größeren Schritt. Code nicht im Chat wiederholen. Abschlussbericht höchstens 6 Zeilen.
 - Jeder Befehl, den du für Tide einrichtest, nennt bei einem Fehler den Grund (Datei, Zeile, Meldung). Nie Fehler verschlucken, etwa mit `--quiet`. Das spart die Suche im Code.
