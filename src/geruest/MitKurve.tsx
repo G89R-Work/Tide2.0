@@ -2,6 +2,7 @@ import { useLayoutEffect, useRef, useState, type CSSProperties, type ReactNode }
 import { Group, Panel, useDefaultLayout, usePanelRef } from 'react-resizable-panels'
 import { cn } from '../bausteine/cn'
 import { Trenner } from '../bausteine/Trenner'
+import { useBearbeiten } from '../kacheln/bearbeiten'
 import { freierPlatz } from '../logik/freierPlatz'
 import { abstaende } from '../werte/abstaende'
 import { kurve } from '../werte/kurve'
@@ -17,7 +18,7 @@ import { useFrischerSchritt } from './rueckgaengig'
 // Der Inhalt läuft über die ganze Höhe durch und scrollt hinter Kurve und `fuss` (untere Leiste am Handy) vorbei;
 // beide liegen als Lage darüber. Den verdeckten Platz oben und unten bekommt der Inhalt als --frei-oben/--frei-unten
 // (Werkzeug `inhalt-frei` in werte.css), damit sich auch die letzte Kachel ganz freischieben lässt.
-// Höhe am Griff zum Inhalt ziehbar, am PC auch die Breite an beiden Seiten. Gemerkt je Geräteart im Browser,
+// Höhe am Griff zum Inhalt ziehbar, am PC auch die Breite an beiden Seiten; beides nur im Bearbeiten-Modus, dort mit sichtbaren Griffen. Gemerkt je Geräteart im Browser,
 // Doppelklick auf einen Griff stellt den Werkszustand her. `onPlatz` meldet Höhe des Streifens und freien Platz links
 // (für die Seitenleiste, siehe src/logik/leisteLage.ts). Ist die Kurve auf der Seite aus (`sichtbar`), stehen Hinweise und Glocke
 // am unteren Rand. Am Handy macht Antippen die Kurve groß und wieder klein.
@@ -32,6 +33,7 @@ export function MitKurve({ children, fuss, onPlatz, sichtbar }: { children: Reac
   const lage = useRef<HTMLDivElement>(null)
   const frei = useRef<HTMLDivElement>(null)
   const [verdeckt, setVerdeckt] = useState({ oben: 0, unten: 0, hoehe: 0 })
+  const bearbeiten = useBearbeiten()
 
   // Verdeckt ist, was nicht im leeren Feld „inhalt" zwischen Kurve und Rand liegt. Ändert sich nur beim Ziehen und bei Größenänderung.
   useLayoutEffect(() => {
@@ -62,7 +64,8 @@ export function MitKurve({ children, fuss, onPlatz, sichtbar }: { children: Reac
   const griff = (
     <Trenner
       richtung="waagrecht"
-      title="Ziehen ändert die Höhe der Kurve, Doppelklick stellt sie zurück"
+      griff={bearbeiten}
+      title={bearbeiten ? 'Ziehen ändert die Höhe der Kurve, Doppelklick stellt sie zurück' : undefined}
       onDoubleClick={() => kurveRef.current?.resize(kurve.hoehe)}
       className="pointer-events-auto"
     />
@@ -78,7 +81,7 @@ export function MitKurve({ children, fuss, onPlatz, sichtbar }: { children: Reac
       // Am PC liegt die Kurve am Bildschirmrand, am Handy zwischen Kopfzeile und unterer Leiste.
       className={cn('pointer-events-auto', geraet === 'pc' ? (oben ? 'pt-rand' : 'pb-rand') : oben ? 'pt-abstand' : 'pb-abstand')}
     >
-      {geraet === 'pc' ? <ZiehbareBreite onLinks={(links) => melde({ links })} /> : <Gezeitenkurve className="mx-rand" onAntippen={groesser} />}
+      {geraet === 'pc' ? <ZiehbareBreite bearbeiten={bearbeiten} onLinks={(links) => melde({ links })} /> : <Gezeitenkurve className="mx-rand" onAntippen={groesser} />}
     </Panel>
   )
 
@@ -91,7 +94,7 @@ export function MitKurve({ children, fuss, onPlatz, sichtbar }: { children: Reac
       </div>
       <div className="pointer-events-none absolute inset-0 flex flex-col">
         {sichtbar ? (
-          <Group key={String(oben)} {...hoehe} orientation="vertical" className="min-h-0 flex-1">
+          <Group key={String(oben)} {...hoehe} disabled={!bearbeiten} orientation="vertical" className="min-h-0 flex-1">
             {oben && streifen}
             {oben && griff}
             <Panel id="inhalt">
@@ -113,19 +116,19 @@ export function MitKurve({ children, fuss, onPlatz, sichtbar }: { children: Reac
 }
 
 /** Links und rechts je eine leere Fläche, ab Werk null breit; die Griffe dazwischen verschieben die Ränder der Kurve. */
-function ZiehbareBreite({ onLinks }: { onLinks: (px: number) => void }) {
+function ZiehbareBreite({ bearbeiten, onLinks }: { bearbeiten: boolean; onLinks: (px: number) => void }) {
   const breite = useDefaultLayout({ id: 'tide.kurve-breite', storage: localStorage })
   const links = usePanelRef()
   const rechts = usePanelRef()
-  const titel = 'Ziehen ändert die Breite der Kurve, Doppelklick stellt die volle Breite her'
+  const titel = bearbeiten ? 'Ziehen ändert die Breite der Kurve, Doppelklick stellt die volle Breite her' : undefined
   return (
-    <Group {...breite} orientation="horizontal" className="h-full">
+    <Group {...breite} disabled={!bearbeiten} orientation="horizontal" className="h-full">
       <Panel id="links" panelRef={links} minSize="0%" defaultSize="0%" onResize={(g) => onLinks(Math.round(g.inPixels))} />
-      <Trenner dicke="rand" title={titel} onDoubleClick={() => links.current?.resize('0%')} />
+      <Trenner dicke="rand" griff={bearbeiten} title={titel} onDoubleClick={() => links.current?.resize('0%')} />
       <Panel id="kurve" minSize={kurve.breiteMin}>
         <Gezeitenkurve />
       </Panel>
-      <Trenner dicke="rand" title={titel} onDoubleClick={() => rechts.current?.resize('0%')} />
+      <Trenner dicke="rand" griff={bearbeiten} title={titel} onDoubleClick={() => rechts.current?.resize('0%')} />
       <Panel id="rechts" panelRef={rechts} minSize="0%" defaultSize="0%" />
     </Group>
   )

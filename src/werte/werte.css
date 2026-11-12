@@ -378,6 +378,15 @@ html {
   }
 }
 /* Bearbeiten-Modus: Kopf oder Griff zum Ziehen (PC), Menü-Knopf oben rechts. */
+/* Rückfrage „Bearbeiten starten“ rechts neben ihrem Knopf in der Seitenleiste (CSS-Anker). */
+@utility anker-bearbeiten {
+  anchor-name: --bearbeiten-start;
+}
+@utility schwebt-am-anker {
+  position-anchor: --bearbeiten-start;
+  position-area: right span-top;
+  margin: 0 0 0 var(--spacing-abstand);
+}
 @utility kachel-griff {
   cursor: grab;
   touch-action: none;

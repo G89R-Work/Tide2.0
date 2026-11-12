@@ -102,6 +102,10 @@ Eine Zeile je Entscheidung, neueste unten. Was hier steht, gilt und wird nicht n
 - 2026-11-12 · Kachel-Raster (Wunsch des Nutzers, ersetzt „8/12 Zeilen je Bildschirm“): Am PC und Tablet ist eine Zeile überall gleich hoch, Ziel 48 px; die Zahl der Zeilen je Bildschirm wird gerundet (`zeilenZahl`), so weicht die Höhe nur 1–3 px ab und die letzte Zeile endet genau 12 px vor der Kurve. Am Handy bleiben 12 Zeilen je Bildschirm. Jede Kachel hängt oben oder unten (Vertrag: `unten: true`, `y` zählt dann vom unteren Rand; Ja des Nutzers); auf größeren Bildschirmen wächst nur der Himmel dazwischen. Andocken nach Lage der Kachelmitte.
 - 2026-11-12 · Seitenleiste: Bereichsliste scrollt bei wenig Höhe; Bedienfeld und Zahnrad bleiben unten immer sichtbar.
 
+- 2026-11-12 · Bearbeiten starten (Wunsch des Nutzers, ergänzt „nur über die Einstellungen“): Knopf neben dem Zahnrad in der Seitenleiste mit Rückfrage „Bearbeiten starten“, damit nichts aus Versehen verrutscht. Alt+B und die Einstellung bleiben.
+- 2026-11-12 · Gezeitenkurve: Höhe und Breite lassen sich nur noch im Bearbeiten-Modus ziehen, dort mit sichtbaren Griffen (`Trenner griff`); außerhalb ist sie fest.
+- 2026-11-12 · Rückfrage als Popover des Browsers (wie das Kachel-Menü), nicht Radix Popover: die Installation wurde in dieser Sitzung nicht freigegeben; der Wechsel aller Menüs bleibt bei `aufraeumen-menues`.
+
 ## Offen
 
 Sieben Punkte sind offen. Bei jedem steht meine Empfehlung. Ohne Antwort gilt die Empfehlung.

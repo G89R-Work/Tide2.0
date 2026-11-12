@@ -2,6 +2,8 @@ import { Waves } from 'lucide-react'
 import type { Ref } from 'react'
 import { Knopf } from '../bausteine/Knopf'
 import { cn } from '../bausteine/cn'
+import { BearbeitenStarten } from '../kacheln/BearbeitenStarten'
+import { useBearbeiten } from '../kacheln/bearbeiten'
 import { bereiche, type BereichId } from '../logik/bereiche'
 import { symbole, vorladen } from './seiten'
 
@@ -33,6 +35,7 @@ export function Seitenleiste({ offen, mitNamen, bearbeitenRef }: { offen: Bereic
   }
 
   const einstellungen = bereiche.at(-1)!
+  const bearbeiten = useBearbeiten()
   return (
     // Oben die Bereiche, bei wenig Höhe scrollbar; unten Bedienfeld und Zahnrad, die immer sichtbar bleiben.
     <nav aria-label="Bereiche" className="flaeche-leiste flex h-full flex-col gap-1 overflow-hidden p-2">
@@ -51,8 +54,15 @@ export function Seitenleiste({ offen, mitNamen, bearbeitenRef }: { offen: Bereic
         {bereiche.slice(0, -1).map((b) => eintrag(b))}
       </div>
       <div ref={bearbeitenRef} className="@container shrink-0" />
-      {/* Der Name passt nicht in die Standardbreite: dort immer nur das Zahnrad, mittig. */}
-      <div className="shrink-0">{eintrag(einstellungen, true)}</div>
+      {/* Unten: Bearbeiten (mit Rückfrage; im Modus steht dort das Bedienfeld) und das Zahnrad, nebeneinander, schmal untereinander. */}
+      <div className="flex shrink-0 flex-wrap justify-center">
+        {!bearbeiten && (
+          <div className="min-w-11 flex-1">
+            <BearbeitenStarten />
+          </div>
+        )}
+        <div className="min-w-11 flex-1">{eintrag(einstellungen, true)}</div>
+      </div>
     </nav>
   )
 }

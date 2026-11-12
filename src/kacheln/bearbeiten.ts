@@ -15,6 +15,9 @@ export function useBearbeiten(): boolean {
 
 export const bearbeitenBeenden = () => setzeHier(bearbeiten, false)
 
+/** Knopf in der Seitenleiste, nach der Rückfrage. */
+export const bearbeitenStarten = () => setzeHier(bearbeiten, true)
+
 /** Befehl „Kacheln bearbeiten“: schaltet den Modus ein oder aus. */
 export const bearbeitenUmschalten = () => setzeHier(bearbeiten, wertHier(bearbeiten) !== true)
 
