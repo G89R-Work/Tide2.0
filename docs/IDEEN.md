@@ -29,3 +29,5 @@ Hier landet alles, was nicht zur laufenden Scheibe gehört. Einmal im Monat wird
 - Zieh-Grenzen der Kurve: Termin über Mitternacht ziehen und am Rand der Sicht mitscrollen (kurve-eintraege)
 - Rückgängig-Schritte auch in der Glocke auflisten; Glocke als eigene Aktion belegbar machen (kurve-ebbe-und-meldungen)
 - Ruhezeit des Ebbe-Modus einstellbar machen (kurve-ebbe-und-meldungen)
+- Bausteine-Seite wieder von der Oberfläche aus erreichbar machen, etwa in Einstellungen › Darstellung (heute)
+- Wochenleiste: Tag antippen zeigt dessen Termine; Monat als aufklappbare Kachel statt Sprung (heute)

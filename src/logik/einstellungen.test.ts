@@ -62,6 +62,14 @@ describe('setze und wertVon', () => {
     expect(setze(w, stunden, 'pc', true)).toBe(w)
   })
 
+  it('nimmt beim Namen Text bis zur Länge an, auch leer, aber keine Zahl', () => {
+    const name = nach('name')
+    expect(wertVon(name, setze({}, name, 'pc', 'Sam'), 'pc')).toBe('Sam')
+    expect(wertVon(name, setze({}, name, 'pc', ''), 'pc')).toBe('')
+    expect(setze({}, name, 'pc', 'x'.repeat(31))).toEqual({})
+    expect(setze({}, name, 'pc', 3)).toEqual({})
+  })
+
   it('nimmt beim Ort Nachkommastellen im Raster an, auch südlich und westlich', () => {
     const breite = nach('ort-breite')
     const laenge = nach('ort-laenge')

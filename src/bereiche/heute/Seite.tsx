@@ -1,38 +1,48 @@
-import { useState } from 'react'
 import { Knopf } from '../../bausteine/Knopf'
+import { useEinstellung } from '../../geruest/einstellungen'
 import { Seitenkopf } from '../../geruest/Seitenkopf'
+import { useBrauchtDich } from '../../geruest/useBrauchtDich'
+import { useMinute } from '../../geruest/useMinute'
 import { bearbeitenStarten, useBearbeiten } from '../../kacheln/bearbeiten'
 import { Raster } from '../../kacheln/Raster'
+import { einstellungen } from '../../logik/einstellungen'
 import { begruessung } from '../../logik/tageszeit'
-import { Beispielliste } from './kacheln/Beispielliste'
+import { BrauchtDich } from './BrauchtDich'
+import { AlsNaechstes, Uhr } from './Himmel'
+import { Woche } from './kacheln/Woche'
+import { useTermine } from './useTermine'
 import { werkszustand } from './werkszustand'
 
-const leise = (text: string) => <p className="text-sm text-text-gedaempft">{text}</p>
+const name = einstellungen.find((e) => e.id === 'name')!
+const uhrZeigen = einstellungen.find((e) => e.id === 'heute-uhr')!
 
+// Heute (docs/konzept/10-heute.md): viel Himmel, wenig Text. Oben Gruß, die große Überschrift und die Uhr,
+// darunter „Braucht dich" und die Kacheln.
 export default function Seite() {
-  // Uhrzeit einmal beim Öffnen lesen; die laufende Uhr kommt mit der Seite Heute.
-  const [jetzt] = useState(() => new Date())
+  const jetzt = useMinute()
   const bearbeiten = useBearbeiten()
-  const inhalt = {
-    gruss: <p className="text-lg">{begruessung(jetzt)}</p>,
-    liste: <Beispielliste />,
-    termine: leise('Kommt mit dem Kalender.'),
-    todos: leise('Kommt mit den To-dos.'),
-    notiz: leise('Kommt mit den Notizen.'),
-  }
+  const wer = String(useEinstellung(name)).trim()
+  const uhr = useEinstellung(uhrZeigen) === true
+  const { termine, fehler } = useTermine()
+  const braucht = useBrauchtDich()
+  const gruss = wer ? `${begruessung(jetzt)}, ${wer}` : begruessung(jetzt)
+
   return (
     <div className="p-4 md:p-6">
-      <Seitenkopf titel="Heute">
+      <Seitenkopf titel={gruss}>
         {!bearbeiten && (
           <Knopf art="leise" groesse="klein" onClick={bearbeitenStarten} title="Kacheln anpassen (Alt+B)">
             Anpassen
           </Knopf>
         )}
-        <Knopf alsKind art="leise" groesse="klein">
-          <a href="#bausteine">Bausteine</a>
-        </Knopf>
       </Seitenkopf>
-      <Raster seite="heute" kacheln={werkszustand} inhalt={inhalt} />
+      <p className="text-sm text-text-gedaempft">{jetzt.toLocaleDateString('de-DE', { weekday: 'long', day: 'numeric', month: 'long' })}</p>
+      <section className="heute-himmel" aria-label="Als Nächstes">
+        {fehler ? <p className="text-sm text-warnung">{fehler}</p> : <AlsNaechstes termine={termine} jetzt={jetzt} />}
+        {uhr && <Uhr termine={termine} jetzt={jetzt} />}
+      </section>
+      <BrauchtDich daten={braucht.daten} fehler={braucht.fehler} jetzt={jetzt} />
+      <Raster seite="heute" kacheln={werkszustand} inhalt={{ woche: <Woche termine={termine} eintraege={braucht.liste} jetzt={jetzt} /> }} />
     </div>
   )
 }

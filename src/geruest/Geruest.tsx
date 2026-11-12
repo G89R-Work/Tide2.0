@@ -1,4 +1,4 @@
-import { Suspense, useState, type CSSProperties } from 'react'
+import { Suspense, useEffect, useState, type CSSProperties } from 'react'
 import { Group, Panel, useDefaultLayout, usePanelRef } from 'react-resizable-panels'
 import { cn } from '../bausteine/cn'
 import { Trenner } from '../bausteine/Trenner'
@@ -27,7 +27,12 @@ import { ZweiteEbene } from './ZweiteEbene'
 export function Geruest({ marke }: { marke: string }) {
   const ort = ortAusMarke(marke)
   const schmal = useSchmal()
-  const zahl = useBrauchtDich()
+  const brauchtDich = useBrauchtDich()
+  const zahl = brauchtDich.daten?.zahl ?? 0
+  // Ohne Daten bleibt der Punkt weg; der Grund steht in der Konsole.
+  useEffect(() => {
+    if (brauchtDich.fehler) console.error(brauchtDich.fehler)
+  }, [brauchtDich.fehler])
   useTastenkuerzel()
   useErinnerungen()
   useFalten(useMeldungen().frischeIds)

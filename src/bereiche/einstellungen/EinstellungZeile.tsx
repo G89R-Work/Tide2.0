@@ -63,6 +63,18 @@ export function EinstellungZeile({ e, werte, geraet }: { e: Einstellung; werte: 
           {e.einheit}
         </span>
       )}
+      {e.art === 'text' && (
+        <Eingabe
+          key={String(wert)}
+          id={feld}
+          type="text"
+          maxLength={e.laenge}
+          defaultValue={String(wert)}
+          className="w-32 sm:w-44"
+          onBlur={(x) => x.currentTarget.value !== wert && aendern(x.currentTarget.value.trim())}
+          onKeyDown={(x) => x.key === 'Enter' && x.currentTarget.blur()}
+        />
+      )}
       <Knopf
         art="symbol"
         groesse="klein"

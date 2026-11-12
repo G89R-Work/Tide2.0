@@ -1,16 +1,16 @@
 # Status
 Etappe: 2 Gezeitenkurve und Heute
-Nächste Scheibe: `heute`
+Nächste Scheibe: `heute-uhr-und-wetter`
 
 ## Stand
-Das Gerüst steht am PC und am Handy mit Seitenleiste, zweiter Ebene, belegbaren Knöpfen, Einstellungsliste, Kacheln und Hintergrund. Die Gezeitenkurve zeigt den Beispieltag (PC unten über die volle Breite, Handy über der unteren Leiste; Einstellung „Lage“ je Gerät), scrollt endlos, folgt der Uhr und steuert beim Scrollen den Hintergrund. Termine liegen als Punkte (mit Karte, Bündel, Überschneidung) oder Bänder auf ihr, lassen sich ziehen und zurücknehmen; dazu Treibgut und Wetterzeile. Die Kurve ist je Seite und Gerät abschaltbar; Meldungen (Erinnerungen) fließen an der Jetzt-Linie ein und falten sich nach 6 s in die Glocke, im Ebbe-Modus warten sie nachts bis 7:00.
+Das Gerüst steht am PC und am Handy mit Seitenleiste, zweiter Ebene, belegbaren Knöpfen, Einstellungsliste, Kacheln und Hintergrund. Die Gezeitenkurve zeigt den Beispieltag (PC unten über die volle Breite, Handy über der unteren Leiste; Einstellung „Lage“ je Gerät), scrollt endlos, folgt der Uhr und steuert beim Scrollen den Hintergrund. Termine liegen als Punkte (mit Karte, Bündel, Überschneidung) oder Bänder auf ihr, lassen sich ziehen und zurücknehmen; dazu Treibgut und Wetterzeile. Die Kurve ist je Seite und Gerät abschaltbar; Meldungen fließen an der Jetzt-Linie ein und falten sich in die Glocke. Heute zeigt Gruß, Als Nächstes, Uhr mit Tag und Schicht, „Braucht dich“ zum Auffächern und die wischbare Wochenleiste.
 
 ## Zuletzt erledigt
+- heute: `src/logik/heute.ts` (Als Nächstes, Tag/Schicht, Woche, Füllstand, Braucht dich, KW, Rückblick), `src/bereiche/heute/` (Himmel, BrauchtDich, kacheln/Woche, useTermine), Vertrag `frist` und Art `schicht`, Einstellung Art „text“ (Name) und „Uhr“
 - kurve-ebbe-und-meldungen: `src/logik/meldungen.ts`, `src/geruest/meldungen.ts` (`melde`), `Glocke.tsx`, Einstellungen `kurve-zeigen-<bereich>` und `standardHandy`, Aktion „Gezeitenkurve ein/aus“ als Befehl, Antippen am Handy
 - kurve-eintraege: `src/logik/kurveEintraege.ts`, `KurveEintraege.tsx`, `kurveDaten.ts`, `rueckgaengig.ts`, Vertrag `beginn`/`ende` ändern und `holeWetter`, Aktion „Rückgängig“ (Alt+Z), Einstellung „Wetter“
 - kurve-grund: `src/logik/gezeiten.ts` (Raster, Glätten, Scrollstelle, endlos), `Gezeitenkurve`, `gezeigteZeit`, Vertrag `holeTermine`, Einstellung „Ganzer Tag“
 - geruest-zweite-ebene: `src/logik/ebenen.ts` (Marke `#bereich/unter`), `ZweiteEbene`, `HandyMenue`, `useSchmal`, `useBrauchtDich`
-- aktionen-und-knoepfe: `src/logik/aktionen.ts` (Aktionsliste, Plätze, Kürzel), `src/geruest/belegung.ts`, `AktionKnopf`, `Auswahl`
 
 ## Stolpersteine
 - Stil prüft oxlint, nicht ESLint. Warnungen zählen als Fehler. Freie Tailwind-Werte wie `data-[…]` verbietet die Werte-Prüfung.
@@ -38,3 +38,4 @@ Das Gerüst steht am PC und am Handy mit Seitenleiste, zweiter Ebene, belegbaren
 - Inhalt liegt in `MitKurve` als eigene Lage über die volle Höhe; Kurve, Griff und `fuss` (untere Leiste am Handy) liegen darüber mit `pointer-events-none` außer auf den Flächen. Neue Scrollbereiche bekommen `inhalt-frei`.
 - Kurve: Lage nur über die Reihenfolge (Wasser, Bänder, `linie`, Rest), nie über z-index. Einträge liegen in jeder der drei Kopien; bedienbar per Tastatur nur die Kopie in der Mitte (`kopie`). Beim Ziehen darf sich die Reihenfolge der Elemente nicht ändern, sonst geht der Finger (Pointer-Capture) verloren.
 - Attrappe: Termine des Beispieltags (id `t-…`) ändert `src/attrappe/termine.ts` (gemerkt unter `tide.attrappe.termine`); diese Antworten stehen in `start.ts` vor den Einträgen.
+- Heute: Uhr, Überschrift und „Braucht dich“ liegen fest über dem Raster (`src/bereiche/heute/Seite.tsx`), Kacheln nur darunter. Attrappe: Fristen relativ zum ersten Laden, Wochenende ohne Werktags-Termine.

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { bereiche } from './bereiche'
-import { brauchtDich, ebeneVon, markeFuer, ortAusMarke } from './ebenen'
+import { ebeneVon, markeFuer, ortAusMarke } from './ebenen'
 
 describe('ebeneVon', () => {
   it('Heute hat keine zweite Ebene, jeder andere Bereich eine', () => {
@@ -46,12 +46,5 @@ describe('markeFuer', () => {
     expect(markeFuer('kochen', 'wochenplan')).toBe('#kochen/wochenplan')
     for (const b of bereiche)
       for (const u of ebeneVon(b.id)) expect(ortAusMarke(markeFuer(b.id, u.id))).toEqual({ bereich: b.id, unter: u.id })
-  })
-})
-
-describe('brauchtDich', () => {
-  it('zählt die offenen Einträge', () => {
-    expect(brauchtDich([])).toBe(0)
-    expect(brauchtDich([{ erledigt: true }, { erledigt: false }, { erledigt: false }])).toBe(2)
   })
 })

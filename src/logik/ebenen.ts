@@ -51,8 +51,3 @@ export function ortAusMarke(marke: string): Ort {
 export function markeFuer(bereich: BereichId, unter?: string): string {
   return unter ? `#${bereich}/${unter}` : `#${bereich}`
 }
-
-/** Zahl am Menü-Knopf: wie viele Einträge noch offen sind. */
-export function brauchtDich(eintraege: readonly { erledigt: boolean }[]): number {
-  return eintraege.filter((e) => !e.erledigt).length
-}

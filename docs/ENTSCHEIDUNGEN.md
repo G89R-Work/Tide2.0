@@ -77,6 +77,10 @@ Eine Zeile je Entscheidung, neueste unten. Was hier steht, gilt und wird nicht n
 - 2026-11-12 · Kurve sichtbar je Seite und je Gerät; der Knopf „Gezeitenkurve ein/aus“ (Alt+K) schaltet die offene Seite still, Alt+Z nimmt es zurück.
 - 2026-11-12 · Glocke sitzt rechts in der Kurve, „Zu jetzt“ links daneben; ist die Kurve aus, stehen Glocke und Hinweise unten rechts. Das Ebbe-Fenster steht oben in der Liste der Glocke.
 - 2026-11-12 · Am Handy zeigt die Kurve ab Werk 6 Stunden (PC 4); Antippen einer freien Stelle macht sie groß (38,2 %) und wieder klein.
+- 2026-11-12 · Vertrag: Einträge haben ein freiwilliges Feld `frist` („JJJJ-MM-TT“) und die Art `schicht` (Ja des Nutzers). „Braucht dich“ zählt offene Einträge mit Frist bis morgen; der Punkt am Menü-Knopf ebenso.
+- 2026-11-12 · Heute: Gruß, Überschrift, Uhr und „Braucht dich“ stehen fest über den Kacheln (nicht verschiebbar), damit „Braucht dich“ aufklappen und verschwinden kann; am Handy also auch vor der Wochenleiste.
+- 2026-11-12 · Heute: „Monat“ führt zu Kalender/Monat, „Notiz“ zu Notizen, der Wochenrückblick klappt in der Wochen-Kachel auf. Die Beispielliste ist weg; die Bausteine-Seite bleibt über `#bausteine` erreichbar.
+- 2026-11-12 · Einstellungen kennen die Art „Text“ (erster Fall: „Dein Name“, ab Werk Moritz).
 
 ## Offen
 

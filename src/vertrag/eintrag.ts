@@ -1,7 +1,7 @@
 // Vertrag: Grundfelder, die jeder Eintrag in Tide hat (Mail, Termin, To-do, Notiz …).
 // Gilt für die Attrappe und den späteren Server gleich.
 
-export type Art = 'aufgabe' | 'notiz' | 'termin' | 'mail' | 'einkauf'
+export type Art = 'aufgabe' | 'notiz' | 'termin' | 'schicht' | 'mail' | 'einkauf'
 
 export type Eintrag = {
   id: string
@@ -16,6 +16,8 @@ export type Eintrag = {
   beginn?: string
   /** ISO-Zeitpunkt des Endes, gehört zu `beginn` */
   ende?: string
+  /** Fälliger Tag als „JJJJ-MM-TT“ (Ortszeit), nur bei Einträgen mit Frist */
+  frist?: string
 }
 
 /** Was sich an einem Eintrag ändern lässt. Beginn und Ende nur zusammen und nur bei Einträgen mit Uhrzeit. */

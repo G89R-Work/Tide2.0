@@ -20,7 +20,7 @@ Hintergrund zu den Etappen und zum Server: `docs/konzept/40-fahrplan.md`.
 - [x] `kurve-grund` · liest: 06-gezeitenkurve.md · Kurve aus dem Tag im 5-Minuten-Raster, endloses Scrollen, folgt der Uhrzeit, „Zu jetzt", Stundenleiste, sichtbare Stunden 3 bis 8, „Ganzer Tag"; die gezeigte Uhrzeit steuert den Hintergrund · Fertig, wenn: die Kurve den Beispieltag zeigt und im Ruhezustand nichts rechnet
 - [x] `kurve-eintraege` · liest: 06-gezeitenkurve.md · Punkte mit Karte, Bänder hinter der Kurve, Bündeln, Überschneidung markieren, Treibgut, Termine im 15-Minuten-Raster ziehen mit Rückgängig, Wetterzeile · Fertig, wenn: ein gezogener Termin sich zurücknehmen lässt
 - [x] `kurve-ebbe-und-meldungen` · liest: 06-gezeitenkurve.md, 03-geruest.md · Ebbe-Modus und Ebbe-Fenster, neue Meldung fließt ein, Meldungen falten sich in die Glocke, sichtbar je Seite, Lage und Größe am Handy · Fertig, wenn: die Kurve je Seite abschaltbar ist und dabei keine Meldung erscheint
-- [ ] `heute` · liest: 10-heute.md · Heute am PC und am Handy: Begrüßung, Als Nächstes, Uhr, Wochenleiste mit Monat, Notiz und Wochenrückblick, Braucht dich als schmale Kachel mit Auffächern · Fertig, wenn: der Nutzer die Seite am Handy und am PC als einladend abnimmt
+- [x] `heute` · liest: 10-heute.md · Heute am PC und am Handy: Begrüßung, Als Nächstes, Uhr, Wochenleiste mit Monat, Notiz und Wochenrückblick, Braucht dich als schmale Kachel mit Auffächern · Fertig, wenn: der Nutzer die Seite am Handy und am PC als einladend abnimmt
 - [ ] `heute-uhr-und-wetter` · liest: 10-heute.md · Karte hinter der Uhr mit Weltzeit und Fakt zur Stunde; Wetter als Zeile, aufgeklappt mit allen Werten aus dem Konzept · Fertig, wenn: jeder Fakt aus einem berechneten Wert stammt und einen Test hat
 
 ## Etappe 3: Postfach

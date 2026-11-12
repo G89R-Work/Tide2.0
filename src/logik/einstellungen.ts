@@ -22,6 +22,7 @@ export const abschnitte = [
   { id: 'raeume', name: 'Privat und Arbeit', gruppe: 'Allgemein' },
   { id: 'daten', name: 'Daten und Sicherung', gruppe: 'Allgemein' },
   { id: 'nutzer', name: 'Nutzer und Räume', gruppe: 'Allgemein' },
+  { id: 'heute', name: 'Heute', gruppe: 'Bereiche' },
   { id: 'postfach', name: 'Postfach', gruppe: 'Bereiche' },
   { id: 'kalender', name: 'Kalender', gruppe: 'Bereiche' },
   { id: 'todos', name: 'To-dos', gruppe: 'Bereiche' },
@@ -49,6 +50,7 @@ export type Einstellung = Basis &
   (
     | { art: 'schalter'; standard: boolean }
     | { art: 'auswahl'; standard: string; optionen: readonly (readonly [wert: string, name: string])[] }
+    | { art: 'text'; standard: string; laenge: number }
     | { art: 'zahl'; standard: number; min: number; max: number; einheit?: string; /** Raster, ab Werk 1 (ganze Zahlen). */ schritt?: number }
   )
 
@@ -79,6 +81,8 @@ export const einstellungen: readonly Einstellung[] = [
   { id: 'kurve-lage', name: 'Lage', abschnitt: 'kurve', art: 'auswahl', standard: 'unten', optionen: [['unten', 'Unten'], ['oben', 'Oben']], jeGeraet: true, hilfe: 'Am PC über die volle Breite, am Handy über der Leiste' },
   // Sichtbar je Seite: ein Schalter je Bereich (docs/konzept/06-gezeitenkurve.md).
   ...bereiche.map((b) => ({ id: `kurve-zeigen-${b.id}`, name: `Zeigen auf ${b.name}`, abschnitt: 'kurve' as const, art: 'schalter' as const, standard: true, jeGeraet: true as const, hilfe: `Kurve auf der Seite ${b.name}; der Knopf „Gezeitenkurve ein/aus“ schaltet die offene Seite` })),
+  { id: 'name', name: 'Dein Name', abschnitt: 'nutzer', art: 'text', standard: 'Moritz', laenge: 30, wichtig: true, hilfe: 'Für die Begrüßung auf Heute; leer lässt den Namen weg' },
+  { id: 'heute-uhr', name: 'Uhr', abschnitt: 'heute', art: 'schalter', standard: true, jeGeraet: true, hilfe: 'Uhrzeit mit Anteil des Tages und der Schicht' },
   { id: 'rechtschreibung', name: 'Rechtschreibprüfung', abschnitt: 'schreiben', art: 'schalter', standard: true },
   { id: 'wochenbeginn', name: 'Wochenbeginn', abschnitt: 'kalender', art: 'auswahl', standard: 'montag', optionen: [['montag', 'Montag'], ['sonntag', 'Sonntag']], wichtig: true },
   { id: 'kalenderwoche', name: 'Kalenderwoche anzeigen', abschnitt: 'kalender', art: 'schalter', standard: true },
@@ -107,6 +111,8 @@ function gueltig(e: Einstellung, w: unknown): w is Wert {
       return typeof w === 'boolean'
     case 'auswahl':
       return e.optionen.some(([o]) => o === w)
+    case 'text':
+      return typeof w === 'string' && w.length <= e.laenge
     case 'zahl':
       return typeof w === 'number' && imRaster(w, e.schritt ?? 1) && w >= e.min && w <= e.max
   }

@@ -8,12 +8,12 @@ const schluessel = 'tide.attrappe.eintraege'
 
 function laden(): Eintrag[] {
   const text = localStorage.getItem(schluessel)
-  if (!text) return beispielEintraege
+  if (!text) return beispielEintraege()
   try {
     return JSON.parse(text) as Eintrag[]
   } catch (f) {
     console.warn(`Attrappe: gespeicherte Einträge unlesbar, nehme Beispieldaten (${String(f)})`)
-    return beispielEintraege
+    return beispielEintraege()
   }
 }
 
