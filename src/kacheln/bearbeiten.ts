@@ -1,28 +1,21 @@
-import { useSyncExternalStore } from 'react'
+import { setzeHier, useEinstellung, wertHier } from '../geruest/einstellungen'
+import { einstellungen } from '../logik/einstellungen'
 
-// Bearbeiten-Modus der sichtbaren Seite. Es gibt immer nur eine Seite mit Kacheln, darum ein Zustand für alle.
-let an = false
-const hoerer = new Set<() => void>()
+// Bearbeiten-Modus der Kacheln: eine Einstellung je Gerät (Einstellungen › Kacheln). Er gilt für jede Seite,
+// bis „Fertig“ ihn beendet; Klicks auf den Inhalt wirken darin wie gewohnt.
+const bearbeiten = einstellungen.find((e) => e.id === 'kacheln-bearbeiten')!
+
 /** Das Raster der offenen Seite trägt hier ein, wie es sich zurücksetzt. */
 let zuruecksetzer: (() => void) | null = null
 
-function setzen(neu: boolean) {
-  if (an === neu) return
-  an = neu
-  for (const h of hoerer) h()
+export function useBearbeiten(): boolean {
+  return useEinstellung(bearbeiten) === true
 }
 
-const abonnieren = (h: () => void) => {
-  hoerer.add(h)
-  return () => hoerer.delete(h)
-}
+export const bearbeitenBeenden = () => setzeHier(bearbeiten, false)
 
-export function useBearbeiten() {
-  return useSyncExternalStore(abonnieren, () => an)
-}
-
-export const bearbeitenStarten = () => setzen(true)
-export const bearbeitenBeenden = () => setzen(false)
+/** Befehl „Kacheln bearbeiten“: schaltet den Modus ein oder aus. */
+export const bearbeitenUmschalten = () => setzeHier(bearbeiten, wertHier(bearbeiten) !== true)
 
 export function meldeZuruecksetzer(f: (() => void) | null) {
   zuruecksetzer = f

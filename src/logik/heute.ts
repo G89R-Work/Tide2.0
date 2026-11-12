@@ -9,7 +9,6 @@ const wachStunden = 16
 
 const mitternacht = (d: Date) => new Date(d.getFullYear(), d.getMonth(), d.getDate())
 const plusTage = (d: Date, n: number) => new Date(d.getFullYear(), d.getMonth(), d.getDate() + n)
-const uhr = (d: Date) => `${d.getHours()}:${String(d.getMinutes()).padStart(2, '0')}`
 
 /** Ganze Kalendertage von a nach b (Ortszeit), unabhängig von Zeitumstellungen. */
 const tageZwischen = (a: Date, b: Date) => Math.round((Date.UTC(b.getFullYear(), b.getMonth(), b.getDate()) - Date.UTC(a.getFullYear(), a.getMonth(), a.getDate())) / 86_400_000)
@@ -37,7 +36,8 @@ function ausSchluessel(text: string): Date | null {
 
 export type Naechstes = { titel: string; beginn: Date; nah: boolean; wann: string }
 
-/** Der nächste Termin der kommenden 24 Stunden, der noch nicht begonnen hat. Schichten zeigt die Uhr. */
+/** Der nächste Termin der kommenden 24 Stunden, der noch nicht begonnen hat. Schichten zeigt die Uhr.
+ *  `wann` sagt, wie lange es noch dauert („in 25 Minuten“, „in 1 Std. 12 Min.“, „morgen“). */
 export function alsNaechstes(termine: readonly MitZeit[], jetzt: Date): Naechstes | null {
   const grenze = jetzt.getTime() + 24 * 60 * minute
   const kommend = zeiten(termine)
@@ -47,10 +47,11 @@ export function alsNaechstes(termine: readonly MitZeit[], jetzt: Date): Naechste
   const { e, von } = kommend
   const minuten = Math.ceil((von.getTime() - jetzt.getTime()) / minute)
   const nah = minuten <= nahMinuten
-  let wann = `um ${uhr(von)}`
+  const [h, m] = [Math.floor(minuten / 60), minuten % 60]
+  let wann = h === 0 ? `in ${minuten} Minuten` : m === 0 ? `in ${h} Std.` : `in ${h} Std. ${m} Min.`
   if (minuten === 0) wann = 'jetzt'
-  else if (nah) wann = minuten === 1 ? 'in 1 Minute' : `in ${minuten} Minuten`
-  else if (tageZwischen(jetzt, von) === 1) wann = `morgen um ${uhr(von)}`
+  else if (minuten === 1) wann = 'in 1 Minute'
+  else if (tageZwischen(jetzt, von) === 1) wann = 'morgen'
   return { titel: e.titel, beginn: von, nah, wann }
 }
 
@@ -151,4 +152,40 @@ export function kalenderwoche(d: Date): number {
   const donnerstag = plusTage(d, 3 - ((d.getDay() + 6) % 7))
   const jan4 = new Date(donnerstag.getFullYear(), 0, 4)
   return 1 + Math.round((tageZwischen(jan4, donnerstag) - 3 + ((jan4.getDay() + 6) % 7)) / 7)
+}
+
+/** Alle Tage des Monats von `d` als Mitternächte. */
+export function monatsTage(d: Date): Date[] {
+  const anzahl = new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate()
+  return Array.from({ length: anzahl }, (_, i) => new Date(d.getFullYear(), d.getMonth(), i + 1))
+}
+
+/** Monat in Wochenzeilen zu je sieben Feldern; null vor dem Ersten und nach dem Letzten. */
+export function monatsRaster(d: Date, beginn: Wochenbeginn): (Date | null)[][] {
+  const tage = monatsTage(d)
+  const vorne = (tage[0].getDay() - (beginn === 'montag' ? 1 : 0) + 7) % 7
+  const felder: (Date | null)[] = [...Array<null>(vorne).fill(null), ...tage]
+  while (felder.length % 7) felder.push(null)
+  return Array.from({ length: felder.length / 7 }, (_, i) => felder.slice(i * 7, i * 7 + 7))
+}
+
+const spurRegen = 0.1
+
+export type WetterHeute = { grad: number; hoch: number; tief: number; regnet: boolean; regenAb: Date | null }
+
+/** Wetterzeile: Temperatur der laufenden Stunde, Spanne des Tages und der nächste Regen ab jetzt (ab 0,1 mm). */
+export function wetterHeute(stunden: readonly { zeit: string; grad: number; regen: number }[], jetzt: Date): WetterHeute | null {
+  const heute = tagSchluessel(jetzt)
+  const tag = stunden.map((s) => ({ ...s, d: new Date(s.zeit) })).filter((s) => tagSchluessel(s.d) === heute).sort((a, b) => a.d.getTime() - b.d.getTime())
+  if (tag.length === 0) return null
+  const laufend = [...tag].reverse().find((s) => s.d <= jetzt) ?? tag[0]
+  const grade = tag.map((s) => s.grad)
+  const regen = tag.find((s) => s.d.getTime() >= laufend.d.getTime() && s.regen >= spurRegen)
+  return {
+    grad: laufend.grad,
+    hoch: Math.max(...grade),
+    tief: Math.min(...grade),
+    regnet: regen === laufend,
+    regenAb: regen ? regen.d : null,
+  }
 }

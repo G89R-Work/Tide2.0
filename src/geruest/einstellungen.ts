@@ -1,6 +1,6 @@
 import { useSyncExternalStore } from 'react'
 import type { BereichId } from '../logik/bereiche'
-import { einstellungen, kurveZeigen, setze, unterschied, wertVon, type Einstellung, type Geraet, type Werte } from '../logik/einstellungen'
+import { einstellungen, kurveZeigen, setze, unterschied, wertVon, type Einstellung, type Geraet, type Wert, type Werte } from '../logik/einstellungen'
 import { merke } from './rueckgaengig'
 import { aendereEinstellungen, holeEinstellungen } from '../vertrag/einstellungen'
 import { istSchmal, useSchmal } from './useSchmal'
@@ -58,6 +58,16 @@ export function useKurveOben() {
 /** Ist die Kurve auf dieser Seite eingeblendet? */
 export function useKurveSichtbar(bereich: BereichId) {
   return useEinstellung(kurveZeigen(bereich)) === true
+}
+
+/** Wert einer Einstellung für dieses Gerät, außerhalb von React (Befehle, Tasten). */
+export function wertHier(e: Einstellung): Wert {
+  return wertVon(e, zustand.werte, istSchmal() ? 'handy' : 'pc')
+}
+
+/** Einstellung für dieses Gerät setzen, außerhalb von React. */
+export function setzeHier(e: Einstellung, wert: Wert) {
+  einstellungenAendern(setze(zustand.werte, e, istSchmal() ? 'handy' : 'pc', wert))
 }
 
 /** Kurve auf der Seite ein- oder ausblenden, für dieses Gerät. Ohne Meldung (docs/konzept/03-geruest.md), aber mit Rückgängig (Alt+Z). */

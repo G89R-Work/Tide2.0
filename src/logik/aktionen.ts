@@ -22,7 +22,7 @@ export const aktionen: readonly Aktion[] = [
   { id: 'neues-todo', name: 'Neues To-do', ziel: '#todos', kuerzel: 'Alt+N' },
   { id: 'einkaufsmodus', name: 'Einkaufsmodus', ziel: '#einkauf/listen', kuerzel: 'Alt+E' },
   { id: 'knoepfe-belegen', name: 'Knöpfe belegen', ziel: '#einstellungen/navigation' },
-  { id: 'kacheln-anpassen', name: 'Kacheln anpassen', befehl: true, kuerzel: 'Alt+B' },
+  { id: 'kacheln-anpassen', name: 'Kacheln bearbeiten', befehl: true, kuerzel: 'Alt+B' },
   { id: 'kacheln-zuruecksetzen', name: 'Kacheln zurücksetzen', befehl: true },
   { id: 'rueckgaengig', name: 'Rückgängig', befehl: true, kuerzel: 'Alt+Z' },
   { id: 'kurve', name: 'Gezeitenkurve ein/aus', befehl: true, kuerzel: 'Alt+K' },

@@ -8,13 +8,15 @@ Jede Seite besteht aus Kacheln, die du wie Widgets in One UI verschiebst und in 
 
 | Gerät | Bearbeiten starten | Verschieben | Größe ändern |
 | --- | --- | --- | --- |
-| Handy und Tablet | Lange auf eine Kachel drücken | Mit dem Finger ziehen | An den Griffpunkten ziehen, die am Rand erscheinen |
-| PC mit Maus | Rechtsklick, dann „Kachel anpassen“ | An der Kopfzeile der Kachel ziehen | An der Ecke ziehen, oder im Rechtsklick-Menü eine feste Größe wählen |
-| Tastatur | Kachel auswählen, Taste drücken | Pfeiltasten | Umschalt und Pfeiltasten |
+| Handy und Tablet | Einstellungen › Kacheln › „Kacheln bearbeiten“ | Lange drücken, dann ziehen (kurzes Wischen scrollt) | An den Griffpunkten ziehen, die am Rand erscheinen |
+| PC mit Maus | Einstellungen › Kacheln › „Kacheln bearbeiten“ | An der Kopfzeile oder am Griff oben ziehen | An der Ecke ziehen, oder im Menü eine feste Größe wählen |
+| Tastatur | Alt+B oder der Schalter in den Einstellungen | Pfeiltasten | Umschalt und Pfeiltasten |
 
-Für die Maus schlage ich beides vor: das Ziehen an der Ecke für freie Größen und feste Größen im Rechtsklick-Menü für den schnellen Weg. Das Menü bietet Klein, Mittel, Groß, Breit, Hoch, Ausblenden und Zurücksetzen.
+Stand 2026-11-12, entschieden vom Nutzer: Bearbeiten beginnt nur über die Einstellungen. Außerhalb des Modus gibt es auf Kacheln weder langen Druck noch Rechtsklick-Menü (langer Druck bleibt den Notizen vorbehalten). Im Modus funktionieren Klicks auf den Inhalt wie gewohnt. Der Modus gilt für alle Seiten des Geräts, bis „Fertig“ ihn beendet.
 
-Im Bearbeiten-Modus zeigen alle Kacheln der Seite ihre Griffpunkte. „Fertig“ beendet ihn. Außerhalb des Modus verrutscht nichts.
+Das Menü der Kachel öffnet im Modus der Rechtsklick oder der Knopf „…“ oben rechts. Es bietet Hintergrund an/aus, Klein, Mittel, Groß, Breit, Hoch, Ausblenden und Zurücksetzen. Jede Kachel kann ohne Hintergrund stehen; Text auf Heute steht ab Werk so auf dem Himmel.
+
+Im Bearbeiten-Modus zeigen alle Kacheln ihre Griffpunkte. „Fertig“ beendet ihn. Außerhalb des Modus verrutscht nichts.
 
 ## Regeln
 
@@ -35,4 +37,4 @@ Im Bearbeiten-Modus zeigen alle Kacheln der Seite ihre Griffpunkte. „Fertig“
 
 Meine Empfehlung ist react-grid-layout. Die Entscheidung fällt aber in der ersten Etappe an einem kleinen Versuch auf deinem Handy und Tablet: eine Seite mit fünf Kacheln, langer Druck, ziehen, Größe ändern. Der Baustein, der sich dort besser anfühlt, wird genommen.
 
-Selbst gebaut wird nur der Bearbeiten-Modus drumherum: langer Druck, Griffpunkte, das Rechtsklick-Menü und das Speichern.
+Selbst gebaut wird nur der Bearbeiten-Modus drumherum: Griff, Griffpunkte, das Menü der Kachel und das Speichern. Das Halten vor dem Ziehen am Handy liefert der Baustein (`allowMobileScroll`).

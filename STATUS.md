@@ -3,14 +3,14 @@ Etappe: 2 Gezeitenkurve und Heute
 Nächste Scheibe: `heute-uhr-und-wetter`
 
 ## Stand
-Das Gerüst steht am PC und am Handy mit Seitenleiste, zweiter Ebene, belegbaren Knöpfen, Einstellungsliste, Kacheln und Hintergrund. Die Gezeitenkurve zeigt den Beispieltag (PC unten über die volle Breite, Handy über der unteren Leiste; Einstellung „Lage“ je Gerät), scrollt endlos, folgt der Uhr und steuert beim Scrollen den Hintergrund. Termine liegen als Punkte (mit Karte, Bündel, Überschneidung) oder Bänder auf ihr, lassen sich ziehen und zurücknehmen; dazu Treibgut und Wetterzeile. Die Kurve ist je Seite und Gerät abschaltbar; Meldungen fließen an der Jetzt-Linie ein und falten sich in die Glocke. Heute zeigt Gruß, Als Nächstes, Uhr mit Tag und Schicht, „Braucht dich“ zum Auffächern und die wischbare Wochenleiste.
+Das Gerüst steht am PC und am Handy mit Seitenleiste, zweiter Ebene, belegbaren Knöpfen, Einstellungsliste, Kacheln und Hintergrund. Die Gezeitenkurve zeigt den Beispieltag (PC unten über die volle Breite, Handy über der unteren Leiste; Einstellung „Lage“ je Gerät), scrollt endlos, folgt der Uhr und steuert beim Scrollen den Hintergrund. Termine liegen als Punkte (mit Karte, Bündel, Überschneidung) oder Bänder auf ihr, lassen sich ziehen und zurücknehmen; dazu Treibgut und Wetterzeile. Die Kurve ist je Seite und Gerät abschaltbar; Meldungen fließen an der Jetzt-Linie ein und falten sich in die Glocke. Heute besteht nur aus Kacheln (Gruß, Als Nächstes, Uhr, Wetter, Knöpfe, Braucht dich, Monat, Woche, Notiz, Rückblick), Text ohne Hintergrund; bearbeitet wird nur über Einstellungen › Kacheln.
 
 ## Zuletzt erledigt
+- heute-kacheln: `src/logik/kacheln.ts` (Werk je Gerät null, `titel`, `hintergrund`/`ohneHintergrund`), Raster ohne langen Druck, Menü-Knopf, `bearbeiten.ts` als Einstellung, Heute neu in `src/bereiche/heute/kacheln/`, `format.ts`
 - heute: `src/logik/heute.ts` (Als Nächstes, Tag/Schicht, Woche, Füllstand, Braucht dich, KW, Rückblick), `src/bereiche/heute/` (Himmel, BrauchtDich, kacheln/Woche, useTermine), Vertrag `frist` und Art `schicht`, Einstellung Art „text“ (Name) und „Uhr“
 - kurve-ebbe-und-meldungen: `src/logik/meldungen.ts`, `src/geruest/meldungen.ts` (`melde`), `Glocke.tsx`, Einstellungen `kurve-zeigen-<bereich>` und `standardHandy`, Aktion „Gezeitenkurve ein/aus“ als Befehl, Antippen am Handy
 - kurve-eintraege: `src/logik/kurveEintraege.ts`, `KurveEintraege.tsx`, `kurveDaten.ts`, `rueckgaengig.ts`, Vertrag `beginn`/`ende` ändern und `holeWetter`, Aktion „Rückgängig“ (Alt+Z), Einstellung „Wetter“
 - kurve-grund: `src/logik/gezeiten.ts` (Raster, Glätten, Scrollstelle, endlos), `Gezeitenkurve`, `gezeigteZeit`, Vertrag `holeTermine`, Einstellung „Ganzer Tag“
-- geruest-zweite-ebene: `src/logik/ebenen.ts` (Marke `#bereich/unter`), `ZweiteEbene`, `HandyMenue`, `useSchmal`, `useBrauchtDich`
 
 ## Stolpersteine
 - Stil prüft oxlint, nicht ESLint. Warnungen zählen als Fehler. Freie Tailwind-Werte wie `data-[…]` verbietet die Werte-Prüfung.
@@ -27,8 +27,7 @@ Das Gerüst steht am PC und am Handy mit Seitenleiste, zweiter Ebene, belegbaren
 - Neue Aktion: Zeile in `src/logik/aktionen.ts`, Symbol in `src/geruest/aktionSymbole.ts`. Aktion ohne `ziel` braucht `kommt` oder `befehl: true` plus Zeile in `src/geruest/befehle.ts`.
 - Neue Einstellung = eine Zeile in `einstellungen` (`src/logik/einstellungen.ts`); lesen mit `useEinstellung(e)` aus `src/geruest/einstellungen.ts`.
 - Hintergrund: Farben `--sonne`, `--welle-1…5`, `--nacht` je Design, Maße in `werte.css`, Wellenhöhe über `data-wellen` → `--horizont`; Lage kommt als `--x`/`--y` (0–1). Die Uhrzeit fest stellen für Bilder: Playwright `page.clock.setFixedTime`, Bahn über `localStorage['tide.attrappe.einstellungen']`.
-- Kacheln einer Seite: `<Raster seite kacheln={werkszustand} inhalt={{id: …}} />`; `werkszustand` muss eine Konstante sein (Speicher hängt daran). Maße in `src/werte/kacheln.ts`, Griffpunkte und Nachrücken in `werte.css`.
-- Bedienung im Browser testen: Playwright (Finger über CDP `Input.dispatchTouchEvent`, langer Druck 700 ms). Animationen ohne `both`, sonst zählt `sicht` sie als laufend.
+- Bedienung im Browser testen: Playwright (Finger über CDP `Input.dispatchTouchEvent`, langer Druck 700 ms); Bearbeiten erst über den Schalter in Einstellungen › Kacheln. Animationen ohne `both`, sonst zählt `sicht` sie als laufend.
 - Gezeitenkurve: Rechnung in `src/logik/gezeiten.ts`, Oberfläche `src/geruest/Gezeitenkurve.tsx`, Farben `kurve-*` in `werte.css`, Größen in `src/werte/kurve.ts`; Lage, Höhe und Breite in `src/geruest/MitKurve.tsx`. Termine über `holeTermine` (Attrappe `src/attrappe/termine.ts`).
 - Gezeigte Uhrzeit der Kurve teilt `src/geruest/gezeigteZeit.ts` (null = folgt der Uhr); der Hintergrund liest sie.
 - Zieh-Griffe nur über den Baustein `Trenner` (`src/bausteine/Trenner.tsx`), nie direkt `Separator`.
@@ -38,4 +37,4 @@ Das Gerüst steht am PC und am Handy mit Seitenleiste, zweiter Ebene, belegbaren
 - Inhalt liegt in `MitKurve` als eigene Lage über die volle Höhe; Kurve, Griff und `fuss` (untere Leiste am Handy) liegen darüber mit `pointer-events-none` außer auf den Flächen. Neue Scrollbereiche bekommen `inhalt-frei`.
 - Kurve: Lage nur über die Reihenfolge (Wasser, Bänder, `linie`, Rest), nie über z-index. Einträge liegen in jeder der drei Kopien; bedienbar per Tastatur nur die Kopie in der Mitte (`kopie`). Beim Ziehen darf sich die Reihenfolge der Elemente nicht ändern, sonst geht der Finger (Pointer-Capture) verloren.
 - Attrappe: Termine des Beispieltags (id `t-…`) ändert `src/attrappe/termine.ts` (gemerkt unter `tide.attrappe.termine`); diese Antworten stehen in `start.ts` vor den Einträgen.
-- Heute: Uhr, Überschrift und „Braucht dich“ liegen fest über dem Raster (`src/bereiche/heute/Seite.tsx`), Kacheln nur darunter. Attrappe: Fristen relativ zum ersten Laden, Wochenende ohne Werktags-Termine.
+- Kacheln: `<Raster seite kacheln={werkszustand} inhalt={{id: …}} />`, `werkszustand` als Konstante, lückenlos gelegt (sonst rückt es nach; `werkszustand.test.ts` in Heute prüft das). `inhalt: null` = unsichtbar, Platz bleibt. Maße in `src/werte/kacheln.ts`. Datumsformate über `bereiche/heute/format.ts`.

@@ -6,6 +6,8 @@ Heute ist deine Startseite aus Version 3: einladend, mit viel Himmel und wenig T
 
 ## Was auf der Seite steht
 
+Stand 2026-11-12: Alles auf der Seite ist eine Kachel, auch Gruß, Überschrift, Uhr, Wetter und die belegbaren Knöpfe (am PC oben rechts unter Uhr und Wetter). Text steht ab Werk ohne Hintergrund. Die Wochenleiste folgt dem Beispielbild des Nutzers: links „Monat“ (öffnet den Monatskalender), in der Mitte die Tage des Monats zum Wischen, rechts „Notiz“ und „Woche“ (Rückblick).
+
 | Element | Inhalt | Herkunft |
 | --- | --- | --- |
 | Begrüßung | „Guten Tag, Moritz“ und das Datum | Deine Version |

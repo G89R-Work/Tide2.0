@@ -1,12 +1,11 @@
 import { useEffect, useLayoutEffect, useRef, type KeyboardEvent } from 'react'
 import { Knopf } from '../bausteine/Knopf'
 import type { Geraet } from '../logik/einstellungen'
-import { ausblenden, festeGroessen, groessenNamen, setzeGroesse, type Anordnung, type FesteGroesse, type KachelPlan } from '../logik/kacheln'
+import { ausblenden, festeGroessen, groessenNamen, hatHintergrund, hintergrundUmschalten, setzeGroesse, type Anordnung, type FesteGroesse, type KachelPlan } from '../logik/kacheln'
 import { kachelRaster } from '../werte/kacheln'
-import { bearbeitenStarten } from './bearbeiten'
 
-// Menü einer Kachel: Rechtsklick oder langer Druck. Natives Popover (oberste Ebene); geschlossen wird es selbst,
-// weil das Loslassen von Maus oder Finger sonst schon als „Klick daneben" zählt.
+// Menü einer Kachel im Bearbeiten-Modus: Rechtsklick oder Menü-Knopf. Natives Popover (oberste Ebene); geschlossen
+// wird es selbst, weil das Loslassen von Maus oder Finger sonst schon als „Klick daneben" zählt.
 export type MenueOrt = { id: string; x: number; y: number }
 
 type Props = {
@@ -78,8 +77,9 @@ export function KachelMenue({ ort, schliessen, anordnung, plan, geraet, aendern,
   const eintrag = 'w-full justify-start'
   return (
     <div ref={ref} popover="manual" role="menu" aria-label="Kachel" onKeyDown={taste} className="flaeche-schwebend fixed inset-auto m-0 hidden min-w-48 open:flex flex-col p-1 text-text">
-      <Knopf art="leise" groesse="klein" role="menuitem" className={eintrag} onClick={tun(bearbeitenStarten)}>
-        Kachel anpassen
+      <Knopf art="leise" groesse="klein" role="menuitemcheckbox" aria-checked={hatHintergrund(anordnung, id)} className={eintrag} onClick={tun(() => aendern(hintergrundUmschalten(anordnung, id)))}>
+        <span aria-hidden className="w-4">{hatHintergrund(anordnung, id) ? '✓' : ''}</span>
+        Hintergrund
       </Knopf>
       <hr className="my-1 border-linie" />
       {groessen.map((g) => (

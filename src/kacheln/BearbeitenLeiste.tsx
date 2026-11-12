@@ -20,8 +20,8 @@ type Props = {
 export function BearbeitenLeiste({ versteckt, anordnung, plan, geraet, aendern, kannZurueck, zurueck, zuruecksetzen }: Props) {
   const schmal = useSchmal()
   return (
-    <div className="flaeche-schwebend sticky top-2 z-10 mb-3 flex flex-wrap items-center gap-2 p-2" role="toolbar" aria-label="Kacheln anpassen">
-      <span className="px-2 text-sm text-text-gedaempft">{schmal ? 'Ziehen und Griffpunkte nutzen' : 'Kopfzeile ziehen, Griffpunkte für die Größe'}</span>
+    <div className="flaeche-schwebend sticky top-2 z-10 mb-3 flex flex-wrap items-center gap-2 p-2" role="toolbar" aria-label="Kacheln bearbeiten">
+      <span className="px-2 text-sm text-text-gedaempft">{schmal ? 'Lange drücken und ziehen, Griffpunkte für die Größe' : 'Am Griff ziehen, Griffpunkte für die Größe, Rechtsklick für das Menü'}</span>
       {versteckt.map((k) => (
         <Knopf key={k.id} art="standard" groesse="klein" onClick={() => aendern(einblenden(anordnung, plan, geraet, k.id))}>
           <Plus aria-hidden className="size-4" />

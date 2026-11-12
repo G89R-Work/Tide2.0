@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { alsNaechstes, anteilTag, brauchtDich, fuellstand, kalenderwoche, schicht, seitText, tagSchluessel, wochenTage, wochenrueckblick } from './heute'
+import { alsNaechstes, anteilTag, brauchtDich, fuellstand, kalenderwoche, monatsRaster, monatsTage, wetterHeute, schicht, seitText, tagSchluessel, wochenTage, wochenrueckblick } from './heute'
 
 // Erfundene Beispieldaten. Zeiten in Ortszeit, damit die Tests in jeder Zeitzone gleich laufen.
 const um = (tag: number, h: number, m = 0, monat = 10) => new Date(2026, monat, tag, h, m)
@@ -15,7 +15,9 @@ describe('alsNaechstes', () => {
 
   it('ist in den nächsten 30 Minuten nah, weiter weg nicht', () => {
     expect(alsNaechstes(tag, um(12, 15, 50))).toMatchObject({ nah: true, wann: 'in 25 Minuten' })
-    expect(alsNaechstes(tag, um(12, 15, 44))).toMatchObject({ nah: false, wann: 'um 16:15' })
+    expect(alsNaechstes(tag, um(12, 15, 44))).toMatchObject({ nah: false, wann: 'in 31 Minuten' })
+    expect(alsNaechstes(tag, um(12, 9))?.wann).toBe('in 7 Std. 15 Min.')
+    expect(alsNaechstes(tag, um(12, 15, 15))?.wann).toBe('in 1 Std.')
   })
 
   it('übergeht Schichten, die zeigt die Uhr', () => {
@@ -24,7 +26,7 @@ describe('alsNaechstes', () => {
 
   it('nennt einen Termin nach Mitternacht als morgen und schaut höchstens 24 Stunden voraus', () => {
     const spaet = [termin('Kita bringen', um(13, 7, 45), um(13, 8, 15))]
-    expect(alsNaechstes(spaet, um(12, 22))?.wann).toBe('morgen um 7:45')
+    expect(alsNaechstes(spaet, um(12, 22))?.wann).toBe('morgen')
     expect(alsNaechstes(spaet, um(12, 7))).toBeNull()
   })
 
@@ -193,5 +195,50 @@ describe('kalenderwoche', () => {
     expect(kalenderwoche(new Date(2026, 0, 1))).toBe(1)
     expect(kalenderwoche(new Date(2027, 0, 1))).toBe(53)
     expect(kalenderwoche(new Date(2025, 11, 29))).toBe(1)
+  })
+})
+
+describe('monatsTage', () => {
+  it('liefert alle Tage des Monats als Mitternächte, auch im Februar und über die Zeitumstellung', () => {
+    expect(monatsTage(um(12, 9)).map((t) => t.getDate())).toHaveLength(30)
+    expect(monatsTage(new Date(2028, 1, 10))).toHaveLength(29)
+    const oktober = monatsTage(new Date(2026, 9, 5))
+    expect(oktober).toHaveLength(31)
+    for (const t of oktober) expect(t.getHours()).toBe(0)
+  })
+})
+
+describe('monatsRaster', () => {
+  it('legt den Monat in Wochenzeilen, leere Felder vor dem Ersten und nach dem Letzten', () => {
+    // November 2026 beginnt an einem Sonntag.
+    const raster = monatsRaster(um(12, 9), 'montag')
+    expect(raster[0].slice(0, 6)).toEqual([null, null, null, null, null, null])
+    expect(raster[0][6]?.getDate()).toBe(1)
+    expect(raster.at(-1)?.[0]?.getDate()).toBe(30)
+    expect(raster.every((w) => w.length === 7)).toBe(true)
+    expect(monatsRaster(um(12, 9), 'sonntag')[0][0]?.getDate()).toBe(1)
+  })
+})
+
+describe('wetterHeute', () => {
+  const stunde = (h: number, grad: number, regen = 0) => ({ zeit: um(12, h).toISOString(), grad, regen })
+  const tag = [stunde(6, 4), stunde(9, 7), stunde(12, 12), stunde(13, 13), stunde(15, 11, 0.4), stunde(18, 8, 1.2), stunde(23, 5)]
+
+  it('nimmt die Temperatur der laufenden Stunde und die Spanne des Tages', () => {
+    expect(wetterHeute(tag, um(12, 13, 40))).toMatchObject({ grad: 13, hoch: 13, tief: 4 })
+  })
+
+  it('nennt den ersten Regen ab jetzt und übergeht Nieselspuren', () => {
+    expect(wetterHeute(tag, um(12, 13, 40))?.regenAb?.getHours()).toBe(15)
+    expect(wetterHeute([stunde(14, 10, 0.05)], um(12, 13))?.regenAb).toBeNull()
+    expect(wetterHeute(tag, um(12, 23, 30))?.regenAb).toBeNull()
+  })
+
+  it('regnet es gerade, gilt jetzt als Beginn', () => {
+    expect(wetterHeute(tag, um(12, 15, 30))?.regnet).toBe(true)
+  })
+
+  it('liefert nichts ohne Werte für heute', () => {
+    expect(wetterHeute([], um(12, 9))).toBeNull()
   })
 })

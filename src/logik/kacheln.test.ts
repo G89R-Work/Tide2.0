@@ -6,6 +6,8 @@ import {
   ausLayout,
   einblenden,
   groesseAendern,
+  hatHintergrund,
+  hintergrundUmschalten,
   setzeGroesse,
   spalten,
   verschiebe,
@@ -104,5 +106,34 @@ describe('kacheln', () => {
     expect(neu.plaetze.a.w).toBe(8)
     expect(neu.plaetze.b).toEqual(w.plaetze.b)
     expect(ausLayout(w, l)).toBe(w)
+  })
+
+  it('Kachel ohne Werksplatz auf einem Gerät ist dort ab Werk ausgeblendet und kommt in Mindestgröße zurück', () => {
+    const mit: readonly KachelPlan[] = [...plan, { id: 'nurPc', name: 'Nur PC', min: { pc: { w: 2, h: 1 }, handy: { w: 1, h: 1 } }, werk: { pc: { x: 8, y: 3, w: 4, h: 1 }, handy: null } }]
+    const w = werkszustand(mit, 'handy')
+    expect(w.versteckt).toEqual(['nurPc'])
+    expect(w.plaetze.nurPc).toBeUndefined()
+    expect(anordnungAusDaten({ plaetze: {}, versteckt: [] }, mit, 'handy').versteckt).toEqual(['nurPc'])
+    const da = einblenden(w, mit, 'handy', 'nurPc')
+    expect(da.plaetze.nurPc).toMatchObject({ x: 0, w: 1, h: 1 })
+    expect(ueberlappt(da)).toBe(false)
+    expect(werkszustand(mit, 'pc').versteckt).toEqual([])
+  })
+
+  it('Hintergrund: ab Werk aus dem Plan, umschaltbar, gemerkt und wieder gelesen', () => {
+    const ohne: readonly KachelPlan[] = [{ ...plan[0], hintergrund: false }, plan[1], plan[2]]
+    const w = werkszustand(ohne, 'pc')
+    expect(hatHintergrund(w, 'a')).toBe(false)
+    expect(hatHintergrund(w, 'b')).toBe(true)
+    const neu = hintergrundUmschalten(hintergrundUmschalten(w, 'a'), 'b')
+    expect([hatHintergrund(neu, 'a'), hatHintergrund(neu, 'b')]).toEqual([true, false])
+    expect(hintergrundUmschalten(neu, 'b')).toEqual({ ...neu, ohneHintergrund: [] })
+    const gelesen = anordnungAusDaten({ plaetze: neu.plaetze, versteckt: [], ohneHintergrund: ['b', 'zz', 3] }, ohne, 'pc')
+    expect(gelesen.ohneHintergrund).toEqual(['b'])
+  })
+
+  it('Alte Daten ohne Angabe zum Hintergrund nehmen den Werkszustand', () => {
+    const ohne: readonly KachelPlan[] = [{ ...plan[0], hintergrund: false }, plan[1], plan[2]]
+    expect(anordnungAusDaten({ plaetze: {}, versteckt: [] }, ohne, 'pc').ohneHintergrund).toEqual(['a'])
   })
 })

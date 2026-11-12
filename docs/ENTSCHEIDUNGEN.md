@@ -81,6 +81,10 @@ Eine Zeile je Entscheidung, neueste unten. Was hier steht, gilt und wird nicht n
 - 2026-11-12 · Heute: Gruß, Überschrift, Uhr und „Braucht dich“ stehen fest über den Kacheln (nicht verschiebbar), damit „Braucht dich“ aufklappen und verschwinden kann; am Handy also auch vor der Wochenleiste.
 - 2026-11-12 · Heute: „Monat“ führt zu Kalender/Monat, „Notiz“ zu Notizen, der Wochenrückblick klappt in der Wochen-Kachel auf. Die Beispielliste ist weg; die Bausteine-Seite bleibt über `#bausteine` erreichbar.
 - 2026-11-12 · Einstellungen kennen die Art „Text“ (erster Fall: „Dein Name“, ab Werk Moritz).
+- 2026-11-12 · Kacheln: Bearbeiten nur über Einstellungen › Kacheln (Schalter je Gerät, Alt+B schaltet ihn); außerhalb kein langer Druck und kein Rechtsklick-Menü (langer Druck bleibt den Notizen). Im Modus bleibt der Inhalt bedienbar; PC zieht am Kopf oder Griff, Handy nach langem Druck.
+- 2026-11-12 · Kacheln: Hintergrund je Kachel abschaltbar (Vertrag `ohneHintergrund` in der Anordnung); Werk kann eine Kachel je Gerät ausblenden (`werk: null`).
+- 2026-11-12 · Heute: alles ist eine Kachel, kein fester Kopf, kein „Anpassen“-Knopf. Die drei PC-Knöpfe sind eine eigene Kachel unter Uhr und Wetter. Eine leere Kachel („Braucht dich“ ohne Punkte) bleibt unsichtbar an ihrem Platz, damit nichts nachrückt.
+- 2026-11-12 · Heute: Wochenleiste nach Beispielbild; Wischen innerhalb des Monats, andere Monate über den Monatskalender. Wetter vorerst als Zeile aus den Stundenwerten (Regen statt Bewölkung, die liefert der Vertrag noch nicht).
 
 ## Offen
 

@@ -3,7 +3,8 @@
 import type { Geraet } from '../logik/einstellungen'
 import type { Platz } from '../logik/kacheln'
 
-export type AnordnungDaten = { plaetze: Record<string, Platz>; versteckt: string[] }
+/** `ohneHintergrund`: Kacheln, die ohne Fläche gezeigt werden. Fehlt das Feld, gilt der Werkszustand. */
+export type AnordnungDaten = { plaetze: Record<string, Platz>; versteckt: string[]; ohneHintergrund: string[] }
 
 const adresse = (seite: string, geraet: Geraet) => `/api/kacheln/${encodeURIComponent(seite)}/${geraet}`
 

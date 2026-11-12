@@ -34,7 +34,7 @@ async function speichern(seite: string, geraet: Geraet, plan: readonly KachelPla
   try {
     // Gleich dem Werkszustand: nichts merken, damit spätere Änderungen am Werk ankommen.
     if (JSON.stringify(neu) === JSON.stringify(werkszustand(plan, geraet))) await loescheAnordnung(seite, geraet)
-    else await speichereAnordnung(seite, geraet, { plaetze: { ...neu.plaetze }, versteckt: [...neu.versteckt] })
+    else await speichereAnordnung(seite, geraet, { plaetze: { ...neu.plaetze }, versteckt: [...neu.versteckt], ohneHintergrund: [...neu.ohneHintergrund] })
   } catch (f) {
     const stapel = vorher.get(schluessel)
     if (stapel?.at(-1) === alt) stapel.pop()

@@ -1,18 +1,21 @@
-import { useEffect, useRef, useState, type KeyboardEvent, type PointerEvent, type ReactNode, type Ref } from 'react'
+import { Ellipsis } from 'lucide-react'
+import { useEffect, useState, type KeyboardEvent, type MouseEvent, type ReactNode, type Ref } from 'react'
 import { GridLayout, useContainerWidth } from 'react-grid-layout'
 import type { Layout, ResizeHandleAxis } from 'react-grid-layout'
 import { cn } from '../bausteine/cn'
 import { Flaeche } from '../bausteine/Flaeche'
+import { Knopf } from '../bausteine/Knopf'
 import { useGeraet } from '../geruest/einstellungen'
-import { alsLayout, ausLayout, groesseAendern, spalten, verschiebe, type KachelPlan } from '../logik/kacheln'
+import { alsLayout, ausLayout, groesseAendern, hatHintergrund, spalten, verschiebe, type KachelPlan } from '../logik/kacheln'
 import { kachelRaster } from '../werte/kacheln'
 import { useAnordnung } from './anordnung'
-import { bearbeitenBeenden, bearbeitenStarten, meldeZuruecksetzer, useBearbeiten } from './bearbeiten'
+import { bearbeitenBeenden, meldeZuruecksetzer, useBearbeiten } from './bearbeiten'
 import { BearbeitenLeiste } from './BearbeitenLeiste'
 import { KachelMenue, type MenueOrt } from './KachelMenue'
 
 // Kacheln einer Seite (docs/konzept/04-kacheln.md). Verschieben und Größe ändern macht react-grid-layout;
-// hier nur der Bearbeiten-Modus drumherum: langer Druck, Griffpunkte, Rechtsklick-Menü, Tastatur, Speichern.
+// hier nur der Bearbeiten-Modus drumherum: Griff, Griffpunkte, Menü der Kachel, Tastatur, Speichern.
+// Außerhalb des Modus verrutscht nichts und es gibt weder langen Druck noch Rechtsklick-Menü.
 
 const griffKlassen: Partial<Record<ResizeHandleAxis, string>> = { se: 'griff griff-se', e: 'griff griff-e', s: 'griff griff-s' }
 
@@ -22,7 +25,7 @@ type Props = {
   seite: string
   /** Werkszustand der Seite; muss gleich bleiben (Konstante im Bereich). */
   kacheln: readonly KachelPlan[]
-  /** Inhalt je Kachel-Kennung. */
+  /** Inhalt je Kachel-Kennung; null heißt „gerade leer“: die Kachel ist außerhalb des Bearbeiten-Modus unsichtbar. */
   inhalt: Readonly<Record<string, ReactNode>>
 }
 
@@ -33,56 +36,27 @@ export function Raster({ seite, kacheln, inhalt }: Props) {
   const bearbeiten = useBearbeiten()
   const { width, containerRef, mounted } = useContainerWidth()
   const [menue, setMenue] = useState<MenueOrt | null>(null)
-  const druck = useRef<{ zeit: number; x: number; y: number } | null>(null)
 
-  // Zurücksetzen per Aktion wirkt auf diese Seite. Beim Verlassen endet der Bearbeiten-Modus.
+  // Zurücksetzen per Aktion wirkt auf diese Seite.
   useEffect(() => {
     meldeZuruecksetzer(zuruecksetzen)
     return () => meldeZuruecksetzer(null)
   }, [zuruecksetzen])
-  useEffect(() => bearbeitenBeenden, [])
 
   useEffect(() => {
     if (!bearbeiten) return
-    const taste = (e: globalThis.KeyboardEvent) => e.key === 'Escape' && !e.defaultPrevented && bearbeitenBeenden()
-    addEventListener('keydown', taste)
-    return () => removeEventListener('keydown', taste)
+    // Escape schließt zuerst eine offene schwebende Karte (Popover); erst danach beendet es den Modus.
+    // Darum vor dem Browser prüfen (Erfassungsphase), ob eine offen ist.
+    const taste = (e: globalThis.KeyboardEvent) => e.key === 'Escape' && !e.defaultPrevented && !document.querySelector(':popover-open') && bearbeitenBeenden()
+    addEventListener('keydown', taste, true)
+    return () => removeEventListener('keydown', taste, true)
   }, [bearbeiten])
 
   if (!anordnung) return <div ref={containerRef} />
 
   const uebernehmen = (layout: Layout) => aendern(ausLayout(anordnung, layout))
 
-  const drueckEnde = () => {
-    if (druck.current) clearTimeout(druck.current.zeit)
-    druck.current = null
-  }
-  const drueckStart = (e: PointerEvent, id: string) => {
-    drueckEnde()
-    if (e.pointerType === 'mouse' || bearbeiten) return
-    const { clientX: x, clientY: y } = e
-    // Langer Druck: Bearbeiten-Modus und dasselbe Menü wie beim Rechtsklick.
-    const zeit = window.setTimeout(() => {
-      navigator.vibrate?.(10)
-      bearbeitenStarten()
-      setMenue({ id, x, y })
-    }, kachelRaster.langerDruckMs)
-    druck.current = { zeit, x, y }
-  }
-  const drueckWeg = (e: PointerEvent) => {
-    const d = druck.current
-    if (d && Math.hypot(e.clientX - d.x, e.clientY - d.y) > kachelRaster.wackelPx) drueckEnde()
-  }
-
   const taste = (e: KeyboardEvent, id: string) => {
-    if (!bearbeiten) {
-      if (e.key === 'F2') {
-        e.preventDefault()
-        bearbeitenStarten()
-        document.getElementById(`kachel-${seite}-${id}`)?.focus()
-      }
-      return
-    }
     if (e.target !== e.currentTarget) return
     const p = pfeile[e.key]
     if (p) {
@@ -97,7 +71,7 @@ export function Raster({ seite, kacheln, inhalt }: Props) {
   const sichtbar = kacheln.filter((k) => !anordnung.versteckt.includes(k.id))
 
   return (
-    <div className="mt-4">
+    <div>
       {bearbeiten && (
         <BearbeitenLeiste
           versteckt={kacheln.filter((k) => anordnung.versteckt.includes(k.id))}
@@ -117,7 +91,8 @@ export function Raster({ seite, kacheln, inhalt }: Props) {
             width={width}
             layout={alsLayout(anordnung, kacheln, geraet)}
             gridConfig={{ cols: spalten[geraet], rowHeight: kachelRaster.zeile, margin: [kachelRaster.abstand, kachelRaster.abstand], containerPadding: [0, 0] }}
-            dragConfig={{ enabled: bearbeiten, handle: handy ? undefined : '.kachel-kopf', cancel: '.griff', threshold: 3 }}
+            // Am PC greift man den Kopf oder Griff, am Handy die ganze Kachel nach langem Druck. Bedienelemente bleiben klickbar.
+            dragConfig={{ enabled: bearbeiten, handle: handy ? undefined : '.kachel-griff', cancel: '.griff, button, a, input, textarea, select, [role="slider"]', threshold: 3, allowMobileScroll: true }}
             resizeConfig={{
               enabled: bearbeiten,
               handles: bearbeiten ? ['e', 's', 'se'] : [],
@@ -126,32 +101,57 @@ export function Raster({ seite, kacheln, inhalt }: Props) {
             onDragStop={uebernehmen}
             onResizeStop={uebernehmen}
           >
-            {sichtbar.map((k) => (
-              <div key={k.id}>
-                <Flaeche
-                  id={`kachel-${seite}-${k.id}`}
-                  role="group"
-                  aria-label={bearbeiten ? `${k.name}. Pfeiltasten verschieben, Umschalt und Pfeiltasten ändern die Größe, Eingabe beendet.` : k.name}
-                  aria-keyshortcuts={bearbeiten ? undefined : 'F2'}
-                  tabIndex={bearbeiten ? 0 : -1}
-                  className={cn('flex h-full flex-col overflow-hidden', bearbeiten ? 'kachel-bearbeiten focus-visible:kachel-gewaehlt' : 'outline-none')}
-                  onKeyDown={(e) => taste(e, k.id)}
-                  onPointerDown={(e) => drueckStart(e, k.id)}
-                  onPointerMove={drueckWeg}
-                  onPointerUp={drueckEnde}
-                  onPointerCancel={drueckEnde}
-                  onContextMenu={(e) => {
-                    e.preventDefault()
-                    // Auf dem Handy meldet der Browser den langen Druck teils zusätzlich als Rechtsklick.
-                    if (druck.current) return
-                    setMenue({ id: k.id, x: e.clientX, y: e.clientY })
-                  }}
-                >
-                  <div className={cn('kachel-kopf beschriftung px-4 pt-3 pb-2', bearbeiten && !handy && 'cursor-grab')}>{k.name}</div>
-                  <div className={cn('min-h-0 flex-1 overflow-auto px-4 pb-4', bearbeiten && 'pointer-events-none')}>{inhalt[k.id]}</div>
-                </Flaeche>
-              </div>
-            ))}
+            {sichtbar.map((k) => {
+              // Gerade leer (inhalt null): unsichtbar, behält aber den Platz, damit nichts nachrückt. Im Bearbeiten-Modus greifbar.
+              if (inhalt[k.id] === null && !bearbeiten) return <div key={k.id} aria-hidden />
+              const flaeche = hatHintergrund(anordnung, k.id)
+              const kachel = (
+                <>
+                  {k.titel !== false ? (
+                    <div className={cn('kachel-kopf beschriftung px-4 pt-3 pb-2', bearbeiten && 'kachel-griff')}>{k.name}</div>
+                  ) : (
+                    bearbeiten && <span className="kachel-griff kachel-griff-leiste" aria-hidden />
+                  )}
+                  <div className={cn('min-h-0 flex-1 overflow-auto', flaeche && (k.titel === false ? 'px-4 py-2' : 'px-4 pb-4'))}>
+                    {inhalt[k.id] ?? <p className="text-sm text-text-gedaempft">Gerade leer, darum sonst unsichtbar</p>}
+                  </div>
+                  {bearbeiten && (
+                    <Knopf
+                      art="symbol"
+                      groesse="klein"
+                      aria-label={`Menü der Kachel ${k.name}`}
+                      title="Menü"
+                      className="kachel-menue-knopf"
+                      onClick={(e) => {
+                        const r = e.currentTarget.getBoundingClientRect()
+                        setMenue({ id: k.id, x: r.left, y: r.bottom })
+                      }}
+                    >
+                      <Ellipsis aria-hidden className="size-4" />
+                    </Knopf>
+                  )}
+                </>
+              )
+              const gemeinsam = {
+                id: `kachel-${seite}-${k.id}`,
+                role: 'group',
+                'aria-label': bearbeiten ? `${k.name}. Pfeiltasten verschieben, Umschalt und Pfeiltasten ändern die Größe, Eingabe beendet.` : k.name,
+                tabIndex: bearbeiten ? 0 : -1,
+                className: cn('relative flex h-full flex-col', flaeche && 'overflow-hidden', bearbeiten ? 'kachel-bearbeiten focus-visible:kachel-gewaehlt' : 'outline-none'),
+                onKeyDown: bearbeiten ? (e: KeyboardEvent) => taste(e, k.id) : undefined,
+                onContextMenu: bearbeiten
+                  ? (e: MouseEvent) => {
+                      e.preventDefault()
+                      setMenue({ id: k.id, x: e.clientX, y: e.clientY })
+                    }
+                  : undefined,
+              }
+              return (
+                <div key={k.id}>
+                  {flaeche ? <Flaeche {...gemeinsam}>{kachel}</Flaeche> : <div {...gemeinsam}>{kachel}</div>}
+                </div>
+              )
+            })}
           </GridLayout>
         )}
       </div>

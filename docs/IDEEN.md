@@ -31,3 +31,6 @@ Hier landet alles, was nicht zur laufenden Scheibe gehört. Einmal im Monat wird
 - Ruhezeit des Ebbe-Modus einstellbar machen (kurve-ebbe-und-meldungen)
 - Bausteine-Seite wieder von der Oberfläche aus erreichbar machen, etwa in Einstellungen › Darstellung (heute)
 - Wochenleiste: Tag antippen zeigt dessen Termine; Monat als aufklappbare Kachel statt Sprung (heute)
+- Die Knöpfe „Notiz“ und „Woche“ neben der Wochenleiste endgültig festlegen; heute: Sprung zu Notizen und Wochenrückblick (heute-kacheln)
+- Wochenleiste: Buchstaben für Früh- und Spätschicht an den Tagen, sobald Arbeit die Schichtart kennt (heute-kacheln)
+- Höhe der Wellen in der Gezeitenkurve am Handy prüfen, vielleicht zu viel (heute-kacheln)
