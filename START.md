@@ -35,6 +35,9 @@ Beides läuft über kleine Programme in `.claude/hooks/`, nicht über das Modell
 - **Befehle nur auf deinen Aufruf.** Die Befehle belegen keinen Platz, solange du sie nicht startest.
 - **Viele kleine Sicherungen.** Im Repository stehen dadurch viele Einträge „Zwischenstand". Das ist gewollt; jede Scheibe endet mit einem Eintrag, der sie benennt.
 
+## Tide im Browser ansehen (GitHub Codespaces)
+Auf GitHub: **Code → Codespaces → Create codespace on main**. Der Codespace holt den neuesten Stand, startet Tide und öffnet die Seite von selbst in einem neuen Tab. Danach den Codespace unter **Code → Codespaces** stoppen, das spart freie Stunden. Meldet ein alter Codespace Git-Fehler: löschen (… → Delete) und neu anlegen.
+
 ## Wenn etwas hakt
 - Claude läuft in die falsche Richtung: zweimal Esc drücken und zurückspulen, statt Korrekturen anzuhängen.
 - Eine Sitzung ist mitten in der Scheibe abgebrochen und du willst sie sauber beenden: `/abschluss`.

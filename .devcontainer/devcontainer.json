@@ -1,0 +1,10 @@
+{
+  "name": "Tide",
+  "image": "mcr.microsoft.com/devcontainers/javascript-node:22",
+  "postCreateCommand": "npm install",
+  "postAttachCommand": "git pull --ff-only; npm install && npm run dev",
+  "forwardPorts": [5173],
+  "portsAttributes": {
+    "5173": { "label": "Tide", "onAutoForward": "openBrowser" }
+  }
+}
