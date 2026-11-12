@@ -15,6 +15,8 @@
   /* Äußerster Rand und Abstand zwischen allem anderen, in px wie in src/werte/abstaende.ts (das Raster rechnet in px, auch bei anderer Schriftgröße). */
   --spacing-rand: 8px;
   --spacing-abstand: 12px;
+  /* Unsichtbarer Rand jeder Kachel: zwei Kacheln nebeneinander zeigen zusammen genau einen Abstand. */
+  --spacing-kachelrand: calc(var(--spacing-abstand) / 2);
   /* Ab dieser Breite zeigt ein Bereich der Seitenleiste Text, darunter (eingeklappt, nur Symbole) nur Symbole (@max-mit-namen:…). */
   --container-mit-namen: 6rem;
   --radius-knopf: 0.75rem;
@@ -352,12 +354,22 @@ html {
 }
 .react-grid-item.react-grid-placeholder {
   background: var(--akzent);
+  background-clip: content-box;
+  padding: var(--spacing-kachelrand);
   opacity: 0.18;
   border-radius: var(--kachel-rundung);
   transition-duration: var(--dauer-ordnen);
 }
 .react-grid-item.react-draggable-dragging {
   z-index: 3;
+}
+/* Platz einer Kachel im Raster: rundherum der unsichtbare Rand; nur die sichtbare Fläche und die Griffpunkte reagieren. */
+@utility kachel-platz {
+  padding: var(--spacing-kachelrand);
+  pointer-events: none;
+  & > * {
+    pointer-events: auto;
+  }
 }
 /* Rahmen und Griffpunkte liegen innerhalb der Kachel: nichts ragt über den Rand, nichts wird abgeschnitten. */
 @utility kachel-bearbeiten {
@@ -435,19 +447,19 @@ html {
     box-shadow: var(--kachel-schatten);
   }
 }
-/* Mitte des Punkts 0.5rem innerhalb der Kante; die 44-px-Fläche darf darüber hinausreichen. */
+/* Mitte des Punkts 0.5rem innerhalb der sichtbaren Kante (also innerhalb des unsichtbaren Rands); die 44-px-Fläche darf darüber hinausreichen. */
 @utility griff-se {
-  right: -0.875rem;
-  bottom: -0.875rem;
+  right: calc(var(--spacing-kachelrand) - 0.875rem);
+  bottom: calc(var(--spacing-kachelrand) - 0.875rem);
   cursor: nwse-resize;
 }
 @utility griff-e {
-  right: -0.875rem;
+  right: calc(var(--spacing-kachelrand) - 0.875rem);
   top: calc(50% - 1.375rem);
   cursor: ew-resize;
 }
 @utility griff-s {
-  bottom: -0.875rem;
+  bottom: calc(var(--spacing-kachelrand) - 0.875rem);
   left: calc(50% - 1.375rem);
   cursor: ns-resize;
 }

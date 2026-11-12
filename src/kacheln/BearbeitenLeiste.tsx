@@ -2,8 +2,7 @@ import { Check, Plus, RotateCcw } from 'lucide-react'
 import { Knopf } from '../bausteine/Knopf'
 import { cn } from '../bausteine/cn'
 import { RueckgaengigKnoepfe } from '../geruest/RueckgaengigKnoepfe'
-import type { Geraet } from '../logik/einstellungen'
-import { einblenden, type Anordnung, type KachelPlan } from '../logik/kacheln'
+import { einblenden, type Anordnung, type KachelPlan, type Raster } from '../logik/kacheln'
 import { bearbeitenBeenden } from './bearbeiten'
 
 // Bedienfeld im Bearbeiten-Modus: liegt nicht über den Kacheln, sondern am PC unten in der Seitenleiste und am Handy
@@ -15,15 +14,15 @@ type Props = {
   versteckt: readonly KachelPlan[]
   anordnung: Anordnung
   plan: readonly KachelPlan[]
-  geraet: Geraet
+  raster: Raster
   aendern: (a: Anordnung) => void
   zuruecksetzen: () => void
 }
 
 const text = '@max-mit-namen:sr-only'
 
-export function BearbeitenLeiste({ seite, versteckt, anordnung, plan, geraet, aendern, zuruecksetzen }: Props) {
-  const handy = geraet === 'handy'
+export function BearbeitenLeiste({ seite, versteckt, anordnung, plan, raster, aendern, zuruecksetzen }: Props) {
+  const handy = raster.geraet === 'handy'
   return (
     <div
       role="toolbar"
@@ -34,7 +33,7 @@ export function BearbeitenLeiste({ seite, versteckt, anordnung, plan, geraet, ae
         Bearbeiten aktiv
       </p>
       {versteckt.map((k) => (
-        <Knopf key={k.id} groesse="klein" title={`${k.name} einblenden`} className={cn(!handy && 'justify-start')} onClick={() => aendern(einblenden(anordnung, plan, geraet, k.id))}>
+        <Knopf key={k.id} groesse="klein" title={`${k.name} einblenden`} className={cn(!handy && 'justify-start')} onClick={() => aendern(einblenden(anordnung, plan, raster, k.id))}>
           <Plus aria-hidden className="size-4 shrink-0" />
           <span className={cn('truncate', !handy && text)}>{k.name}</span>
         </Knopf>

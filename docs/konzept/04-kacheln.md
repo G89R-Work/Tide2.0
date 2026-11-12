@@ -1,6 +1,6 @@
 # Kacheln
 
-Stand 2026-11-11 · Teil des Gesamtkonzepts. „Deine Version" meint den alten Prototyp 3, „meine Beispielseite" die Beispielseite vom 10.11.
+Stand 2026-11-12 · Teil des Gesamtkonzepts. „Deine Version" meint den alten Prototyp 3, „meine Beispielseite" die Beispielseite vom 10.11.
 
 Jede Seite besteht aus Kacheln, die du wie Widgets in One UI verschiebst und in der Größe änderst. Das Verhalten wird einmal gebaut und gilt dann für alle Seiten.
 
@@ -20,9 +20,10 @@ Im Bearbeiten-Modus zeigen alle Kacheln ihre Griffpunkte. „Fertig“ beendet i
 
 ## Regeln
 
-- **Raster.** 12 Spalten am PC, 2 am Handy; in der Einstellung „Raster: Doppelt“ 24 und 4. Kacheln rasten ein und bleiben, wo man sie lässt: Lücken bleiben, nichts rückt nach oben; liegt eine Kachel im Weg, weicht sie nach unten aus (Stand 2026-11-12, Wunsch des Nutzers). Tablet im Hochformat: siehe docs/IDEEN.md.
+- **Raster (Stand 2026-11-12, Wunsch des Nutzers).** Am PC und Tablet besteht das Raster aus Linien im Abstand von 12 px (= Abstand). Jede Kachel belegt ein Vielfaches davon und hat rundherum 6 px unsichtbaren Rand; sichtbar bleibt zwischen Kacheln immer genau 12 px, und nur die sichtbare Fläche reagiert. Die Zahl der Linien je Bildschirm wird gerundet, damit die letzte Reihe genau 12 px vor der Kurve und die rechte Spalte genau am Rand endet; eine Kachel kann darum je Bildschirm um 1 px abweichen. Am Handy bleiben 2 Spalten und 12 Zeilen je Bildschirm. Kacheln rasten ein und bleiben, wo man sie lässt: Lücken bleiben, nichts rückt nach oben; liegt eine Kachel im Weg, weicht sie nach unten aus. Tablet im Hochformat: siehe docs/IDEEN.md.
+- **Andocken.** Jede Kachel hängt oben oder unten und links oder rechts, je nachdem, in welcher Hälfte ihre Mitte liegt. Auf größeren Bildschirmen wächst nur der Platz dazwischen; die Kacheln bleiben gleich groß.
 - **Gemerkt je Nutzer, Seite und Geräteart.** Dein Handy und dein PC haben getrennte Anordnungen.
-- **Mindestgröße je Kachel.** Eine Kachel kann nicht so klein werden, dass ihr Inhalt bricht. Jede Kachel kennt zwei oder drei Darstellungen für klein, mittel und groß.
+- **Größen.** Kleinste Kachel 24 × 24 px, Standard 48 × 48 px, dazwischen und darüber in 12er-Schritten. Mindestgrößen je Kachel gibt es nicht: Passt der Inhalt nicht, entscheidest du.
 - **Notizen sind Kacheln.** Eine wichtige Idee ziehst du groß, der Rest bleibt klein.
 - **Große Arbeitsflächen bleiben ganz.** Das Postfach mit Liste und Leser oder der Kalender mit Monat und Tag sind je eine Kachel-Gruppe mit ziehbaren Trennlinien, kein Puzzle aus Einzelteilen.
 - **Eine Glasebene.** Kacheln sind getönte Flächen. In einer Kachel liegt nie wieder Glas.

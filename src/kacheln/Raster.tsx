@@ -9,7 +9,7 @@ import { Flaeche } from '../bausteine/Flaeche'
 import { Knopf } from '../bausteine/Knopf'
 import { useGeraet } from '../geruest/einstellungen'
 import { useFreieHoehe } from '../geruest/freieHoehe'
-import { alsLayout, ausLayout, groesseAendern, hatHintergrund, spaltenVon, verschiebe, zeilenHoehe, zeilenZahl, type KachelPlan } from '../logik/kacheln'
+import { alsLayout, ausLayout, groesseAendern, hatHintergrund, linien, verschiebe, type KachelPlan } from '../logik/kacheln'
 import { abstaende } from '../werte/abstaende'
 import { kachelRaster } from '../werte/kacheln'
 import { useAnordnung } from './anordnung'
@@ -21,7 +21,10 @@ import { KachelMenue, type MenueOrt } from './KachelMenue'
 // hier nur der Bearbeiten-Modus drumherum: Griff, Griffpunkte, Menü der Kachel, Tastatur, Speichern.
 // Außerhalb des Modus gibt es weder langen Druck noch Rechtsklick-Menü. Im Modus sieht die Seite genauso aus wie danach:
 // das Bedienfeld liegt außerhalb (`BearbeitenOrt`), Rahmen und Griffpunkte liegen innerhalb der Kacheln.
-// Zeilen: am PC fest etwa 48 px (`zeilenZahl`), am Handy 12 je Bildschirm; die letzte endet genau einen Abstand vor der Kurve.
+// Raster: am PC Linien im Abstand von 12 px, am Handy 2 Spalten und 12 Zeilen je Bildschirm (src/logik/kacheln.ts).
+// Jede Kachel hat rundherum einen halben Abstand unsichtbaren Rand (`kachel-platz`), das Raster selbst keinen Abstand;
+// darum ragt es rundherum um diesen halben Abstand über den Inhalt hinaus (`-m-kachelrand`). Nur die sichtbare Fläche reagiert.
+// So ist überall genau ein Abstand zu sehen, und die letzte Reihe endet genau einen Abstand vor der Kurve.
 
 const griffKlassen: Partial<Record<ResizeHandleAxis, string>> = { se: 'griff griff-se', e: 'griff griff-e', s: 'griff griff-s' }
 
@@ -38,13 +41,17 @@ type Props = {
 export function Raster({ seite, kacheln, inhalt }: Props) {
   const geraet = useGeraet()
   const handy = geraet === 'handy'
-  const frei = useFreieHoehe()
-  const zeilen = handy ? kachelRaster.zeilenHandy : zeilenZahl(frei, kachelRaster.zeilePc, abstaende.abstandPx)
-  const zeile = zeilenHoehe(frei, zeilen, abstaende.abstandPx)
-  const { anordnung, fehler, aendern, zuruecksetzen } = useAnordnung(seite, geraet, kacheln, zeilen)
+  const linie = abstaende.abstandPx
+  // Länge des Rasters: sichtbarer Platz plus ein Abstand (je ein halber Rand oben und unten, links und rechts).
+  // Gemessen wird der sichtbare Platz; das Raster darin ragt rundherum um den halben Abstand hinaus (`-m-kachelrand`).
+  const hoehe = useFreieHoehe() + linie
+  const { width, containerRef, mounted } = useContainerWidth()
+  const breite = width + linie
+  const spalten = handy ? kachelRaster.handy.spalten : linien(breite, linie)
+  const zeilen = handy ? kachelRaster.handy.zeilen : linien(hoehe, linie)
+  const { anordnung, raster, fehler, aendern, zuruecksetzen } = useAnordnung(seite, geraet, kacheln, spalten, zeilen)
   const bearbeiten = useBearbeiten()
   const bedienOrt = useBearbeitenOrt()
-  const { width, containerRef, mounted } = useContainerWidth()
   const [menue, setMenue] = useState<MenueOrt | null>(null)
 
   // Zurücksetzen per Aktion wirkt auf diese Seite.
@@ -71,7 +78,7 @@ export function Raster({ seite, kacheln, inhalt }: Props) {
     const p = pfeile[e.key]
     if (p) {
       e.preventDefault()
-      aendern(e.shiftKey ? groesseAendern(anordnung, kacheln, geraet, id, p[0], p[1]) : verschiebe(anordnung, kacheln, geraet, id, p[0], p[1]))
+      aendern(e.shiftKey ? groesseAendern(anordnung, kacheln, raster, id, p[0], p[1]) : verschiebe(anordnung, kacheln, raster, id, p[0], p[1]))
     } else if (e.key === 'Enter') {
       e.preventDefault()
       bearbeitenBeenden()
@@ -90,7 +97,7 @@ export function Raster({ seite, kacheln, inhalt }: Props) {
             versteckt={kacheln.filter((k) => anordnung.versteckt.includes(k.id))}
             anordnung={anordnung}
             plan={kacheln}
-            geraet={geraet}
+            raster={raster}
             aendern={aendern}
             zuruecksetzen={zuruecksetzen}
           />,
@@ -98,13 +105,14 @@ export function Raster({ seite, kacheln, inhalt }: Props) {
         )}
       {fehler && <p className="mb-2 text-sm text-warnung">{fehler}</p>}
       <div ref={containerRef}>
-        {mounted && zeile > 0 && (
+        {mounted && hoehe > linie && (
           <GridLayout
-            width={width}
+            className="-m-kachelrand"
+            width={breite}
             layout={alsLayout(anordnung, kacheln, geraet)}
             // Freie Plätze: nichts rückt nach oben; wer im Weg liegt, weicht nach unten aus.
             compactor={noCompactor}
-            gridConfig={{ cols: spaltenVon(geraet, anordnung.fein), rowHeight: zeile, margin: [abstaende.abstandPx, abstaende.abstandPx], containerPadding: [0, 0] }}
+            gridConfig={{ cols: spalten, rowHeight: hoehe / zeilen, margin: [0, 0], containerPadding: [0, 0] }}
             // Am PC greift man den Kopf oder Griff; Klicks auf den Inhalt bleiben Klicks. Am Handy hebt langer Druck die ganze Kachel an,
             // auch auf Knöpfen; kurzes Antippen bleibt ein Klick, kurzes Wischen scrollt (allowMobileScroll).
             dragConfig={{ enabled: bearbeiten, handle: handy ? undefined : '.kachel-griff', cancel: '.griff, .kachel-menue-knopf', threshold: 3, allowMobileScroll: true }}
@@ -118,7 +126,7 @@ export function Raster({ seite, kacheln, inhalt }: Props) {
           >
             {sichtbar.map((k) => {
               // Gerade leer (inhalt null): unsichtbar, behält aber den Platz, damit nichts nachrückt. Im Bearbeiten-Modus greifbar.
-              if (inhalt[k.id] === null && !bearbeiten) return <div key={k.id} aria-hidden />
+              if (inhalt[k.id] === null && !bearbeiten) return <div key={k.id} className="kachel-platz" aria-hidden />
               const flaeche = hatHintergrund(anordnung, k.id)
               const kachel = (
                 <>
@@ -162,7 +170,7 @@ export function Raster({ seite, kacheln, inhalt }: Props) {
                   : undefined,
               }
               return (
-                <div key={k.id}>
+                <div key={k.id} className="kachel-platz">
                   {flaeche ? <Flaeche {...gemeinsam}>{kachel}</Flaeche> : <div {...gemeinsam}>{kachel}</div>}
                 </div>
               )
@@ -170,7 +178,7 @@ export function Raster({ seite, kacheln, inhalt }: Props) {
           </GridLayout>
         )}
       </div>
-      <KachelMenue ort={menue} schliessen={() => setMenue(null)} anordnung={anordnung} plan={kacheln} geraet={geraet} aendern={aendern} zuruecksetzen={zuruecksetzen} />
+      <KachelMenue ort={menue} schliessen={() => setMenue(null)} anordnung={anordnung} plan={kacheln} raster={raster} aendern={aendern} zuruecksetzen={zuruecksetzen} />
     </div>
   )
 }

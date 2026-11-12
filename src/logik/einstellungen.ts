@@ -82,7 +82,6 @@ export const einstellungen: readonly Einstellung[] = [
   // Sichtbar je Seite: ein Schalter je Bereich (docs/konzept/06-gezeitenkurve.md).
   ...bereiche.map((b) => ({ id: `kurve-zeigen-${b.id}`, name: `Zeigen auf ${b.name}`, abschnitt: 'kurve' as const, art: 'schalter' as const, standard: true, jeGeraet: true as const, hilfe: `Kurve auf der Seite ${b.name}; der Knopf „Gezeitenkurve ein/aus“ schaltet die offene Seite` })),
   { id: 'kacheln-bearbeiten', name: 'Kacheln bearbeiten', abschnitt: 'kacheln', art: 'schalter', standard: false, jeGeraet: true, wichtig: true, hilfe: 'Auf jeder Seite verschieben, Größe und Hintergrund ändern; „Fertig“ beendet' },
-  { id: 'kacheln-feinheit', name: 'Raster', abschnitt: 'kacheln', art: 'auswahl', standard: 'einfach', optionen: [['einfach', 'Einfach (12 Spalten, Handy 2)'], ['doppelt', 'Doppelt (24 Spalten, Handy 4)']], jeGeraet: true, hilfe: 'Doppelt erlaubt feinere Breiten; die Anordnung wird umgerechnet' },
   { id: 'name', name: 'Dein Name', abschnitt: 'nutzer', art: 'text', standard: 'Moritz', laenge: 30, wichtig: true, hilfe: 'Für die Begrüßung auf Heute; leer lässt den Namen weg' },
   { id: 'heute-uhr', name: 'Uhr', abschnitt: 'heute', art: 'schalter', standard: true, jeGeraet: true, hilfe: 'Uhrzeit mit Anteil des Tages und der Schicht' },
   { id: 'rechtschreibung', name: 'Rechtschreibprüfung', abschnitt: 'schreiben', art: 'schalter', standard: true },

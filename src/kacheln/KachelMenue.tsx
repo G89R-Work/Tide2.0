@@ -2,8 +2,7 @@ import { Check } from 'lucide-react'
 import { useEffect, useLayoutEffect, useRef, type KeyboardEvent } from 'react'
 import { cn } from '../bausteine/cn'
 import { Knopf } from '../bausteine/Knopf'
-import type { Geraet } from '../logik/einstellungen'
-import { ausblenden, festeGroessen, groessenNamen, hatHintergrund, hintergrundUmschalten, setzeGroesse, type Anordnung, type FesteGroesse, type KachelPlan } from '../logik/kacheln'
+import { ausblenden, festeGroessen, groessenNamen, hatHintergrund, hintergrundUmschalten, setzeGroesse, type Anordnung, type FesteGroesse, type KachelPlan, type Raster } from '../logik/kacheln'
 import { kachelRaster } from '../werte/kacheln'
 
 // Menü einer Kachel im Bearbeiten-Modus: Rechtsklick oder Menü-Knopf. Natives Popover (oberste Ebene); geschlossen
@@ -15,14 +14,14 @@ type Props = {
   schliessen: () => void
   anordnung: Anordnung
   plan: readonly KachelPlan[]
-  geraet: Geraet
+  raster: Raster
   aendern: (a: Anordnung) => void
   zuruecksetzen: () => void
 }
 
 const groessen = Object.keys(festeGroessen) as FesteGroesse[]
 
-export function KachelMenue({ ort, schliessen, anordnung, plan, geraet, aendern, zuruecksetzen }: Props) {
+export function KachelMenue({ ort, schliessen, anordnung, plan, raster, aendern, zuruecksetzen }: Props) {
   const ref = useRef<HTMLDivElement>(null)
 
   useLayoutEffect(() => {
@@ -85,7 +84,7 @@ export function KachelMenue({ ort, schliessen, anordnung, plan, geraet, aendern,
       </Knopf>
       <hr className="my-1 border-linie" />
       {groessen.map((g) => (
-        <Knopf key={g} art="leise" groesse="klein" role="menuitem" className={eintrag} onClick={tun(() => aendern(setzeGroesse(anordnung, plan, geraet, id, g)))}>
+        <Knopf key={g} art="leise" groesse="klein" role="menuitem" className={eintrag} onClick={tun(() => aendern(setzeGroesse(anordnung, plan, raster, id, g)))}>
           {groessenNamen[g]}
         </Knopf>
       ))}

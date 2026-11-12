@@ -1,16 +1,16 @@
 # Status
 Etappe: 2 Gezeitenkurve und Heute
-Nächste Scheibe: `raster-12` (Zwischenetappe „Ein Raster für alles“, danach `raster-kurve`, `raster-seitenleiste`, dann weiter mit `aufraeumen-datum`)
+Nächste Scheibe: `raster-kurve` (Zwischenetappe „Ein Raster für alles“, danach `raster-seitenleiste`, dann weiter mit `aufraeumen-datum`)
 
 ## Stand
 Das Gerüst steht am PC und am Handy mit Seitenleiste, zweiter Ebene, belegbaren Knöpfen, Einstellungsliste, Kacheln und Hintergrund. Die Gezeitenkurve zeigt den Beispieltag (PC unten über die volle Breite, Handy über der unteren Leiste; Einstellung „Lage“ je Gerät), scrollt endlos, folgt der Uhr und steuert beim Scrollen den Hintergrund. Termine liegen als Punkte (mit Karte, Bündel, Überschneidung) oder Bänder auf ihr, lassen sich ziehen und zurücknehmen; dazu Treibgut und Wetterzeile. Die Kurve ist je Seite und Gerät abschaltbar; Meldungen fließen an der Jetzt-Linie ein und falten sich in die Glocke. Heute besteht nur aus Kacheln (Gruß, Als Nächstes, Uhr, Wetter, Knöpfe, Braucht dich, Monat, Woche, Notiz, Rückblick), Text ohne Hintergrund; bearbeitet wird nur über Einstellungen › Kacheln. **Aufräumen:** `docs/PRUEFUNG.md` wird in acht Scheiben `aufraeumen-*` abgearbeitet (siehe Fahrplan). Bausteine dafür sind freigegeben.
 
 ## Zuletzt erledigt
+- raster-12: Kachel-Raster aus 12-px-Linien (gerundet je Bildschirm), 6 px unsichtbarer Rand je Kachel (`kachel-platz`, `-m-kachelrand`), Andocken oben/unten und links/rechts (Vertrag `rechts`), Einstellung „Raster“ und Mindestgrößen entfallen, Werk Heute in Linien
 - Nachtrag Kacheln: feste Zeilenhöhe am PC (48 px), oben/unten angedockt, Bedienfeld und Knopf „Bearbeiten“ (Rückfrage) in der Seitenleiste, Kurve nur im Modus ziehbar
 - aufraeumen-rueckgaengig: ein Rückgängig-Speicher mit Wiederherstellen (Alt+Y) und Knöpfen je Seite; `src/werte/bewegung.ts` (`MELDUNG_MS`)
 - heute-kacheln (Nachtrag): freie Plätze und Raster „Doppelt“ (`src/logik/kacheln.ts`), Abstände Rand/Abstand (`src/werte/abstaende.ts`, `src/logik/freierPlatz.ts`), Uhr/Wetter im Gerüst und in der Kopfzeile, KW an der Wochenleiste
 - heute-kacheln: `src/logik/kacheln.ts` (Werk je Gerät null, `titel`, `hintergrund`/`ohneHintergrund`), Raster ohne langen Druck, Menü-Knopf, `bearbeiten.ts` als Einstellung, Heute neu in `src/bereiche/heute/kacheln/`, `format.ts`
-- heute: `src/logik/heute.ts` (Als Nächstes, Tag/Schicht, Woche, Füllstand, Braucht dich, KW, Rückblick), `src/bereiche/heute/` (Himmel, BrauchtDich, kacheln/Woche, useTermine), Vertrag `frist` und Art `schicht`, Einstellung Art „text“ (Name) und „Uhr“
 
 ## Stolpersteine
 - Stil prüft oxlint, nicht ESLint. Warnungen zählen als Fehler. Freie Tailwind-Werte wie `data-[…]` verbietet die Werte-Prüfung.
@@ -37,4 +37,4 @@ Das Gerüst steht am PC und am Handy mit Seitenleiste, zweiter Ebene, belegbaren
 - Inhalt liegt in `MitKurve` als eigene Lage über die volle Höhe; Kurve, Griff und `fuss` (untere Leiste am Handy) liegen darüber mit `pointer-events-none` außer auf den Flächen. Neue Scrollbereiche bekommen `inhalt-frei`.
 - Kurve: Lage nur über die Reihenfolge (Wasser, Bänder, `linie`, Rest), nie über z-index. Einträge liegen in jeder der drei Kopien; bedienbar per Tastatur nur die Kopie in der Mitte (`kopie`). Beim Ziehen darf sich die Reihenfolge der Elemente nicht ändern, sonst geht der Finger (Pointer-Capture) verloren.
 - Attrappe: Termine des Beispieltags (id `t-…`) ändert `src/attrappe/termine.ts` (gemerkt unter `tide.attrappe.termine`); diese Antworten stehen in `start.ts` vor den Einträgen.
-- Kacheln: `<Raster seite kacheln={werkszustand} inhalt={{id: …}} />`, `werkszustand` als Konstante im einfachen Raster; freie Plätze, nichts rückt nach. `inhalt: null` = unsichtbar, Platz bleibt. Zeilen: `zeilenZahl`/`zeilenHoehe` aus `useFreieHoehe()` (PC Ziel 48 px, Handy 12 je Bildschirm). Gemerkt angedockt (`unten`), gezeigt über `aufBildschirm`, gespeichert über `verankern`. Bedienfeld im Modus per Portal an `BearbeitenOrt` (Seitenleiste bzw. über der unteren Leiste). Abstände nur `rand`/`abstand` (`src/werte/abstaende.ts`), Platz oben/unten setzt `freierPlatz`. Uhr, Wetter, `format.ts`, `useTermine` liegen in `src/geruest/`.
+- Kacheln: `<Raster seite kacheln={werkszustand} inhalt={{id: …}} />`, `werkszustand` als Konstante; freie Plätze, nichts rückt nach. `inhalt: null` = unsichtbar, Platz bleibt. PC: Plätze in 12-px-Linien (sichtbar = Linien × 12 − 12), Zahl je Bildschirm `linien(sichtbar + 12, 12)`; Handy fest `kachelRaster.handy`. Gemerkt angedockt (`unten`, `rechts`), gezeigt über `aufBildschirm(a, plan, raster)`, gespeichert über `verankern`. Der Baustein misst den sichtbaren Platz (`useContainerWidth`), das Raster bekommt `width + 12`. Bedienfeld im Modus per Portal an `BearbeitenOrt`. Abstände nur `rand`/`abstand`/`kachelrand` (`src/werte/abstaende.ts`, werte.css), Platz oben/unten setzt `freierPlatz`. Uhr, Wetter, `format.ts`, `useTermine` liegen in `src/geruest/`.

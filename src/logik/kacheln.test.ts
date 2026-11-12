@@ -1,51 +1,68 @@
 import { describe, expect, it } from 'vitest'
 import {
-  aufBildschirm,
-  verankern,
-  zeilenHoehe,
-  zeilenZahl,
   alsLayout,
   anordnungAusDaten,
+  aufBildschirm,
   ausblenden,
   ausLayout,
   einblenden,
   groesseAendern,
   hatHintergrund,
   hintergrundUmschalten,
+  kleinste,
+  linien,
   setzeGroesse,
-  spaltenVon,
-  umrechnen,
+  verankern,
   verschiebe,
   werkszustand,
   type Anordnung,
   type KachelPlan,
+  type Raster,
 } from './kacheln'
 
+// Erfundener Plan: PC in 12-px-Linien (sichtbar = Linien × 12 − 12), Handy in 2 Spalten.
 const plan: readonly KachelPlan[] = [
-  { id: 'a', name: 'A', min: { pc: { w: 3, h: 2 }, handy: { w: 1, h: 2 } }, werk: { pc: { x: 0, y: 0, w: 6, h: 3 }, handy: { x: 0, y: 0, w: 2, h: 3 } } },
-  { id: 'b', name: 'B', min: { pc: { w: 2, h: 2 }, handy: { w: 1, h: 2 } }, werk: { pc: { x: 6, y: 0, w: 6, h: 3 }, handy: { x: 0, y: 3, w: 1, h: 2 } } },
-  { id: 'c', name: 'C', min: { pc: { w: 2, h: 2 }, handy: { w: 1, h: 2 } }, werk: { pc: { x: 0, y: 3, w: 4, h: 2 }, handy: { x: 1, y: 3, w: 1, h: 2 } } },
+  { id: 'a', name: 'A', werk: { pc: { x: 0, y: 0, w: 30, h: 10 }, handy: { x: 0, y: 0, w: 2, h: 3 } } },
+  { id: 'b', name: 'B', werk: { pc: { x: 0, y: 0, w: 20, h: 10, rechts: true }, handy: { x: 0, y: 3, w: 1, h: 2 } } },
+  { id: 'c', name: 'C', werk: { pc: { x: 0, y: 0, w: 20, h: 5, unten: true }, handy: { x: 1, y: 3, w: 1, h: 2 } } },
 ]
+
+const pc = (spalten: number, zeilen: number): Raster => ({ geraet: 'pc', spalten, zeilen })
+const handy: Raster = { geraet: 'handy', spalten: 2, zeilen: 12 }
 
 const ueberlappt = (a: Anordnung) => {
   const p = Object.values(a.plaetze)
   return p.some((m, i) => p.some((n, j) => i < j && m.x < n.x + n.w && n.x < m.x + m.w && m.y < n.y + n.h && n.y < m.y + m.h))
 }
 
-describe('kacheln', () => {
-  it('Raster hat 12 Spalten am PC und 2 am Handy, doppelt fein 24 und 4', () => {
-    expect([spaltenVon('pc', 1), spaltenVon('handy', 1), spaltenVon('pc', 2), spaltenVon('handy', 2)]).toEqual([12, 2, 24, 4])
+describe('Raster aus Linien', () => {
+  it('Die Zahl der Linien wird gerundet, damit die letzte genau am Ende liegt', () => {
+    // Tablet: 833 px sichtbar plus ein Abstand = 845 px Raster, 70 Linien zu je 12,07 px.
+    expect(linien(845, 12)).toBe(70)
+    expect(linien(1285, 12)).toBe(107)
+    expect(linien(473, 12)).toBe(39)
   })
 
+  it('Auch ohne Platz gibt es eine Linie', () => {
+    expect(linien(0, 12)).toBe(1)
+  })
+
+  it('Kleinste Kachel ist am PC 3 Linien (24 px sichtbar), am Handy ein Feld', () => {
+    expect(kleinste.pc).toEqual({ w: 3, h: 3 })
+    expect(kleinste.handy).toEqual({ w: 1, h: 1 })
+  })
+})
+
+describe('kacheln', () => {
   it('Werkszustand nimmt die Plätze aus dem Plan, nichts ist ausgeblendet', () => {
     const w = werkszustand(plan, 'handy')
     expect(w.plaetze.b).toEqual({ x: 0, y: 3, w: 1, h: 2 })
     expect(w.versteckt).toEqual([])
   })
 
-  it('gemerkte Daten: Unbekanntes fällt weg, Fehlendes kommt aus dem Werk, Unlesbares ergibt das Werk', () => {
-    const a = anordnungAusDaten({ plaetze: { a: { x: 0, y: 0, w: 4, h: 2 }, zz: { x: 0, y: 0, w: 1, h: 1 }, b: { x: 'x' } }, versteckt: ['c', 'zz'] }, plan, 'pc')
-    expect(a.plaetze.a).toEqual({ x: 0, y: 0, w: 4, h: 2 })
+  it('Gemerkte Daten: Unbekanntes fällt weg, Fehlendes kommt aus dem Werk, Unlesbares ergibt das Werk', () => {
+    const a = anordnungAusDaten({ plaetze: { a: { x: 0, y: 0, w: 4, h: 2, rechts: true }, zz: { x: 0, y: 0, w: 1, h: 1 }, b: { x: 'x' } }, versteckt: ['c', 'zz'] }, plan, 'pc')
+    expect(a.plaetze.a).toEqual({ x: 0, y: 0, w: 4, h: 2, rechts: true })
     expect(a.plaetze.zz).toBeUndefined()
     expect(a.plaetze.b).toEqual(plan[1].werk.pc)
     expect(a.versteckt).toEqual(['c'])
@@ -53,112 +70,113 @@ describe('kacheln', () => {
     expect(anordnungAusDaten(null, plan, 'pc')).toEqual(werkszustand(plan, 'pc'))
   })
 
-  it('gemerkte Daten halten Mindestgröße und Spaltenzahl ein', () => {
-    const a = anordnungAusDaten({ plaetze: { a: { x: 11, y: 0, w: 1, h: 1 } }, versteckt: [] }, plan, 'pc')
-    expect(a.plaetze.a).toMatchObject({ x: 9, w: 3, h: 2 })
-    const h = anordnungAusDaten({ plaetze: { a: { x: 0, y: 0, w: 9, h: 3 } }, versteckt: [] }, plan, 'handy')
-    expect(h.plaetze.a.w).toBe(2)
+  it('Anordnungen aus dem alten Spalten-Raster (mit `fein`) ergeben das Werk', () => {
+    expect(anordnungAusDaten({ plaetze: { a: { x: 0, y: 0, w: 6, h: 3 } }, versteckt: ['b'], fein: 1 }, plan, 'pc')).toEqual(werkszustand(plan, 'pc'))
   })
 
-  it('feste Größen: Breit nimmt die ganze Zeile, nichts überlappt danach', () => {
-    const a = setzeGroesse(werkszustand(plan, 'pc'), plan, 'pc', 'c', 'breit')
-    expect(a.plaetze.c).toMatchObject({ x: 0, w: 12 })
-    expect(ueberlappt(a)).toBe(false)
-  })
-
-  it('feste Größe unter der Mindestgröße wird angehoben', () => {
-    const p: KachelPlan[] = [{ ...plan[0], min: { pc: { w: 5, h: 4 }, handy: { w: 2, h: 3 } } }]
-    expect(setzeGroesse(werkszustand(p, 'pc'), p, 'pc', 'a', 'klein').plaetze.a).toMatchObject({ w: 5, h: 4 })
-  })
-
-  it('Pfeiltasten verschieben, am Rand bleibt die Kachel stehen', () => {
+  it('Auf dem Bildschirm: unten und rechts angedockte Kacheln zählen vom Rand, gezeigt wird von oben links', () => {
     const w = werkszustand(plan, 'pc')
-    expect(verschiebe(w, plan, 'pc', 'c', 1, 0).plaetze.c.x).toBe(1)
-    expect(verschiebe(w, plan, 'pc', 'a', -1, 0)).toBe(w)
-    const rechts = verschiebe(w, plan, 'pc', 'b', 1, 0)
-    expect(rechts.plaetze.b.x).toBe(6)
+    expect(aufBildschirm(w, plan, pc(70, 39)).plaetze).toEqual({
+      a: { x: 0, y: 0, w: 30, h: 10 },
+      b: { x: 50, y: 0, w: 20, h: 10 },
+      c: { x: 0, y: 34, w: 20, h: 5 },
+    })
+    // Auf dem großen Bildschirm wächst nur der Platz dazwischen; jede Kachel bleibt gleich groß.
+    expect(aufBildschirm(w, plan, pc(147, 76)).plaetze).toEqual({
+      a: { x: 0, y: 0, w: 30, h: 10 },
+      b: { x: 127, y: 0, w: 20, h: 10 },
+      c: { x: 0, y: 71, w: 20, h: 5 },
+    })
   })
 
-  it('Freie Plätze: eine Kachel nach unten gerückt lässt oben eine Lücke, nichts rückt nach', () => {
+  it('Auf einem zu kleinen Bildschirm passt sich die Breite an, und was im Weg liegt, rutscht nach unten', () => {
     const w = werkszustand(plan, 'pc')
-    const a = verschiebe(w, plan, 'pc', 'b', 0, 2)
-    expect(a.plaetze.b).toMatchObject({ x: 6, y: 2 })
-    expect(a.plaetze.a).toEqual(w.plaetze.a)
-    expect(a.plaetze.c).toEqual(w.plaetze.c)
-    expect(anordnungAusDaten(a, plan, 'pc').plaetze.b.y).toBe(2)
+    const eng = aufBildschirm(w, plan, pc(40, 12))
+    expect(eng.plaetze.b).toMatchObject({ x: 20, w: 20 })
+    expect(eng.plaetze.a).toMatchObject({ x: 0, w: 30 })
+    expect(ueberlappt(eng)).toBe(false)
+    expect(aufBildschirm({ ...w, plaetze: { a: { x: 0, y: 0, w: 99, h: 10 } } }, plan, pc(40, 12)).plaetze.a.w).toBe(40)
   })
 
-  it('Liegt eine Kachel im Weg, weicht sie nach unten aus und die bewegte behält ihren Platz', () => {
-    const w = werkszustand(plan, 'handy')
-    const a = verschiebe(w, plan, 'handy', 'b', 0, -1)
-    expect(a.plaetze.b.y).toBe(2)
-    expect(a.plaetze.a.y).toBe(4)
-    expect(ueberlappt(a)).toBe(false)
+  it('Verankern: Mitte rechts dockt rechts an, Mitte unten dockt unten an', () => {
+    const r = pc(70, 39)
+    const bild = aufBildschirm(werkszustand(plan, 'pc'), plan, r)
+    expect(verankern(bild, r)).toEqual(werkszustand(plan, 'pc'))
+    // Was erst durch Scrollen sichtbar wird, hängt oben.
+    expect(verankern({ ...bild, plaetze: { c: { x: 0, y: 39, w: 20, h: 5 } } }, r).plaetze.c).toEqual({ x: 0, y: 39, w: 20, h: 5 })
   })
 
-  it('Ausblenden lässt die Lücke stehen', () => {
-    const weg = ausblenden(werkszustand(plan, 'pc'), 'a')
-    expect(anordnungAusDaten(weg, plan, 'pc').plaetze.c).toMatchObject({ x: 0, y: 3 })
+  it('Bearbeiten verschiebt nichts: verankern und wieder zeigen ergibt denselben Bildschirm', () => {
+    for (const r of [pc(70, 39), pc(107, 68), pc(147, 83)]) {
+      const bild = aufBildschirm(werkszustand(plan, 'pc'), plan, r)
+      const bewegt = verschiebe(bild, plan, r, 'a', 3, 2)
+      expect(aufBildschirm(verankern(bewegt, r), plan, r)).toEqual(bewegt)
+    }
   })
 
-  it('Doppelt fein: Werk, Mindestgröße und feste Größen verdoppeln sich in der Breite', () => {
-    const w = werkszustand(plan, 'pc', 2)
-    expect(w.plaetze.b).toEqual({ x: 12, y: 0, w: 12, h: 3 })
-    expect(alsLayout(w, plan, 'pc')[0]).toMatchObject({ minW: 6, minH: 2 })
-    expect(setzeGroesse(w, plan, 'pc', 'c', 'breit').plaetze.c.w).toBe(24)
-    expect(groesseAendern(w, plan, 'pc', 'c', 1, 0).plaetze.c.w).toBe(9)
+  it('Eine 24er-Kachel lässt sich anlegen, kleiner geht es nicht', () => {
+    const r = pc(70, 39)
+    const bild = aufBildschirm(werkszustand(plan, 'pc'), plan, r)
+    expect(groesseAendern(bild, plan, r, 'c', -17, -2).plaetze.c).toMatchObject({ w: 3, h: 3 })
+    expect(groesseAendern(bild, plan, r, 'c', -30, -9).plaetze.c).toMatchObject({ w: 3, h: 3 })
   })
 
-  it('Umrechnen zwischen einfach und doppelt erhält die Anordnung, auch über das Speichern', () => {
-    const einfach = verschiebe(werkszustand(plan, 'pc'), plan, 'pc', 'c', 3, 1)
-    const doppelt = umrechnen(einfach, plan, 'pc', 2)
-    expect(doppelt.plaetze.c).toEqual({ x: 6, y: 4, w: 8, h: 2 })
-    expect(umrechnen(doppelt, plan, 'pc', 1)).toEqual(einfach)
-    expect(anordnungAusDaten(doppelt, plan, 'pc', 1)).toEqual(einfach)
-    expect(anordnungAusDaten({ plaetze: einfach.plaetze, versteckt: [] }, plan, 'pc', 2).plaetze.c).toEqual(doppelt.plaetze.c)
+  it('Umschalt und Pfeiltasten ändern die Größe nur bis zum Rand', () => {
+    const r = pc(70, 39)
+    const bild = aufBildschirm(werkszustand(plan, 'pc'), plan, r)
+    expect(groesseAendern(bild, plan, r, 'b', 1, 0)).toBe(bild)
+    expect(groesseAendern(bild, plan, r, 'c', 1, 0).plaetze.c.w).toBe(21)
   })
 
-  it('Halbieren einer ungeraden Lage rundet und löst Überlappungen nach unten auf', () => {
-    const d = werkszustand(plan, 'pc', 2)
-    const schmal = groesseAendern(d, plan, 'pc', 'a', 1, 0)
-    expect(ueberlappt(umrechnen(schmal, plan, 'pc', 1))).toBe(false)
+  it('Feste Größen: Breit nimmt die ganze Breite des Bildschirms', () => {
+    const r = pc(70, 39)
+    const bild = aufBildschirm(werkszustand(plan, 'pc'), plan, r)
+    const breit = setzeGroesse(bild, plan, r, 'a', 'breit')
+    expect(breit.plaetze.a).toMatchObject({ x: 0, w: 70 })
+    expect(ueberlappt(breit)).toBe(false)
+    expect(setzeGroesse(bild, plan, r, 'a', 'klein').plaetze.a).toMatchObject({ w: 5, h: 5 })
   })
 
-  it('Umschalt und Pfeiltasten ändern die Größe innerhalb der Grenzen', () => {
-    const w = werkszustand(plan, 'pc')
-    expect(groesseAendern(w, plan, 'pc', 'c', 1, 1).plaetze.c).toMatchObject({ w: 5, h: 3 })
-    expect(groesseAendern(w, plan, 'pc', 'c', -3, 0).plaetze.c.w).toBe(2)
-    expect(groesseAendern(w, plan, 'pc', 'b', 1, 0)).toBe(w)
+  it('Pfeiltasten verschieben um eine Linie; wer im Weg liegt, weicht nach unten aus', () => {
+    const r = pc(70, 39)
+    const bild = aufBildschirm(werkszustand(plan, 'pc'), plan, r)
+    expect(verschiebe(bild, plan, r, 'a', 1, 0).plaetze.a).toMatchObject({ x: 1, y: 0 })
+    const drauf = verschiebe(bild, plan, r, 'c', 0, -34)
+    expect(drauf.plaetze.c).toMatchObject({ y: 0 })
+    expect(drauf.plaetze.a.y).toBe(5)
+    expect(ueberlappt(drauf)).toBe(false)
   })
 
   it('Ausblenden und Einblenden', () => {
-    const w = werkszustand(plan, 'pc')
+    const r = pc(70, 39)
+    const w = aufBildschirm(werkszustand(plan, 'pc'), plan, r)
     const weg = ausblenden(w, 'b')
     expect(weg.versteckt).toEqual(['b'])
     expect(alsLayout(weg, plan, 'pc').map((l) => l.i)).toEqual(['a', 'c'])
-    const da = einblenden(weg, plan, 'pc', 'b')
+    const da = einblenden(weg, plan, r, 'b')
     expect(da.versteckt).toEqual([])
+    expect(da.plaetze.b).toMatchObject({ w: 20, h: 10 })
     expect(ueberlappt(da)).toBe(false)
   })
 
-  it('Layout des Bausteins hin und zurück, mit Mindestgröße', () => {
+  it('Layout des Bausteins hin und zurück, mit kleinster Größe', () => {
     const w = werkszustand(plan, 'pc')
     const l = alsLayout(w, plan, 'pc')
-    expect(l[0]).toMatchObject({ i: 'a', minW: 3, minH: 2 })
+    expect(l[0]).toMatchObject({ i: 'a', minW: 3, minH: 3 })
     const neu = ausLayout(w, [{ i: 'a', x: 0, y: 0, w: 8, h: 3 }])
     expect(neu.plaetze.a.w).toBe(8)
     expect(neu.plaetze.b).toEqual(w.plaetze.b)
     expect(ausLayout(w, l)).toBe(w)
   })
 
-  it('Kachel ohne Werksplatz auf einem Gerät ist dort ab Werk ausgeblendet und kommt in Mindestgröße zurück', () => {
-    const mit: readonly KachelPlan[] = [...plan, { id: 'nurPc', name: 'Nur PC', min: { pc: { w: 2, h: 1 }, handy: { w: 1, h: 1 } }, werk: { pc: { x: 8, y: 3, w: 4, h: 1 }, handy: null } }]
+  it('Kachel ohne Werksplatz auf einem Gerät ist dort ab Werk ausgeblendet und kommt in Standardgröße zurück', () => {
+    const mit: readonly KachelPlan[] = [...plan, { id: 'nurPc', name: 'Nur PC', werk: { pc: { x: 0, y: 20, w: 10, h: 5 }, handy: null } }]
     const w = werkszustand(mit, 'handy')
     expect(w.versteckt).toEqual(['nurPc'])
     expect(w.plaetze.nurPc).toBeUndefined()
     expect(anordnungAusDaten({ plaetze: {}, versteckt: [] }, mit, 'handy').versteckt).toEqual(['nurPc'])
-    const da = einblenden(w, mit, 'handy', 'nurPc')
-    expect(da.plaetze.nurPc).toMatchObject({ x: 0, w: 1, h: 1 })
+    const da = einblenden(aufBildschirm(w, mit, handy), mit, handy, 'nurPc')
+    expect(da.plaetze.nurPc).toMatchObject({ x: 0, w: 1, h: 2 })
     expect(ueberlappt(da)).toBe(false)
     expect(werkszustand(mit, 'pc').versteckt).toEqual([])
   })
@@ -175,73 +193,8 @@ describe('kacheln', () => {
     expect(gelesen.ohneHintergrund).toEqual(['b'])
   })
 
-  it('Alte Daten ohne Angabe zum Hintergrund nehmen den Werkszustand', () => {
+  it('Daten ohne Angabe zum Hintergrund nehmen den Werkszustand', () => {
     const ohne: readonly KachelPlan[] = [{ ...plan[0], hintergrund: false }, plan[1], plan[2]]
     expect(anordnungAusDaten({ plaetze: {}, versteckt: [] }, ohne, 'pc').ohneHintergrund).toEqual(['a'])
-  })
-})
-
-describe('zeilenHoehe', () => {
-  it('teilt die freie Höhe so, dass genau die Zeilen samt Abständen hineinpassen', () => {
-    // 12 Zeilen, 11 Abstände von 12 px: 12 · 60 + 11 · 12 = 852
-    expect(zeilenHoehe(852, 12, 12)).toBe(60)
-  })
-  it('ist bei jeder Höhe gleich aufgeteilt, die letzte Zeile endet am Rand', () => {
-    const h = zeilenHoehe(700, 12, 12)
-    expect(12 * h + 11 * 12).toBeCloseTo(700)
-  })
-  it('wird nie negativ, solange noch nichts gemessen ist', () => {
-    expect(zeilenHoehe(0, 12, 12)).toBe(0)
-  })
-})
-
-describe('Zeilen am PC: feste Höhe, oben und unten angedockt', () => {
-  it('rundet die Zahl der Zeilen, damit die Höhe fast gleich bleibt (Tablet und großer PC je etwa 47 px)', () => {
-    const tablet = zeilenZahl(460, 48, 12)
-    const pc = zeilenZahl(808, 48, 12)
-    expect([tablet, pc]).toEqual([8, 14])
-    expect(zeilenHoehe(460, tablet, 12)).toBeCloseTo(47, 0)
-    expect(zeilenHoehe(808, pc, 12)).toBeCloseTo(46.6, 1)
-  })
-  it('hat immer mindestens eine Zeile', () => {
-    expect(zeilenZahl(0, 48, 12)).toBe(1)
-  })
-
-  const geankert: Anordnung = {
-    plaetze: { a: { x: 0, y: 0, w: 6, h: 3 }, b: { x: 6, y: 0, w: 6, h: 3 }, c: { x: 0, y: 0, w: 4, h: 2, unten: true } },
-    versteckt: [],
-    ohneHintergrund: [],
-    fein: 1,
-  }
-
-  it('legt unten angedockte Kacheln an das Ende des Bildschirms, oben bleibt gleich', () => {
-    expect(aufBildschirm(geankert, plan, 'pc', 8).plaetze.c).toEqual({ x: 0, y: 6, w: 4, h: 2 })
-    expect(aufBildschirm(geankert, plan, 'pc', 14).plaetze.c).toEqual({ x: 0, y: 12, w: 4, h: 2 })
-    expect(aufBildschirm(geankert, plan, 'pc', 14).plaetze.a).toEqual({ x: 0, y: 0, w: 6, h: 3 })
-  })
-
-  it('schiebt auf zu kleinem Bildschirm die untere Kachel unter die obere statt darüber', () => {
-    const klein = aufBildschirm(geankert, plan, 'pc', 4)
-    expect(ueberlappt(klein)).toBe(false)
-    expect(klein.plaetze.c.y).toBe(3)
-  })
-
-  it('dockt beim Speichern an die nähere Hälfte an; was unter dem Bildschirm liegt, bleibt oben', () => {
-    const bild: Anordnung = { ...geankert, plaetze: { a: { x: 0, y: 0, w: 6, h: 3 }, b: { x: 6, y: 9, w: 6, h: 3 }, c: { x: 0, y: 12, w: 4, h: 2 } } }
-    const v = verankern(bild, 14)
-    expect(v.plaetze.a).toEqual({ x: 0, y: 0, w: 6, h: 3 })
-    expect(v.plaetze.b).toEqual({ x: 6, y: 2, w: 6, h: 3, unten: true })
-    expect(v.plaetze.c).toEqual({ x: 0, y: 0, w: 4, h: 2, unten: true })
-    expect(verankern({ ...bild, plaetze: { c: { x: 0, y: 14, w: 4, h: 2 } } }, 14).plaetze.c).toEqual({ x: 0, y: 14, w: 4, h: 2 })
-  })
-
-  it('Hin und zurück ergibt dieselbe Anordnung', () => {
-    expect(verankern(aufBildschirm(geankert, plan, 'pc', 10), 10)).toEqual(geankert)
-  })
-
-  it('liest „hängt unten“ aus gespeicherten Daten; alte Daten ohne Angabe hängen oben', () => {
-    const a = anordnungAusDaten({ plaetze: { a: { x: 0, y: 0, w: 4, h: 2 }, c: { x: 0, y: 0, w: 4, h: 2, unten: true } }, versteckt: ['b'] }, plan, 'pc')
-    expect(a.plaetze.c).toEqual({ x: 0, y: 0, w: 4, h: 2, unten: true })
-    expect(a.plaetze.a).toEqual({ x: 0, y: 0, w: 4, h: 2 })
   })
 })
