@@ -64,9 +64,9 @@ export function wertHier(e: Einstellung): Wert {
   return wertVon(e, zustand.werte, istSchmal() ? 'handy' : 'pc')
 }
 
-/** Einstellung für dieses Gerät setzen, außerhalb von React. Für Modi (Bearbeiten): kein Rückgängig-Schritt. */
-export function setzeHier(e: Einstellung, wert: Wert) {
-  einstellungenAendern(setze(zustand.werte, e, istSchmal() ? 'handy' : 'pc', wert), null)
+/** Einstellung für dieses Gerät setzen, außerhalb von React. Ohne `schritt` (Modi wie Bearbeiten) kein Rückgängig-Schritt. */
+export function setzeHier(e: Einstellung, wert: Wert, schritt: Pick<Schritt, 'text' | 'still' | 'bereich'> | null = null) {
+  einstellungenAendern(setze(zustand.werte, e, istSchmal() ? 'handy' : 'pc', wert), schritt)
 }
 
 /** Kurve auf der Seite ein- oder ausblenden, für dieses Gerät. Ohne Meldung (docs/konzept/03-geruest.md), aber mit Rückgängig (Alt+Z). */

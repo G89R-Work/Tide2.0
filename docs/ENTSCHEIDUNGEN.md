@@ -125,6 +125,9 @@ Eine Zeile je Entscheidung, neueste unten. Was hier steht, gilt und wird nicht n
 - 2026-11-12 · Keine Erklär-Texte in der Oberfläche (Nutzer); neue Regel 11 in CLAUDE.md, Aufräumen in `aussehen-ohne-erklaerungen`.
 - 2026-11-12 · Heute bekommt einen festen Aufbau ohne Kacheln (Nutzer am Anfang: „Rasterlogik ignorieren“); „Braucht dich“ als Reiter bleibt im Plan (nach Empfehlung, ohne neue Antwort).
 - 2026-11-12 · Pixelgenau (Nutzer): Alles aus den Bildern sieht genau aus wie die Vorlage, Werte aus ihren Stilen; nur Glas bleibt wie Tide 2.0. Aufbau und Sortierung (Einstellungen, Ordner) erst gleich, ändern später. Die Gezeitenkurve übernimmt auch die Funktionen der Vorlage; was Tide 2.0 darüber hinaus kann, bleibt.
+- 2026-11-12 · Raster fällt komplett weg (Nutzer, ersetzt das Zellraster des Gerüsts vom 12.11.): Gerüst am PC und Tablet in Pixeln wie die Vorlage. Seitenleiste 66 px schmal (156 px breit, mit Namen) und zweite Ebene laufen von ganz oben bis unten; rechts daneben Kopfzeile, Inhalt, Kurve (fest 150 px). Einstellungen „Höhe“ der Kurve in Reihen und „Am Rand der Kurve“ entfallen; Leiste ab Werk schmal. Das Kachel-Raster verschwindet mit `aussehen-heute`.
+- 2026-11-12 · Kopfzeile am PC: Wetter, Uhr und die drei belegbaren Knöpfe in einer Zeile über Inhalt und Kurve (nicht mehr im Seitenkopf); auf Heute keine Kopfzeile. Einträge der Leiste bleiben 44 px (zwei Knopf-Größen), Logo wie Vorlage (Wellen mit Sonne auf Akzent-Verlauf, 50 px).
+- 2026-11-12 · Wischen über @use-gesture/react (Ja des Nutzers, auch für weitere Gesten): Wischen nach rechts macht die Leiste breit, nach links schmal, mit Rückgängig.
 
 ## Offen
 

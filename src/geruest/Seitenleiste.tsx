@@ -1,15 +1,30 @@
-import { Waves } from 'lucide-react'
+import { useDrag } from '@use-gesture/react'
 import type { Ref } from 'react'
 import { Knopf } from '../bausteine/Knopf'
+import { Logo } from '../bausteine/Logo'
 import { cn } from '../bausteine/cn'
 import { BearbeitenStarten } from '../kacheln/BearbeitenStarten'
 import { useBearbeiten } from '../kacheln/bearbeiten'
 import { bereiche, type BereichId } from '../logik/bereiche'
+import { einstellungen as alleEinstellungen } from '../logik/einstellungen'
+import { leiste } from '../werte/leiste'
+import { setzeHier } from './einstellungen'
 import { symbole, vorladen } from './seiten'
 
-// Links die Bereiche. Schmal nur Symbole (Name als Hinweis), breit Symbole mit Namen. Unten liegt im Bearbeiten-Modus
-// das Bedienfeld der Kacheln (`bearbeitenRef`, gefüllt vom Raster der offenen Seite).
+const breite = alleEinstellungen.find((e) => e.id === 'leiste-breite')!
+
+// Links die Bereiche, von ganz oben bis ganz unten; oben das Logo (führt zu Heute). Schmal nur Symbole (Name als Hinweis),
+// breit Symbole mit Namen. Wischen nach rechts macht sie breit, nach links schmal (mit Rückgängig). Unten liegt im
+// Bearbeiten-Modus das Bedienfeld der Kacheln (`bearbeitenRef`, gefüllt vom Raster der offenen Seite).
 export function Seitenleiste({ offen, mitNamen, bearbeitenRef }: { offen: BereichId; mitNamen: boolean; bearbeitenRef: Ref<HTMLDivElement> }) {
+  const wischen = useDrag(
+    ({ swipe: [x] }) => {
+      if (x === 1 && !mitNamen) setzeHier(breite, 'breit', { text: 'Seitenleiste breit' })
+      if (x === -1 && mitNamen) setzeHier(breite, 'schmal', { text: 'Seitenleiste schmal' })
+    },
+    { axis: 'x', filterTaps: true },
+  )
+
   const eintrag = (b: (typeof bereiche)[number], nurSymbol = false) => {
     const Symbol = symbole[b.id]
     const aktiv = b.id === offen
@@ -26,6 +41,7 @@ export function Seitenleiste({ offen, mitNamen, bearbeitenRef }: { offen: Bereic
           title={mitNamen && !nurSymbol ? undefined : b.name}
           onPointerEnter={() => vorladen(b.id)}
           onFocus={() => vorladen(b.id)}
+          draggable={false}
         >
           <Symbol aria-hidden className="size-5 shrink-0" />
           {mitNamen && !nurSymbol ? <span className="truncate">{b.name}</span> : <span className="sr-only">{b.name}</span>}
@@ -38,19 +54,24 @@ export function Seitenleiste({ offen, mitNamen, bearbeitenRef }: { offen: Bereic
   const bearbeiten = useBearbeiten()
   return (
     // Oben die Bereiche, bei wenig Höhe scrollbar; unten Bedienfeld und Zahnrad, die immer sichtbar bleiben.
-    <nav aria-label="Bereiche" className="flaeche-leiste flex h-full flex-col gap-1 overflow-hidden p-2">
-      <div className="flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto">
-        <Knopf
-          alsKind
-          art="leise"
-          className={cn('mb-2 w-full text-text', mitNamen ? 'justify-start text-base' : 'px-0')}
+    <nav
+      {...wischen()}
+      aria-label="Bereiche"
+      className="flaeche-leiste leiste-breite flex h-full shrink-0 touch-pan-y flex-col gap-1 overflow-hidden py-3"
+      style={{ width: mitNamen ? leiste.breitPx : leiste.schmalPx, paddingInline: leiste.innenPx }}
+    >
+      {/* Auch die scrollbare Liste nur senkrecht, sonst übernimmt der Browser das Wischen des Fingers. */}
+      <div className="flex min-h-0 flex-1 touch-pan-y flex-col gap-1 overflow-y-auto">
+        <a
+          href="#heute"
+          title="Zu Heute"
+          draggable={false}
+          className="drueck mb-4 flex items-center gap-3 self-start rounded-2xl font-semibold text-text outline-none focus-visible:ring-2 focus-visible:ring-akzent"
         >
-          <a href="#heute" title="Zu Heute">
-            <Waves aria-hidden className="size-6 shrink-0 text-akzent" />
-            {mitNamen && <span className="font-semibold">Tide</span>}
-            <span className="sr-only">Tide, zu Heute</span>
-          </a>
-        </Knopf>
+          <Logo />
+          {mitNamen && <span>Tide</span>}
+          <span className="sr-only">Tide, zu Heute</span>
+        </a>
         {bereiche.slice(0, -1).map((b) => eintrag(b))}
       </div>
       <div ref={bearbeitenRef} className="@container shrink-0" />

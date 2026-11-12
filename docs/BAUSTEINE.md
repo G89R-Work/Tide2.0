@@ -75,6 +75,14 @@ Muster für einen Eintrag:
 ## 2026-11-12 · Zellraster des Gerüsts
 - Geprüft: react-grid-layout (schon im Projekt) für Leiste und Kurve, CSS Grid.
 - Entscheidung: kein neuer Baustein. Leiste, Kurve und Inhalt sind feste Felder; ihre Lage ist eine kleine reine Rechnung (`src/logik/geruestRaster.ts`) aus `zellRaster`, die Kacheln darin verschiebt weiter react-grid-layout.
+- Stand 2026-11-12 (aussehen-kopfzeile): entfallen, das Gerüst ist ein einfaches Flex-Layout in Pixeln wie die Vorlage.
+
+## 2026-11-12 · Wischen
+- Kandidaten: @use-gesture/react 10 (Ziehen und Wischen mit Richtung, Schwelle und Tempo, klein, MIT), eigene Zeiger-Rechnung
+- Entscheidung: @use-gesture/react 10.3
+- Grund: bewährt, erkennt Wischen (`swipe`) samt Schwellen; Ja des Nutzers, auch für weitere Gesten (Kurve auf- und zuklappen).
+- Link: https://use-gesture.netlify.app
+- Eingebaut in Scheibe: aussehen-kopfzeile
 
 ## 2026-11-11 · Symbole
 - Kandidaten: lucide-react (Standard bei shadcn/ui, nur genutzte Symbole im Paket), eigene SVGs

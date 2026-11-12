@@ -115,7 +115,7 @@ export function HinweiseUnten() {
   const meldung = useMeldungen().frisch
   const handy = useGeraet() === 'handy'
   return (
-    <div className={cn('flex justify-end px-rand', handy ? 'pb-abstand' : 'pb-rand')}>
+    <div className={cn('flex justify-end', handy && 'px-rand pb-abstand')}>
       <div className="flaeche-leiste pointer-events-auto flex min-w-0 items-center gap-2 py-1 pr-1 pl-3">
         {(schritt || meldung) && <KurveKopfzeile schritt={schritt} meldung={meldung} fehler={[]} className="min-w-0" />}
         <Glocke />

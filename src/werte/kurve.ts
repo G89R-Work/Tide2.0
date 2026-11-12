@@ -1,6 +1,8 @@
-// Größe der Gezeitenkurve am Handy (am PC und Tablet belegt sie ganze Reihen des Zellrasters). Die Höhe zieht man am Rand zum Inhalt.
-// Höhen zählen den Abstand zum Bildschirmrand (8 px) mit: 80 px ergeben 72 px sichtbare Kurve.
+// Größe der Gezeitenkurve. Am Handy zieht man die Höhe am Rand zum Inhalt; am PC und Tablet ist sie fest (`hoehePc`).
+// Handy-Höhen zählen den Abstand zum Bildschirmrand (8 px) mit: 80 px ergeben 72 px sichtbare Kurve.
 export const kurve = {
+  /** Am PC und Tablet, wie in der Vorlage (`.tline`, ca. 150 px). */
+  hoehePc: 150,
   /** Höhe ab Werk und nach Doppelklick auf den Griff. */
   hoehe: '80px',
   /** Darunter passen Linie und Stundenleiste nicht mehr. */

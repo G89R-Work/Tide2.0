@@ -170,6 +170,11 @@
   border-radius: var(--schwebend-rundung);
 }
 
+/* Seitenleiste wechselt zwischen schmal und breit (Breite aus src/werte/leiste.ts). */
+@utility leiste-breite {
+  transition: width var(--dauer-sanft) var(--kurve);
+}
+
 @utility akzent-verlauf {
   background: linear-gradient(135deg, var(--akzent), var(--akzent-2));
 }

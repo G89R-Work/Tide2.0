@@ -3,8 +3,7 @@ import { BearbeitenOrt } from '../kacheln/bearbeiten'
 import { mitteUnten } from '../logik/aktionen'
 import { ebeneVon, ortAusMarke, type Ort } from '../logik/ebenen'
 import { einstellungen } from '../logik/einstellungen'
-import { flaeche, geruestRaster } from '../logik/geruestRaster'
-import { kachelRaster } from '../werte/kacheln'
+import { kurve } from '../werte/kurve'
 import { leiste } from '../werte/leiste'
 import { AktionKnopf } from './AktionKnopf'
 import { useBelegung } from './belegung'
@@ -23,8 +22,7 @@ import { useTastenkuerzel } from './useTastenkuerzel'
 import { UhrUndWetter } from './UhrUndWetter'
 import { ZweiteEbene } from './ZweiteEbene'
 
-// Am PC und Tablet: oben eine schmale Kopfzeile mit Uhrzeit und Wetter, darunter alles im Zellraster: Seitenleiste (schmal oder breit),
-// zweite Ebene, der offene Bereich und die Gezeitenkurve.
+// Am PC und Tablet: Seitenleiste (schmal oder breit) und zweite Ebene über die ganze Höhe, daneben Kopfzeile, Bereich und Gezeitenkurve.
 // Am Handy: oben das Menü mit Punkt und die belegbaren Knöpfe, frei ohne Fläche; darunter der Bereich, der hinter Kurve und
 // unterer Leiste weiterläuft.
 export function Geruest({ marke }: { marke: string }) {
@@ -99,72 +97,56 @@ function Handy({ ort, zahl, bearbeitenRef }: { ort: Ort; zahl: number; bearbeite
 const e = {
   spalten: einstellungen.find((x) => x.id === 'kacheln-spalten')!,
   leiste: einstellungen.find((x) => x.id === 'leiste-breite')!,
-  vorrang: einstellungen.find((x) => x.id === 'leiste-vorrang')!,
-  kurve: einstellungen.find((x) => x.id === 'kurve-reihen')!,
 }
 
 function Pc({ ort, bearbeitenRef }: { ort: Ort; bearbeitenRef: Ref<HTMLDivElement> }) {
   const sichtbar = useKurveSichtbar(ort.bereich)
   const leisteBreite = useEinstellung(e.leiste) as 'schmal' | 'breit'
-  const kurveReihen = useEinstellung(e.kurve) as number
   const spalten = useEinstellung(e.spalten) as number
-  const vorrang = useEinstellung(e.vorrang) as 'kurve' | 'leiste'
   const kurveOben = useKurveOben()
+  const pc = useBelegung().pc
+  const mitEbene = ebeneVon(ort.bereich).length > 0
+  // Höhe des Inhalts für die Kacheln der Seite (`RasterPlatz`).
   const feld = useRef<HTMLDivElement>(null)
-  const [platz, setPlatz] = useState({ breite: 0, hoehe: 0 })
+  const [hoehe, setHoehe] = useState(0)
   useLayoutEffect(() => {
-    const beobachter = new ResizeObserver(([f]) => setPlatz({ breite: f.contentRect.width, hoehe: f.contentRect.height }))
+    const beobachter = new ResizeObserver(([f]) => setHoehe(f.contentRect.height))
     beobachter.observe(feld.current!)
     return () => beobachter.disconnect()
   }, [])
-  const g = geruestRaster({
-    ...platz,
-    spalten,
-    anteil: kachelRaster.abstandAnteil,
-    leiste: leisteBreite,
-    leisteNamenPx: leiste.namenPx,
-    ebenePx: ebeneVon(ort.bereich).length > 0 ? leiste.ebenePx : 0,
-    kurve: sichtbar ? kurveReihen : 0,
-    kurveOben,
-    vorrang,
-  })
-  const inhalt = flaeche(g, g.inhalt)
+  const kurveFeld = sichtbar && (
+    <div className="shrink-0" style={{ height: kurve.hoehePc }}>
+      <Gezeitenkurve className="h-full" />
+    </div>
+  )
 
-  // Unter der Kopfzeile ein Zellraster über die ganze Seite: Leiste, zweite Ebene, Inhalt und Kurve belegen ganze Zellen
-  // (src/logik/geruestRaster.ts). Nur der Inhalt scrollt; Leiste und Kurve stehen fest.
+  // Wie in der Vorlage: Seitenleiste und zweite Ebene von ganz oben bis ganz unten; rechts daneben die Kopfzeile
+  // (Wetter, Uhr, belegbare Knöpfe; auf Heute keine), der Inhalt und die Kurve. Nur der Inhalt scrollt.
   return (
-    <div className="flex h-dvh flex-col">
-      <header className="flex h-9 shrink-0 items-center justify-end gap-1 px-rand">
-        <UhrUndWetter />
-      </header>
-      <div ref={feld} className="relative mx-rand mb-rand min-h-0 flex-1">
-        {platz.breite > 0 && (
-          <>
-            <div className="absolute" style={flaeche(g, g.leiste)}>
-              <Seitenleiste offen={ort.bereich} mitNamen={leisteBreite === 'breit'} bearbeitenRef={bearbeitenRef} />
-            </div>
-            {g.ebene && (
-              <nav aria-label="Zweite Ebene" className="flaeche-leiste absolute overflow-y-auto p-2" style={flaeche(g, g.ebene)}>
-                <ZweiteEbene bereich={ort.bereich} aktiv={ort.unter} />
-              </nav>
-            )}
-            <div className="absolute overflow-auto" style={inhalt}>
-              <RasterPlatz.Provider value={{ spalten: g.inhalt.w, hoehe: inhalt.height }}>
-                <Inhalt ort={ort} />
-              </RasterPlatz.Provider>
-            </div>
-            {g.kurve && (
-              <div className="absolute" style={flaeche(g, g.kurve)}>
-                <Gezeitenkurve className="h-full" />
-              </div>
-            )}
-          </>
+    <div className="flex h-dvh gap-abstand p-rand">
+      <Seitenleiste offen={ort.bereich} mitNamen={leisteBreite === 'breit'} bearbeitenRef={bearbeitenRef} />
+      {mitEbene && (
+        <nav aria-label="Zweite Ebene" className="flaeche-leiste shrink-0 overflow-y-auto p-2" style={{ width: leiste.ebenePx }}>
+          <ZweiteEbene bereich={ort.bereich} aktiv={ort.unter} />
+        </nav>
+      )}
+      <div className="flex min-w-0 flex-1 flex-col gap-abstand">
+        {ort.bereich !== 'heute' && (
+          <header className="flex h-9 shrink-0 items-center justify-end gap-1">
+            <UhrUndWetter />
+            {pc.map((id, i) => (
+              <AktionKnopf key={i} id={id} />
+            ))}
+          </header>
         )}
-        {!sichtbar && (
-          <div className="absolute inset-x-0 bottom-0">
-            <HinweiseUnten />
-          </div>
-        )}
+        {kurveOben && kurveFeld}
+        <div ref={feld} className="min-h-0 flex-1 overflow-auto">
+          <RasterPlatz.Provider value={{ spalten, hoehe }}>
+            <Inhalt ort={ort} />
+          </RasterPlatz.Provider>
+        </div>
+        {!kurveOben && kurveFeld}
+        {!sichtbar && <HinweiseUnten />}
       </div>
     </div>
   )
