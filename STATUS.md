@@ -1,18 +1,16 @@
 # Status
 Etappe: 2 Gezeitenkurve und Heute
-Nächste Scheibe: `aufraeumen-rueckgaengig` (Zwischenetappe Aufräumen, danach `heute-uhr-und-wetter`)
+Nächste Scheibe: `aufraeumen-datum` (Zwischenetappe Aufräumen, danach `heute-uhr-und-wetter`)
 
 ## Stand
-Das Gerüst steht am PC und am Handy mit Seitenleiste, zweiter Ebene, belegbaren Knöpfen, Einstellungsliste, Kacheln und Hintergrund. Die Gezeitenkurve zeigt den Beispieltag (PC unten über die volle Breite, Handy über der unteren Leiste; Einstellung „Lage“ je Gerät), scrollt endlos, folgt der Uhr und steuert beim Scrollen den Hintergrund. Termine liegen als Punkte (mit Karte, Bündel, Überschneidung) oder Bänder auf ihr, lassen sich ziehen und zurücknehmen; dazu Treibgut und Wetterzeile. Die Kurve ist je Seite und Gerät abschaltbar; Meldungen fließen an der Jetzt-Linie ein und falten sich in die Glocke. Heute besteht nur aus Kacheln (Gruß, Als Nächstes, Uhr, Wetter, Knöpfe, Braucht dich, Monat, Woche, Notiz, Rückblick), Text ohne Hintergrund; bearbeitet wird nur über Einstellungen › Kacheln.
-
-**Aufräumen:** `docs/PRUEFUNG.md` wird in acht Scheiben `aufraeumen-*` abgearbeitet (siehe Fahrplan). Bausteine dafür sind freigegeben.
+Das Gerüst steht am PC und am Handy mit Seitenleiste, zweiter Ebene, belegbaren Knöpfen, Einstellungsliste, Kacheln und Hintergrund. Die Gezeitenkurve zeigt den Beispieltag (PC unten über die volle Breite, Handy über der unteren Leiste; Einstellung „Lage“ je Gerät), scrollt endlos, folgt der Uhr und steuert beim Scrollen den Hintergrund. Termine liegen als Punkte (mit Karte, Bündel, Überschneidung) oder Bänder auf ihr, lassen sich ziehen und zurücknehmen; dazu Treibgut und Wetterzeile. Die Kurve ist je Seite und Gerät abschaltbar; Meldungen fließen an der Jetzt-Linie ein und falten sich in die Glocke. Heute besteht nur aus Kacheln (Gruß, Als Nächstes, Uhr, Wetter, Knöpfe, Braucht dich, Monat, Woche, Notiz, Rückblick), Text ohne Hintergrund; bearbeitet wird nur über Einstellungen › Kacheln. **Aufräumen:** `docs/PRUEFUNG.md` wird in acht Scheiben `aufraeumen-*` abgearbeitet (siehe Fahrplan). Bausteine dafür sind freigegeben.
 
 ## Zuletzt erledigt
+- aufraeumen-rueckgaengig: ein Rückgängig-Speicher für Einstellungen, Kacheln, Belegung; `useKannRueckgaengig`; `src/werte/bewegung.ts` (`MELDUNG_MS`)
 - heute-kacheln (Nachtrag): freie Plätze und Raster „Doppelt“ (`src/logik/kacheln.ts`), Abstände Rand/Abstand (`src/werte/abstaende.ts`, `src/logik/freierPlatz.ts`), Uhr/Wetter im Gerüst und in der Kopfzeile, KW an der Wochenleiste
 - heute-kacheln: `src/logik/kacheln.ts` (Werk je Gerät null, `titel`, `hintergrund`/`ohneHintergrund`), Raster ohne langen Druck, Menü-Knopf, `bearbeiten.ts` als Einstellung, Heute neu in `src/bereiche/heute/kacheln/`, `format.ts`
 - heute: `src/logik/heute.ts` (Als Nächstes, Tag/Schicht, Woche, Füllstand, Braucht dich, KW, Rückblick), `src/bereiche/heute/` (Himmel, BrauchtDich, kacheln/Woche, useTermine), Vertrag `frist` und Art `schicht`, Einstellung Art „text“ (Name) und „Uhr“
 - kurve-ebbe-und-meldungen: `src/logik/meldungen.ts`, `src/geruest/meldungen.ts` (`melde`), `Glocke.tsx`, Einstellungen `kurve-zeigen-<bereich>` und `standardHandy`, Aktion „Gezeitenkurve ein/aus“ als Befehl, Antippen am Handy
-- kurve-eintraege: `src/logik/kurveEintraege.ts`, `KurveEintraege.tsx`, `kurveDaten.ts`, `rueckgaengig.ts`, Vertrag `beginn`/`ende` ändern und `holeWetter`, Aktion „Rückgängig“ (Alt+Z), Einstellung „Wetter“
 
 ## Stolpersteine
 - Stil prüft oxlint, nicht ESLint. Warnungen zählen als Fehler. Freie Tailwind-Werte wie `data-[…]` verbietet die Werte-Prüfung.
@@ -35,7 +33,7 @@ Das Gerüst steht am PC und am Handy mit Seitenleiste, zweiter Ebene, belegbaren
 - Zieh-Griffe nur über den Baustein `Trenner` (`src/bausteine/Trenner.tsx`), nie direkt `Separator`.
 - Seitenleiste am PC: Panel „leiste“ ist nur die Spalte (Breite); die Leiste selbst liegt darüber (`leiste-lage` in `werte.css`), Ende oben/unten aus `leisteLage`, Platz der Kurve kommt über `MitKurve onPlatz`.
 - Meldungen: `melde({id, text, ankunft, wichtig?})` aus `src/geruest/meldungen.ts`; gleiche id kommt nur einmal. Kopfzeile zeigt `useMeldungen().frisch`, Falten läuft einmal im Gerüst.
-- Rückgängig: jede Änderung ruft `merke(text, zurueck, still?)` aus `src/geruest/rueckgaengig.ts`; `useFrischerSchritt` liefert ihn 6 s lang für die Kopfzeile der Kurve (`KurveKopfzeile`). `zurueck` meldet eigene Fehler selbst.
+- Rückgängig: nur `geruest/rueckgaengig.ts`. Jede Änderung ruft nach erfolgreichem Speichern `merke(text, zurueck, still?)`; Knöpfe nutzen `rueckgaengig()` und `useKannRueckgaengig()`. `einstellungenAendern(neu, text | null, still?)`: `null` für Modi. `useFrischerSchritt` zeigt den Schritt `MELDUNG_MS` lang (`src/werte/bewegung.ts`).
 - Inhalt liegt in `MitKurve` als eigene Lage über die volle Höhe; Kurve, Griff und `fuss` (untere Leiste am Handy) liegen darüber mit `pointer-events-none` außer auf den Flächen. Neue Scrollbereiche bekommen `inhalt-frei`.
 - Kurve: Lage nur über die Reihenfolge (Wasser, Bänder, `linie`, Rest), nie über z-index. Einträge liegen in jeder der drei Kopien; bedienbar per Tastatur nur die Kopie in der Mitte (`kopie`). Beim Ziehen darf sich die Reihenfolge der Elemente nicht ändern, sonst geht der Finger (Pointer-Capture) verloren.
 - Attrappe: Termine des Beispieltags (id `t-…`) ändert `src/attrappe/termine.ts` (gemerkt unter `tide.attrappe.termine`); diese Antworten stehen in `start.ts` vor den Einträgen.

@@ -4,6 +4,7 @@ import { ebbeFenster, erinnerungen, sichtbare, ungelesen, wartende, type Meldung
 import { holeTermine } from '../vertrag/eintrag'
 import { useEinstellung } from './einstellungen'
 import { useMinute } from './useMinute'
+import { MELDUNG_MS } from '../werte/bewegung'
 
 // Meldungen für ganz Tide (docs/konzept/03-geruest.md „Meldungen"). Wer etwas zu melden hat, ruft `melde`.
 // Eine neue Meldung steht sechs Sekunden in der Kopfzeile der Kurve (oder am unteren Rand, wenn die Kurve aus ist)
@@ -67,8 +68,6 @@ export function useMeldungen() {
     fenster: z.fenster,
   }
 }
-
-const MELDUNG_MS = 6000
 
 /** Faltet die frischen Meldungen nach sechs Sekunden in die Glocke. Läuft einmal im Gerüst. */
 export function useFalten(frischeIds: readonly string[]) {

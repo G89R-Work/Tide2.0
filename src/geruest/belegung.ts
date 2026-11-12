@@ -1,7 +1,8 @@
 import { useSyncExternalStore } from 'react'
 import { belege, belegungAusText, type Belegung, type Ort } from '../logik/aktionen'
+import { merke } from './rueckgaengig'
 
-// Die Belegung der Knöpfe. Gemerkt im Browser wie der Zustand der Leiste; jede Änderung lässt sich rückgängig machen.
+// Die Belegung der Knöpfe. Gemerkt im Browser wie der Zustand der Leiste; jede Änderung kommt in den einen Rückgängig-Speicher.
 const schluessel = 'tide.knoepfe'
 
 function lesen(): Belegung {
@@ -13,7 +14,6 @@ function lesen(): Belegung {
 }
 
 let stand = lesen()
-const vorher: Belegung[] = []
 const hoerer = new Set<() => void>()
 
 function setzen(neu: Belegung) {
@@ -35,23 +35,18 @@ export function useBelegung() {
   return useSyncExternalStore(abonnieren, () => stand)
 }
 
-export function useKannZurueck() {
-  return useSyncExternalStore(abonnieren, () => vorher.length > 0)
-}
-
 export function platzBelegen(ort: Ort, platz: number, id: string | null) {
   const neu = belege(stand, ort, platz, id)
-  if (neu === stand) return
-  vorher.push(stand)
-  setzen(neu)
+  ersetzen(neu, 'Knopf belegt')
 }
 
 export function belegungErsetzen(neu: Belegung) {
-  vorher.push(stand)
-  setzen(neu)
+  ersetzen(neu, 'Knöpfe ab Werk')
 }
 
-export function belegungZurueck() {
-  const alt = vorher.pop()
-  if (alt) setzen(alt)
+function ersetzen(neu: Belegung, text: string) {
+  if (neu === stand) return
+  const alt = stand
+  setzen(neu)
+  merke(text, async () => setzen(alt))
 }

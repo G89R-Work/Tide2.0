@@ -34,7 +34,7 @@ type Props = {
 export function Raster({ seite, kacheln, inhalt }: Props) {
   const geraet = useGeraet()
   const handy = geraet === 'handy'
-  const { anordnung, fehler, kannZurueck, aendern, zurueck, zuruecksetzen } = useAnordnung(seite, geraet, kacheln)
+  const { anordnung, fehler, aendern, zuruecksetzen } = useAnordnung(seite, geraet, kacheln)
   const bearbeiten = useBearbeiten()
   const { width, containerRef, mounted } = useContainerWidth()
   const [menue, setMenue] = useState<MenueOrt | null>(null)
@@ -81,8 +81,6 @@ export function Raster({ seite, kacheln, inhalt }: Props) {
           plan={kacheln}
           geraet={geraet}
           aendern={aendern}
-          kannZurueck={kannZurueck}
-          zurueck={zurueck}
           zuruecksetzen={zuruecksetzen}
         />
       )}

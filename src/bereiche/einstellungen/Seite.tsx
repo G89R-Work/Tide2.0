@@ -2,7 +2,8 @@ import { RotateCcw, Search, Undo2 } from 'lucide-react'
 import { useState } from 'react'
 import { Eingabe } from '../../bausteine/Eingabe'
 import { Knopf } from '../../bausteine/Knopf'
-import { einstellungenAendern, einstellungenZurueck, useEinstellungen, useGeraet } from '../../geruest/einstellungen'
+import { einstellungenAendern, useEinstellungen, useGeraet } from '../../geruest/einstellungen'
+import { rueckgaengig, useKannRueckgaengig } from '../../geruest/rueckgaengig'
 import { Seitenkopf } from '../../geruest/Seitenkopf'
 import { useSprungmarke } from '../../geruest/useSprungmarke'
 import { ortAusMarke } from '../../logik/ebenen'
@@ -14,7 +15,8 @@ import { KnoepfeBelegen } from './KnoepfeBelegen'
 export default function Seite() {
   const ort = ortAusMarke(useSprungmarke())
   const abschnitt = abschnitte.find((a) => a.id === ort.unter) ?? abschnitte[0]
-  const { werte, geladen, fehler, kannZurueck } = useEinstellungen()
+  const { werte, geladen, fehler } = useEinstellungen()
+  const kannZurueck = useKannRueckgaengig()
   const geraet = useGeraet()
   const [text, setText] = useState('')
 
@@ -48,14 +50,14 @@ export default function Seite() {
         </label>
 
         <div className="flex flex-wrap gap-2">
-          <Knopf groesse="klein" disabled={!kannZurueck} onClick={einstellungenZurueck}>
+          <Knopf groesse="klein" disabled={!kannZurueck} onClick={rueckgaengig}>
             <Undo2 aria-hidden className="size-4" /> Rückgängig
           </Knopf>
           <Knopf
             groesse="klein"
             art="leise"
             disabled={alleStandard}
-            onClick={() => einstellungenAendern(zuruecksetzen(werte, sichtbar, geraet))}
+            onClick={() => einstellungenAendern(zuruecksetzen(werte, sichtbar, geraet), 'Auf Standard gesetzt')}
           >
             <RotateCcw aria-hidden className="size-4" /> {sucht ? 'Treffer auf Standard' : 'Abschnitt auf Standard'}
           </Knopf>

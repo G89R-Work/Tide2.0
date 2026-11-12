@@ -11,7 +11,7 @@ import { istStandard, setze, wertVon, type Einstellung, type Geraet, type Wert, 
 export function EinstellungZeile({ e, werte, geraet }: { e: Einstellung; werte: Werte; geraet: Geraet }) {
   const wert = wertVon(e, werte, geraet)
   const feld = `einstellung-${e.id}`
-  const aendern = (w: Wert) => einstellungenAendern(setze(werte, e, geraet, w))
+  const aendern = (w: Wert) => einstellungenAendern(setze(werte, e, geraet, w), `${e.name} geändert`)
   const standard = istStandard(e, werte, geraet)
   const geraetHinweis = e.jeGeraet ? `Gilt für ${geraet === 'pc' ? 'den PC' : 'das Handy'}` : undefined
   const unterzeile = [e.hilfe, geraetHinweis].filter(Boolean).join(' · ')
