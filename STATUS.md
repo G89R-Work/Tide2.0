@@ -1,11 +1,11 @@
 # Status
 Etappe: 2 Gezeitenkurve und Heute
-Nächste Scheibe: `heute-uhr-und-wetter`
+Nächste Scheibe: `aufraeumen-rueckgaengig` (Zwischenetappe Aufräumen, danach `heute-uhr-und-wetter`)
 
 ## Stand
 Das Gerüst steht am PC und am Handy mit Seitenleiste, zweiter Ebene, belegbaren Knöpfen, Einstellungsliste, Kacheln und Hintergrund. Die Gezeitenkurve zeigt den Beispieltag (PC unten über die volle Breite, Handy über der unteren Leiste; Einstellung „Lage“ je Gerät), scrollt endlos, folgt der Uhr und steuert beim Scrollen den Hintergrund. Termine liegen als Punkte (mit Karte, Bündel, Überschneidung) oder Bänder auf ihr, lassen sich ziehen und zurücknehmen; dazu Treibgut und Wetterzeile. Die Kurve ist je Seite und Gerät abschaltbar; Meldungen fließen an der Jetzt-Linie ein und falten sich in die Glocke. Heute besteht nur aus Kacheln (Gruß, Als Nächstes, Uhr, Wetter, Knöpfe, Braucht dich, Monat, Woche, Notiz, Rückblick), Text ohne Hintergrund; bearbeitet wird nur über Einstellungen › Kacheln.
 
-**Offen:** Prüfbericht `docs/PRUEFUNG.md` (Umwege, Eigenbau statt Bausteine). Fragen dort am Ende warten auf den Nutzer.
+**Aufräumen:** `docs/PRUEFUNG.md` wird in acht Scheiben `aufraeumen-*` abgearbeitet (siehe Fahrplan). Bausteine dafür sind freigegeben.
 
 ## Zuletzt erledigt
 - heute-kacheln (Nachtrag): freie Plätze und Raster „Doppelt“ (`src/logik/kacheln.ts`), Abstände Rand/Abstand (`src/werte/abstaende.ts`, `src/logik/freierPlatz.ts`), Uhr/Wetter im Gerüst und in der Kopfzeile, KW an der Wochenleiste

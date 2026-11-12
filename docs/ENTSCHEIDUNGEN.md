@@ -89,6 +89,9 @@ Eine Zeile je Entscheidung, neueste unten. Was hier steht, gilt und wird nicht n
 - 2026-11-12 · Kacheln: freie Plätze ohne Nachrücken; im Weg liegende Kacheln weichen nach unten aus. Einstellung „Raster“ je Gerät: Einfach (12/2 Spalten) oder Doppelt (24/4); Anordnungen merken ihr Raster (Vertrag `fein`) und werden umgerechnet. Zeilenhöhe bleibt fest.
 - 2026-11-12 · Abstände: zwei Werte für alles, Rand 8 px (zum Bildschirmrand) und Abstand 12 px (zwischen allem anderen), in `src/werte/abstaende.ts` und als `p-rand`/`gap-abstand` in werte.css.
 - 2026-11-12 · Uhr und Wetter liegen im Gerüst; auf jeder Seite außer Heute klein links neben den belegbaren Knöpfen, ein Klick zeigt die volle Ansicht. Die Uhr zeigt außerhalb einer Schicht den Anteil des Tages, in einer Schicht den der Schicht; nur dann schaltet ein Klick um.
+- 2026-11-12 · Regeln A (kein Umweg), B (kein Eigenbau ohne Suche) und C (alles nur einmal) stehen in CLAUDE.md über allen anderen.
+- 2026-11-12 · Aufräumen nach `docs/PRUEFUNG.md` als eigene Scheiben vor `heute-uhr-und-wetter`, nicht alles auf einmal. Ja des Nutzers zu date-fns, Zod, TanStack Query, Zustand, shadcn DropdownMenu/Popover und jscpd.
+- 2026-11-12 · Tastenkürzel bleiben ohne Bibliothek (Entscheidung vom 2026-11-11 gilt); PRUEFUNG E6 wird nur in `aufraeumen-waechter` neu angesehen.
 
 ## Offen
 

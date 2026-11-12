@@ -38,11 +38,18 @@ Alle weiteren Bausteine: `docs/konzept/30-bausteine.md` und `docs/BAUSTEINE.md`.
 - Ideen außerhalb der Scheibe: eine Zeile in `docs/IDEEN.md`, nicht bauen.
 
 ## Höchste Priorität
-Diese zwei Regeln gehen allen anderen vor.
+Diese drei Regeln gehen allen anderen vor.
 
 **A. Nie einen Umweg.** Umweg heißt: Workaround, etwas Erzwungenes (`!important`, `as any`, `@ts-ignore`, `oxlint-disable`, `eslint-disable`, `setTimeout` gegen Zeitprobleme, Überschreiben an anderer Stelle, „das wird ignoriert, stattdessen …“) oder jede andere Art, Bestehendes zu ändern, ohne an die Quelle zu gehen. Erlaubt ist nur: zurückgehen bis zum Ursprung, dort den Fehler oder die zu ändernde Stelle finden und genau dort an die neue Anforderung anpassen. Es gibt immer nur eine Quelle der Wahrheit.
 
 **B. Nie Eigenbau ohne Suche.** Bevor du für eine Idee eigenen Code schreibst, prüfe im Internet (npm, GitHub, shadcn/ui, Radix, bekannte Bibliotheken), ob es dafür schon einen fertigen, bewährten Baustein gibt. Gibt es einen, nimm ihn (Eintrag in `docs/BAUSTEINE.md`, Ja des Nutzers). Eigenbau nur, wenn nachweislich nichts Passendes existiert; dann kurz in `docs/BAUSTEINE.md` vermerken, was geprüft wurde und warum es nicht passt.
+
+**C. Alles nur einmal.** Jede Fähigkeit gibt es in Tide genau einmal: ein Weg, Daten zu holen; ein Speicher je Art von Zustand; ein Rückgängig; eine Funktion je Format; ein Wert je Zahl. Bevor du etwas schreibst, such im Code (Grep nach Name und Zweck), ob es das schon gibt. Gibt es das, nutze es. Passt es nicht ganz, erweitere es an seiner Stelle, statt eine zweite Fassung daneben zu bauen. Beispiele:
+- Uhrzeit anzeigen: immer `uhrzeit()` aus der einen Format-Datei, nie selbst `padStart` und `:`.
+- Daten vom Server: immer derselbe Weg (ein Hook je Anfrage), nie ein zweiter `useTermine` mit anderem Verhalten.
+- Rückgängig: jede Änderung meldet sich bei dem einen Rückgängig-Speicher, kein eigener Stapel je Bereich.
+- Dauern, Größen, Abstände: einmal in `src/werte/`, nie dieselbe Zahl an zwei Stellen.
+- Menüs und schwebende Karten: immer derselbe Baustein, nie je Stelle eigenes Schließen und eigene Lage.
 
 ## Feste Regeln
 1. Baustein vor Eigenbau. Neue Abhängigkeit nur mit Eintrag in `docs/BAUSTEINE.md` und Ja des Nutzers.

@@ -49,8 +49,5 @@ Gut gelöst (bleibt): react-grid-layout, react-resizable-panels, SunCalc, d3-sha
 5. E5 Zod – mit U8, U9.
 6. Rest bei Gelegenheit.
 
-## Fragen an den Nutzer (alle auf einmal)
-1. Neue Bausteine date-fns, TanStack Query, Radix DropdownMenu/Popover (shadcn), Zod: ja?
-2. Zustand zusätzlich, oder erst nach TanStack Query entscheiden?
-3. Lesen von `node_modules/**/*.d.ts` und `README.md` erlauben (U13)?
-4. Umbau als eigene Etappe vor `heute-uhr-und-wetter` einschieben?
+## Antwort des Nutzers (2026-11-12)
+Alles umsetzen, aber getrennt in Scheiben vor `heute-uhr-und-wetter`. Plan: `docs/FAHRPLAN.md`, Zwischenetappe „Aufräumen“. Alle genannten Bausteine sind freigegeben. Neue Regel C (alles nur einmal) steht in `CLAUDE.md`. U13 (Lesesperre) wartet noch auf eine eigene Bestätigung.
