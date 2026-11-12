@@ -120,3 +120,10 @@ Muster für einen Eintrag:
 - Grund: bewährte Bibliothek statt Eigenbau; Ja des Nutzers.
 - Link: https://d3js.org/d3-shape
 - Eingebaut in Scheibe: kurve-grund
+
+## 2026-11-12 · Aufklappende Karte am Knopf (Braucht dich)
+- Kandidaten: shadcn/ui Popover (@radix-ui/react-popover: Lage am Rand, Esc, Klick daneben, Fokus), natives Popover (keine Lage am Anker ohne CSS Anchor Positioning)
+- Entscheidung: shadcn/ui Popover als `bausteine/Aufklapp.tsx`
+- Grund: Ja des Nutzers vom 2026-11-12; Lage und Breite am Anker fertig, `aufraeumen-menues` stellt die übrigen Menüs darauf um.
+- Link: https://ui.shadcn.com/docs/components/popover
+- Eingebaut in Scheibe: aussehen-braucht-dich

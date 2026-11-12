@@ -1,3 +1,4 @@
+import { Aufklapp, AufklappInhalt, AufklappKnopf } from '../../bausteine/Aufklapp'
 import { Flaeche } from '../../bausteine/Flaeche'
 import { Group, Panel } from 'react-resizable-panels'
 import { Trenner } from '../../bausteine/Trenner'
@@ -88,6 +89,16 @@ function Spalte({ id, name }: (typeof designs)[number]) {
           </Panel>
         </Group>
       </Flaeche>
+
+      <p className="beschriftung mt-6 mb-2">Aufklapp</p>
+      <Aufklapp>
+        <AufklappKnopf asChild>
+          <Knopf>Öffnen</Knopf>
+        </AufklappKnopf>
+        <AufklappInhalt align="start" className="p-4 text-sm">
+          Karte am Knopf
+        </AufklappInhalt>
+      </Aufklapp>
 
       <p className="beschriftung mt-6 mb-2">Text und Farben</p>
       <Flaeche className="p-4">

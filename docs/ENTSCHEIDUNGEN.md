@@ -131,6 +131,7 @@ Eine Zeile je Entscheidung, neueste unten. Was hier steht, gilt und wird nicht n
 - 2026-11-12 · Offen Nr. 3 nach Empfehlung: Bahn ab Werk „Bogen“, „Echt“ bleibt als Auswahl in den Einstellungen.
 - 2026-11-12 · Himmel nach Vorlage: Sonne groß (8,5 rem) mit weitem Lichthof, Mond als Sichel (6 rem) mit schwachem Schein nach Phase, nur nachts. Helligkeit über `himmelsLicht`: Mittag immer am hellsten (Sonnenhöhe geteilt durch Mittagshöhe des Tages), am Horizont 30 %, Dämmerung bis 6° darunter; Wärme am größten bei 1° Sonnenhöhe, neue Farbe `--daemmerung` je Design.
 - 2026-11-12 · Heute fest aufgebaut (aussehen-heute): Kachel-Raster ganz entfernt samt Bearbeiten-Modus, Vertrag und Attrappe `kacheln`, Aktionen „Kacheln bearbeiten/zurücksetzen“, Einstellungen › Kacheln und react-grid-layout (Folge der Nutzer-Entscheidung „Raster fällt komplett weg“). Am Handy bleibt oben die Leiste mit Menü und Knöpfen; die Knöpfe stehen dort statt unter der Uhr. Die Höhe der Kurve am Handy lässt sich jetzt immer am Rand ziehen (vorher nur im Bearbeiten-Modus). Die Einstellung „Uhr“ auf Heute wirkt wieder.
+- 2026-11-12 · „Braucht dich“ als Reiter wie die Vorlage (`.remc`); Schließen blendet ihn bis zum Neuladen aus (mit Rückgängig); „Ansehen“ klappt die Liste über `bausteine/Aufklapp.tsx` (shadcn-Popover, Radix) nach oben am Reiter auf.
 
 ## Offen
 

@@ -40,8 +40,10 @@ export default function Seite() {
   const zeige = (tag: Date) => setWahl({ monat: new Date(tag.getFullYear(), tag.getMonth(), 1), fokus: tag })
 
   const brauchtInhalt = braucht.fehler ? (
-    <p className="text-sm text-warnung">{braucht.fehler}</p>
-  ) : braucht.daten?.wichtigster ? (
+    <Flaeche className="w-full max-w-sm px-4 py-2">
+      <p className="text-sm text-warnung">{braucht.fehler}</p>
+    </Flaeche>
+  ) : braucht.daten ? (
     <BrauchtDich daten={braucht.daten} jetzt={jetzt} />
   ) : null
 
@@ -63,7 +65,7 @@ export default function Seite() {
         </div>
       </div>
       <div className="flex-1" />
-      {brauchtInhalt && <Flaeche className="w-full max-w-sm px-4 py-2">{brauchtInhalt}</Flaeche>}
+      {brauchtInhalt}
       <div className="flex flex-wrap items-stretch gap-abstand">
         <Flaeche className="h-20 min-w-20">
           <Monat monat={wahl.monat} jetzt={jetzt} beginn={beginn} waehle={zeige} blaettern={(m) => setWahl((w) => ({ ...w, monat: m }))} />

@@ -1,16 +1,16 @@
 # Status
 Etappe: 2 Gezeitenkurve und Heute
-Nächste Scheibe: `aussehen-braucht-dich`
+Nächste Scheibe: `aussehen-wochenleiste`
 
 ## Stand
-Das Gerüst steht am PC (wie die Vorlage, ohne Zellraster: Leiste mit Logo von oben bis unten, Kopfzeile mit Uhr, Wetter und Knöpfen außer auf Heute) und am Handy mit Seitenleiste, zweiter Ebene, belegbaren Knöpfen, Einstellungsliste, Kacheln und Hintergrund. Die Gezeitenkurve zeigt den Beispieltag (PC unten über die volle Breite, Handy über der unteren Leiste; Einstellung „Lage“ je Gerät), scrollt endlos, folgt der Uhr und steuert beim Scrollen den Hintergrund. Der Himmel folgt dem Sonnenstand (Lichthof, Dämmerung, Mondschein nach Phase). Termine liegen als Punkte (mit Karte, Bündel, Überschneidung) oder Bänder auf ihr, lassen sich ziehen und zurücknehmen; dazu Treibgut und Wetterzeile. Die Kurve ist je Seite und Gerät abschaltbar; Meldungen fließen an der Jetzt-Linie ein und falten sich in die Glocke. Heute hat einen festen Aufbau (Gruß, Als Nächstes, Wetter, Uhr, Knöpfe, Braucht dich, Wochenleiste mit Monat, Notiz, Rückblick), Text ohne Hintergrund. **Aufräumen:** `docs/PRUEFUNG.md` wird in acht Scheiben `aufraeumen-*` abgearbeitet (siehe Fahrplan). Bausteine dafür sind freigegeben.
+Das Gerüst steht am PC (wie die Vorlage, ohne Zellraster: Leiste mit Logo von oben bis unten, Kopfzeile mit Uhr, Wetter und Knöpfen außer auf Heute) und am Handy mit Seitenleiste, zweiter Ebene, belegbaren Knöpfen, Einstellungsliste, Kacheln und Hintergrund. Die Gezeitenkurve zeigt den Beispieltag (PC unten über die volle Breite, Handy über der unteren Leiste; Einstellung „Lage“ je Gerät), scrollt endlos, folgt der Uhr und steuert beim Scrollen den Hintergrund. Der Himmel folgt dem Sonnenstand (Lichthof, Dämmerung, Mondschein nach Phase). Termine liegen als Punkte (mit Karte, Bündel, Überschneidung) oder Bänder auf ihr, lassen sich ziehen und zurücknehmen; dazu Treibgut und Wetterzeile. Die Kurve ist je Seite und Gerät abschaltbar; Meldungen fließen an der Jetzt-Linie ein und falten sich in die Glocke. Heute hat einen festen Aufbau (Gruß, Als Nächstes, Wetter, Uhr, Knöpfe, Braucht dich als Reiter mit aufklappender Liste, Wochenleiste mit Monat, Notiz, Rückblick), Text ohne Hintergrund. **Aufräumen:** `docs/PRUEFUNG.md` wird in acht Scheiben `aufraeumen-*` abgearbeitet (siehe Fahrplan). Bausteine dafür sind freigegeben.
 
 ## Zuletzt erledigt
+- aussehen-braucht-dich: Reiter wie Vorlage (Punkt, Titel, Ansehen, +n, Schließen mit Rückgängig, `geruest/brauchtDichZu.ts`), Liste über neuen Baustein `bausteine/Aufklapp.tsx` (Radix Popover) am Reiter
 - aussehen-heute: Heute fest aufgebaut aus `bereiche/heute/teile/`, Kachel-Raster, Bearbeiten-Modus und react-grid-layout entfernt
 - aussehen-himmel: `himmelsLicht` (hell, wärme, mond) in `logik/himmel.ts`; Sonne groß mit `lichthof`, `daemmerung` vom Horizont, Mond mit `mondschein`; Stärken über `--licht`, `--waerme`, `--mond-licht`
 - aussehen-kopfzeile: Raster des Gerüsts entfällt (Nutzer); Leiste 66/156 px und zweite Ebene volle Höhe, Logo der Vorlage (`bausteine/Logo.tsx`), Wischen breit/schmal mit Rückgängig (@use-gesture/react), Kopfzeile mit Wetter, Uhr, Knöpfen (nicht auf Heute), Kurve fest 150 px
 - raster-geruest: PC/Tablet als Zellraster der ganzen Seite (`src/logik/geruestRaster.ts`, `flaeche`): Leiste schmal/breit, zweite Ebene, Inhalt, Kurve 1–3 Reihen, Vorrang Kurve/Leiste; feste Kopfzeile mit Uhr und Wetter; `RasterPlatz` statt `freieHoehe`; `leisteLage`, Leisten-Panel und Kurven-Breite entfallen
-- raster-ziehen-2: Loslassen ohne Verweilen → `naechsteLuecke` (alter Platz zählt mit), nach Verweilen rücken Verdrängte in die nächste Lücke, sonst nach unten (`ablegen(…, ausweichen)`); Griff neben dem Menü-Knopf auch bei 1 × 1
 ## Stolpersteine
 - Stil prüft oxlint, nicht ESLint. Warnungen zählen als Fehler. Freie Tailwind-Werte wie `data-[…]` verbietet die Werte-Prüfung.
 - `npm run pruefen` steckt in `skripte/pruefen.mjs`; neue Prüfung = eine Zeile. Neue Seiten hinten an die Zeile „Tempo" hängen, dann wird auch der Wechsel gemessen.
@@ -29,6 +29,7 @@ Das Gerüst steht am PC (wie die Vorlage, ohne Zellraster: Leiste mit Logo von o
 - Bedienung im Browser testen: Playwright (Finger über CDP `Input.dispatchTouchEvent`, langer Druck 700 ms). Animationen ohne `both`, sonst zählt `sicht` sie als laufend.
 - Gezeitenkurve: Rechnung in `src/logik/gezeiten.ts`, Oberfläche `src/geruest/Gezeitenkurve.tsx`, Farben `kurve-*` in `werte.css`, Größen in `src/werte/kurve.ts`; am Handy Lage und Höhe in `src/geruest/MitKurve.tsx`. Termine über `holeTermine` (Attrappe `src/attrappe/termine.ts`).
 - Gezeigte Uhrzeit der Kurve teilt `src/geruest/gezeigteZeit.ts` (null = folgt der Uhr); der Hintergrund liest sie.
+- Schwebende Karte am Knopf: `Aufklapp`, `AufklappKnopf`, `AufklappAnker`, `AufklappInhalt` aus `bausteine/Aufklapp.tsx` (Breite = Anker, scrollt bei wenig Platz).
 - Zieh-Griffe nur über den Baustein `Trenner` (`src/bausteine/Trenner.tsx`), nie direkt `Separator`.
 - PC und Tablet: Gerüst als Flex-Layout in `Geruest.tsx` (`Pc`), Maße in `src/werte/leiste.ts` und `kurve.hoehePc`. Wischen: `useDrag` von @use-gesture/react; scrollbare Kinder brauchen `touch-pan-y`, sonst bricht der Browser die Finger-Geste ab. `node_modules/@use-gesture/*/dist` ist gesperrt, Schnittstelle über tsc prüfen.
 - Meldungen: `melde({id, text, ankunft, wichtig?})` aus `src/geruest/meldungen.ts`; gleiche id kommt nur einmal. Kopfzeile zeigt `useMeldungen().frisch`, Falten läuft einmal im Gerüst.

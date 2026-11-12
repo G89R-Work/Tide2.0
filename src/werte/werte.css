@@ -345,6 +345,40 @@
     opacity: 0.5;
   }
 }
+/* Karte des Bausteins Aufklapp (src/bausteine/Aufklapp.tsx): so breit wie der Anker, höchstens so hoch wie Platz ist. */
+@utility aufklapp {
+  z-index: 50;
+  color: var(--text);
+  width: var(--radix-popover-trigger-width);
+  max-height: var(--radix-popover-content-available-height);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  transform-origin: var(--radix-popover-content-transform-origin);
+  animation: aufklappen var(--dauer-sanft) var(--kurve);
+}
+@keyframes aufklappen {
+  from {
+    opacity: 0;
+    scale: 0.96;
+  }
+}
+/* Reiter „Braucht dich“ (Vorlage .rdot, .rmore): leuchtender Punkt in der Textfarbe und die Zahl der übrigen. */
+@utility reiter-punkt {
+  flex: none;
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 9999px;
+  background: currentColor;
+  box-shadow: 0 0 0.5rem currentColor;
+}
+@utility reiter-mehr {
+  flex: none;
+  font-size: 0.71875rem;
+  color: var(--text-gedaempft);
+  padding: 1px 0.4375rem;
+  border-radius: 9999px;
+  border: 1px solid var(--linie);
+}
 /* Braucht dich: die Karten fächern beim Öffnen nacheinander auf (nur in der Bewegungsstufe „sanft"). */
 @utility karte-faechern {
   transition:
