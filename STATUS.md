@@ -1,5 +1,4 @@
 # Status
-
 Etappe: 2 Gezeitenkurve und Heute
 Nächste Scheibe: `heute`
 
