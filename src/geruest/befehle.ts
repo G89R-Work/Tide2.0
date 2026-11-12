@@ -1,10 +1,12 @@
 import { aktionen } from '../logik/aktionen'
+import { rueckgaengig } from './rueckgaengig'
 import { bearbeitenStarten, kachelnZuruecksetzen } from '../kacheln/bearbeiten'
 
 // Was Aktionen mit `befehl` tun. Eine neue Befehls-Aktion braucht hier eine Zeile.
 const befehle: Record<string, () => void> = {
   'kacheln-anpassen': bearbeitenStarten,
   'kacheln-zuruecksetzen': kachelnZuruecksetzen,
+  rueckgaengig,
 }
 
 if (import.meta.env.DEV)

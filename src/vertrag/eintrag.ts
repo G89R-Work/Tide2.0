@@ -18,8 +18,8 @@ export type Eintrag = {
   ende?: string
 }
 
-/** Was sich an einem Eintrag ändern lässt. */
-export type Aenderung = Partial<Pick<Eintrag, 'titel' | 'erledigt'>>
+/** Was sich an einem Eintrag ändern lässt. Beginn und Ende nur zusammen und nur bei Einträgen mit Uhrzeit. */
+export type Aenderung = Partial<Pick<Eintrag, 'titel' | 'erledigt' | 'beginn' | 'ende'>>
 
 const adresse = '/api/eintraege'
 

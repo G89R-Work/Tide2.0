@@ -38,10 +38,12 @@ export function glaetten(werte: readonly number[], radius: number): number[] {
 const EBBE = 0.68
 const AUSSCHLAG = 0.382
 const FLUT = EBBE - AUSSCHLAG
+/** Lage der Linie als Anteil der Höhe von oben, für w von 0 (Ebbe) bis 1 (Flut). */
+export const vonOben = (w: number) => EBBE + (FLUT - EBBE) * w
 
 /** SVG-Pfade für einen Tag: x in Minuten (0 bis 1440), y in 0 bis hoehe. Der letzte Punkt wiederholt den ersten. */
 export function tagesPfade(werte: readonly number[], hoehe: number) {
-  const punkte: [number, number][] = [...werte, werte[0]].map((w, i) => [i * RASTER, hoehe * (EBBE + (FLUT - EBBE) * w)])
+  const punkte: [number, number][] = [...werte, werte[0]].map((w, i) => [i * RASTER, hoehe * vonOben(w)])
   const runden = (x: number) => Math.round(x * 10) / 10
   const p = punkte.map(([x, y]) => [runden(x), runden(y)] as [number, number])
   return {

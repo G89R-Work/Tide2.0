@@ -15,8 +15,10 @@ import {
   tagesPfade,
   zeitBei,
 } from '../logik/gezeiten'
-import { holeTermine, type Eintrag } from '../vertrag/eintrag'
+import { ordne } from '../logik/kurveEintraege'
 import { useEinstellung } from './einstellungen'
+import { KurveEintraege, KurveMeldung } from './KurveEintraege'
+import { useTermine, useTreibgut, useWetter } from './kurveDaten'
 import { setzeGezeigteZeit } from './gezeigteZeit'
 import { useMinute } from './useMinute'
 
@@ -24,7 +26,7 @@ import { useMinute } from './useMinute'
 // Folgt der Uhrzeit, bis jemand selbst scrollt; „Zu jetzt" gleitet zurück. Die Mitte zeigt die Uhrzeit, die den Hintergrund steuert.
 // Im Ruhezustand läuft nichts: gerechnet wird nur beim Laden, beim Scrollen und einmal pro Minute.
 const nach = (id: string) => einstellungen.find((e) => e.id === id)!
-const e = { stunden: nach('kurve-stunden'), ganzerTag: nach('kurve-ganzer-tag') }
+const e = { stunden: nach('kurve-stunden'), ganzerTag: nach('kurve-ganzer-tag'), wetter: nach('kurve-wetter') }
 
 const HOEHE = 100
 // Zweimal gemittelt über ±30 Minuten: weiche, ruhige Wellen (Wunsch des Nutzers); kurze Termine werden flache Hügel.
@@ -42,19 +44,24 @@ export function Gezeitenkurve({ className }: { className?: string }) {
   const stunden = ganzerTag ? 24 : gewaehlt
   const tagStart = tagBeginnVon(jetzt).getTime()
   const termine = useTermine(tagStart)
+  const treibgut = useTreibgut()
+  const wetter = useWetter(tagStart, useEinstellung(e.wetter) === true)
 
   const scroller = useRef<HTMLDivElement>(null)
   const [sichtbar, setSichtbar] = useState(0)
   const [folgt, setFolgt] = useState(true)
+  const [kopie, setKopie] = useState(1)
   const [gezeigt, setGezeigt] = useState(() => minutenAmTag(jetzt))
   const gleitet = useRef(false)
   // Für die Effekte: gezeigte Minute ohne neuen Lauf bei jedem Scrollschritt.
   const gezeigtJetzt = useRef(gezeigt)
   const tag = tagBreite(sichtbar, stunden)
 
-  const pfade = useMemo(() => {
-    const zeitraeume = (termine.liste ?? []).map((t) => ({ beginn: new Date(t.beginn!), ende: new Date(t.ende!) }))
-    return tagesPfade(glaetten(glaetten(ebbeFlut(zeitraeume, new Date(tagStart)), GLAETTEN), GLAETTEN), HOEHE)
+  const { pfade, werte, eintraege } = useMemo(() => {
+    const liste = termine.liste ?? []
+    const zeitraeume = liste.map((t) => ({ beginn: new Date(t.beginn!), ende: new Date(t.ende!) }))
+    const werte = glaetten(glaetten(ebbeFlut(zeitraeume, new Date(tagStart)), GLAETTEN), GLAETTEN)
+    return { werte, pfade: tagesPfade(werte, HOEHE), eintraege: ordne(liste, new Date(tagStart)) }
   }, [termine.liste, tagStart])
 
   // Breite des Sichtfelds messen; ändert sich nur bei Größenänderung.
@@ -119,6 +126,9 @@ export function Gezeitenkurve({ className }: { className?: string }) {
       const neu = endlos(el.scrollLeft, tag)
       if (neu !== el.scrollLeft) el.scrollLeft = neu
     }
+    // Welche der drei Kopien gerade in der Mitte steht: nur sie ist per Tastatur bedienbar.
+    const k = Math.floor((el.scrollLeft + sichtbar / 2) / tag)
+    if (k !== kopie) setKopie(k)
     const m = Math.round(zeitBei(el.scrollLeft, sichtbar, tag))
     gezeigtJetzt.current = m
     if (m !== gezeigt) setGezeigt(m)
@@ -160,6 +170,19 @@ export function Gezeitenkurve({ className }: { className?: string }) {
               {h % 24}
             </span>
           ))}
+          {tag > 0 && (
+            <KurveEintraege
+              {...eintraege}
+              werte={werte}
+              pxProMinute={tag / MIN_TAG}
+              minuteJetzt={minuteJetzt}
+              kopie={kopie}
+              marken={marken}
+              aendere={termine.aendere}
+              treibgut={treibgut.liste}
+              wetter={wetter.stunden}
+            />
+          )}
         </div>
       </div>
       <div className="kurve-mitte" />
@@ -171,23 +194,12 @@ export function Gezeitenkurve({ className }: { className?: string }) {
           </Knopf>
         </>
       )}
-      {termine.fehler && <p className="absolute top-1 left-2 text-xs text-warnung">{termine.fehler}</p>}
+      <KurveMeldung />
+      {[termine.fehler, treibgut.fehler, wetter.fehler].filter(Boolean).map((f) => (
+        <p key={f} role="alert" className="absolute top-1 left-2 rounded-knopf bg-grund px-2 text-xs text-warnung">
+          {f}
+        </p>
+      ))}
     </section>
   )
-}
-
-/** Termine des Tages über den Vertrag; neu geholt, wenn das Datum wechselt. */
-function useTermine(schluessel: number) {
-  const [stand, setStand] = useState<{ liste?: Eintrag[]; fehler?: string }>({})
-  useEffect(() => {
-    let aktiv = true
-    holeTermine(new Date(schluessel), new Date(schluessel + 24 * 3_600_000)).then(
-      (liste) => aktiv && setStand({ liste }),
-      (f: Error) => aktiv && setStand({ fehler: `Termine nicht geladen: ${f.message}` }),
-    )
-    return () => {
-      aktiv = false
-    }
-  }, [schluessel])
-  return stand
 }

@@ -8,5 +8,6 @@ export const beispielEintraege: Eintrag[] = [
   e('2', 'einkauf', 'Hafermilch und Brot'),
   e('3', 'termin', 'Zahnarzt, Donnerstag 9 Uhr'),
   e('4', 'mail', 'Antwort an die Hausverwaltung'),
+  e('6', 'aufgabe', 'Fahrrad zur Werkstatt bringen'),
   e('5', 'notiz', 'Ideen für den Urlaub im März'),
 ]

@@ -1,4 +1,4 @@
-import { CalendarPlus, LayoutDashboard, RotateCcw, ListPlus, Mic, PencilRuler, Search, ShoppingBasket, SquarePen, Waves, type LucideIcon } from 'lucide-react'
+import { CalendarPlus, LayoutDashboard, RotateCcw, ListPlus, Mic, PencilRuler, Undo2, Search, ShoppingBasket, SquarePen, Waves, type LucideIcon } from 'lucide-react'
 import { aktionen, type Aktion } from '../logik/aktionen'
 import { bereiche } from '../logik/bereiche'
 import { symbole } from './seiten'
@@ -12,6 +12,7 @@ const eigene: Record<string, LucideIcon> = {
   'knoepfe-belegen': PencilRuler,
   'kacheln-anpassen': LayoutDashboard,
   'kacheln-zuruecksetzen': RotateCcw,
+  rueckgaengig: Undo2,
   kurve: Waves,
   suche: Search,
   diktat: Mic,

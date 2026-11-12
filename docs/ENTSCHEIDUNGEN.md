@@ -61,6 +61,10 @@ Eine Zeile je Entscheidung, neueste unten. Was hier steht, gilt und wird nicht n
 - 2026-11-11 · Gezeitenkurve in Höhe (PC und Handy, höchstens Goldener Schnitt = 38,2 %) und Breite (PC) ziehbar wie die Seitenleiste, gemerkt je Geräteart im Browser (`tide.kurve-hoehe@…`, `tide.kurve-breite`), Doppelklick stellt zurück. Wunsch des Nutzers. Lage oben/unten für beide Geräte in einer Hülle `MitKurve`.
 - 2026-11-11 · Seitenleiste am PC wächst bis zum Rand, sobald die Kurve links Platz für sie lässt (`src/logik/leisteLage.ts`); dafür liegt sie als eigene Lage über ihrer Spalte, die Spalte gibt weiter die ziehbare Breite vor. Wunsch des Nutzers.
 - 2026-11-12 · Ausschlag der Gezeitenkurve von Ebbe bis Flut nur 38,2 % der Höhe (Goldener Schnitt) statt 54 %. Wunsch des Nutzers.
+- 2026-11-12 · Vertrag: Änderung eines Eintrags darf Beginn und Ende enthalten (nur zusammen, Ende nach Beginn); neue Anfrage `holeWetter(von, bis)` je Stunde mit Grad und Regen in mm. Ja des Nutzers.
+- 2026-11-12 · Gezeitenkurve: Termine ab 3 Stunden sind Bänder hinter der Kurve, kürzere Punkte; Punkte näher als eine Fingerbreite (44 px) werden gebündelt; Treibgut = offene Aufgaben ohne Uhrzeit als Zähler an der Jetzt-Linie.
+- 2026-11-12 · Rückgängig für ganz Tide als Aktion „Rückgängig" (Alt+Z, nicht Strg+Z, damit Textfelder ihr eigenes Rückgängig behalten); Speicher in `src/geruest/rueckgaengig.ts`. Karte mit „15 Min. früher/später" als Weg ohne Ziehen (Tastatur).
+- 2026-11-12 · Einstellung „Wetter" (Zeile über der Kurve, ab Werk an); die Zeile lässt Beschriftungen der Punkte frei.
 
 ## Offen
 

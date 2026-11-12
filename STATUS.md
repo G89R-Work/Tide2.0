@@ -1,20 +1,20 @@
 # Status
 
 Etappe: 2 Gezeitenkurve und Heute
-Nächste Scheibe: `kurve-eintraege`
+Nächste Scheibe: `kurve-ebbe-und-meldungen`
 
 ## Stand
-Das Gerüst steht am PC und am Handy mit Seitenleiste, zweiter Ebene, belegbaren Knöpfen, Einstellungsliste, Kacheln und Hintergrund. Die Gezeitenkurve zeigt den Beispieltag (PC unten über die volle Breite, Handy über der unteren Leiste; Einstellung „Lage“ je Gerät), scrollt endlos, folgt der Uhr und steuert beim Scrollen den Hintergrund.
+Das Gerüst steht am PC und am Handy mit Seitenleiste, zweiter Ebene, belegbaren Knöpfen, Einstellungsliste, Kacheln und Hintergrund. Die Gezeitenkurve zeigt den Beispieltag (PC unten über die volle Breite, Handy über der unteren Leiste; Einstellung „Lage“ je Gerät), scrollt endlos, folgt der Uhr und steuert beim Scrollen den Hintergrund. Termine liegen als Punkte (mit Karte, Bündel, Überschneidung) oder Bänder auf ihr, lassen sich ziehen und zurücknehmen; dazu Treibgut und Wetterzeile.
 
 ## Zuletzt erledigt
+- kurve-eintraege: `src/logik/kurveEintraege.ts`, `KurveEintraege.tsx`, `kurveDaten.ts`, `rueckgaengig.ts`, Vertrag `beginn`/`ende` ändern und `holeWetter`, Aktion „Rückgängig“ (Alt+Z), Einstellung „Wetter“
 - kurve-grund: `src/logik/gezeiten.ts` (Raster, Glätten, Scrollstelle, endlos), `Gezeitenkurve`, `gezeigteZeit`, Vertrag `holeTermine`, Einstellung „Ganzer Tag“
 - geruest-zweite-ebene: `src/logik/ebenen.ts` (Marke `#bereich/unter`), `ZweiteEbene`, `HandyMenue`, `useSchmal`, `useBrauchtDich`
 - aktionen-und-knoepfe: `src/logik/aktionen.ts` (Aktionsliste, Plätze, Kürzel), `src/geruest/belegung.ts`, `AktionKnopf`, `Auswahl`
 - hintergrund: `src/logik/himmel.ts` (SunCalc, Bogen/Echt, Mondpfad), `src/geruest/Hintergrund.tsx`, `useMinute`
-- kacheln: `src/logik/kacheln.ts`, `src/kacheln/` (Raster, KachelMenue, BearbeitenLeiste, Speicher), Heute mit `werkszustand.ts`
 
 ## Stolpersteine
-- Stil prüft oxlint, nicht ESLint. Warnungen zählen als Fehler.
+- Stil prüft oxlint, nicht ESLint. Warnungen zählen als Fehler. Freie Tailwind-Werte wie `data-[…]` verbietet die Werte-Prüfung.
 - `npm run pruefen` steckt in `skripte/pruefen.mjs`; neue Prüfung = eine Zeile. Neue Seiten hinten an die Zeile „Tempo" hängen, dann wird auch der Wechsel gemessen.
 - Tempo-Grenzen nur in `src/logik/tempoGrenzen.ts`; `skripte/sicht.mjs` liest die Datei direkt (Node streicht die Typen).
 - `npm run sicht` meldet Konsolen-Fehler und -Warnungen der Seite als Fehler. Seiten mit Unterpunkt: `npm run sicht -- postfach/gesendet`.
@@ -23,13 +23,11 @@ Das Gerüst steht am PC und am Handy mit Seitenleiste, zweiter Ebene, belegbaren
 - react-resizable-panels 4: Größen als Text mit Einheit (`'64px'`); Breiten der Leiste in `src/werte/leiste.ts`, Breite gemerkt unter `tide.leiste`. `isCollapsed()` ist nach dem Neuladen veraltet; die Breite kommt aus `onResize`.
 - Neuer Bereich: Eintrag in `src/logik/bereiche.ts`, zweite Ebene in `src/logik/ebenen.ts`, Lader und Symbol in `src/geruest/seiten.ts`.
 - Handy-Ansicht unter `leiste.schmalUnter` (768 px), umgeschaltet live über `useSchmal`. Die Kopfzeile am Handy hat rechts Platz für die drei belegbaren Knöpfe.
-- Freie Tailwind-Werte wie `data-[…]` verbietet die Werte-Prüfung.
 - Neues Design = Kopie von `src/werte/tinte.css`. Neue Farbe: beide Designs, `werte.css` (@theme inline), `src/bausteine/cn.ts`.
 - Glas nur über `flaeche-leiste`, `flaeche-kachel`, `flaeche-schwebend`; Drück-Rückmeldung über `drueck`.
 - Neue Aktion: Zeile in `src/logik/aktionen.ts`, Symbol in `src/geruest/aktionSymbole.ts`. Aktion ohne `ziel` braucht `kommt` (Test prüft das).
 - Neue Einstellung = eine Zeile in `einstellungen` (`src/logik/einstellungen.ts`); lesen mit `useEinstellung(e)` aus `src/geruest/einstellungen.ts`. Wirken bisher nur im Hintergrund (Bahn, Ort, Mond nur nachts, folgt der Tageszeit).
 - Hintergrund: Farben `--sonne`, `--welle-1…5`, `--nacht` je Design, Maße in `werte.css`, Wellenhöhe über `data-wellen` → `--horizont`; Lage kommt als `--x`/`--y` (0–1). Die Uhrzeit fest stellen für Bilder: Playwright `page.clock.setFixedTime`, Bahn über `localStorage['tide.attrappe.einstellungen']`.
-- Programmcode gepackt beim Start: 117 KB von erlaubten 200 KB.
 - Kacheln einer Seite: `<Raster seite kacheln={werkszustand} inhalt={{id: …}} />`; `werkszustand` muss eine Konstante sein (Speicher hängt daran). Maße in `src/werte/kacheln.ts`, Griffpunkte und Nachrücken in `werte.css`.
 - Aktion mit `befehl: true` braucht eine Zeile in `src/geruest/befehle.ts`.
 - Bedienung im Browser testen: Playwright, Finger über CDP `Input.dispatchTouchEvent` (langer Druck = touchStart, 700 ms warten).
@@ -37,3 +35,6 @@ Das Gerüst steht am PC und am Handy mit Seitenleiste, zweiter Ebene, belegbaren
 - Gezeigte Uhrzeit der Kurve teilt `src/geruest/gezeigteZeit.ts` (null = folgt der Uhr); der Hintergrund liest sie.
 - Zieh-Griffe nur über den Baustein `Trenner` (`src/bausteine/Trenner.tsx`), nie direkt `Separator`.
 - Seitenleiste am PC: Panel „leiste“ ist nur die Spalte (Breite); die Leiste selbst liegt darüber (`leiste-lage` in `werte.css`), Ende oben/unten aus `leisteLage`, Platz der Kurve kommt über `MitKurve onPlatz`.
+- Rückgängig: jede Änderung ruft `merke(text, zurueck)` aus `src/geruest/rueckgaengig.ts`; die Meldung zeigt `KurveMeldung` in der Kurve (6 s). `zurueck` meldet eigene Fehler selbst.
+- Kurve: Einträge liegen in jeder der drei Kopien; bedienbar per Tastatur nur die Kopie in der Mitte (`kopie`). Beim Ziehen darf sich die Reihenfolge der Elemente nicht ändern, sonst geht der Finger (Pointer-Capture) verloren.
+- Attrappe: Termine des Beispieltags (id `t-…`) ändert `src/attrappe/termine.ts` (gemerkt unter `tide.attrappe.termine`); diese Antworten stehen in `start.ts` vor den Einträgen.

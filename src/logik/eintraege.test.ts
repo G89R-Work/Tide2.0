@@ -26,4 +26,15 @@ describe('eintragAendern', () => {
     const neu = eintragAendern(liste, 'a', { id: 'z', art: 'mail' } as never, jetzt)
     expect(neu.eintrag).toMatchObject({ id: 'a', art: 'aufgabe' })
   })
+  it('verschiebt Beginn und Ende eines Termins', () => {
+    const termin: Eintrag = { ...liste[0]!, id: 't', art: 'termin', beginn: '2026-11-11T09:00:00.000Z', ende: '2026-11-11T09:30:00.000Z' }
+    const neu = eintragAendern([termin], 't', { beginn: '2026-11-11T10:00:00.000Z', ende: '2026-11-11T10:30:00.000Z' }, jetzt)
+    expect(neu.eintrag).toMatchObject({ beginn: '2026-11-11T10:00:00.000Z', ende: '2026-11-11T10:30:00.000Z' })
+  })
+  it('lehnt eine Zeit ab, die nicht lesbar ist oder vor dem Beginn endet', () => {
+    const termin: Eintrag = { ...liste[0]!, id: 't', art: 'termin', beginn: '2026-11-11T09:00:00.000Z', ende: '2026-11-11T09:30:00.000Z' }
+    expect(() => eintragAendern([termin], 't', { beginn: 'morgen', ende: '2026-11-11T09:30:00.000Z' }, jetzt)).toThrow(/Zeit/)
+    expect(() => eintragAendern([termin], 't', { beginn: '2026-11-11T10:00:00.000Z', ende: '2026-11-11T09:00:00.000Z' }, jetzt)).toThrow(/Ende/)
+    expect(() => eintragAendern([termin], 't', { beginn: '2026-11-11T10:00:00.000Z' }, jetzt)).toThrow(/zusammen/)
+  })
 })

@@ -26,3 +26,5 @@ Hier landet alles, was nicht zur laufenden Scheibe gehört. Einmal im Monat wird
 - MSW meldet beim Neuladen „GET / ohne Antwort“ als Warnung; `onUnhandledRequest: 'bypass'` für Seitenaufrufe prüfen (kacheln)
 - Gruß in der Heute-Kachel („Guten Morgen“) folgt der gezeigten Uhrzeit der Kurve (kurve-grund)
 - Hosting für Tablet und Handy nur für den Nutzer: Cloudflare Pages + Cloudflare Access (Code per Mail, kostenlos, Konto vorhanden); Alternative Tailscale über den Homeserver. Mit den Server-Etappen (kurve-grund)
+- Zieh-Grenzen der Kurve: Termin über Mitternacht ziehen und am Rand der Sicht mitscrollen (kurve-eintraege)
+- Bänder auch an den Rändern greifbar machen, um Dauer statt Lage zu ändern (kurve-eintraege)

@@ -349,6 +349,57 @@ html {
   pointer-events: none;
 }
 
+/* Einträge auf der Gezeitenkurve (src/geruest/KurveEintraege.tsx): Punkt, Band dahinter, Karte im Vordergrund. */
+@utility kurve-punkt {
+  width: 0.625rem;
+  height: 0.625rem;
+  border-radius: 9999px;
+  background: var(--akzent);
+  box-shadow: 0 0 0 2px var(--grund);
+  transition: scale var(--dauer-rueckmeldung) var(--kurve);
+}
+@utility kurve-punkt-ueberschneidet {
+  box-shadow:
+    0 0 0 2px var(--grund),
+    0 0 0 4px var(--warnung);
+}
+@utility kurve-buendel {
+  min-width: 1.25rem;
+  height: 1.25rem;
+  padding: 0 0.25rem;
+  border-radius: 9999px;
+  background: var(--akzent);
+  color: var(--auf-akzent);
+  font-size: 0.6875rem;
+  line-height: 1.25rem;
+  font-weight: 600;
+  text-align: center;
+}
+@utility kurve-band {
+  background: var(--akzent);
+  opacity: 0.1;
+  border-left: 1px solid var(--akzent);
+  border-right: 1px solid var(--akzent);
+}
+@utility kurve-schrift {
+  font-size: 0.6875rem;
+  line-height: 1rem;
+  text-shadow: 0 0 4px var(--grund);
+}
+/* Karte als natives Popover: liegt über allem und schließt mit Esc oder Klick daneben. Lage kommt als --x/--y/--unten (px). */
+@utility kurve-karte {
+  position: fixed;
+  inset: auto;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  overflow: visible;
+  left: calc(var(--x) * 1px);
+  top: calc(var(--y) * 1px);
+  width: min(18rem, calc(100vw - 1rem));
+}
+
 /* Seitenleiste am PC als Lage über ihrer Spalte (src/geruest/Geruest.tsx): Breite aus der Spalte, Ende oben und unten
    aus src/logik/leisteLage.ts (Abstand zum Rand). Werte kommen als Zahlen in Pixeln über --breite, --oben, --unten. */
 @utility leiste-lage {

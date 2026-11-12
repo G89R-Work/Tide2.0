@@ -21,7 +21,13 @@ export const eintraegeAntworten = [
   http.get('/api/eintraege', () => HttpResponse.json(laden())),
   http.patch('/api/eintraege/:id', async ({ params, request }) => {
     const aenderung = (await request.json()) as Aenderung
-    const { liste, eintrag } = eintragAendern(laden(), String(params.id), aenderung, new Date())
+    let ergebnis
+    try {
+      ergebnis = eintragAendern(laden(), String(params.id), aenderung, new Date())
+    } catch (f) {
+      return new HttpResponse((f as Error).message, { status: 400 })
+    }
+    const { liste, eintrag } = ergebnis
     if (!eintrag) return new HttpResponse(`Eintrag ${String(params.id)} gibt es nicht`, { status: 404 })
     localStorage.setItem(schluessel, JSON.stringify(liste))
     return HttpResponse.json(eintrag)
