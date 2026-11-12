@@ -33,9 +33,11 @@ export function glaetten(werte: readonly number[], radius: number): number[] {
   })
 }
 
-/** Ebbe und Flut als Anteil der Höhe: die Linie berührt nie ganz den Rand. */
+/** Ebbe und Flut als Anteil der Höhe, von oben gemessen. Die Ebbe liegt über der Stundenleiste;
+ *  der Ausschlag nutzt nur den Goldenen Schnitt der Höhe (38,2 %), damit die Kurve ruhig bleibt. */
 const EBBE = 0.68
-const FLUT = 0.14
+const AUSSCHLAG = 0.382
+const FLUT = EBBE - AUSSCHLAG
 
 /** SVG-Pfade für einen Tag: x in Minuten (0 bis 1440), y in 0 bis hoehe. Der letzte Punkt wiederholt den ersten. */
 export function tagesPfade(werte: readonly number[], hoehe: number) {

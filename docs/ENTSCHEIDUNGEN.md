@@ -60,6 +60,7 @@ Eine Zeile je Entscheidung, neueste unten. Was hier steht, gilt und wird nicht n
 - 2026-11-11 · Sichtbare Stunden ab Werk 4, einstellbar 3 bis 8 (offener Punkt 5, nach Empfehlung).
 - 2026-11-11 · Gezeitenkurve in Höhe (PC und Handy, höchstens Goldener Schnitt = 38,2 %) und Breite (PC) ziehbar wie die Seitenleiste, gemerkt je Geräteart im Browser (`tide.kurve-hoehe@…`, `tide.kurve-breite`), Doppelklick stellt zurück. Wunsch des Nutzers. Lage oben/unten für beide Geräte in einer Hülle `MitKurve`.
 - 2026-11-11 · Seitenleiste am PC wächst bis zum Rand, sobald die Kurve links Platz für sie lässt (`src/logik/leisteLage.ts`); dafür liegt sie als eigene Lage über ihrer Spalte, die Spalte gibt weiter die ziehbare Breite vor. Wunsch des Nutzers.
+- 2026-11-12 · Ausschlag der Gezeitenkurve von Ebbe bis Flut nur 38,2 % der Höhe (Goldener Schnitt) statt 54 %. Wunsch des Nutzers.
 
 ## Offen
 

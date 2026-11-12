@@ -69,6 +69,15 @@ describe('tagesPfade', () => {
   })
 })
 
+describe('Ausschlag', () => {
+  it('Ebbe bis Flut nutzt den Goldenen Schnitt der Höhe (38,2 %), nicht die ganze', () => {
+    const y = (p: string) => Number(p.split(',')[1].split(/[A-Z]/)[0])
+    const hoch = y(tagesPfade(new Array(288).fill(1), 100).linie)
+    const tief = y(tagesPfade(new Array(288).fill(0), 100).linie)
+    expect(tief - hoch).toBeCloseTo(38.2, 0)
+  })
+})
+
 describe('Uhrzeit und Scrollstelle', () => {
   it('Tagesbreite aus sichtbaren Stunden', () => {
     expect(tagBreite(600, 4)).toBe(3600)
