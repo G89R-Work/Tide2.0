@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties } from 'react'
 import { cn } from '../bausteine/cn'
 import { Knopf } from '../bausteine/Knopf'
 import { einstellungen } from '../logik/einstellungen'
@@ -26,7 +26,7 @@ import { useMinute } from './useMinute'
 // Folgt der Uhrzeit, bis jemand selbst scrollt; „Zu jetzt" gleitet zurück. Die Mitte zeigt die Uhrzeit, die den Hintergrund steuert.
 // Im Ruhezustand läuft nichts: gerechnet wird nur beim Laden, beim Scrollen und einmal pro Minute.
 const nach = (id: string) => einstellungen.find((e) => e.id === id)!
-const e = { stunden: nach('kurve-stunden'), ganzerTag: nach('kurve-ganzer-tag'), wetter: nach('kurve-wetter') }
+const e = { stunden: nach('kurve-stunden'), ganzerTag: nach('kurve-ganzer-tag'), wetter: nach('kurve-wetter'), band: nach('kurve-band-hoehe') }
 
 const HOEHE = 100
 // Zweimal gemittelt über ±30 Minuten: weiche, ruhige Wellen (Wunsch des Nutzers); kurze Termine werden flache Hügel.
@@ -43,6 +43,7 @@ export function Gezeitenkurve({ className }: { className?: string }) {
   const gewaehlt = Number(useEinstellung(e.stunden))
   const stunden = ganzerTag ? 24 : gewaehlt
   const tagStart = tagBeginnVon(jetzt).getTime()
+  const bandHoehe = Number(useEinstellung(e.band))
   const termine = useTermine(tagStart)
   const treibgut = useTreibgut()
   const wetter = useWetter(tagStart, useEinstellung(e.wetter) === true)
@@ -148,7 +149,11 @@ export function Gezeitenkurve({ className }: { className?: string }) {
   const marken = useMemo(() => Array.from({ length: (72 / schritt) | 0 }, (_, i) => i * schritt), [schritt])
 
   return (
-    <section aria-label="Gezeitenkurve" className={cn('flaeche-leiste relative h-full overflow-hidden', className)}>
+    <section
+      aria-label="Gezeitenkurve"
+      className={cn('flaeche-leiste relative h-full overflow-hidden', className)}
+      style={{ '--band-hoehe': bandHoehe } as CSSProperties}
+    >
       <div ref={scroller} tabIndex={0} onScroll={beimScrollen} className="kurve-scroller h-full outline-none">
         <div className="relative h-full" style={{ width: tag * 3 }}>
           {tag > 0 && (
@@ -157,6 +162,7 @@ export function Gezeitenkurve({ className }: { className?: string }) {
               werte={werte}
               pxProMinute={tag / MIN_TAG}
               minuteJetzt={minuteJetzt}
+              mitte={folgt ? null : gezeigt}
               kopie={kopie}
               marken={marken}
               aendere={termine.aendere}
@@ -188,7 +194,7 @@ export function Gezeitenkurve({ className }: { className?: string }) {
       <div className="kurve-mitte" />
       {!folgt && (
         <>
-          <span className="pointer-events-none absolute top-0.5 left-1/2 ml-2 rounded-knopf bg-grund px-1 text-xs font-medium text-text tabular-nums">{uhrzeit(gezeigt)}</span>
+          <span className="pointer-events-none absolute top-0.5 left-1/2 ml-2 text-xs font-medium text-text tabular-nums">{uhrzeit(gezeigt)}</span>
           <Knopf groesse="klein" className="absolute top-1/2 right-2 -translate-y-1/2" onClick={zuJetzt}>
             Zu jetzt
           </Knopf>

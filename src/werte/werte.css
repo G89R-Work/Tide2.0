@@ -375,12 +375,12 @@ html {
   font-weight: 600;
   text-align: center;
 }
-/* Band: ein langer Streifen mit runden Ecken, 38 % der Kurvenhöhe hoch und senkrecht mittig. Es steht im Code vor dem SVG
-   und liegt so hinter der Linie; das SVG lässt Klicks durch. */
+/* Band: ein langer Streifen mit runden Ecken, senkrecht mittig. Die Höhe in Prozent der Kurve kommt aus der Einstellung
+   „Höhe der Bänder" als --band-hoehe. Es steht im Code vor dem SVG und liegt so hinter der Linie; das SVG lässt Klicks durch. */
 @utility kurve-band-lage {
   position: absolute;
-  top: 31%;
-  height: 38%;
+  height: calc(var(--band-hoehe, 76) * 1%);
+  top: calc((100 - var(--band-hoehe, 76)) * 0.5%);
 }
 @utility kurve-band {
   background: color-mix(in oklab, var(--akzent) 22%, transparent);

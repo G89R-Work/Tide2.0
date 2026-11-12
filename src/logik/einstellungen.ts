@@ -71,6 +71,7 @@ export const einstellungen: readonly Einstellung[] = [
   { id: 'bewegung', name: 'Bewegung', abschnitt: 'darstellung', art: 'schalter', standard: true, hilfe: 'Aus: keine Animationen' },
   { id: 'kurve-stunden', name: 'Sichtbare Stunden', abschnitt: 'kurve', art: 'zahl', standard: 4, min: 3, max: 8, einheit: 'Std.', jeGeraet: true, wichtig: true },
   { id: 'kurve-ganzer-tag', name: 'Ganzer Tag', abschnitt: 'kurve', art: 'schalter', standard: false, jeGeraet: true, hilfe: 'Zeigt alle 24 Stunden auf einmal' },
+  { id: 'kurve-band-hoehe', name: 'Höhe der Bänder', abschnitt: 'kurve', art: 'zahl', standard: 76, min: 20, max: 100, einheit: '%', jeGeraet: true, hilfe: 'Lange Termine wie Schichten, als Anteil der Kurvenhöhe' },
   { id: 'kurve-wetter', name: 'Wetter', abschnitt: 'kurve', art: 'schalter', standard: true, jeGeraet: true, hilfe: 'Temperatur und Regen als feine Zeile über der Kurve' },
   { id: 'kurve-lage', name: 'Lage', abschnitt: 'kurve', art: 'auswahl', standard: 'unten', optionen: [['unten', 'Unten'], ['oben', 'Oben']], jeGeraet: true, hilfe: 'Am PC über die volle Breite, am Handy über der Leiste' },
   { id: 'rechtschreibung', name: 'Rechtschreibprüfung', abschnitt: 'schreiben', art: 'schalter', standard: true },

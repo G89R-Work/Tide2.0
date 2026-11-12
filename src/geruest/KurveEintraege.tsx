@@ -42,6 +42,8 @@ export function KurveEintraege(p: {
   pxProMinute: number
   minuteJetzt: number
   kopie: number
+  /** Gezeigte Uhrzeit in der Mitte, wenn die Kurve nicht der Uhr folgt; dort steht sie oben als Zahl. */
+  mitte: number | null
   marken: number[]
   aendere: Aendere
   treibgut: Eintrag[]
@@ -117,6 +119,7 @@ export function KurveEintraege(p: {
   // Wetterzeile weicht den Beschriftungen aus: keine Angabe, wo eine Beschriftung steht (halbe Zahlbreite Puffer).
   const belegt = gruppen.flatMap((g, i) => (g.length === 1 && plaetze[i] >= BESCHRIFTUNG_MIN ? [[g[0].minute, g[0].minute + plaetze[i] / pxProMinute]] : []))
   if (p.treibgut.length) belegt.push([p.minuteJetzt, p.minuteJetzt + FINGER / pxProMinute])
+  if (p.mitte !== null) belegt.push([p.mitte, p.mitte + FINGER / pxProMinute])
   const frei = (minute: number) => belegt.every(([von, bis]) => minute < von - FINGER / 2 / pxProMinute || minute > bis + FINGER / 2 / pxProMinute)
   // Beschriftungen enden auch vor dem Treibgut-Zähler an der Jetzt-Linie.
   const vorZaehler = (minute: number, platz: number) =>
