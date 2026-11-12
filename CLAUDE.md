@@ -35,6 +35,7 @@ Alle weiteren Bausteine: `docs/konzept/30-bausteine.md` und `docs/BAUSTEINE.md`.
 - Subagenten nur nach Freigabe: wofür, warum nicht direkt, grober Umfang.
 - Ein Satz vor jedem größeren Schritt. Code nicht im Chat wiederholen. Abschlussbericht höchstens 6 Zeilen.
 - Jeder Befehl, den du für Tide einrichtest, nennt bei einem Fehler den Grund (Datei, Zeile, Meldung). Nie Fehler verschlucken, etwa mit `--quiet`. Das spart die Suche im Code.
+- In `node_modules` nur `.d.ts`, `README.md` und `package.json` lesen, gezielt per Grep, nie ganze Ordner. Programmcode dort nie lesen.
 - Ideen außerhalb der Scheibe: eine Zeile in `docs/IDEEN.md`, nicht bauen.
 
 ## Höchste Priorität

@@ -50,4 +50,4 @@ Gut gelöst (bleibt): react-grid-layout, react-resizable-panels, SunCalc, d3-sha
 6. Rest bei Gelegenheit.
 
 ## Antwort des Nutzers (2026-11-12)
-Alles umsetzen, aber getrennt in Scheiben vor `heute-uhr-und-wetter`. Plan: `docs/FAHRPLAN.md`, Zwischenetappe „Aufräumen“. Alle genannten Bausteine sind freigegeben. Neue Regel C (alles nur einmal) steht in `CLAUDE.md`. U13 (Lesesperre) wartet noch auf eine eigene Bestätigung.
+Alles umsetzen, aber getrennt in Scheiben vor `heute-uhr-und-wetter`. Plan: `docs/FAHRPLAN.md`, Zwischenetappe „Aufräumen“. Alle genannten Bausteine sind freigegeben. Neue Regel C (alles nur einmal) steht in `CLAUDE.md`. U13 erledigt: in `node_modules` sind nur noch Programmdateien gesperrt; gelesen werden nur `.d.ts`, `README.md`, `package.json` (Regel in `CLAUDE.md`).

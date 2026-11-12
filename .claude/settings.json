@@ -3,7 +3,15 @@
   "permissions": {
     "deny": [
       "Read(./vorlage/**)",
-      "Read(./node_modules/**)",
+      "Read(./node_modules/**/*.js)",
+      "Read(./node_modules/**/*.mjs)",
+      "Read(./node_modules/**/*.cjs)",
+      "Read(./node_modules/**/*.jsx)",
+      "Read(./node_modules/**/*.tsx)",
+      "Read(./node_modules/**/*.map)",
+      "Read(./node_modules/**/*.css)",
+      "Read(./node_modules/**/*.wasm)",
+      "Read(./node_modules/**/*.node)",
       "Read(./dist/**)",
       "Read(./package-lock.json)",
       "Read(./.env)",
