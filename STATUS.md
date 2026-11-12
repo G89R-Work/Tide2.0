@@ -12,7 +12,6 @@ Das Gerüst steht am PC und am Handy mit Seitenleiste, zweiter Ebene, belegbaren
 - aufraeumen-rueckgaengig: ein Rückgängig-Speicher mit Wiederherstellen (Alt+Y) und Knöpfen je Seite; `src/werte/bewegung.ts` (`MELDUNG_MS`)
 - heute-kacheln (Nachtrag): freie Plätze und Raster „Doppelt“ (`src/logik/kacheln.ts`), Abstände Rand/Abstand (`src/werte/abstaende.ts`, `src/logik/freierPlatz.ts`), Uhr/Wetter im Gerüst und in der Kopfzeile, KW an der Wochenleiste
 
-## Stolpersteine
 - Stil prüft oxlint, nicht ESLint. Warnungen zählen als Fehler. Freie Tailwind-Werte wie `data-[…]` verbietet die Werte-Prüfung.
 - `npm run pruefen` steckt in `skripte/pruefen.mjs`; neue Prüfung = eine Zeile. Neue Seiten hinten an die Zeile „Tempo" hängen, dann wird auch der Wechsel gemessen.
 - Tempo-Grenzen nur in `src/logik/tempoGrenzen.ts`; `skripte/sicht.mjs` liest die Datei direkt (Node streicht die Typen).
