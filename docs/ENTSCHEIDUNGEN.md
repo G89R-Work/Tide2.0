@@ -98,6 +98,10 @@ Eine Zeile je Entscheidung, neueste unten. Was hier steht, gilt und wird nicht n
 - 2026-11-12 · Ein- und Ausschalten des Bearbeiten-Modus (Alt+B, „Fertig“) ist kein Rückgängig-Schritt, damit Alt+Z nach „Fertig“ die letzte Kachel-Änderung zurücknimmt. Einstellungen nehmen beim Zurücknehmen nur ihre eigenen Einträge zurück.
 - 2026-11-12 · Dauern, die das Programm braucht, stehen in `src/werte/bewegung.ts` (zuerst `MELDUNG_MS`, 6 s).
 
+- 2026-11-12 · Bearbeiten-Modus sieht aus wie danach (Wunsch des Nutzers): keine Leiste über den Kacheln; das Bedienfeld („Bearbeiten aktiv“, ausgeblendete Kacheln, Rückgängig/Wiederherstellen, Zurücksetzen, Fertig) liegt am PC unten in der Seitenleiste, am Handy schwebend über der unteren Leiste. Rahmen und Griffpunkte liegen innerhalb der Kacheln.
+- 2026-11-12 · Kachel-Raster: Eine Bildschirmhöhe fasst am PC und Tablet 8, am Handy 12 Zeilen; die Zeilenhöhe wird aus der freien Höhe gerechnet (`zeilenHoehe`), Abstand immer 12 px, die unterste Zeile endet genau einen Abstand vor der Kurve. 12 Zeilen am Tablet waren zu niedrig (28 px), darum 8 nach Wahl des Nutzers. Tiefer liegende Kacheln erreicht man durch Scrollen.
+- 2026-11-12 · Seitenleiste: Bereichsliste scrollt bei wenig Höhe; Bedienfeld und Zahnrad bleiben unten immer sichtbar.
+
 ## Offen
 
 Sieben Punkte sind offen. Bei jedem steht meine Empfehlung. Ohne Antwort gilt die Empfehlung.

@@ -1,6 +1,7 @@
 // Kacheln: Anordnung je Seite und Geräteart (docs/konzept/04-kacheln.md).
 // Plätze sind frei: Eine Kachel bleibt, wo man sie lässt; nichts rückt nach oben. Liegt eine Kachel auf einer anderen,
 // weicht die andere nach unten aus. Das Raster hat am PC 12 und am Handy 2 Spalten, in der Feinheit „doppelt“ 24 und 4.
+// Eine Bildschirmhöhe hat je Gerät gleich viele Zeilen (`src/werte/kacheln.ts`); tiefer liegende Kacheln erreicht man durch Scrollen.
 // Pläne (Werk, Mindestgrößen, feste Größen) stehen im einfachen Raster und werden für „doppelt“ umgerechnet.
 import { getFirstCollision, sortLayoutItemsByRowCol } from 'react-grid-layout/core'
 import type { Layout, LayoutItem } from 'react-grid-layout'
@@ -31,6 +32,12 @@ const grundSpalten: Record<Geraet, number> = { pc: 12, handy: 2 }
 
 export function spaltenVon(g: Geraet, fein: Feinheit): number {
   return grundSpalten[g] * fein
+}
+
+/** Höhe einer Rasterzeile: Eine Bildschirmhöhe (`frei`, der sichtbare Platz zwischen Kopf und Kurve) fasst genau `zeilen`
+ *  Zeilen mit `abstand` dazwischen. So endet die letzte Zeile auf jedem Bildschirm genau einen Abstand vor der Kurve. */
+export function zeilenHoehe(frei: number, zeilen: number, abstand: number): number {
+  return Math.max(0, (frei - (zeilen - 1) * abstand) / zeilen)
 }
 
 export const festeGroessen = {

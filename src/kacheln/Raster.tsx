@@ -1,5 +1,6 @@
 import { Ellipsis } from 'lucide-react'
 import { useEffect, useState, type KeyboardEvent, type MouseEvent, type ReactNode, type Ref } from 'react'
+import { createPortal } from 'react-dom'
 import { GridLayout, useContainerWidth } from 'react-grid-layout'
 import { noCompactor } from 'react-grid-layout/core'
 import type { Layout, ResizeHandleAxis } from 'react-grid-layout'
@@ -7,17 +8,20 @@ import { cn } from '../bausteine/cn'
 import { Flaeche } from '../bausteine/Flaeche'
 import { Knopf } from '../bausteine/Knopf'
 import { useGeraet } from '../geruest/einstellungen'
-import { alsLayout, ausLayout, groesseAendern, hatHintergrund, spaltenVon, verschiebe, type KachelPlan } from '../logik/kacheln'
+import { useFreieHoehe } from '../geruest/freieHoehe'
+import { alsLayout, ausLayout, groesseAendern, hatHintergrund, spaltenVon, verschiebe, zeilenHoehe, type KachelPlan } from '../logik/kacheln'
 import { abstaende } from '../werte/abstaende'
 import { kachelRaster } from '../werte/kacheln'
 import { useAnordnung } from './anordnung'
-import { bearbeitenBeenden, meldeZuruecksetzer, useBearbeiten } from './bearbeiten'
+import { bearbeitenBeenden, meldeZuruecksetzer, useBearbeiten, useBearbeitenOrt } from './bearbeiten'
 import { BearbeitenLeiste } from './BearbeitenLeiste'
 import { KachelMenue, type MenueOrt } from './KachelMenue'
 
 // Kacheln einer Seite (docs/konzept/04-kacheln.md). Verschieben und Größe ändern macht react-grid-layout;
 // hier nur der Bearbeiten-Modus drumherum: Griff, Griffpunkte, Menü der Kachel, Tastatur, Speichern.
-// Außerhalb des Modus verrutscht nichts und es gibt weder langen Druck noch Rechtsklick-Menü.
+// Außerhalb des Modus gibt es weder langen Druck noch Rechtsklick-Menü. Im Modus sieht die Seite genauso aus wie danach:
+// das Bedienfeld liegt außerhalb (`BearbeitenOrt`), Rahmen und Griffpunkte liegen innerhalb der Kacheln.
+// Eine Bildschirmhöhe fasst immer gleich viele Zeilen (`zeilenHoehe`), die unterste endet einen Abstand vor der Kurve.
 
 const griffKlassen: Partial<Record<ResizeHandleAxis, string>> = { se: 'griff griff-se', e: 'griff griff-e', s: 'griff griff-s' }
 
@@ -36,6 +40,8 @@ export function Raster({ seite, kacheln, inhalt }: Props) {
   const handy = geraet === 'handy'
   const { anordnung, fehler, aendern, zuruecksetzen } = useAnordnung(seite, geraet, kacheln)
   const bearbeiten = useBearbeiten()
+  const bedienOrt = useBearbeitenOrt()
+  const zeile = zeilenHoehe(useFreieHoehe(), kachelRaster.zeilenJeBildschirm[geraet], abstaende.abstandPx)
   const { width, containerRef, mounted } = useContainerWidth()
   const [menue, setMenue] = useState<MenueOrt | null>(null)
 
@@ -74,26 +80,29 @@ export function Raster({ seite, kacheln, inhalt }: Props) {
 
   return (
     <div>
-      {bearbeiten && (
-        <BearbeitenLeiste
-          seite={seite}
-          versteckt={kacheln.filter((k) => anordnung.versteckt.includes(k.id))}
-          anordnung={anordnung}
-          plan={kacheln}
-          geraet={geraet}
-          aendern={aendern}
-          zuruecksetzen={zuruecksetzen}
-        />
-      )}
+      {bearbeiten &&
+        bedienOrt &&
+        createPortal(
+          <BearbeitenLeiste
+            seite={seite}
+            versteckt={kacheln.filter((k) => anordnung.versteckt.includes(k.id))}
+            anordnung={anordnung}
+            plan={kacheln}
+            geraet={geraet}
+            aendern={aendern}
+            zuruecksetzen={zuruecksetzen}
+          />,
+          bedienOrt,
+        )}
       {fehler && <p className="mb-2 text-sm text-warnung">{fehler}</p>}
       <div ref={containerRef}>
-        {mounted && (
+        {mounted && zeile > 0 && (
           <GridLayout
             width={width}
             layout={alsLayout(anordnung, kacheln, geraet)}
             // Freie Plätze: nichts rückt nach oben; wer im Weg liegt, weicht nach unten aus.
             compactor={noCompactor}
-            gridConfig={{ cols: spaltenVon(geraet, anordnung.fein), rowHeight: kachelRaster.zeile, margin: [abstaende.abstandPx, abstaende.abstandPx], containerPadding: [0, 0] }}
+            gridConfig={{ cols: spaltenVon(geraet, anordnung.fein), rowHeight: zeile, margin: [abstaende.abstandPx, abstaende.abstandPx], containerPadding: [0, 0] }}
             // Am PC greift man den Kopf oder Griff; Klicks auf den Inhalt bleiben Klicks. Am Handy hebt langer Druck die ganze Kachel an,
             // auch auf Knöpfen; kurzes Antippen bleibt ein Klick, kurzes Wischen scrollt (allowMobileScroll).
             dragConfig={{ enabled: bearbeiten, handle: handy ? undefined : '.kachel-griff', cancel: '.griff, .kachel-menue-knopf', threshold: 3, allowMobileScroll: true }}

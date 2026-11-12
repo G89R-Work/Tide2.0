@@ -1,6 +1,7 @@
-import { Suspense, useEffect, useState, type CSSProperties } from 'react'
+import { Suspense, useEffect, useState, type CSSProperties, type Ref } from 'react'
 import { Group, Panel, useDefaultLayout, usePanelRef } from 'react-resizable-panels'
 import { Trenner } from '../bausteine/Trenner'
+import { BearbeitenOrt } from '../kacheln/bearbeiten'
 import { mitteUnten } from '../logik/aktionen'
 import { ebeneVon, ortAusMarke, type Ort } from '../logik/ebenen'
 import { leisteLage } from '../logik/leisteLage'
@@ -35,11 +36,12 @@ export function Geruest({ marke }: { marke: string }) {
   useTastenkuerzel()
   useErinnerungen()
   useFalten(useMeldungen().frischeIds)
+  const [bearbeitenOrt, setBearbeitenOrt] = useState<HTMLElement | null>(null)
   return (
-    <>
+    <BearbeitenOrt.Provider value={bearbeitenOrt}>
       <Hintergrund />
-      {schmal ? <Handy ort={ort} zahl={zahl} /> : <Pc ort={ort} />}
-    </>
+      {schmal ? <Handy ort={ort} zahl={zahl} bearbeitenRef={setBearbeitenOrt} /> : <Pc ort={ort} bearbeitenRef={setBearbeitenOrt} />}
+    </BearbeitenOrt.Provider>
   )
 }
 
@@ -54,7 +56,7 @@ function Inhalt({ ort }: { ort: Ort }) {
   )
 }
 
-function Handy({ ort, zahl }: { ort: Ort; zahl: number }) {
+function Handy({ ort, zahl, bearbeitenRef }: { ort: Ort; zahl: number; bearbeitenRef: Ref<HTMLDivElement> }) {
   const { oben, unten } = useBelegung()
   const sichtbar = useKurveSichtbar(ort.bereich)
   return (
@@ -72,7 +74,9 @@ function Handy({ ort, zahl }: { ort: Ort; zahl: number }) {
       <MitKurve
         sichtbar={sichtbar}
         fuss={
-          <nav aria-label="Untere Leiste" className="px-rand pb-rand">
+          <nav aria-label="Untere Leiste" className="relative px-rand pb-rand">
+            {/* Bedienfeld im Bearbeiten-Modus: schwebt über der Leiste und ändert ihre Höhe nicht. */}
+            <div ref={bearbeitenRef} className="absolute inset-x-rand bottom-full mb-abstand" />
             <div className="flaeche-leiste grid grid-cols-5 place-items-center p-1">
               {unten.map((id, i) => (
                 <AktionKnopf key={i} id={id} art={i === mitteUnten ? 'haupt' : 'symbol'} className={i === mitteUnten ? 'w-11 px-0' : undefined} />
@@ -89,7 +93,7 @@ function Handy({ ort, zahl }: { ort: Ort; zahl: number }) {
   )
 }
 
-function Pc({ ort }: { ort: Ort }) {
+function Pc({ ort, bearbeitenRef }: { ort: Ort; bearbeitenRef: Ref<HTMLDivElement> }) {
   const leisteRef = usePanelRef()
   const gemerkt = useDefaultLayout({ id: 'tide.leiste', storage: localStorage })
   const [breite, setBreite] = useState<number>(leiste.standardPx)
@@ -135,7 +139,7 @@ function Pc({ ort }: { ort: Ort }) {
         </Group>
       </MitKurve>
       <div className="leiste-lage" style={{ '--breite': breite, '--oben': lage.oben, '--unten': lage.unten } as CSSProperties}>
-        <Seitenleiste offen={ort.bereich} mitNamen={breite >= leiste.standardPx} />
+        <Seitenleiste offen={ort.bereich} mitNamen={breite >= leiste.standardPx} bearbeitenRef={bearbeitenRef} />
       </div>
     </div>
   )

@@ -15,6 +15,8 @@
   /* Äußerster Rand und Abstand zwischen allem anderen, in px wie in src/werte/abstaende.ts (das Raster rechnet in px, auch bei anderer Schriftgröße). */
   --spacing-rand: 8px;
   --spacing-abstand: 12px;
+  /* Ab dieser Breite zeigt ein Bereich der Seitenleiste Text, darunter (eingeklappt, nur Symbole) nur Symbole (@max-mit-namen:…). */
+  --container-mit-namen: 6rem;
   --radius-knopf: 0.75rem;
   --radius-voll: 9999px;
 }
@@ -357,14 +359,15 @@ html {
 .react-grid-item.react-draggable-dragging {
   z-index: 3;
 }
+/* Rahmen und Griffpunkte liegen innerhalb der Kachel: nichts ragt über den Rand, nichts wird abgeschnitten. */
 @utility kachel-bearbeiten {
   outline: 1.5px dashed var(--akzent);
-  outline-offset: 2px;
+  outline-offset: -1.5px;
   user-select: none;
 }
 @utility kachel-gewaehlt {
   outline: 2px solid var(--akzent);
-  outline-offset: 2px;
+  outline-offset: -2px;
 }
 /* Inhalt links und rechts: Rand zum Bildschirm. Am PC liegt links der Trenner zur Seitenleiste (Abstand) davor,
    darum dort links nichts. Oben und unten setzt MitKurve den Platz über --frei-oben/--frei-unten (inhalt-frei). */
@@ -423,18 +426,19 @@ html {
     box-shadow: var(--kachel-schatten);
   }
 }
+/* Mitte des Punkts 0.5rem innerhalb der Kante; die 44-px-Fläche darf darüber hinausreichen. */
 @utility griff-se {
-  right: -1.375rem;
-  bottom: -1.375rem;
+  right: -0.875rem;
+  bottom: -0.875rem;
   cursor: nwse-resize;
 }
 @utility griff-e {
-  right: -1.375rem;
+  right: -0.875rem;
   top: calc(50% - 1.375rem);
   cursor: ew-resize;
 }
 @utility griff-s {
-  bottom: -1.375rem;
+  bottom: -0.875rem;
   left: calc(50% - 1.375rem);
   cursor: ns-resize;
 }

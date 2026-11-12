@@ -14,16 +14,18 @@ const k = (id: string, name: string, minPc: [number, number], minHandy: [number,
   },
 })
 
+// Eine Bildschirmhöhe hat am PC 8 und am Handy 12 Zeilen: oben Gruß, Wetter, Uhr und Als Nächstes, dazwischen Himmel,
+// unten Braucht dich und die Wochenleiste, die so genau einen Abstand über der Kurve enden. Am Handy liegen Monat und Rückblick darunter.
 //                 Kennung        Name              min PC  min Handy  PC: x, y, w, h     Handy: x, y, w, h  frei
 export const werkszustand: readonly KachelPlan[] = [
-  k('gruss', 'Gruß', [3, 1], [2, 1], [0, 0, 6, 1], [0, 0, 2, 1], true),
-  k('wetter', 'Wetter', [2, 2], [1, 2], [6, 0, 3, 2], [1, 3, 1, 2], true),
-  k('uhr', 'Uhr', [2, 2], [1, 2], [9, 0, 3, 2], [0, 3, 1, 2], true),
-  k('naechstes', 'Als Nächstes', [3, 2], [2, 2], [0, 1, 6, 3], [0, 1, 2, 2], true),
+  k('gruss', 'Gruß', [3, 2], [2, 2], [0, 0, 6, 2], [0, 0, 2, 2], true),
+  k('wetter', 'Wetter', [2, 2], [1, 2], [6, 0, 3, 2], [1, 4, 1, 3], true),
+  k('uhr', 'Uhr', [2, 2], [1, 2], [9, 0, 3, 2], [0, 4, 1, 3], true),
+  k('naechstes', 'Als Nächstes', [3, 2], [2, 2], [0, 2, 6, 2], [0, 2, 2, 2], true),
   k('knoepfe', 'Knöpfe', [2, 1], [1, 1], [9, 2, 3, 1], null, true),
-  k('braucht', 'Braucht dich', [3, 1], [2, 1], [0, 4, 6, 1], [0, 5, 2, 1]),
-  k('monat', 'Monat', [1, 2], [1, 1], [0, 5, 1, 2], [0, 8, 1, 1]),
-  k('woche', 'Woche', [4, 2], [2, 2], [1, 5, 7, 2], [0, 6, 2, 2]),
-  k('notiz', 'Notiz', [1, 2], [1, 1], [8, 5, 1, 2], null),
-  k('rueckblick', 'Wochenrückblick', [1, 2], [1, 1], [9, 5, 1, 2], [1, 8, 1, 1]),
+  k('braucht', 'Braucht dich', [3, 1], [2, 2], [0, 5, 6, 1], [0, 7, 2, 2]),
+  k('monat', 'Monat', [1, 2], [1, 2], [0, 6, 1, 2], [0, 12, 1, 2]),
+  k('woche', 'Woche', [4, 2], [2, 2], [1, 6, 7, 2], [0, 9, 2, 3]),
+  k('notiz', 'Notiz', [1, 2], [1, 2], [8, 6, 1, 2], null),
+  k('rueckblick', 'Wochenrückblick', [1, 2], [1, 2], [9, 6, 1, 2], [1, 12, 1, 2]),
 ]

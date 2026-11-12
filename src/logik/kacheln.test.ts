@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import {
+  zeilenHoehe,
   alsLayout,
   anordnungAusDaten,
   ausblenden,
@@ -174,5 +175,19 @@ describe('kacheln', () => {
   it('Alte Daten ohne Angabe zum Hintergrund nehmen den Werkszustand', () => {
     const ohne: readonly KachelPlan[] = [{ ...plan[0], hintergrund: false }, plan[1], plan[2]]
     expect(anordnungAusDaten({ plaetze: {}, versteckt: [] }, ohne, 'pc').ohneHintergrund).toEqual(['a'])
+  })
+})
+
+describe('zeilenHoehe', () => {
+  it('teilt die freie Höhe so, dass genau die Zeilen samt Abständen hineinpassen', () => {
+    // 12 Zeilen, 11 Abstände von 12 px: 12 · 60 + 11 · 12 = 852
+    expect(zeilenHoehe(852, 12, 12)).toBe(60)
+  })
+  it('ist bei jeder Höhe gleich aufgeteilt, die letzte Zeile endet am Rand', () => {
+    const h = zeilenHoehe(700, 12, 12)
+    expect(12 * h + 11 * 12).toBeCloseTo(700)
+  })
+  it('wird nie negativ, solange noch nichts gemessen ist', () => {
+    expect(zeilenHoehe(0, 12, 12)).toBe(0)
   })
 })

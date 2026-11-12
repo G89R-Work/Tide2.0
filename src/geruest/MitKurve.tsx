@@ -10,6 +10,7 @@ import { Gezeitenkurve } from './Gezeitenkurve'
 import { Glocke } from './Glocke'
 import { KurveKopfzeile } from './KurveEintraege'
 import { useMeldungen } from './meldungen'
+import { FreieHoehe } from './freieHoehe'
 import { useFrischerSchritt } from './rueckgaengig'
 
 // Legt die Gezeitenkurve über oder unter den Inhalt, über die volle Breite (PC und Handy gleich).
@@ -30,7 +31,7 @@ export function MitKurve({ children, fuss, onPlatz, sichtbar }: { children: Reac
   const platz = useRef<Platz>({ hoehe: 0, links: 0 })
   const lage = useRef<HTMLDivElement>(null)
   const frei = useRef<HTMLDivElement>(null)
-  const [verdeckt, setVerdeckt] = useState({ oben: 0, unten: 0 })
+  const [verdeckt, setVerdeckt] = useState({ oben: 0, unten: 0, hoehe: 0 })
 
   // Verdeckt ist, was nicht im leeren Feld „inhalt" zwischen Kurve und Rand liegt. Ändert sich nur beim Ziehen und bei Größenänderung.
   useLayoutEffect(() => {
@@ -38,8 +39,8 @@ export function MitKurve({ children, fuss, onPlatz, sichtbar }: { children: Reac
     const messen = () => {
       const a = lage.current!.getBoundingClientRect()
       const f = feld.getBoundingClientRect()
-      const neu = { oben: Math.round(f.top - a.top), unten: Math.round(a.bottom - f.bottom) }
-      setVerdeckt((alt) => (alt.oben === neu.oben && alt.unten === neu.unten ? alt : neu))
+      const neu = { oben: Math.round(f.top - a.top), unten: Math.round(a.bottom - f.bottom), hoehe: Math.round(a.height) }
+      setVerdeckt((alt) => (alt.oben === neu.oben && alt.unten === neu.unten && alt.hoehe === neu.hoehe ? alt : neu))
     }
     const beobachter = new ResizeObserver(messen)
     beobachter.observe(feld)
@@ -86,7 +87,7 @@ export function MitKurve({ children, fuss, onPlatz, sichtbar }: { children: Reac
   return (
     <div ref={lage} className="relative min-h-0 flex-1">
       <div className="absolute inset-0 flex" style={{ '--frei-oben': platzFrei.oben, '--frei-unten': platzFrei.unten } as CSSProperties}>
-        {children}
+        <FreieHoehe.Provider value={Math.max(0, verdeckt.hoehe - platzFrei.oben - platzFrei.unten)}>{children}</FreieHoehe.Provider>
       </div>
       <div className="pointer-events-none absolute inset-0 flex flex-col">
         {sichtbar ? (
