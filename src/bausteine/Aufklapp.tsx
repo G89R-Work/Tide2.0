@@ -8,11 +8,16 @@ export const Aufklapp = Popover.Root
 export const AufklappKnopf = Popover.Trigger
 export const AufklappAnker = Popover.Anchor
 
-/** Die Karte selbst: Glas `flaeche-schwebend`, so breit wie der Anker, bei wenig Platz scrollt sie. */
-export function AufklappInhalt({ className, sideOffset = 8, collisionPadding = 8, ...rest }: ComponentProps<typeof Popover.Content>) {
+type InhaltProps = ComponentProps<typeof Popover.Content> & {
+  /** `anker`: so breit wie Anker oder Knopf; `inhalt`: so breit wie der Inhalt (Breite dann über `className`). */
+  breite?: 'anker' | 'inhalt'
+}
+
+/** Die Karte selbst: Glas `flaeche-schwebend`, bei wenig Platz scrollt sie. */
+export function AufklappInhalt({ className, breite = 'anker', sideOffset = 8, collisionPadding = 8, ...rest }: InhaltProps) {
   return (
     <Popover.Portal>
-      <Popover.Content sideOffset={sideOffset} collisionPadding={collisionPadding} className={cn('flaeche-schwebend aufklapp', className)} {...rest} />
+      <Popover.Content sideOffset={sideOffset} collisionPadding={collisionPadding} className={cn('flaeche-schwebend aufklapp', breite === 'anker' && 'aufklapp-anker', className)} {...rest} />
     </Popover.Portal>
   )
 }

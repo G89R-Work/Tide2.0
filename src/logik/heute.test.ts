@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { alsNaechstes, anteilTag, brauchtDich, fuellstand, kalenderwoche, monatsRaster, monatsTage, wetterHeute, schicht, seitText, tagSchluessel, wochenTage, wochenrueckblick } from './heute'
+import { alsNaechstes, anteilTag, brauchtDich, fuellstand, kalenderwoche, monatsRaster, monatsTage, schichtBuchstabe, wetterHeute, schicht, seitText, tagSchluessel, wochenTage, wochenrueckblick } from './heute'
 
 // Erfundene Beispieldaten. Zeiten in Ortszeit, damit die Tests in jeder Zeitzone gleich laufen.
 const um = (tag: number, h: number, m = 0, monat = 10) => new Date(2026, monat, tag, h, m)
@@ -209,14 +209,28 @@ describe('monatsTage', () => {
 })
 
 describe('monatsRaster', () => {
-  it('legt den Monat in Wochenzeilen, leere Felder vor dem Ersten und nach dem Letzten', () => {
+  it('zeigt immer sechs Wochen mit den Tagen davor und danach', () => {
     // November 2026 beginnt an einem Sonntag.
     const raster = monatsRaster(um(12, 9), 'montag')
-    expect(raster[0].slice(0, 6)).toEqual([null, null, null, null, null, null])
-    expect(raster[0][6]?.getDate()).toBe(1)
-    expect(raster.at(-1)?.[0]?.getDate()).toBe(30)
+    expect(raster).toHaveLength(6)
     expect(raster.every((w) => w.length === 7)).toBe(true)
-    expect(monatsRaster(um(12, 9), 'sonntag')[0][0]?.getDate()).toBe(1)
+    expect(raster[0][0]).toEqual(new Date(2026, 9, 26))
+    expect(raster[0][6]).toEqual(new Date(2026, 10, 1))
+    expect(raster[5][6]).toEqual(new Date(2026, 11, 6))
+    expect(monatsRaster(um(12, 9), 'sonntag')[0][0]).toEqual(new Date(2026, 10, 1))
+  })
+})
+
+describe('schichtBuchstabe', () => {
+  it('nimmt den ersten Buchstaben der Schicht an diesem Tag', () => {
+    const t = [termin('Spätschicht', um(12, 13, 30), um(12, 18), 'schicht'), termin('Zahnarzt', um(13, 9), um(13, 10))]
+    expect(schichtBuchstabe(t, um(12, 0))).toBe('S')
+    expect(schichtBuchstabe(t, um(13, 0))).toBeNull()
+  })
+
+  it('zählt eine Nachtschicht zum Tag ihres Beginns', () => {
+    expect(schichtBuchstabe([termin('nachtdienst', um(12, 22), um(13, 6), 'schicht')], um(13, 0))).toBeNull()
+    expect(schichtBuchstabe([termin('nachtdienst', um(12, 22), um(13, 6), 'schicht')], um(12, 0))).toBe('N')
   })
 })
 

@@ -1,105 +1,77 @@
-import { useLayoutEffect, useRef, useState, type CSSProperties } from "react";
-import { cn } from "../../../bausteine/cn";
-import { useEinstellung } from "../../../geruest/einstellungen";
-import { einstellungen } from "../../../logik/einstellungen";
-import {
-  fuellstand,
-  kalenderwoche,
-  monatsTage,
-  tagSchluessel,
-} from "../../../logik/heute";
-import type { Eintrag } from "../../../vertrag/eintrag";
-import { monatName, tagKurz, tagLang } from "../../../geruest/format";
+import { useLayoutEffect, useRef, useState, type CSSProperties } from 'react'
+import { cn } from '../../../bausteine/cn'
+import { useEinstellung } from '../../../geruest/einstellungen'
+import { monatName, tagKurz, tagLang } from '../../../geruest/format'
+import { useSchmal } from '../../../geruest/useSchmal'
+import { einstellungen } from '../../../logik/einstellungen'
+import { fuellstand, kalenderwoche, monatsTage, schichtBuchstabe, tagSchluessel } from '../../../logik/heute'
+import type { Eintrag } from '../../../vertrag/eintrag'
 
-const kwZeigen = einstellungen.find((e) => e.id === "kalenderwoche")!;
+const kwZeigen = einstellungen.find((e) => e.id === 'kalenderwoche')!
 
 type Props = {
-  termine: readonly Eintrag[];
-  monat: Date;
-  fokus: Date;
-  jetzt: Date;
-};
+  termine: readonly Eintrag[]
+  monat: Date
+  fokus: Date
+  jetzt: Date
+  /** Name des Feiertags an diesem Tag, sonst undefined. */
+  feiertag: (tag: Date) => string | undefined
+}
 
-/** Wochenleiste: die Tage des Monats mit Füllstand, sieben sichtbar, wischbar innerhalb des Monats. */
-export function Woche({ termine, monat, fokus, jetzt }: Props) {
-  const scroller = useRef<HTMLOListElement>(null);
-  const kw = useEinstellung(kwZeigen) === true;
-  const tage = monatsTage(monat);
+/** Wochenleiste wie die Vorlage: Wochentag, Datum, Füllstand, Buchstabe der Schicht (nur PC und Tablet); sieben sichtbar, wischbar innerhalb des Monats. */
+export function Woche({ termine, monat, fokus, jetzt, feiertag }: Props) {
+  const scroller = useRef<HTMLOListElement>(null)
+  const kw = useEinstellung(kwZeigen) === true
+  // Am Handy ist die Spalte zu schmal für den Buchstaben der Schicht neben dem Wochentag.
+  const schichtZeigen = !useSchmal()
+  const tage = monatsTage(monat)
   // Erster sichtbarer Tag; nach ihm richtet sich die Kalenderwoche oben links.
-  const [vorn, setVorn] = useState(fokus.getDate() - 1);
-  const heute = tagSchluessel(jetzt);
-  const ziel = fokus.getTime();
+  const [vorn, setVorn] = useState(fokus.getDate() - 1)
+  const heute = tagSchluessel(jetzt)
+  const ziel = fokus.getTime()
 
   // Beim Öffnen und nach einer Wahl im Monatskalender: der gewählte Tag steht vorn.
   useLayoutEffect(() => {
-    const el = scroller.current;
-    const tag = new Date(ziel);
-    if (el) el.scrollLeft = (tag.getDate() - 1) * (el.clientWidth / 7);
-  }, [ziel]);
+    const el = scroller.current
+    const tag = new Date(ziel)
+    if (el) el.scrollLeft = (tag.getDate() - 1) * (el.clientWidth / 7)
+  }, [ziel])
 
-  const ersterSichtbar = tage[Math.min(tage.length - 1, Math.max(0, vorn))];
+  const ersterSichtbar = tage[Math.min(tage.length - 1, Math.max(0, vorn))]
   return (
     <div className="flex h-full flex-col">
-      {kw && <p className="beschriftung">KW {kalenderwoche(ersterSichtbar)}</p>}
+      {kw && <p className="beschriftung leading-none">KW {kalenderwoche(ersterSichtbar)}</p>}
       <ol
         ref={scroller}
         className="tage-scroller min-h-0 flex-1"
         aria-label={`Tage im ${monatName(monat)}`}
-        onScroll={(e) =>
-          setVorn(
-            Math.round(
-              e.currentTarget.scrollLeft / (e.currentTarget.clientWidth / 7),
-            ),
-          )
-        }
+        onScroll={(e) => setVorn(Math.round(e.currentTarget.scrollLeft / (e.currentTarget.clientWidth / 7)))}
       >
         {tage.map((t) => {
-          const f = fuellstand(termine, t);
-          const ist = tagSchluessel(t) === heute;
+          const f = fuellstand(termine, t)
+          const ist = tagSchluessel(t) === heute
+          const name = feiertag(t)
+          const schicht = schichtZeigen ? schichtBuchstabe(termine, t) : null
           return (
-            <li
-              key={t.getTime()}
-              title={`${tagLang(t)}: ${Math.round(f * 100)} % belegt`}
-              className="p-0.5"
-            >
-              <div
-                className={cn(
-                  "flex h-full flex-col items-center justify-center gap-1.5 rounded-knopf",
-                  ist && "border border-akzent bg-knopf-ton",
+            <li key={t.getTime()} title={`${tagLang(t)}${name ? `, ${name}` : ''}: ${Math.round(f * 100)} % belegt`} className="p-0.5">
+              <div className={cn('relative flex h-full flex-col items-center justify-center gap-0.5 rounded-knopf border border-durchsichtig', ist && 'tag-heute')}>
+                {schicht && (
+                  <span aria-label={`Schicht ${schicht}`} className="schicht-buchstabe absolute top-0.5 right-0.5 text-akzent-2">
+                    {schicht}
+                  </span>
                 )}
-              >
-                <span
-                  className={cn(
-                    "text-xs",
-                    ist ? "text-akzent" : "text-text-gedaempft",
-                  )}
-                >
-                  {tagKurz(t)}
-                </span>
-                <span
-                  aria-current={ist ? "date" : undefined}
-                  className={cn(
-                    "font-semibold",
-                    ist
-                      ? "text-akzent"
-                      : t < jetzt
-                        ? "text-text-gedaempft"
-                        : "text-text",
-                  )}
-                >
+                <span className="text-xs text-text-gedaempft">{tagKurz(t)}</span>
+                <span aria-current={ist ? 'date' : undefined} className={cn('text-sm font-semibold tabular-nums', ist || name ? 'text-akzent' : 'text-text')}>
                   {t.getDate()}
                 </span>
-                <span
-                  className="tag-fuellung"
-                  style={{ "--anteil": f } as CSSProperties}
-                >
+                <span className="tag-fuellung" style={{ '--anteil': f } as CSSProperties}>
                   <span />
                 </span>
               </div>
             </li>
-          );
+          )
         })}
       </ol>
     </div>
-  );
+  )
 }

@@ -13,6 +13,8 @@ Was umgesetzt ist, wandert beim Abschluss einer Scheibe nach „Erledigt“, mit
 - Eigener LanguageTool-Server für die Rechtschreibprüfung (Server-Etappe S6)
 
 ## Neu
+- 2026-11-12 · Buchstabe der Schicht auch am Handy in der Wochenleiste zeigen (z. B. als Farbe der Füllstands-Säule), dort fehlt der Platz neben dem Wochentag.
+- 2026-11-12 · Quellenangabe für die Feiertags-Daten (date-holidays, CC-BY-SA 4.0) auf einer Seite „Über Tide“.
 - Schalter „Namen im Menü“ (jetzt `tide.menue.namen`) in die Einstellungsliste übernehmen (Scheibe einstellungen-liste)
 - Eigene und intelligente Ordner der zweiten Ebene aus dem Vertrag statt aus `src/logik/ebenen.ts` (postfach-ordner)
 - Knopf-Belegung (`tide.knoepfe`) in die Einstellungsliste übernehmen und je Geräteart speichern (einstellungen-liste)
@@ -31,9 +33,8 @@ Was umgesetzt ist, wandert beim Abschluss einer Scheibe nach „Erledigt“, mit
 - Bausteine-Seite wieder von der Oberfläche aus erreichbar machen, etwa in Einstellungen › Darstellung (heute)
 - Wochenleiste: Tag antippen zeigt dessen Termine (heute)
 - Die Knöpfe „Notiz“ und „Woche“ neben der Wochenleiste endgültig festlegen; heute: Sprung zu Notizen und Wochenrückblick (heute-kacheln)
-- Wochenleiste: Buchstaben für Früh- und Spätschicht an den Tagen, sobald Arbeit die Schichtart kennt (heute-kacheln)
+- Wochenleiste: Buchstabe der Schicht aus der Schichtart statt aus dem ersten Buchstaben des Titels, sobald Arbeit die Schichtart kennt
 - Höhe der Wellen in der Gezeitenkurve am Handy prüfen, vielleicht zu viel (heute-kacheln)
-- Monatskalender auf Heute klappt aus dem Knopf „Monat“ heraus statt mittig aufzugehen, und ist ein voll bedienbarer kleiner Kalender wie die Kalenderseite (heute-kacheln, Wunsch des Nutzers)
 - Eigene Kacheln/Widgets anlegen und festlegen, auf welchen Seiten sie verfügbar sind (Wunsch des Nutzers, 2026-11-12)
 
 ## Erledigt
@@ -46,3 +47,5 @@ Was umgesetzt ist, wandert beim Abschluss einer Scheibe nach „Erledigt“, mit
 - 2026-11-12 · Monat als aufklappbarer Kalender statt Sprung (heute-kacheln)
 - 2026-11-12 · Jede bewegliche Kachel kann ohne Hintergrund stehen (heute-kacheln)
 - 2026-11-12 · Kalenderwoche an der Wochenleiste (heute-kacheln)
+- 2026-11-12 · Monatskalender klappt aus dem Knopf „Monat“ nach oben auf, kleiner Kalender mit Walze und Feiertagen (aussehen-wochenleiste)
+- 2026-11-12 · Buchstaben der Schicht an den Tagen der Wochenleiste, vorerst aus dem Titel (aussehen-wochenleiste)

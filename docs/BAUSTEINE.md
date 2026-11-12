@@ -127,3 +127,10 @@ Muster für einen Eintrag:
 - Grund: Ja des Nutzers vom 2026-11-12; Lage und Breite am Anker fertig, `aufraeumen-menues` stellt die übrigen Menüs darauf um.
 - Link: https://ui.shadcn.com/docs/components/popover
 - Eingebaut in Scheibe: aussehen-braucht-dich
+
+## 2026-11-12 · Feiertage je Bundesland
+- Kandidaten: date-holidays (alle Länder, 12 MB, Daten CC-BY-SA 4.0, vier Unterpakete), feiertagejs (nur Deutschland, MIT, 0,24 MB)
+- Entscheidung: date-holidays (Nutzer, wie im Konzept)
+- Grund: Wahl des Nutzers; wird erst bei Bedarf nachgeladen (`geruest/useFeiertage.ts`), der Startcode bleibt klein. `npm audit` meldet drei schwache Lücken in deepmerge (nur interne Daten, kein Eingang von außen).
+- Link: https://github.com/commenthol/date-holidays
+- Eingebaut in Scheibe: aussehen-wochenleiste

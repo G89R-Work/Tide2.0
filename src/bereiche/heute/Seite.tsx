@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Flaeche } from '../../bausteine/Flaeche'
 import { cn } from '../../bausteine/cn'
 import { useEinstellung } from '../../geruest/einstellungen'
+import { useFeiertage } from '../../geruest/useFeiertage'
 import { useBrauchtDich } from '../../geruest/useBrauchtDich'
 import { useMinute } from '../../geruest/useMinute'
 import { Uhr } from '../../geruest/Uhr'
@@ -20,6 +21,7 @@ import { Rueckblick } from './teile/Rueckblick'
 import { Woche } from './teile/Woche'
 
 const wochenbeginn = einstellungen.find((e) => e.id === 'wochenbeginn')!
+const bundesland = einstellungen.find((e) => e.id === 'bundesland')!
 const heuteUhr = einstellungen.find((e) => e.id === 'heute-uhr')!
 
 // Heute (docs/konzept/10-heute.md): viel Himmel, wenig Text, fester Aufbau ohne Kopfzeile.
@@ -37,6 +39,10 @@ export default function Seite() {
     const monat = new Date(heute.getFullYear(), heute.getMonth(), 1)
     return { monat, fokus: start < monat ? monat : start }
   })
+  const land = useEinstellung(bundesland) as string
+  const feiertag = useFeiertage(wahl.monat.getFullYear(), land)
+  // Knöpfe neben der Wochenleiste: am Handy schmal wie in der Vorlage, damit alles in eine Reihe passt.
+  const knopfBreite = schmal ? 'w-14 shrink-0' : 'min-w-20'
   const zeige = (tag: Date) => setWahl({ monat: new Date(tag.getFullYear(), tag.getMonth(), 1), fokus: tag })
 
   const brauchtInhalt = braucht.fehler ? (
@@ -66,20 +72,20 @@ export default function Seite() {
       </div>
       <div className="flex-1" />
       {brauchtInhalt}
-      <div className="flex flex-wrap items-stretch gap-abstand">
-        <Flaeche className="h-20 min-w-20">
-          <Monat monat={wahl.monat} jetzt={jetzt} beginn={beginn} waehle={zeige} blaettern={(m) => setWahl((w) => ({ ...w, monat: m }))} />
+      <div className={cn('flex items-stretch', schmal ? 'gap-2' : 'gap-abstand')}>
+        <Flaeche className={cn('h-24', knopfBreite)}>
+          <Monat monat={wahl.monat} gewaehlt={wahl.fokus} jetzt={jetzt} beginn={beginn} termine={termine} waehle={zeige} />
         </Flaeche>
-        <Flaeche className={cn('h-20 px-4 py-2', schmal ? 'order-first w-full' : 'w-full max-w-xl')}>
-          <Woche termine={termine} monat={wahl.monat} fokus={wahl.fokus} jetzt={jetzt} />
+        <Flaeche className={cn('h-24 py-1.5', schmal ? 'min-w-0 flex-1 px-1.5' : 'w-full max-w-xl px-4')}>
+          <Woche termine={termine} monat={wahl.monat} fokus={wahl.fokus} jetzt={jetzt} feiertag={feiertag} />
         </Flaeche>
-        <div className="ml-auto flex gap-abstand">
+        <div className={cn('ml-auto flex', schmal ? 'gap-2' : 'gap-abstand')}>
           {!schmal && (
-            <Flaeche className="h-20 min-w-20">
+            <Flaeche className={cn('h-24', knopfBreite)}>
               <Notiz />
             </Flaeche>
           )}
-          <Flaeche className="h-20 min-w-20">
+          <Flaeche className={cn('h-24', knopfBreite)}>
             <Rueckblick zahlen={wochenrueckblick(termine, braucht.liste ?? [], wochenTage(jetzt, beginn, 0), jetzt)} />
           </Flaeche>
         </div>

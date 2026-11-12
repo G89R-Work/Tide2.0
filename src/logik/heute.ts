@@ -160,13 +160,17 @@ export function monatsTage(d: Date): Date[] {
   return Array.from({ length: anzahl }, (_, i) => new Date(d.getFullYear(), d.getMonth(), i + 1))
 }
 
-/** Monat in Wochenzeilen zu je sieben Feldern; null vor dem Ersten und nach dem Letzten. */
-export function monatsRaster(d: Date, beginn: Wochenbeginn): (Date | null)[][] {
-  const tage = monatsTage(d)
-  const vorne = (tage[0].getDay() - (beginn === 'montag' ? 1 : 0) + 7) % 7
-  const felder: (Date | null)[] = [...Array<null>(vorne).fill(null), ...tage]
-  while (felder.length % 7) felder.push(null)
-  return Array.from({ length: felder.length / 7 }, (_, i) => felder.slice(i * 7, i * 7 + 7))
+/** Monat in sechs Wochenzeilen zu je sieben Tagen, mit den Tagen davor und danach (der Kalender bleibt gleich groß). */
+export function monatsRaster(d: Date, beginn: Wochenbeginn): Date[][] {
+  const erster = new Date(d.getFullYear(), d.getMonth(), 1)
+  const vorne = (erster.getDay() - (beginn === 'montag' ? 1 : 0) + 7) % 7
+  return Array.from({ length: 6 }, (_, w) => Array.from({ length: 7 }, (_, i) => plusTage(erster, w * 7 + i - vorne)))
+}
+
+/** Erster Buchstabe der Schicht, die an diesem Tag beginnt (Großbuchstabe), sonst null. */
+export function schichtBuchstabe(termine: readonly MitZeit[], tag: Date): string | null {
+  const s = zeiten(termine).find(({ e, von }) => e.art === 'schicht' && tageZwischen(tag, von) === 0)
+  return s ? s.e.titel.charAt(0).toUpperCase() : null
 }
 
 const spurRegen = 0.1
