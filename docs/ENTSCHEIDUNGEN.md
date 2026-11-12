@@ -68,6 +68,10 @@ Eine Zeile je Entscheidung, neueste unten. Was hier steht, gilt und wird nicht n
 - 2026-11-12 · Band der Gezeitenkurve als Streifen mit runden Ecken, senkrecht mittig und hinter der Linie (`kurve-band-lage`); Höhe als Einstellung „Höhe der Bänder“ (ab Werk 76 %, 20–100 %, je Gerät); farblos grau aus `--text-blass` und `--linie-stark`, weil ein Band nur belegte Zeit zeigt; an den Enden ziehbar (Beginn/Ende, mindestens 15 Minuten), in der Karte „15 Min. länger/kürzer". Wunsch des Nutzers.
 - 2026-11-12 · Inhalt läuft über die ganze Höhe hinter Gezeitenkurve und unterer Leiste (Handy) durch; beide liegen als Lage darüber, der verdeckte Platz kommt als `--frei-oben/--frei-unten` (`inhalt-frei`). Wunsch des Nutzers.
 - 2026-11-12 · Gezeigte Uhrzeit in der Mitte der Kurve ohne eigenen Hintergrund; die Wetterzeile lässt ihr den Platz frei (vorher deckte ein Hintergrund die Wetterzahl ab).
+- 2026-11-12 · Ebenen der Gezeitenkurve allein durch die Reihenfolge im Code: Wasser, Bänder, Linie mit Jetzt-Linie und Stundenzahlen, dann Punkte, Beschriftungen, Treibgut, Wetter. Keine Ebenen-Rangfolge (z-index). Wunsch des Nutzers.
+- 2026-11-12 · Obere Zeile der Kurve als echte Zeile: Beschriftungen stehen dort über ihrem Punkt und enden vor Treibgut-Zähler und gezeigter Uhrzeit (links der Mitte); Wetter weicht aus; eine Meldung oder ein Fehler hat die Zeile allein, ohne eigenen Hintergrund.
+- 2026-11-12 · „Zu jetzt" gleitet nur, wenn der Browser `scrollend` kennt und keine reduzierte Bewegung gewünscht ist, sonst springt es; das nachgeschobene künstliche Ende-Ereignis ist entfernt.
+- 2026-11-12 · „Termin fällt in Schicht" liegt als Bezug in `src/logik/bezuege/terminInSchicht.ts` (Regel aus .claude/rules/bereiche.md).
 
 ## Offen
 

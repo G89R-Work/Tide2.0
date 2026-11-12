@@ -34,7 +34,7 @@ Das Gerüst steht am PC und am Handy mit Seitenleiste, zweiter Ebene, belegbaren
 - Gezeigte Uhrzeit der Kurve teilt `src/geruest/gezeigteZeit.ts` (null = folgt der Uhr); der Hintergrund liest sie.
 - Zieh-Griffe nur über den Baustein `Trenner` (`src/bausteine/Trenner.tsx`), nie direkt `Separator`.
 - Seitenleiste am PC: Panel „leiste“ ist nur die Spalte (Breite); die Leiste selbst liegt darüber (`leiste-lage` in `werte.css`), Ende oben/unten aus `leisteLage`, Platz der Kurve kommt über `MitKurve onPlatz`.
-- Rückgängig: jede Änderung ruft `merke(text, zurueck)` aus `src/geruest/rueckgaengig.ts`; die Meldung zeigt `KurveMeldung` in der Kurve (6 s). `zurueck` meldet eigene Fehler selbst.
+- Rückgängig: jede Änderung ruft `merke(text, zurueck)` aus `src/geruest/rueckgaengig.ts`; `useFrischerSchritt` liefert ihn 6 s lang für die Kopfzeile der Kurve (`KurveKopfzeile`). `zurueck` meldet eigene Fehler selbst.
 - Inhalt liegt in `MitKurve` als eigene Lage über die volle Höhe; Kurve, Griff und `fuss` (untere Leiste am Handy) liegen darüber mit `pointer-events-none` außer auf den Flächen. Neue Scrollbereiche bekommen `inhalt-frei`.
-- Kurve: Einträge liegen in jeder der drei Kopien; bedienbar per Tastatur nur die Kopie in der Mitte (`kopie`). Beim Ziehen darf sich die Reihenfolge der Elemente nicht ändern, sonst geht der Finger (Pointer-Capture) verloren.
+- Kurve: Lage nur über die Reihenfolge (Wasser, Bänder, `linie`, Rest), nie über z-index. Einträge liegen in jeder der drei Kopien; bedienbar per Tastatur nur die Kopie in der Mitte (`kopie`). Beim Ziehen darf sich die Reihenfolge der Elemente nicht ändern, sonst geht der Finger (Pointer-Capture) verloren.
 - Attrappe: Termine des Beispieltags (id `t-…`) ändert `src/attrappe/termine.ts` (gemerkt unter `tide.attrappe.termine`); diese Antworten stehen in `start.ts` vor den Einträgen.

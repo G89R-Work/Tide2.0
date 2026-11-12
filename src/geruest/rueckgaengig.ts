@@ -1,4 +1,4 @@
-import { useSyncExternalStore } from 'react'
+import { useEffect, useState, useSyncExternalStore } from 'react'
 
 // Rückgängig für ganz Tide (Regel 6): wer etwas ändert, merkt sich hier den Weg zurück.
 // Aktion „Rückgängig" (Alt+Z) nimmt den letzten Schritt zurück. `zurueck` meldet eigene Fehler selbst.
@@ -28,3 +28,18 @@ const abo = (h: () => void) => {
 
 /** Der letzte Schritt, der sich zurücknehmen lässt. */
 export const useLetzterSchritt = () => useSyncExternalStore(abo, () => stapel.at(-1))
+
+/** So lange steht ein neuer Schritt als Meldung da (docs: Meldungen falten sich nach 6 Sekunden). */
+const MELDUNG_MS = 6000
+
+/** Der letzte Schritt, solange er frisch ist: sechs Sekunden lang steht er in der Kopfzeile, Alt+Z wirkt auch danach. */
+export function useFrischerSchritt() {
+  const schritt = useLetzterSchritt()
+  const [alt, setAlt] = useState<typeof schritt>()
+  useEffect(() => {
+    if (!schritt) return
+    const t = setTimeout(() => setAlt(schritt), Math.max(0, schritt.zeit + MELDUNG_MS - Date.now()))
+    return () => clearTimeout(t)
+  }, [schritt])
+  return schritt && alt !== schritt ? schritt : undefined
+}

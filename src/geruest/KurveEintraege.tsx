@@ -1,19 +1,20 @@
 import { Droplet, ListTodo } from 'lucide-react'
-import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type FormEvent } from 'react'
+import { Fragment, useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type FormEvent, type ReactNode } from 'react'
 import { cn } from '../bausteine/cn'
 import { Eingabe } from '../bausteine/Eingabe'
 import { Flaeche } from '../bausteine/Flaeche'
 import { Knopf } from '../bausteine/Knopf'
 import { MIN_TAG, vonOben } from '../logik/gezeiten'
-import { ZIEH_RASTER, aufRaster, beschriftungsPlatz, buendeln, gezogen, hoeheBei, verschoben, type Band, type Punkt, type Ziehart } from '../logik/kurveEintraege'
+import { ZIEH_RASTER, aufRaster, beschriftungsPlatz, buendeln, gezogen, hoeheBei, platzVorHindernissen, verschoben, type Band, type Punkt, type Ziehart } from '../logik/kurveEintraege'
 import type { Aenderung, Eintrag } from '../vertrag/eintrag'
 import type { WetterStunde } from '../vertrag/wetter'
-import { rueckgaengig, useLetzterSchritt } from './rueckgaengig'
+import { rueckgaengig, type Schritt } from './rueckgaengig'
 
 // Einträge auf der Gezeitenkurve (docs/konzept/06-gezeitenkurve.md): Punkte mit Karte, Bänder dahinter, Bündel,
 // Überschneidung, Treibgut an der Jetzt-Linie, Wetterzeile. Termine zieht man im 15-Minuten-Raster, Bänder auch an ihren Enden
 // (Dauer); alles lässt sich zurücknehmen.
-// Steht im Code vor der Linie der Kurve: Bänder liegen dahinter, alles andere mit z-10 davor.
+// Lage von hinten nach vorn ergibt sich aus der Reihenfolge: Wasser (in Gezeitenkurve davor), Bänder, `linie` (Linie,
+// Jetzt-Linie, Stundenzahlen), dann Punkte, Beschriftungen, Treibgut und Wetter.
 // Liegt im selben Scrollbereich wie die Kurve, dreimal nebeneinander. Per Tastatur bedienbar ist nur die Kopie in der Mitte (`kopie`).
 
 /** Kleinster Abstand zweier Punkte in Pixeln, darunter werden sie gebündelt: eine Fingerbreite. */
@@ -21,7 +22,6 @@ const FINGER = 44
 /** Längste Beschriftung neben einem Punkt in Pixeln; kürzer als 28 px wird sie weggelassen. */
 const BESCHRIFTUNG_MAX = 160
 const BESCHRIFTUNG_MIN = 28
-const MELDUNG_MS = 6000
 
 type Aendere = (e: Eintrag, aenderung: Aenderung, text: string) => Promise<void>
 type Karte = { art: 'termine' | 'treibgut'; ids: string[]; x: number; y: number; oben: boolean }
@@ -48,6 +48,10 @@ export function KurveEintraege(p: {
   aendere: Aendere
   treibgut: Eintrag[]
   wetter?: Map<number, WetterStunde>
+  /** Linie der Kurve und Stundenleiste: liegen über den Bändern und unter allem anderen. */
+  linie: ReactNode
+  /** Steht etwas in der Kopfzeile (Meldung, Fehler), machen Wetterzeile und Treibgut-Zähler Platz. */
+  kopfzeileBelegt: boolean
 }) {
   const { punkte, baender, werte, pxProMinute, aendere } = p
   const [zug, setZug] = useState<{ id: string; delta: number; art: Ziehart } | null>(null)
@@ -116,15 +120,18 @@ export function KurveEintraege(p: {
     pxProMinute,
     BESCHRIFTUNG_MAX,
   )
-  // Wetterzeile weicht den Beschriftungen aus: keine Angabe, wo eine Beschriftung steht (halbe Zahlbreite Puffer).
-  const belegt = gruppen.flatMap((g, i) => (g.length === 1 && plaetze[i] >= BESCHRIFTUNG_MIN ? [[g[0].minute, g[0].minute + plaetze[i] / pxProMinute]] : []))
-  if (p.treibgut.length) belegt.push([p.minuteJetzt, p.minuteJetzt + FINGER / pxProMinute])
-  if (p.mitte !== null) belegt.push([p.mitte, p.mitte + FINGER / pxProMinute])
+  // Obere Zeile: Beschriftungen, Treibgut-Zähler, gezeigte Uhrzeit (links der Mitte) und Wetter teilen sie sich.
+  // Zähler und Uhrzeit sind feste Hindernisse; Beschriftungen enden davor, das Wetter weicht allem aus.
+  // Eine Meldung (kopfzeileBelegt) hat die Zeile für sich: dann zeigt sie nur die Meldung.
+  const hindernisse: [number, number][] = []
+  if (p.treibgut.length) hindernisse.push([p.minuteJetzt, p.minuteJetzt + FINGER / pxProMinute])
+  if (p.mitte !== null) hindernisse.push([p.mitte - FINGER / pxProMinute, p.mitte])
+  const einzeln = gruppen.map((g, i) => ({ g, platz: platzVorHindernissen(g[0].minute, plaetze[i], hindernisse, pxProMinute) }))
+  const belegt = [
+    ...hindernisse,
+    ...einzeln.flatMap(({ g, platz }) => (g.length === 1 && platz >= BESCHRIFTUNG_MIN ? [[g[0].minute, g[0].minute + platz / pxProMinute] as [number, number]] : [])),
+  ]
   const frei = (minute: number) => belegt.every(([von, bis]) => minute < von - FINGER / 2 / pxProMinute || minute > bis + FINGER / 2 / pxProMinute)
-  // Beschriftungen enden auch vor dem Treibgut-Zähler an der Jetzt-Linie.
-  const vorZaehler = (minute: number, platz: number) =>
-    p.treibgut.length && p.minuteJetzt > minute ? Math.min(platz, (p.minuteJetzt - minute) * pxProMinute - 8) : platz
-  const einzeln = gruppen.map((g, i) => ({ g, platz: vorZaehler(g[0].minute, plaetze[i]) }))
 
   return (
     <>
@@ -152,6 +159,8 @@ export function KurveEintraege(p: {
         }),
       )}
 
+      {p.linie}
+
       {kopien.map((k) =>
         einzeln.map(({ g, platz }) => {
           const erster = g[0]
@@ -166,7 +175,7 @@ export function KurveEintraege(p: {
                 aria-hidden={k !== p.kopie || undefined}
                 aria-label={`${g.length} Termine, auffächern`}
                 onClick={(ev) => oeffne(ev.currentTarget, 'termine', g.map((x) => x.id))}
-                className={cn(fokus, 'drueck absolute z-10 grid size-11 -translate-1/2 cursor-pointer place-items-center')}
+                className={cn(fokus, 'drueck absolute grid size-11 -translate-1/2 cursor-pointer place-items-center')}
                 style={lage}
               >
                 <span className={cn('kurve-buendel', g.some((x) => x.ueberschneidet.length) && 'kurve-punkt-ueberschneidet')}>{g.length}</span>
@@ -174,26 +183,28 @@ export function KurveEintraege(p: {
             )
           const zeit = zeitText(zug?.id === erster.id ? verschoben(erster.eintrag, zug.delta).beginn : erster.eintrag.beginn!)
           return (
-            <div key={`${k}-${erster.id}`} className="absolute z-10" style={lage}>
+            <Fragment key={`${k}-${erster.id}`}>
               <button
                 type="button"
                 {...griff(erster.eintrag, k)}
                 aria-label={`${zeit} ${erster.titel}${erster.ueberschneidet.length ? ', überschneidet sich' : ''}`}
                 className={cn(fokus, 'absolute grid size-11 -translate-1/2 cursor-grab touch-none place-items-center')}
+                style={lage}
               >
                 <span className={cn('kurve-punkt', zug?.id === erster.id && 'scale-150', erster.ueberschneidet.length > 0 && 'kurve-punkt-ueberschneidet')} />
               </button>
-              {platz >= BESCHRIFTUNG_MIN && (
-                <span className="kurve-schrift pointer-events-none absolute bottom-2 left-1 block truncate text-text" style={{ maxWidth: platz }}>
+              {platz >= BESCHRIFTUNG_MIN && !p.kopfzeileBelegt && (
+                <span className="kurve-schrift pointer-events-none absolute top-0.5 ml-1 block truncate text-text" style={{ left: lage.left, maxWidth: platz }}>
                   <span className="text-text-gedaempft tabular-nums">{zeit}</span> {erster.titel}
                 </span>
               )}
-            </div>
+            </Fragment>
           )
         }),
       )}
 
       {p.treibgut.length > 0 &&
+        !p.kopfzeileBelegt &&
         kopien.map((k) => (
           <button
             key={k}
@@ -202,7 +213,7 @@ export function KurveEintraege(p: {
             aria-hidden={k !== p.kopie || undefined}
             aria-label={`${p.treibgut.length} offene Aufgaben ohne Uhrzeit`}
             onClick={(ev) => oeffne(ev.currentTarget, 'treibgut', [])}
-            className={cn(fokus, 'kurve-schrift drueck absolute top-0.5 z-10 ml-1 flex cursor-pointer items-center gap-0.5 bg-knopf-ton px-1.5 text-text-gedaempft')}
+            className={cn(fokus, 'kurve-schrift drueck absolute top-0.5 ml-1 flex cursor-pointer items-center gap-0.5 bg-knopf-ton px-1.5 text-text-gedaempft')}
             style={{ left: links(k, p.minuteJetzt) }}
           >
             <ListTodo aria-hidden className="size-3" />
@@ -211,13 +222,14 @@ export function KurveEintraege(p: {
         ))}
 
       {p.wetter &&
+        !p.kopfzeileBelegt &&
         p.marken.map((h) => {
           const w = p.wetter!.get(h % 24)
           if (!w || !frei((h % 24) * 60)) return null
           return (
             <span
               key={h}
-              className="kurve-schrift pointer-events-none absolute top-0.5 z-10 flex -translate-x-1/2 items-center gap-0.5 text-text-blass tabular-nums"
+              className="kurve-schrift pointer-events-none absolute top-0.5 flex -translate-x-1/2 items-center gap-0.5 text-text-blass tabular-nums"
               style={{ left: `${(h / 72) * 100}%` }}
             >
               {w.grad}°{w.regen >= 0.1 && <Droplet aria-label={`${w.regen} mm Regen`} className="size-2.5 text-regen" />}
@@ -353,22 +365,23 @@ function TerminKarte({ t, verschiebe, aendere }: { t: Punkt | Band; verschiebe: 
   )
 }
 
-/** Hinweis nach einer Änderung mit „Rückgängig"; verschwindet nach sechs Sekunden, Alt+Z wirkt weiter. */
-export function KurveMeldung() {
-  const schritt = useLetzterSchritt()
-  const [alt, setAlt] = useState<typeof schritt>()
-  useEffect(() => {
-    if (!schritt) return
-    const t = setTimeout(() => setAlt(schritt), Math.max(0, schritt.zeit + MELDUNG_MS - Date.now()))
-    return () => clearTimeout(t)
-  }, [schritt])
-  if (!schritt || alt === schritt) return null
+/** Kopfzeile der Kurve: Fehler und der frische Schritt mit „Rückgängig". Ohne eigene Fläche; die übrige obere Zeile macht Platz. */
+export function KurveKopfzeile({ schritt, fehler }: { schritt?: Schritt; fehler: string[] }) {
   return (
-    <div role="status" className="absolute top-1 left-2 flex items-center gap-2 rounded-knopf bg-grund px-2 text-xs text-text">
-      <span className="truncate">{schritt.text}</span>
-      <Knopf groesse="klein" art="leise" onClick={rueckgaengig}>
-        Rückgängig
-      </Knopf>
+    <div className="kurve-schrift pointer-events-none absolute inset-x-2 top-0.5 flex min-w-0 items-center gap-3">
+      {fehler.map((f) => (
+        <p key={f} role="alert" className="truncate text-warnung">
+          {f}
+        </p>
+      ))}
+      {schritt && (
+        <p role="status" className="flex min-w-0 items-center gap-2 text-text">
+          <span className="truncate">{schritt.text}</span>
+          <Knopf groesse="klein" art="leise" className="pointer-events-auto" onClick={rueckgaengig}>
+            Rückgängig
+          </Knopf>
+        </p>
+      )}
     </div>
   )
 }

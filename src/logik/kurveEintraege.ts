@@ -1,4 +1,5 @@
 import type { Eintrag } from '../vertrag/eintrag'
+import { ueberschneidungen } from './bezuege/terminInSchicht'
 import { MIN_TAG, RASTER } from './gezeiten'
 
 // Einträge auf der Gezeitenkurve (docs/konzept/06-gezeitenkurve.md): kurze Termine als Punkte, lange als Band dahinter.
@@ -27,7 +28,7 @@ export function ordne(termine: readonly Eintrag[], tagBeginn: Date): { punkte: P
   }
   const punkte = kurz.map((e): Punkt => {
     const [von, bis] = spanne(e)
-    const ueberschneidet = baender.filter((b) => von < b.bis && bis > b.von).map((b) => b.titel)
+    const ueberschneidet = ueberschneidungen({ von, bis }, baender)
     return { id: e.id, titel: e.titel, minute: von, dauer: bis - von, eintrag: e, ueberschneidet }
   })
   const nachZeit = <T extends { minute?: number; von?: number }>(a: T, b: T) => (a.minute ?? a.von ?? 0) - (b.minute ?? b.von ?? 0)
@@ -52,6 +53,17 @@ export function beschriftungsPlatz(minuten: readonly number[], pxProMinute: numb
     const naechste = i + 1 < minuten.length ? minuten[i + 1] : minuten[0] + MIN_TAG
     return Math.min(max, (naechste - m) * pxProMinute - 8)
   })
+}
+
+/** Platz einer Beschriftung ab `minute` in der oberen Zeile, wenn dort Hindernisse (Minuten von–bis) stehen:
+ *  endet 8 px vor dem nächsten, entfällt (0), wenn sie in einem beginnt. */
+export function platzVorHindernissen(minute: number, platz: number, hindernisse: readonly (readonly [number, number])[], pxProMinute: number): number {
+  let rest = platz
+  for (const [von, bis] of hindernisse) {
+    if (minute >= von && minute <= bis) return 0
+    if (von > minute) rest = Math.min(rest, (von - minute) * pxProMinute - 8)
+  }
+  return rest
 }
 
 /** Rundet eine Verschiebung in Minuten auf das Zieh-Raster. */

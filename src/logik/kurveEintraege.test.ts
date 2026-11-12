@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { Eintrag } from '../vertrag/eintrag'
-import { BAND_AB, aufRaster, gezogen, beschriftungsPlatz, buendeln, hoeheBei, ordne, treibgut, verschoben } from './kurveEintraege'
+import { BAND_AB, aufRaster, gezogen, platzVorHindernissen, beschriftungsPlatz, buendeln, hoeheBei, ordne, treibgut, verschoben } from './kurveEintraege'
 
 const tag = new Date(2026, 10, 12)
 const um = (h: number, m = 0) => new Date(2026, 10, 12, h, m).toISOString()
@@ -93,5 +93,18 @@ describe('gezogen', () => {
   it('ein Termin bleibt mindestens 15 Minuten lang', () => {
     expect(gezogen(schicht, 'ende', -600)).toEqual({ beginn: um(13, 30), ende: um(13, 45) })
     expect(gezogen(schicht, 'beginn', 600)).toEqual({ beginn: um(17, 45), ende: um(18, 0) })
+  })
+})
+
+describe('platzVorHindernissen', () => {
+  it('Beschriftung endet 8 Pixel vor dem nächsten Hindernis in der Zeile', () => {
+    expect(platzVorHindernissen(600, 160, [[700, 720]], 2)).toBe(160)
+    expect(platzVorHindernissen(600, 300, [[700, 720]], 2)).toBe(192)
+  })
+  it('Beschriftung, die in einem Hindernis beginnt, entfällt', () => {
+    expect(platzVorHindernissen(705, 160, [[700, 720]], 2)).toBe(0)
+  })
+  it('Hindernisse vor der Beschriftung stören nicht', () => {
+    expect(platzVorHindernissen(800, 160, [[700, 720]], 2)).toBe(160)
   })
 })

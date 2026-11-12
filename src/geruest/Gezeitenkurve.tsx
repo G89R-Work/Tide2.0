@@ -17,7 +17,8 @@ import {
 } from '../logik/gezeiten'
 import { ordne } from '../logik/kurveEintraege'
 import { useEinstellung } from './einstellungen'
-import { KurveEintraege, KurveMeldung } from './KurveEintraege'
+import { KurveEintraege, KurveKopfzeile } from './KurveEintraege'
+import { useFrischerSchritt } from './rueckgaengig'
 import { useTermine, useTreibgut, useWetter } from './kurveDaten'
 import { setzeGezeigteZeit } from './gezeigteZeit'
 import { useMinute } from './useMinute'
@@ -35,7 +36,8 @@ const GLAETTEN = 6
 const tagBeginnVon = (d: Date) => new Date(d.getFullYear(), d.getMonth(), d.getDate())
 const zweistellig = (n: number) => String(n).padStart(2, '0')
 const uhrzeit = (m: number) => `${zweistellig(Math.floor(m / 60) % 24)}:${zweistellig(Math.floor(m % 60))}`
-const leiseGleiten = () => (matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth')
+// Gleiten nur, wenn der Browser das Ende meldet (scrollend) und keine reduzierte Bewegung gewünscht ist; sonst springen.
+const gleitenMoeglich = () => 'onscrollend' in window && !matchMedia('(prefers-reduced-motion: reduce)').matches
 
 export function Gezeitenkurve({ className }: { className?: string }) {
   const jetzt = useMinute()
@@ -44,6 +46,7 @@ export function Gezeitenkurve({ className }: { className?: string }) {
   const stunden = ganzerTag ? 24 : gewaehlt
   const tagStart = tagBeginnVon(jetzt).getTime()
   const bandHoehe = Number(useEinstellung(e.band))
+  const frisch = useFrischerSchritt()
   const termine = useTermine(tagStart)
   const treibgut = useTreibgut()
   const wetter = useWetter(tagStart, useEinstellung(e.wetter) === true)
@@ -138,15 +141,39 @@ export function Gezeitenkurve({ className }: { className?: string }) {
   const zuJetzt = () => {
     const el = scroller.current!
     const ziel = naechste(scrollFuer(minuteJetzt, sichtbar, tag), el.scrollLeft, tag)
-    // Erst nach dem Gleiten wieder folgen (scrollend); ohne Weg oder ohne scrollend sofort bzw. nach einer Sekunde.
-    if (Math.abs(ziel - el.scrollLeft) < 1) return setFolgt(true)
+    // Gleitet sie, folgt sie erst wieder, wenn der Browser das Ende meldet (scrollend); ohne Weg oder beim Springen sofort.
+    if (Math.abs(ziel - el.scrollLeft) < 1 || !gleitenMoeglich()) {
+      el.scrollLeft = ziel
+      return setFolgt(true)
+    }
     gleitet.current = true
-    el.scrollTo({ left: ziel, behavior: leiseGleiten() })
-    setTimeout(() => el.dispatchEvent(new Event('scrollend')), 1000)
+    el.scrollTo({ left: ziel, behavior: 'smooth' })
   }
 
   const schritt = stundenSchritt(sichtbar / stunden)
   const marken = useMemo(() => Array.from({ length: (72 / schritt) | 0 }, (_, i) => i * schritt), [schritt])
+
+  const fehler = [termine.fehler, treibgut.fehler, wetter.fehler].filter((f): f is string => !!f)
+  const kopfzeileBelegt = !!frisch || fehler.length > 0
+
+  // Linie, Jetzt-Linie und Stundenzahlen: über dem Wasser und den Bändern, unter Punkten und Beschriftungen.
+  const linie = (
+    <>
+      <svg viewBox={`0 0 ${MIN_TAG * 3} ${HOEHE}`} preserveAspectRatio="none" className="pointer-events-none absolute inset-0 h-full w-full" aria-hidden>
+        {[0, 1, 2].map((k) => (
+          <g key={k}>
+            <path d={pfade.linie} transform={`translate(${k * MIN_TAG} 0)`} className="kurve-linie" vectorEffect="non-scaling-stroke" />
+            <line x1={k * MIN_TAG + minuteJetzt} x2={k * MIN_TAG + minuteJetzt} y1={0} y2={HOEHE} className="kurve-jetzt" vectorEffect="non-scaling-stroke" />
+          </g>
+        ))}
+      </svg>
+      {marken.map((h) => (
+        <span key={h} className="pointer-events-none absolute bottom-1 -translate-x-1/2 text-xs text-text-blass tabular-nums" style={{ left: `${(h / 72) * 100}%` }}>
+          {h % 24}
+        </span>
+      ))}
+    </>
+  )
 
   return (
     <section
@@ -156,7 +183,12 @@ export function Gezeitenkurve({ className }: { className?: string }) {
     >
       <div ref={scroller} tabIndex={0} onScroll={beimScrollen} className="kurve-scroller h-full outline-none">
         <div className="relative h-full" style={{ width: tag * 3 }}>
-          {tag > 0 && (
+          <svg viewBox={`0 0 ${MIN_TAG * 3} ${HOEHE}`} preserveAspectRatio="none" className="pointer-events-none absolute inset-0 h-full w-full" aria-hidden>
+            {[0, 1, 2].map((k) => (
+              <path key={k} d={pfade.flaeche} transform={`translate(${k * MIN_TAG} 0)`} className="kurve-wasser" />
+            ))}
+          </svg>
+          {tag > 0 ? (
             <KurveEintraege
               {...eintraege}
               werte={werte}
@@ -168,44 +200,27 @@ export function Gezeitenkurve({ className }: { className?: string }) {
               aendere={termine.aendere}
               treibgut={treibgut.liste}
               wetter={wetter.stunden}
+              linie={linie}
+              kopfzeileBelegt={kopfzeileBelegt}
             />
+          ) : (
+            linie
           )}
-          <svg viewBox={`0 0 ${MIN_TAG * 3} ${HOEHE}`} preserveAspectRatio="none" className="pointer-events-none absolute inset-0 h-full w-full" aria-hidden>
-            <defs>
-              <g id="kurve-tag">
-                <path d={pfade.flaeche} className="kurve-wasser" />
-                <path d={pfade.linie} className="kurve-linie" vectorEffect="non-scaling-stroke" />
-              </g>
-            </defs>
-            {[0, 1, 2].map((k) => (
-              <g key={k}>
-                <use href="#kurve-tag" x={k * MIN_TAG} />
-                <line x1={k * MIN_TAG + minuteJetzt} x2={k * MIN_TAG + minuteJetzt} y1={0} y2={HOEHE} className="kurve-jetzt" vectorEffect="non-scaling-stroke" />
-              </g>
-            ))}
-          </svg>
-          {marken.map((h) => (
-            <span key={h} className="absolute bottom-1 -translate-x-1/2 text-xs text-text-blass tabular-nums" style={{ left: `${(h / 72) * 100}%` }}>
-              {h % 24}
-            </span>
-          ))}
         </div>
       </div>
       <div className="kurve-mitte" />
       {!folgt && (
         <>
-          <span className="pointer-events-none absolute top-0.5 left-1/2 ml-2 text-xs font-medium text-text tabular-nums">{uhrzeit(gezeigt)}</span>
+          {/* Links der Mitte: rechts der Jetzt-Linie steht der Treibgut-Zähler. Eine Meldung hat die obere Zeile für sich. */}
+          {!kopfzeileBelegt && (
+            <span className="pointer-events-none absolute top-0.5 right-1/2 mr-2 text-xs font-medium text-text tabular-nums">{uhrzeit(gezeigt)}</span>
+          )}
           <Knopf groesse="klein" className="absolute top-1/2 right-2 -translate-y-1/2" onClick={zuJetzt}>
             Zu jetzt
           </Knopf>
         </>
       )}
-      <KurveMeldung />
-      {[termine.fehler, treibgut.fehler, wetter.fehler].filter(Boolean).map((f) => (
-        <p key={f} role="alert" className="absolute top-1 left-2 rounded-knopf bg-grund px-2 text-xs text-warnung">
-          {f}
-        </p>
-      ))}
+      {kopfzeileBelegt && <KurveKopfzeile schritt={frisch} fehler={fehler} />}
     </section>
   )
 }
