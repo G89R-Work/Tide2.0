@@ -63,7 +63,7 @@ Diese drei Regeln gehen allen anderen vor.
 8. Die Tempo-Grenzen aus `docs/konzept/02-tempo.md` gelten immer.
 9. Nie sparen durch ungetesteten Code, geratene Schnittstellen oder fehlende Fehlerbehandlung.
 11. Keine Erklär-Texte in der Oberfläche: nur Beschriftungen, Werte und Fehlermeldungen. Erklärt wird nur, wenn der Nutzer es ausdrücklich verlangt.
-10. `vorlage/` enthält den alten Prototyp und wird nie gelesen. Fürs Aussehen gilt nur `docs/vorlage-aussehen/prototyp3.html`: als Bild ansehen, Werte gezielt per Grep, Code nie übernehmen.
+10. `vorlage/` enthält den alten Prototyp und wird nie gelesen. Vorlage ist nur `docs/vorlage-aussehen/prototyp3.html`: als Bild ansehen, Stile und Funktionen gezielt per Grep lesen, Code in Tide-Bauweise neu schreiben, nie kopieren.
 
 ## Compact instructions
 Beim Verdichten erhalten: Name und Plan der laufenden Scheibe, geänderte Dateien, offene Fehler aus `npm run pruefen`, getroffene Entscheidungen, was noch fehlt.
