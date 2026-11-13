@@ -10,7 +10,7 @@ export function useTastenkuerzel() {
       const inFeld = !!ziel?.closest('input, textarea, select, [contenteditable="true"]')
       const kuerzel = kuerzelAus(e, inFeld)
       const a = kuerzel ? aktionFuerKuerzel(kuerzel) : undefined
-      if (!a || a.kommt) return
+      if (!a || a.spaeter) return
       e.preventDefault()
       if (a.befehl) fuehreAus(a.id)
       else if (a.ziel) location.hash = a.ziel

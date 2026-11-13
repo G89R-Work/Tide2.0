@@ -1,16 +1,16 @@
 # Status
 Etappe: 2 Gezeitenkurve und Heute
-Nächste Scheibe: `aussehen-ohne-erklaerungen`
+Nächste Scheibe: `aussehen-postfach-ordner`
 
 ## Stand
 Das Gerüst steht am PC (wie die Vorlage, ohne Zellraster: Leiste mit Logo von oben bis unten, Kopfzeile mit Uhr, Wetter und Knöpfen außer auf Heute) und am Handy mit Seitenleiste, zweiter Ebene, belegbaren Knöpfen, Einstellungsliste, Kacheln und Hintergrund. Die Gezeitenkurve zeigt den Beispieltag (PC unten über die volle Breite, Handy über der unteren Leiste; Einstellung „Lage“ je Gerät), scrollt endlos, folgt der Uhr und steuert beim Scrollen den Hintergrund. Der Himmel folgt dem Sonnenstand (Lichthof, Dämmerung, Mondschein nach Phase). Termine liegen als Punkte (mit Karte, Bündel, Überschneidung) oder Bänder auf ihr, lassen sich ziehen und zurücknehmen; dazu Treibgut und Wetterzeile. Die Kurve ist je Seite und Gerät abschaltbar; Meldungen fließen an der Jetzt-Linie ein und falten sich in die Glocke. Heute hat einen festen Aufbau (Gruß, Als Nächstes, Wetter, Uhr, Knöpfe, Braucht dich als Reiter mit aufklappender Liste, Wochenleiste wie die Vorlage mit kleinem Kalender samt Feiertagen, Notiz, Rückblick), Text ohne Hintergrund. **Aufräumen:** `docs/PRUEFUNG.md` wird in acht Scheiben `aufraeumen-*` abgearbeitet (siehe Fahrplan). Bausteine dafür sind freigegeben.
 
 ## Zuletzt erledigt
+- aussehen-ohne-erklaerungen: `hilfe` und Unterzeile der Einstellungen weg, Aktionen `spaeter: true` statt `kommt`-Text, Platzhalter- und Zieh-Hinweise entfernt
 - aussehen-einstellungen: mittlere Spalte mit Suche oben (`geruest/EinstellungenSuchfeld.tsx`, Speicher `einstellungenSuche.ts`), Gruppen der Vorlage, Zeilen mit Symbol (`geruest/ebenenSymbole.ts`), Breite `leiste.ebeneEinstellungenPx`
 - aussehen-kurve: Kopfzeile, Wetter „12° · 20 % Regen“ (Vertrag `regenChance`), Jetzt-Punkt mit Treibgut, Schildchen, „10:00“-Stunden, Einklappen per Wischen (`KurveRand`, `klappeKurve`)
 - aussehen-wochenleiste: Wochenleiste und kleiner Kalender wie Vorlage (`teile/Monat.tsx`, `Leistenknopf`), Feiertage `logik/feiertage.ts` + `useFeiertage`, `monatsRaster` immer 6 Wochen, `schichtBuchstabe`
 - aussehen-braucht-dich: Reiter wie Vorlage (Punkt, Titel, Ansehen, +n, Schließen mit Rückgängig, `geruest/brauchtDichZu.ts`), Liste über neuen Baustein `bausteine/Aufklapp.tsx` (Radix Popover) am Reiter
-- aussehen-heute: Heute fest aufgebaut aus `bereiche/heute/teile/`, Kachel-Raster, Bearbeiten-Modus und react-grid-layout entfernt
 ## Stolpersteine
 - Stil prüft oxlint, nicht ESLint. Warnungen zählen als Fehler. Freie Tailwind-Werte wie `data-[…]` verbietet die Werte-Prüfung.
 - `npm run pruefen` steckt in `skripte/pruefen.mjs`; neue Prüfung = eine Zeile. Neue Seiten hinten an die Zeile „Tempo" hängen, dann wird auch der Wechsel gemessen. Tempo-Grenzen nur in `src/logik/tempoGrenzen.ts`; `skripte/sicht.mjs` liest die Datei direkt (Node streicht die Typen).
@@ -22,7 +22,7 @@ Das Gerüst steht am PC (wie die Vorlage, ohne Zellraster: Leiste mit Logo von o
 - Handy-Ansicht unter `leiste.schmalUnter` (768 px), umgeschaltet live über `useSchmal`. Die Kopfzeile am Handy hat rechts Platz für die drei belegbaren Knöpfe.
 - Neues Design = Kopie von `src/werte/tinte.css`. Neue Farbe: beide Designs, `werte.css` (@theme inline), `src/bausteine/cn.ts`.
 - Glas nur über `flaeche-leiste`, `flaeche-kachel`, `flaeche-schwebend`; Drück-Rückmeldung über `drueck`.
-- Neue Aktion: Zeile in `src/logik/aktionen.ts`, Symbol in `src/geruest/aktionSymbole.ts`. Aktion ohne `ziel` braucht `kommt` oder `befehl: true` plus Zeile in `src/geruest/befehle.ts`.
+- Neue Aktion: Zeile in `src/logik/aktionen.ts`, Symbol in `src/geruest/aktionSymbole.ts`. Aktion ohne `ziel` braucht `spaeter: true` oder `befehl: true` plus Zeile in `src/geruest/befehle.ts`.
 - Neue Einstellung = eine Zeile in `einstellungen` (`src/logik/einstellungen.ts`); lesen mit `useEinstellung(e)` aus `src/geruest/einstellungen.ts`.
 - Hintergrund: Farben `--sonne`, `--welle-1…5`, `--nacht` je Design, Maße in `werte.css`, Wellenhöhe über `data-wellen` → `--horizont`; Lage kommt als `--x`/`--y` (0–1), Licht als `--licht`/`--waerme`/`--mond-licht`. Die Uhrzeit fest stellen für Bilder: Playwright `page.clock.setFixedTime`, Bahn über `localStorage['tide.attrappe.einstellungen']`.
 - Bedienung im Browser testen: Playwright (Finger über CDP `Input.dispatchTouchEvent`, langer Druck 700 ms). Animationen ohne `both`, sonst zählt `sicht` sie als laufend.

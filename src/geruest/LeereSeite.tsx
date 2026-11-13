@@ -10,7 +10,6 @@ export function LeereSeite({ titel }: { titel: string }) {
     <div>
       <Seitenkopf titel={titel} />
       {unter && <p className="mt-1 text-lg text-text-gedaempft">{unter}</p>}
-      <p className="mt-4 text-text-gedaempft">Dieser Bereich entsteht in einer späteren Etappe.</p>
     </div>
   )
 }

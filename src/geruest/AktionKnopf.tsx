@@ -29,7 +29,7 @@ export function AktionKnopf({ id, art = 'symbol', className }: Props) {
       </Knopf>
     )
   return (
-    <Knopf art={art} className={cn('cursor-default opacity-40', className)} aria-disabled aria-label={`${a.name}, ${a.kommt}`} title={titelVon(a)}>
+    <Knopf art={art} className={cn('cursor-default opacity-40', className)} aria-disabled aria-label={a.name} title={titelVon(a)}>
       {inhalt}
     </Knopf>
   )

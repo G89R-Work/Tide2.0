@@ -1,5 +1,5 @@
 // Zentrale Liste aller Einstellungen (docs/konzept/20-einstellungen.md).
-// Neue Option = eine Zeile in `einstellungen`. Seite, Suche und „Auf Standard" entstehen daraus.
+// Neue Option = eine Zeile in `einstellungen`, ohne Erklärtext (nur Name, Werte, Abschnitt). Seite, Suche und „Auf Standard" entstehen daraus.
 // Gruppen und Reihenfolge der Abschnitte wie die mittlere Spalte der Vorlage (bilder/einstellungen-spalte.jpg).
 // Gemerkt werden nur Abweichungen vom Standard; je Geräteart unter „<id>@pc" bzw. „<id>@handy".
 import { bereiche, type BereichId } from './bereiche'
@@ -38,7 +38,6 @@ type Basis = {
   id: string
   name: string
   abschnitt: Exclude<AbschnittId, 'start'>
-  hilfe?: string
   /** Gilt je Geräteart getrennt (Anordnungen, Größen). */
   jeGeraet?: true
   /** Erscheint zusätzlich unter „Grundlegendes". */
@@ -62,29 +61,29 @@ const bundeslaender = [
 ] as const
 
 export const einstellungen: readonly Einstellung[] = [
-  { id: 'morgen-zusammenfassung', name: 'Morgen-Zusammenfassung', abschnitt: 'benachrichtigungen', art: 'schalter', standard: true, wichtig: true, hilfe: 'Am Morgen ein Überblick über den Tag' },
-  { id: 'ebbe-modus', name: 'Ebbe-Modus', abschnitt: 'benachrichtigungen', art: 'schalter', standard: false, hilfe: 'Von 22:30 bis 7:00 warten Meldungen bis zum Morgen; Wichtiges kommt sofort' },
+  { id: 'morgen-zusammenfassung', name: 'Morgen-Zusammenfassung', abschnitt: 'benachrichtigungen', art: 'schalter', standard: true, wichtig: true },
+  { id: 'ebbe-modus', name: 'Ebbe-Modus', abschnitt: 'benachrichtigungen', art: 'schalter', standard: false },
   { id: 'design', name: 'Design', abschnitt: 'darstellung', art: 'auswahl', standard: 'glut', optionen: [['glut', 'Glut'], ['tinte', 'Tinte']], wichtig: true },
   { id: 'schriftgroesse', name: 'Schriftgröße', abschnitt: 'darstellung', art: 'auswahl', standard: 'normal', optionen: [['klein', 'Klein'], ['normal', 'Normal'], ['gross', 'Groß']], jeGeraet: true, wichtig: true },
   { id: 'bahn', name: 'Bahn von Sonne und Mond', abschnitt: 'darstellung', art: 'auswahl', standard: 'bogen', optionen: [['bogen', 'Bogen'], ['echt', 'Echt']] },
-  { id: 'ort-breite', name: 'Ort: Breite', abschnitt: 'darstellung', art: 'zahl', standard: 51.31, min: -90, max: 90, schritt: 0.01, einheit: '°', hilfe: 'Nord plus, Süd minus' },
-  { id: 'ort-laenge', name: 'Ort: Länge', abschnitt: 'darstellung', art: 'zahl', standard: 9.49, min: -180, max: 180, schritt: 0.01, einheit: '°', hilfe: 'Ost plus, West minus' },
+  { id: 'ort-breite', name: 'Ort: Breite', abschnitt: 'darstellung', art: 'zahl', standard: 51.31, min: -90, max: 90, schritt: 0.01, einheit: '°' },
+  { id: 'ort-laenge', name: 'Ort: Länge', abschnitt: 'darstellung', art: 'zahl', standard: 9.49, min: -180, max: 180, schritt: 0.01, einheit: '°' },
   { id: 'mond-nachts', name: 'Mond nur nachts', abschnitt: 'darstellung', art: 'schalter', standard: true },
   { id: 'hintergrund-tageszeit', name: 'Hintergrund folgt der Tageszeit', abschnitt: 'darstellung', art: 'schalter', standard: true },
-  { id: 'wellen-hoehe', name: 'Höhe der Wellen', abschnitt: 'darstellung', art: 'auswahl', standard: 'gold', optionen: [['viertel', 'Viertel'], ['drittel', 'Drittel'], ['gold', 'Goldener Schnitt'], ['haelfte', 'Hälfte']], hilfe: 'Anteil der Seitenhöhe' },
+  { id: 'wellen-hoehe', name: 'Höhe der Wellen', abschnitt: 'darstellung', art: 'auswahl', standard: 'gold', optionen: [['viertel', 'Viertel'], ['drittel', 'Drittel'], ['gold', 'Goldener Schnitt'], ['haelfte', 'Hälfte']] },
   { id: 'wellen', name: 'Wellen', abschnitt: 'darstellung', art: 'schalter', standard: true },
-  { id: 'bewegung', name: 'Bewegung', abschnitt: 'darstellung', art: 'schalter', standard: true, hilfe: 'Aus: keine Animationen' },
-  { id: 'kurve-stunden', name: 'Sichtbare Stunden', abschnitt: 'kurve', art: 'zahl', standard: 4, standardHandy: 6, min: 3, max: 8, einheit: 'Std.', jeGeraet: true, wichtig: true, hilfe: 'Am Handy ab Werk mehr als am PC' },
-  { id: 'kurve-ganzer-tag', name: 'Ganzer Tag', abschnitt: 'kurve', art: 'schalter', standard: false, jeGeraet: true, hilfe: 'Zeigt alle 24 Stunden auf einmal' },
-  { id: 'kurve-band-hoehe', name: 'Höhe der Bänder', abschnitt: 'kurve', art: 'zahl', standard: 76, min: 20, max: 100, einheit: '%', jeGeraet: true, hilfe: 'Lange Termine wie Schichten, als Anteil der Kurvenhöhe' },
+  { id: 'bewegung', name: 'Bewegung', abschnitt: 'darstellung', art: 'schalter', standard: true },
+  { id: 'kurve-stunden', name: 'Sichtbare Stunden', abschnitt: 'kurve', art: 'zahl', standard: 4, standardHandy: 6, min: 3, max: 8, einheit: 'Std.', jeGeraet: true, wichtig: true },
+  { id: 'kurve-ganzer-tag', name: 'Ganzer Tag', abschnitt: 'kurve', art: 'schalter', standard: false, jeGeraet: true },
+  { id: 'kurve-band-hoehe', name: 'Höhe der Bänder', abschnitt: 'kurve', art: 'zahl', standard: 76, min: 20, max: 100, einheit: '%', jeGeraet: true },
   { id: 'kurve-eingeklappt', name: 'Eingeklappt', abschnitt: 'kurve', art: 'schalter', standard: false, jeGeraet: true },
-  { id: 'kurve-wetter', name: 'Wetter', abschnitt: 'kurve', art: 'schalter', standard: true, jeGeraet: true, hilfe: 'Temperatur und Regen als feine Zeile über der Kurve' },
-  { id: 'kurve-lage', name: 'Lage', abschnitt: 'kurve', art: 'auswahl', standard: 'unten', optionen: [['unten', 'Unten'], ['oben', 'Oben']], jeGeraet: true, hilfe: 'Am PC am oberen oder unteren Rand, am Handy über der Leiste' },
-  { id: 'leiste-breite', name: 'Breite der Seitenleiste', abschnitt: 'navigation', art: 'auswahl', standard: 'schmal', optionen: [['schmal', 'Schmal, nur Symbole'], ['breit', 'Breit, mit Namen']], wichtig: true, hilfe: 'Am PC und Tablet' },
+  { id: 'kurve-wetter', name: 'Wetter', abschnitt: 'kurve', art: 'schalter', standard: true, jeGeraet: true },
+  { id: 'kurve-lage', name: 'Lage', abschnitt: 'kurve', art: 'auswahl', standard: 'unten', optionen: [['unten', 'Unten'], ['oben', 'Oben']], jeGeraet: true },
+  { id: 'leiste-breite', name: 'Breite der Seitenleiste', abschnitt: 'navigation', art: 'auswahl', standard: 'schmal', optionen: [['schmal', 'Schmal, nur Symbole'], ['breit', 'Breit, mit Namen']], wichtig: true },
   // Sichtbar je Seite: ein Schalter je Bereich (docs/konzept/06-gezeitenkurve.md).
-  ...bereiche.map((b) => ({ id: `kurve-zeigen-${b.id}`, name: `Zeigen auf ${b.name}`, abschnitt: 'kurve' as const, art: 'schalter' as const, standard: true, jeGeraet: true as const, hilfe: `Kurve auf der Seite ${b.name}; der Knopf „Gezeitenkurve ein/aus“ schaltet die offene Seite` })),
-  { id: 'name', name: 'Dein Name', abschnitt: 'nutzer', art: 'text', standard: 'Moritz', laenge: 30, wichtig: true, hilfe: 'Für die Begrüßung auf Heute; leer lässt den Namen weg' },
-  { id: 'heute-uhr', name: 'Uhr', abschnitt: 'heute', art: 'schalter', standard: true, jeGeraet: true, hilfe: 'Uhrzeit mit Anteil des Tages und der Schicht' },
+  ...bereiche.map((b) => ({ id: `kurve-zeigen-${b.id}`, name: `Zeigen auf ${b.name}`, abschnitt: 'kurve' as const, art: 'schalter' as const, standard: true, jeGeraet: true as const })),
+  { id: 'name', name: 'Dein Name', abschnitt: 'nutzer', art: 'text', standard: 'Moritz', laenge: 30, wichtig: true },
+  { id: 'heute-uhr', name: 'Uhr', abschnitt: 'heute', art: 'schalter', standard: true, jeGeraet: true },
   { id: 'rechtschreibung', name: 'Rechtschreibprüfung', abschnitt: 'schreiben', art: 'schalter', standard: true },
   { id: 'wochenbeginn', name: 'Wochenbeginn', abschnitt: 'kalender', art: 'auswahl', standard: 'montag', optionen: [['montag', 'Montag'], ['sonntag', 'Sonntag']], wichtig: true },
   { id: 'kalenderwoche', name: 'Kalenderwoche anzeigen', abschnitt: 'kalender', art: 'schalter', standard: true },
@@ -144,13 +143,13 @@ export function zuruecksetzen(werte: Werte, liste: readonly Einstellung[], gerae
 const flach = (t: string) =>
   t.toLocaleLowerCase('de').replaceAll('ß', 'ss').normalize('NFD').replace(/\p{Diacritic}/gu, '')
 
-/** Alle Wörter müssen in Name, Hilfe, Abschnitt oder Auswahl vorkommen. */
+/** Alle Wörter müssen in Name, Abschnitt oder Auswahl vorkommen. */
 export function suche(text: string): Einstellung[] {
   const woerter = flach(text).split(/\s+/).filter(Boolean)
   return einstellungen.filter((e) => {
     const abschnitt = abschnitte.find((a) => a.id === e.abschnitt)?.name ?? ''
     const optionen = e.art === 'auswahl' ? e.optionen.map(([, n]) => n).join(' ') : ''
-    const heuhaufen = flach(`${e.name} ${e.hilfe ?? ''} ${abschnitt} ${optionen}`)
+    const heuhaufen = flach(`${e.name} ${abschnitt} ${optionen}`)
     return woerter.every((w) => heuhaufen.includes(w))
   })
 }

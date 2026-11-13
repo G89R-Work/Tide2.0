@@ -49,11 +49,7 @@ export default function Seite() {
         {fehler && <p className="text-sm text-warnung">{fehler}</p>}
         {!geladen && <p className="text-sm text-text-gedaempft">Lädt …</p>}
 
-        {sichtbar.length === 0 && (sucht || abschnitt.id !== 'navigation') && (
-          <p className="text-text-gedaempft">
-            {sucht ? `Keine Einstellung passt zu „${text.trim()}".` : 'Hier gibt es noch nichts einzustellen.'}
-          </p>
-        )}
+        {sucht && sichtbar.length === 0 && <p className="text-text-gedaempft">Keine Treffer</p>}
 
         {gruppen.map((g) => (
           <section key={g.titel ?? 'abschnitt'} className="flaeche-kachel px-4 py-2">

@@ -61,15 +61,12 @@ function Spalte({ id, name }: (typeof designs)[number]) {
       <div className="grid gap-3">
         <Flaeche art="leiste" className="p-4">
           <p className="font-medium">Leiste</p>
-          <p className="text-sm text-text-gedaempft">Echter Weichzeichner, für Seitenleiste und Kurve.</p>
         </Flaeche>
         <Flaeche art="kachel" className="p-4">
           <p className="font-medium">Kachel</p>
-          <p className="text-sm text-text-gedaempft">Dichte Tönung ohne Weichzeichner.</p>
         </Flaeche>
         <Flaeche art="schwebend" className="p-4">
           <p className="font-medium">Schwebend</p>
-          <p className="text-sm text-text-gedaempft">Für Dialoge und Menüs.</p>
           <div className="mt-3 flex justify-end gap-2">
             <Knopf art="leise" groesse="klein">Abbrechen</Knopf>
             <Knopf art="haupt" groesse="klein">Übernehmen</Knopf>
@@ -83,7 +80,7 @@ function Spalte({ id, name }: (typeof designs)[number]) {
           <Panel id="links" minSize="20%" className="flex items-center justify-center text-sm text-text-gedaempft">
             Ziehen
           </Panel>
-          <Trenner title="Ziehen ändert die Breite" />
+          <Trenner title="Breite" />
           <Panel id="rechts" minSize="20%" className="flex items-center justify-center text-sm text-text-gedaempft">
             Für Seitenleiste und Kurve
           </Panel>

@@ -24,5 +24,5 @@ if (import.meta.env.DEV)
   for (const a of aktionen) if (!aktionSymbole[a.id]) console.warn(`Aktion ${a.id} hat kein Symbol (src/geruest/aktionSymbole.ts)`)
 
 export function titelVon(a: Aktion): string {
-  return [a.name, a.kommt, a.kuerzel && `(${a.kuerzel})`].filter(Boolean).join(' · ')
+  return [a.name, a.kuerzel && `(${a.kuerzel})`].filter(Boolean).join(' · ')
 }

@@ -9,8 +9,8 @@ export type Aktion = {
   ziel?: string
   /** Führt einen Befehl auf der Seite aus statt zu springen (src/geruest/befehle.ts). */
   befehl?: true
-  /** Noch nicht gebaut: womit die Funktion kommt. Der Knopf ist dann ausgegraut. */
-  kommt?: string
+  /** Noch nicht gebaut: der Knopf ist ausgegraut. */
+  spaeter?: true
   /** Tastenkürzel wie „Alt+M" oder „Strg+K". */
   kuerzel?: string
 }
@@ -25,8 +25,8 @@ export const aktionen: readonly Aktion[] = [
   { id: 'rueckgaengig', name: 'Rückgängig', befehl: true, kuerzel: 'Alt+Z' },
   { id: 'wiederherstellen', name: 'Wiederherstellen', befehl: true, kuerzel: 'Alt+Y' },
   { id: 'kurve', name: 'Gezeitenkurve ein/aus', befehl: true, kuerzel: 'Alt+K' },
-  { id: 'suche', name: 'Suche', kommt: 'Kommt mit der Suche', kuerzel: 'Strg+K' },
-  { id: 'diktat', name: 'Diktat', kommt: 'Kommt mit dem Diktat', kuerzel: 'Alt+D' },
+  { id: 'suche', name: 'Suche', spaeter: true, kuerzel: 'Strg+K' },
+  { id: 'diktat', name: 'Diktat', spaeter: true, kuerzel: 'Alt+D' },
 ]
 
 const nachId = new Map(aktionen.map((a) => [a.id, a]))

@@ -3,7 +3,6 @@ import { Auswahl } from '../../bausteine/Auswahl'
 import { Eingabe } from '../../bausteine/Eingabe'
 import { Knopf } from '../../bausteine/Knopf'
 import { Schalter } from '../../bausteine/Schalter'
-import { cn } from '../../bausteine/cn'
 import { einstellungenAendern } from '../../geruest/einstellungen'
 import { istStandard, setze, wertVon, type Einstellung, type Geraet, type Wert, type Werte } from '../../logik/einstellungen'
 
@@ -13,20 +12,13 @@ export function EinstellungZeile({ e, werte, geraet }: { e: Einstellung; werte: 
   const feld = `einstellung-${e.id}`
   const aendern = (w: Wert) => einstellungenAendern(setze(werte, e, geraet, w), { text: `${e.name} geändert`, bereich: 'einstellungen' })
   const standard = istStandard(e, werte, geraet)
-  const geraetHinweis = e.jeGeraet ? `Gilt für ${geraet === 'pc' ? 'den PC' : 'das Handy'}` : undefined
-  const unterzeile = [e.hilfe, geraetHinweis].filter(Boolean).join(' · ')
 
   return (
     <li className="flex h-16 items-center gap-3">
       <div className="min-w-0 flex-1">
-        <label htmlFor={feld} title={e.name} className={cn('block', unterzeile ? 'line-clamp-1' : 'line-clamp-2')}>
+        <label htmlFor={feld} title={e.name} className="line-clamp-2 block">
           {e.name}
         </label>
-        {unterzeile && (
-          <p title={unterzeile} className="line-clamp-1 text-sm text-text-gedaempft">
-            {unterzeile}
-          </p>
-        )}
       </div>
       {e.art === 'schalter' && (
         <Schalter id={feld} checked={wert === true} onChange={(x) => aendern(x.currentTarget.checked)} />

@@ -140,6 +140,7 @@ Eine Zeile je Entscheidung, neueste unten. Was hier steht, gilt und wird nicht n
 - 2026-11-12 · Ein- und Ausklappen der Kurve per senkrechtem Wischen (oder 40 px ziehen), eingeklappt ein Rand von 18 px zum Hochwischen oder Antippen; neue Einstellung „Eingeklappt“ je Gerät; Handy-Groß per Antippen bleibt.
 - 2026-11-13 · Reihenfolge (Nutzer): erst alle Aussehen-Scheiben aus der Vorlage (`aussehen-einstellungen`, `aussehen-ohne-erklaerungen`, neu `aussehen-postfach-ordner`), danach Aufräumen, dann Etappe 3 Postfach.
 - 2026-11-13 · Einstellungen: Gruppen wie die Vorlage (Allgemein, Bereiche, Schreiben, Personen, Daten und Kosten); „Grundlegendes“ steht oben unter Allgemein, „Privat und Arbeit“ unter Daten und Kosten. Die Suche steht oben in der mittleren Spalte (Breite 300 px wie die Vorlage); die Seite zeigt die Treffer.
+- 2026-11-13 · Ohne Erklärtexte: Einstellungen haben kein Feld `hilfe` mehr, Aktionen statt `kommt` (Text) nur `spaeter: true` (ausgegraut). Der Typ selbst verhindert neue Erklärtexte, eine eigene Prüfung in `pruefen` braucht es nicht. Auch „Gilt für den PC/das Handy“ entfällt.
 
 ## Offen
 

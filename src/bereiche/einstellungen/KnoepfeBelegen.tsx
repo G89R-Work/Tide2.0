@@ -46,7 +46,6 @@ export function KnoepfeBelegen() {
                     {aktionen.map((a) => (
                       <option key={a.id} value={a.id}>
                         {a.name}
-                        {a.kommt ? ' (kommt später)' : ''}
                         {a.kuerzel ? ` · ${a.kuerzel}` : ''}
                       </option>
                     ))}
