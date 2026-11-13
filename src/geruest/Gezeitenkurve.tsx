@@ -1,5 +1,5 @@
 import { useDrag } from '@use-gesture/react'
-import { addMinutes, startOfDay } from 'date-fns'
+import { addDays, addMinutes, startOfDay } from 'date-fns'
 import { uhrzeit } from './format'
 import { useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties } from 'react'
 import { cn } from '../bausteine/cn'
@@ -19,14 +19,14 @@ import {
   vonOben,
   zeitBei,
 } from '../logik/gezeiten'
-import { hoeheBei, ordne } from '../logik/kurveEintraege'
+import { hoeheBei, ordne, treibgut } from '../logik/kurveEintraege'
 import { kurve } from '../werte/kurve'
 import { klappeKurve, setzeHier, useEinstellung, useKurveOben } from './einstellungen'
 import { KurveEintraege, KurveKopfzeile } from './KurveEintraege'
 import { Glocke } from './Glocke'
 import { useMeldungen } from './meldungen'
 import { useFrischerSchritt } from './rueckgaengig'
-import { useTermine, useTreibgut, useWetter } from './kurveDaten'
+import { aendereEintragMitSchritt, useEintraege, useEintragFehler, useTermine, useWetter } from './daten'
 import { setzeGezeigteZeit } from './gezeigteZeit'
 import { useMinute } from './useMinute'
 
@@ -63,9 +63,13 @@ export function Gezeitenkurve({ className, onAntippen }: { className?: string; o
   const bandHoehe = useEinstellung(e.band)
   const frisch = useFrischerSchritt()
   const meldung = useMeldungen().frisch
-  const termine = useTermine(tagStart)
-  const treibgut = useTreibgut()
-  const wetter = useWetter(tagStart, useEinstellung(e.wetter))
+  const tagEnde = addDays(tagStart, 1)
+  const termine = useTermine(new Date(tagStart), tagEnde)
+  const alleEintraege = useEintraege()
+  const treibgutListe = useMemo(() => treibgut(alleEintraege.liste ?? []), [alleEintraege.liste])
+  const wetter = useWetter(new Date(tagStart), tagEnde, useEinstellung(e.wetter))
+  const wetterStunden = useMemo(() => wetter.stunden && new Map(wetter.stunden.map((w) => [new Date(w.zeit).getHours(), w])), [wetter.stunden])
+  const aenderFehler = useEintragFehler()
 
   const scroller = useRef<HTMLDivElement>(null)
   const [sichtbar, setSichtbar] = useState(0)
@@ -175,7 +179,7 @@ export function Gezeitenkurve({ className, onAntippen }: { className?: string; o
   const schritt = stundenSchritt(sichtbar / stunden)
   const marken = useMemo(() => Array.from({ length: (72 / schritt) | 0 }, (_, i) => i * schritt), [schritt])
 
-  const fehler = [termine.fehler, treibgut.fehler, wetter.fehler].filter((f): f is string => !!f)
+  const fehler = [termine.fehler, alleEintraege.fehler, wetter.fehler, aenderFehler].filter((f): f is string => !!f)
   const kopfzeileBelegt = !!frisch || !!meldung || fehler.length > 0
   // Mit Kopfzeile (PC, Handy groß) stehen Meldungen dort; ohne (Handy klein) liegen sie über der oberen Zeile.
   const mitKopf = hoehe >= kurve.kopfAbPx
@@ -277,9 +281,9 @@ export function Gezeitenkurve({ className, onAntippen }: { className?: string; o
               mitte={folgt ? null : gezeigt}
               kopie={kopie}
               marken={marken}
-              aendere={termine.aendere}
-              treibgut={treibgut.liste}
-              wetter={wetter.stunden}
+              aendere={aendereEintragMitSchritt}
+              treibgut={treibgutListe}
+              wetter={wetterStunden}
               linie={linie}
               kopfzeileBelegt={ueberdeckt}
               schilder={mitKopf}

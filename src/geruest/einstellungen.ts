@@ -1,41 +1,11 @@
-import { useSyncExternalStore } from 'react'
 import type { BereichId } from '../logik/bereiche'
 import { einstellung, kurveZeigen, setze, unterschied, werteAendern, wertVon, type Einstellung, type Geraet, type Wert, type Werte } from '../logik/einstellungen'
 import { merke, type Schritt } from './rueckgaengig'
-import { aendereEinstellungen, holeEinstellungen } from '../vertrag/einstellungen'
+import { einstellungenJetzt, einstellungenSpeichernVon, useEinstellungen } from './daten'
 import { istSchmal, useSchmal } from './useSchmal'
 
-// Die Einstellungen des Nutzers, geholt und gespeichert über den Vertrag. Änderungen gelten sofort
+// Die Einstellungen des Nutzers, geholt und gespeichert über `daten.ts`. Änderungen gelten sofort
 // und lassen sich über den einen Rückgängig-Speicher zurücknehmen; scheitert das Speichern, gilt wieder der alte Stand.
-type Zustand = { werte: Werte; geladen: boolean; fehler?: string }
-
-let zustand: Zustand = { werte: {}, geladen: false }
-const hoerer = new Set<() => void>()
-let geholt = false
-
-function melden(neu: Partial<Zustand>) {
-  zustand = { ...zustand, ...neu }
-  for (const h of hoerer) h()
-}
-
-function holen() {
-  if (geholt) return
-  geholt = true
-  holeEinstellungen().then(
-    (werte) => melden({ werte, geladen: true }),
-    (f: Error) => melden({ geladen: true, fehler: f.message }),
-  )
-}
-
-const abonnieren = (h: () => void) => {
-  holen()
-  hoerer.add(h)
-  return () => hoerer.delete(h)
-}
-
-export function useEinstellungen() {
-  return useSyncExternalStore(abonnieren, () => zustand)
-}
 
 /** Geräteart dieses Fensters: die Handy-Ansicht zählt als Handy. */
 export function useGeraet(): Geraet {
@@ -73,34 +43,20 @@ export function useKurveSichtbar(bereich: BereichId) {
 
 /** Wert einer Einstellung für dieses Gerät, außerhalb von React (Befehle, Tasten). */
 export function wertHier(e: Einstellung): Wert {
-  return wertVon(e, zustand.werte, istSchmal() ? 'handy' : 'pc')
+  return wertVon(e, einstellungenJetzt(), istSchmal() ? 'handy' : 'pc')
 }
 
 /** Einstellung für dieses Gerät setzen, außerhalb von React. Ohne `schritt` (Modi wie Bearbeiten) kein Rückgängig-Schritt. */
 export function setzeHier(e: Einstellung, wert: Wert, schritt: Pick<Schritt, 'text' | 'still' | 'bereich'> | null = null) {
-  einstellungenAendern(setze(zustand.werte, e, istSchmal() ? 'handy' : 'pc', wert), schritt)
+  einstellungenAendern(setze(einstellungenJetzt(), e, istSchmal() ? 'handy' : 'pc', wert), schritt)
 }
 
 /** Kurve auf der Seite ein- oder ausblenden, für dieses Gerät. Ohne Meldung (docs/konzept/03-geruest.md), aber mit Rückgängig (Alt+Z). */
 export function kurveUmschalten(bereich: BereichId) {
   const e = kurveZeigen(bereich)
   const geraet: Geraet = istSchmal() ? 'handy' : 'pc'
-  const an = wertVon(e, zustand.werte, geraet) === true
-  einstellungenAendern(setze(zustand.werte, e, geraet, !an), { text: `Kurve ${an ? 'aus' : 'ein'}`, still: true })
-}
-
-/** Speichert die Änderung von `alt` nach `neu`; scheitert es, gilt wieder `alt`. Liefert, ob es geklappt hat. */
-async function speichern(alt: Werte, neu: Werte): Promise<boolean> {
-  const aenderung = unterschied(alt, neu)
-  if (Object.keys(aenderung).length === 0) return false
-  melden({ werte: neu, fehler: undefined })
-  try {
-    melden({ werte: await aendereEinstellungen(aenderung) })
-    return true
-  } catch (f) {
-    melden({ werte: alt, fehler: `${(f as Error).message}. Die Änderung wurde nicht übernommen.` })
-    return false
-  }
+  const an = wertVon(e, einstellungenJetzt(), geraet) === true
+  einstellungenAendern(setze(einstellungenJetzt(), e, geraet, !an), { text: `Kurve ${an ? 'aus' : 'ein'}`, still: true })
 }
 
 /**
@@ -108,13 +64,13 @@ async function speichern(alt: Werte, neu: Werte): Promise<boolean> {
  * `null` merkt nichts (Modi wie Bearbeiten). Zurück und vor wirken nur auf die geänderten Einträge, andere bleiben.
  */
 export function einstellungenAendern(neu: Werte, schritt: Pick<Schritt, 'text' | 'still' | 'bereich'> | null) {
-  const alt = zustand.werte
+  const alt = einstellungenJetzt()
   const hin = unterschied(alt, neu)
   const rueck = unterschied(neu, alt)
   const anwenden = async (a: typeof hin) => {
-    await speichern(zustand.werte, werteAendern(zustand.werte, a))
+    await einstellungenSpeichernVon(einstellungenJetzt(), werteAendern(einstellungenJetzt(), a))
   }
-  void speichern(alt, neu).then((ok) => {
+  void einstellungenSpeichernVon(alt, neu).then((ok) => {
     if (ok && schritt) merke({ ...schritt, zurueck: () => anwenden(rueck), vor: () => anwenden(hin) })
   })
 }

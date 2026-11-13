@@ -13,7 +13,6 @@ Was umgesetzt ist, wandert beim Abschluss einer Scheibe nach „Erledigt“, mit
 - Eigener LanguageTool-Server für die Rechtschreibprüfung (Server-Etappe S6)
 
 ## Neu
-- 2026-11-13 · Tempo: erster Wechsel zu Postfach und Wechsel zu Heute am PC liegen schon auf dem Stand vor `aufraeumen-datum` bei 93–111 ms (Grenze 100); `npm run pruefen` wird dadurch zufällig rot. Ursache gefunden (Wetter wird je Wechsel neu geholt), Lösung in `aufraeumen-daten`.
 - 2026-11-13 · Handy, Heute am Morgen: die Sonne liegt über Wetter-Zahl und Regenzeile und macht sie schwer lesbar (gesehen bei aufraeumen-datum)
 - 2026-11-12 · Kurve: Schildchen eines Termins und Beschriftung eines Bands weichen einander noch nicht aus (Termin in einer Schicht).
 - 2026-11-12 · Buchstabe der Schicht auch am Handy in der Wochenleiste zeigen (z. B. als Farbe der Füllstands-Säule), dort fehlt der Platz neben dem Wochentag.
@@ -43,6 +42,7 @@ Was umgesetzt ist, wandert beim Abschluss einer Scheibe nach „Erledigt“, mit
 - Ordnerzeilen am PC dichter (Vorlage 34 px statt 44 px), damit „Einstellungen“ ohne Scrollen sichtbar ist (postfach-ordner)
 
 ## Erledigt
+- 2026-11-13 · Tempo: erster Wechsel zu Postfach und Wechsel zu Heute am PC liegen schon auf dem Stand vor `aufraeumen-datum` bei 93–111 ms (Grenze 100); `npm run pruefen` wird dadurch zufällig rot. Erledigt 2026-11-13 in `aufraeumen-daten` (Zwischenspeicher, jetzt 10–40 ms).
 - 2026-11-12 · Jede Kachel zeigt je nach Größe eine Darstellung klein/mittel/groß: entfällt, Kachel-Raster entfernt (aussehen-heute)
 - 2026-11-12 · Tablet im Hochformat mit 6 Spalten: entfällt, Kachel-Raster entfernt (aussehen-heute)
 - 2026-11-12 · Bei 1 × 1-Kacheln deckt der Menü-Knopf „…“ im Bearbeiten-Modus den Inhalt: entfällt, Kachel-Raster entfernt (aussehen-heute)

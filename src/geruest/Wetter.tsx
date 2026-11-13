@@ -1,8 +1,8 @@
-import { useWetter } from './useWetter'
+import { useWetterHeute } from './useWetterHeute'
 
 /** Wetter als Zeile: Symbol, Temperatur, Spanne des Tages, nächster Regen. Aufklappen kommt mit heute-uhr-und-wetter. */
 export function Wetter({ jetzt }: { jetzt: Date }) {
-  const { wetter: w, Symbol, fehler } = useWetter(jetzt)
+  const { wetter: w, Symbol, fehler } = useWetterHeute(jetzt)
   if (fehler) return <p className="text-sm text-warnung">{fehler}</p>
   if (w === undefined) return <p className="text-sm text-text-gedaempft">Lädt …</p>
   if (w === null) return <p className="text-sm text-text-gedaempft">Für heute liegen keine Werte vor.</p>

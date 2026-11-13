@@ -1,17 +1,19 @@
+import { addDays, startOfDay } from 'date-fns'
 import { useId } from 'react'
 import { Knopf } from '../bausteine/Knopf'
 import { uhrzeit } from './format'
 import { Uhr } from './Uhr'
 import { useMinute } from './useMinute'
-import { useTermine } from './useTermine'
-import { useWetter } from './useWetter'
+import { useTermine } from './daten'
+import { useWetterHeute } from './useWetterHeute'
 import { Wetter } from './Wetter'
 
 /** Klein in der Kopfzeile des Gerüsts am PC und Tablet, immer sichtbar: Wetter und Uhrzeit. Ein Klick zeigt die volle Ansicht wie auf Heute. */
 export function UhrUndWetter() {
   const jetzt = useMinute()
-  const { termine } = useTermine(0, 1, jetzt)
-  const { wetter, Symbol } = useWetter(jetzt)
+  const tag = startOfDay(jetzt)
+  const termine = useTermine(tag, addDays(tag, 1)).liste ?? []
+  const { wetter, Symbol } = useWetterHeute(jetzt)
   const wetterId = useId()
   const uhrId = useId()
   return (

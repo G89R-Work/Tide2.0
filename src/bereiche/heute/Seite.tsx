@@ -1,12 +1,12 @@
+import { addDays, startOfDay, subDays } from 'date-fns'
 import { useState } from 'react'
 import { Flaeche } from '../../bausteine/Flaeche'
 import { cn } from '../../bausteine/cn'
 import { useEinstellung } from '../../geruest/einstellungen'
-import { useFeiertage } from '../../geruest/useFeiertage'
+import { useFeiertage, useTermine } from '../../geruest/daten'
 import { useBrauchtDich } from '../../geruest/useBrauchtDich'
 import { useMinute } from '../../geruest/useMinute'
 import { Uhr } from '../../geruest/Uhr'
-import { useTermine } from '../../geruest/useTermine'
 import { useSchmal } from '../../geruest/useSchmal'
 import { Wetter } from '../../geruest/Wetter'
 import { einstellung } from '../../logik/einstellungen'
@@ -19,16 +19,21 @@ import { Monat } from './teile/Monat'
 import { Notiz } from './teile/Notiz'
 import { Rueckblick } from './teile/Rueckblick'
 import { Woche } from './teile/Woche'
+import type { Eintrag } from '../../vertrag/eintrag'
 
 const wochenbeginn = einstellung('wochenbeginn')
 const bundesland = einstellung('bundesland')
 const heuteUhr = einstellung('heute-uhr')
+const keineTermine: Eintrag[] = []
 
 // Heute (docs/konzept/10-heute.md): viel Himmel, wenig Text, fester Aufbau ohne Kopfzeile.
 export default function Seite() {
   const jetzt = useMinute()
   const beginn = useEinstellung(wochenbeginn)
-  const { termine, fehler } = useTermine(14, 42, jetzt)
+  const tag = startOfDay(jetzt)
+  const termineDaten = useTermine(subDays(tag, 14), addDays(tag, 42))
+  const termine = termineDaten.liste ?? keineTermine
+  const fehler = termineDaten.fehler
   const braucht = useBrauchtDich()
   const schmal = useSchmal()
   const uhrZeigen = useEinstellung(heuteUhr)

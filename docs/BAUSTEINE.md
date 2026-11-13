@@ -141,3 +141,10 @@ Muster für einen Eintrag:
 - Grund: Ja des Nutzers vom 2026-11-12 (PRUEFUNG E3); bewährt bei Sommerzeit und Jahreswechsel, nur genutzte Funktionen landen im Code. Rechnungen in `logik/zeit.ts`, Anzeige über `geruest/format.ts`.
 - Link: https://date-fns.org
 - Eingebaut in Scheibe: aufraeumen-datum
+
+## 2026-11-13 · Daten holen und ändern
+- Kandidaten: TanStack Query 5 (Zwischenspeicher, doppelte Anfragen fallen weg, sofort zeigen mit Zurückrollen, MIT), SWR (kein eingebautes Zurückrollen bei Änderungen), eigener Speicher (sieben Kopien im Code, PRUEFUNG E1)
+- Entscheidung: TanStack Query (`@tanstack/react-query`)
+- Grund: Ja des Nutzers vom 2026-11-12 (PRUEFUNG E1); ein Hook je Anfrage in `geruest/daten.ts`, Seitenwechsel zeigen Gespeichertes sofort.
+- Link: https://tanstack.com/query
+- Eingebaut in Scheibe: aufraeumen-daten

@@ -1,7 +1,9 @@
+import { addDays, addHours, startOfDay } from 'date-fns'
 import { useEffect, useSyncExternalStore } from 'react'
 import { einstellung } from '../logik/einstellungen'
 import { ebbeFenster, erinnerungen, sichtbare, ungelesen, wartende, type Meldung } from '../logik/meldungen'
-import { holeTermine } from '../vertrag/eintrag'
+import { termineImZeitraum } from '../logik/gezeiten'
+import { useTermine } from './daten'
 import { useEinstellung } from './einstellungen'
 import { useMinute } from './useMinute'
 import { MELDUNG_MS } from '../werte/bewegung'
@@ -79,23 +81,20 @@ export function useFalten(frischeIds: readonly string[]) {
   }, [schluessel])
 }
 
-/** Holt einmal pro Minute die Termine der nächsten 24 Stunden: Erinnerungen 15 Minuten vorher und das Ebbe-Fenster.
+/** Erinnerungen 15 Minuten vor Terminen und das Ebbe-Fenster der nächsten 24 Stunden, jede Minute neu gerechnet.
  *  Läuft unabhängig von der Kurve, damit auch bei ausgeblendeter Kurve erinnert wird. */
 export function useErinnerungen() {
   const jetzt = useMinute()
+  const tag = startOfDay(jetzt)
+  const { liste, fehler } = useTermine(tag, addDays(tag, 2))
   useEffect(() => {
-    let aktiv = true
-    holeTermine(jetzt, new Date(jetzt.getTime() + 24 * 3_600_000)).then(
-      (termine) => {
-        if (!aktiv) return
-        erinnerungen(termine, jetzt).forEach(melde)
-        const zeiten = termine.flatMap((t) => (t.beginn && t.ende ? [{ beginn: new Date(t.beginn), ende: new Date(t.ende) }] : []))
-        setze({ fenster: ebbeFenster(zeiten, jetzt) })
-      },
-      (f: Error) => aktiv && melde({ id: `fehler:erinnerungen:${f.message}`, text: `Erinnerungen nicht geladen: ${f.message}`, ankunft: Date.now(), wichtig: true }),
-    )
-    return () => {
-      aktiv = false
-    }
-  }, [jetzt])
+    if (fehler) melde({ id: `fehler:erinnerungen:${fehler}`, text: `Erinnerungen nicht geladen: ${fehler}`, ankunft: Date.now(), wichtig: true })
+  }, [fehler])
+  useEffect(() => {
+    if (!liste) return
+    const termine = termineImZeitraum(liste, jetzt, addHours(jetzt, 24))
+    erinnerungen(termine, jetzt).forEach(melde)
+    const zeiten = termine.flatMap((t) => (t.beginn && t.ende ? [{ beginn: new Date(t.beginn), ende: new Date(t.ende) }] : []))
+    setze({ fenster: ebbeFenster(zeiten, jetzt) })
+  }, [liste, jetzt])
 }

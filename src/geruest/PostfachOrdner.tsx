@@ -7,7 +7,7 @@ import { ordnerListe, type OrdnerZeile } from "../logik/ordner";
 import { aktionSymbole } from "./aktionSymbole";
 import { EbenenZeile } from "./EbenenZeile";
 import { ebenenSymbol } from "./ebenenSymbole";
-import { useOrdner } from "./useOrdner";
+import { useOrdner } from "./daten";
 
 const neueMail = aktionVon("neue-mail")!;
 const NeuSymbol = aktionSymbole["neue-mail"];
