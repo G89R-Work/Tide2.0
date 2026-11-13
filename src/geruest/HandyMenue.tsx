@@ -1,5 +1,7 @@
 import { Menu, Tags } from 'lucide-react'
 import { useRef, useState } from 'react'
+import { create } from 'zustand'
+import { persist } from 'zustand/middleware'
 import { Knopf } from '../bausteine/Knopf'
 import { cn } from '../bausteine/cn'
 import { bereiche, type BereichId } from '../logik/bereiche'
@@ -10,35 +12,20 @@ import { ZweiteEbene } from './ZweiteEbene'
 // Menü am Handy: oben links der Knopf mit Punkt, darin zwei Spalten.
 // Links die Bereiche als Symbole (Schalter blendet Namen ein), rechts die zweite Ebene des gewählten Bereichs.
 // Natives dialog: Fokus bleibt im Menü, Zurück-Taste und Esc schließen es.
-const namenSchluessel = 'tide.menue.namen'
-
-function liesNamen() {
-  try {
-    return localStorage.getItem(namenSchluessel) === 'ja'
-  } catch {
-    return false
-  }
-}
+// Ob die Namen neben den Symbolen stehen, merkt sich der Browser.
+const useNamen = create<{ an: boolean }>()(persist((): { an: boolean } => ({ an: false }), { name: 'tide.menue.namen' }))
 
 export function HandyMenue({ ort, zahl }: { ort: Ort; zahl: number }) {
   const dialog = useRef<HTMLDialogElement>(null)
   const [gewaehlt, setGewaehlt] = useState<BereichId>(ort.bereich)
-  const [mitNamen, setMitNamen] = useState(liesNamen)
+  const mitNamen = useNamen((s) => s.an)
 
   const oeffnen = () => {
     setGewaehlt(ort.bereich)
     dialog.current?.showModal()
   }
   const schliessen = () => dialog.current?.close()
-  const namenUmschalten = () => {
-    const neu = !mitNamen
-    setMitNamen(neu)
-    try {
-      localStorage.setItem(namenSchluessel, neu ? 'ja' : 'nein')
-    } catch {
-      /* Ohne Speicher gilt der Schalter nur bis zum Neuladen. */
-    }
-  }
+  const namenUmschalten = () => void useNamen.setState({ an: !mitNamen })
 
   const eintrag = (b: (typeof bereiche)[number]) => {
     const Symbol = symbole[b.id]

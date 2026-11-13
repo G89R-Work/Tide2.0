@@ -1,5 +1,7 @@
 import { addDays, addHours, startOfDay } from 'date-fns'
-import { useEffect, useSyncExternalStore } from 'react'
+import { useEffect } from 'react'
+import { create } from 'zustand'
+import { persist } from 'zustand/middleware'
 import { einstellung } from '../logik/einstellungen'
 import { ebbeFenster, erinnerungen, sichtbare, ungelesen, wartende, type Meldung } from '../logik/meldungen'
 import { termineImZeitraum } from '../logik/gezeiten'
@@ -13,50 +15,33 @@ import { MELDUNG_MS } from '../werte/bewegung'
 // und faltet sich dann in die Glocke. Im Ebbe-Modus warten Meldungen aus der Ruhezeit bis zum Morgen (src/logik/meldungen.ts).
 type Zustand = { liste: readonly Meldung[]; gefaltet: ReadonlySet<string>; gelesenBis: number; fenster?: string }
 
-const GLOCKE = 'tide.glocke'
-const gelesenGemerkt = () => {
-  try {
-    return Number(localStorage.getItem(GLOCKE)) || 0
-  } catch {
-    return 0
-  }
-}
-
-let zustand: Zustand = { liste: [], gefaltet: new Set(), gelesenBis: gelesenGemerkt() }
-const hoerer = new Set<() => void>()
-const setze = (neu: Partial<Zustand>) => {
-  zustand = { ...zustand, ...neu }
-  hoerer.forEach((h) => h())
-}
-const abo = (h: () => void) => {
-  hoerer.add(h)
-  return () => hoerer.delete(h)
-}
+// Im Browser gemerkt wird nur, bis wann die Glocke gelesen ist.
+const useZustand = create<Zustand>()(
+  persist((): Zustand => ({ liste: [], gefaltet: new Set(), gelesenBis: 0 }), {
+    name: 'tide.glocke',
+    partialize: (z) => ({ gelesenBis: z.gelesenBis }),
+  }),
+)
+const setze = (neu: Partial<Zustand>) => useZustand.setState(neu)
 
 /** Neue Meldung; dieselbe Kennung kommt nur einmal. */
 export function melde(m: Meldung) {
-  if (zustand.liste.some((alt) => alt.id === m.id)) return
-  setze({ liste: [...zustand.liste.slice(-99), m] })
+  const { liste } = useZustand.getState()
+  if (liste.some((alt) => alt.id === m.id)) return
+  setze({ liste: [...liste.slice(-99), m] })
 }
 
 /** Nach sechs Sekunden in die Glocke. */
-export const falte = (ids: readonly string[]) => setze({ gefaltet: new Set([...zustand.gefaltet, ...ids]) })
+export const falte = (ids: readonly string[]) => setze({ gefaltet: new Set([...useZustand.getState().gefaltet, ...ids]) })
 
 /** Glocke geöffnet: alles bis jetzt gilt als gesehen. */
-export function gelesen(bis: number) {
-  try {
-    localStorage.setItem(GLOCKE, String(bis))
-  } catch {
-    // Ohne Speicher (privates Fenster) zählt die Glocke nach dem Neuladen wieder; das schadet nicht.
-  }
-  setze({ gelesenBis: bis })
-}
+export const gelesen = (bis: number) => setze({ gelesenBis: bis })
 
 const ebbeModus = einstellung('ebbe-modus')
 
 /** Was gerade gilt: Meldungen in der Glocke, wartende, ungelesene, die frische für die Kopfzeile und das Ebbe-Fenster. */
 export function useMeldungen() {
-  const z = useSyncExternalStore(abo, () => zustand)
+  const z = useZustand()
   const jetzt = useMinute()
   const ebbe = useEinstellung(ebbeModus)
   const da = sichtbare(z.liste, jetzt, ebbe)

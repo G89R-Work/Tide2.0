@@ -1,21 +1,12 @@
-import { useSyncExternalStore } from 'react'
+import { create } from 'zustand'
 
 // Die Uhrzeit, die die Gezeitenkurve gerade zeigt. null heißt: die Kurve folgt der echten Uhrzeit.
 // Der Hintergrund richtet Sonne, Mond und Licht danach.
-let gezeigt: Date | null = null
-const hoerer = new Set<() => void>()
+const useGezeigt = create<{ zeit: Date | null }>(() => ({ zeit: null }))
 
 export function setzeGezeigteZeit(zeit: Date | null) {
-  if (zeit?.getTime() === gezeigt?.getTime()) return
-  gezeigt = zeit
-  for (const h of hoerer) h()
+  if (zeit?.getTime() === useGezeigt.getState().zeit?.getTime()) return
+  useGezeigt.setState({ zeit })
 }
 
-const abonnieren = (h: () => void) => {
-  hoerer.add(h)
-  return () => hoerer.delete(h)
-}
-
-export function useGezeigteZeit(): Date | null {
-  return useSyncExternalStore(abonnieren, () => gezeigt)
-}
+export const useGezeigteZeit = (): Date | null => useGezeigt((s) => s.zeit)

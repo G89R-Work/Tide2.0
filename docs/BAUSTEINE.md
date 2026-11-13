@@ -155,3 +155,10 @@ Muster für einen Eintrag:
 - Grund: Ja des Nutzers vom 2026-11-12 (PRUEFUNG E5); ein Schema je Vertrag prüft Server, Attrappe und Gemerktes gleich, Typen entstehen daraus.
 - Link: https://zod.dev
 - Eingebaut in Scheibe: aufraeumen-schema
+
+## 2026-11-13 · Speicher für Zustand der Oberfläche
+- Kandidaten: Zustand 5 (kleiner Speicher mit Hook, `persist` für den Browser, MIT), Jotai (Atome, für wenige große Speicher umständlicher), eigene Hörer-Listen (sechs Kopien, PRUEFUNG E2)
+- Entscheidung: Zustand (`zustand`)
+- Grund: Ja des Nutzers vom 2026-11-12 (PRUEFUNG E2); ein Muster für alle Speicher, Merken im Browser samt Fehlerbehandlung fertig.
+- Link: https://zustand.docs.pmnd.rs
+- Eingebaut in Scheibe: aufraeumen-speicher

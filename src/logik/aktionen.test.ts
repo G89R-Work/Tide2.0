@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { abWerk, aktionen, aktionVon, aktionFuerKuerzel, belege, belegungAusText, kuerzelAus, plaetze } from './aktionen'
+import { abWerk, aktionen, aktionVon, aktionFuerKuerzel, belege, belegungAus, kuerzelAus, plaetze } from './aktionen'
 
 const taste = (code: string, mehr: Partial<Parameters<typeof kuerzelAus>[0]> = {}) => ({
   code,
@@ -42,26 +42,26 @@ describe('abWerk', () => {
   })
 })
 
-describe('belegungAusText', () => {
-  it('ohne Text gilt die Werkseinstellung', () => {
-    expect(belegungAusText(null)).toEqual(abWerk)
+describe('belegungAus', () => {
+  it('ohne Gemerktes gilt die Werkseinstellung', () => {
+    expect(belegungAus(undefined)).toEqual(abWerk)
+    expect(belegungAus(null)).toEqual(abWerk)
   })
 
-  it('unlesbarer Text führt zur Werkseinstellung', () => {
-    expect(belegungAusText('{kaputt')).toEqual(abWerk)
-    expect(belegungAusText('42')).toEqual(abWerk)
+  it('Unlesbares führt zur Werkseinstellung', () => {
+    expect(belegungAus(42)).toEqual(abWerk)
+    expect(belegungAus('quatsch')).toEqual(abWerk)
   })
 
   it('übernimmt Gemerktes und ersetzt Unbekanntes durch die Werkseinstellung', () => {
-    const text = JSON.stringify({ pc: ['diktat', null, 'weg'], oben: 'quatsch' })
-    const b = belegungAusText(text)
+    const b = belegungAus({ pc: ['diktat', null, 'weg'], oben: 'quatsch' })
     expect(b.pc).toEqual(['diktat', null, abWerk.pc[2]])
     expect(b.oben).toEqual(abWerk.oben)
     expect(b.unten).toEqual(abWerk.unten)
   })
 
   it('kürzt zu lange und füllt zu kurze Listen auf', () => {
-    const b = belegungAusText(JSON.stringify({ oben: ['diktat', 'diktat', 'diktat', 'diktat'], unten: ['suche'] }))
+    const b = belegungAus({ oben: ['diktat', 'diktat', 'diktat', 'diktat'], unten: ['suche'] })
     expect(b.oben).toEqual(['diktat', 'diktat', 'diktat'])
     expect(b.unten).toEqual(['suche', ...abWerk.unten.slice(1)])
   })

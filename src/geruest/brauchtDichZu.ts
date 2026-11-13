@@ -1,23 +1,11 @@
-import { useSyncExternalStore } from 'react'
+import { create } from 'zustand'
 import { merke } from './rueckgaengig'
 
 // Ist der Reiter „Braucht dich“ auf Heute weggeklickt? Gilt bis zum Neuladen, damit er beim Seitenwechsel nicht wiederkommt.
-let zu = false
-const hoerer = new Set<() => void>()
+const useZu = create<{ zu: boolean }>(() => ({ zu: false }))
+const setze = (zu: boolean) => useZu.setState({ zu })
 
-function setze(neu: boolean) {
-  zu = neu
-  for (const h of hoerer) h()
-}
-
-const abonnieren = (h: () => void) => {
-  hoerer.add(h)
-  return () => hoerer.delete(h)
-}
-
-export function useBrauchtDichZu(): boolean {
-  return useSyncExternalStore(abonnieren, () => zu)
-}
+export const useBrauchtDichZu = (): boolean => useZu((s) => s.zu)
 
 /** Blendet den Reiter aus; lässt sich zurücknehmen. */
 export function schliesseBrauchtDich() {

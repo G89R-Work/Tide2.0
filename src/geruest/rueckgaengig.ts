@@ -1,4 +1,5 @@
-import { useEffect, useState, useSyncExternalStore } from 'react'
+import { useEffect, useState } from 'react'
+import { create } from 'zustand'
 import { kannVor, kannZurueck, leererVerlauf, merken, wiederholen, zuruecknehmen, type Verlauf } from '../logik/rueckgaengig'
 import { MELDUNG_MS } from '../werte/bewegung'
 
@@ -16,20 +17,16 @@ export type Schritt = {
   bereich?: string
 }
 
-let verlauf: Verlauf<Schritt> = leererVerlauf()
-const hoerer = new Set<() => void>()
-const setze = (neu: Verlauf<Schritt>) => {
-  verlauf = neu
-  hoerer.forEach((h) => h())
-}
+const useVerlauf = create<Verlauf<Schritt>>(() => leererVerlauf())
+const setze = (neu: Verlauf<Schritt>) => useVerlauf.setState(neu, true)
 
 export function merke(schritt: Omit<Schritt, 'zeit'>) {
-  setze(merken(verlauf, { ...schritt, zeit: Date.now() }))
+  setze(merken(useVerlauf.getState(), { ...schritt, zeit: Date.now() }))
 }
 
 /** Nimmt den letzten Schritt zurück; mit `bereich` den letzten dieser Seite. */
 export function rueckgaengig(bereich?: string) {
-  const r = zuruecknehmen(verlauf, bereich)
+  const r = zuruecknehmen(useVerlauf.getState(), bereich)
   if (!r.schritt) return
   setze(r.verlauf)
   void r.schritt.zurueck()
@@ -37,23 +34,18 @@ export function rueckgaengig(bereich?: string) {
 
 /** Stellt den zuletzt zurückgenommenen Schritt wieder her; mit `bereich` den letzten dieser Seite. */
 export function wiederherstellen(bereich?: string) {
-  const r = wiederholen(verlauf, bereich)
+  const r = wiederholen(useVerlauf.getState(), bereich)
   if (!r.schritt) return
   setze(r.verlauf)
   void r.schritt.vor()
 }
 
-const abo = (h: () => void) => {
-  hoerer.add(h)
-  return () => hoerer.delete(h)
-}
-
 /** Der letzte Schritt, der sich zurücknehmen lässt. */
-export const useLetzterSchritt = () => useSyncExternalStore(abo, () => verlauf.zurueck.at(-1))
+export const useLetzterSchritt = () => useVerlauf((v) => v.zurueck.at(-1))
 
 /** Gibt es (auf dieser Seite) etwas zurückzunehmen oder wiederherzustellen? Für die Knöpfe. */
-export const useKannRueckgaengig = (bereich?: string) => useSyncExternalStore(abo, () => kannZurueck(verlauf, bereich))
-export const useKannWiederherstellen = (bereich?: string) => useSyncExternalStore(abo, () => kannVor(verlauf, bereich))
+export const useKannRueckgaengig = (bereich?: string) => useVerlauf((v) => kannZurueck(v, bereich))
+export const useKannWiederherstellen = (bereich?: string) => useVerlauf((v) => kannVor(v, bereich))
 
 /** Der letzte Schritt, solange er frisch ist: so lange steht er in der Kopfzeile, Alt+Z wirkt auch danach. */
 export function useFrischerSchritt() {

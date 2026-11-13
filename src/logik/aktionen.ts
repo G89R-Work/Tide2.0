@@ -69,14 +69,8 @@ const ortSchema = (ort: Ort) =>
 const belegungSchema: z.ZodType<Belegung> = z.object({ pc: ortSchema('pc'), oben: ortSchema('oben'), unten: ortSchema('unten') })
 
 /** Gemerkte Belegung lesen. Fehlendes, Unbekanntes oder Unlesbares ersetzt die Werkseinstellung je Platz. */
-export function belegungAusText(text: string | null): Belegung {
-  let roh: unknown = null
-  try {
-    roh = text ? JSON.parse(text) : null
-  } catch {
-    return abWerk
-  }
-  const b = belegungSchema.safeParse(roh)
+export function belegungAus(daten: unknown): Belegung {
+  const b = belegungSchema.safeParse(daten)
   return b.success ? b.data : abWerk
 }
 
