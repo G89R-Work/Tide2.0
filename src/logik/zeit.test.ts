@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { ausSchluessel, dauerText, monatsTage, tagSchluessel, uhrzeit, versatzMinuten, versatzText } from './zeit'
+import { ausSchluessel, dauerText, mailZeit, monatsTage, tagSchluessel, uhrzeit, versatzMinuten, versatzText } from './zeit'
 
 describe('uhrzeit', () => {
   it('schreibt Stunden und Minuten zweistellig', () => {
@@ -71,5 +71,21 @@ describe('versatzText', () => {
     expect(versatzText(0)).toBe('gleiche Zeit')
     expect(versatzText(480)).toBe('+8 Std.')
     expect(versatzText(-270)).toBe('−4 Std. 30 Min.')
+  })
+})
+
+describe('mailZeit', () => {
+  const jetzt = new Date(2026, 10, 13, 9, 30)
+  it('zeigt heute die Uhrzeit, dann gestern, die Woche als Wochentag, sonst das Datum', () => {
+    expect(mailZeit(new Date(2026, 10, 13, 0, 5), jetzt)).toBe('00:05')
+    expect(mailZeit(new Date(2026, 10, 12, 23, 59), jetzt)).toBe('gestern')
+    expect(mailZeit(new Date(2026, 10, 8, 10), jetzt)).toBe('So')
+    expect(mailZeit(new Date(2026, 10, 7, 10), jetzt)).toBe('Sa')
+    expect(mailZeit(new Date(2026, 10, 6, 10), jetzt)).toBe('6. Nov.')
+    expect(mailZeit(new Date(2025, 11, 24, 10), jetzt)).toBe('24.12.25')
+  })
+  it('zählt Tage über die Zeitumstellung richtig', () => {
+    expect(mailZeit(new Date(2026, 2, 28, 23), new Date(2026, 2, 29, 1))).toBe('gestern')
+    expect(mailZeit(new Date(2026, 9, 24, 12), new Date(2026, 9, 25, 23))).toBe('gestern')
   })
 })

@@ -46,7 +46,7 @@ export function Geruest({ marke }: { marke: string }) {
 function Inhalt({ ort }: { ort: Ort }) {
   const Seite = seiten[ort.bereich]
   return (
-    <main className="seiten-rand flex min-w-0 flex-1 flex-col">
+    <main className="seiten-rand flex min-h-0 min-w-0 flex-1 flex-col">
       <Suspense>
         <Seite />
       </Suspense>

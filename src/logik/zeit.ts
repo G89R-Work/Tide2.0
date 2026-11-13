@@ -1,6 +1,7 @@
 // Die eine Stelle für Datumsrechnung und Zeit-Texte, die auch die Logik braucht (PRUEFUNG E3).
 // Gerechnet wird mit date-fns in Ortszeit; Anzeige-Formate für die Oberfläche stehen in `geruest/format.ts`.
-import { eachDayOfInterval, endOfMonth, format, formatISO, isValid, parse, startOfMonth } from 'date-fns'
+import { differenceInCalendarDays, eachDayOfInterval, endOfMonth, format, formatISO, isSameYear, isValid, parse, startOfMonth } from 'date-fns'
+import { de } from 'date-fns/locale'
 
 const SCHLUESSEL = 'yyyy-MM-dd'
 
@@ -41,4 +42,13 @@ export const monatsTage = (d: Date) => eachDayOfInterval({ start: startOfMonth(d
 export function versatzText(minuten: number): string {
   if (minuten === 0) return 'gleiche Zeit'
   return `${minuten > 0 ? '+' : '−'}${dauerText(Math.abs(minuten))}`
+}
+
+/** Kurze Zeit einer Mail: heute „HH:MM“, „gestern“, in den letzten sieben Tagen der Wochentag, sonst „7. Nov.“ oder mit Jahr „24.12.25“. */
+export function mailZeit(d: Date | string, jetzt: Date): string {
+  const tage = differenceInCalendarDays(jetzt, d)
+  if (tage <= 0) return format(d, 'HH:mm')
+  if (tage === 1) return 'gestern'
+  if (tage < 7) return format(d, 'EEEEEE', { locale: de })
+  return isSameYear(d, jetzt) ? format(d, 'd. MMM', { locale: de }) : format(d, 'dd.MM.yy')
 }

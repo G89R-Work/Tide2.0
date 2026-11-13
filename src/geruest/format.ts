@@ -3,7 +3,7 @@
 import { format } from 'date-fns'
 import { de } from 'date-fns/locale'
 
-export { dauerText, uhrzeit, versatzText } from '../logik/zeit'
+export { dauerText, mailZeit, uhrzeit, versatzText } from '../logik/zeit'
 
 const f = (muster: string) => (d: Date) => format(d, muster, { locale: de })
 

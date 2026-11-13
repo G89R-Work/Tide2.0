@@ -183,3 +183,10 @@ Muster für einen Eintrag:
 - Grund: dieselbe Familie wie `Aufklapp`; ein Menü für Maus, Finger und Tastatur.
 - Link: https://ui.shadcn.com/docs/components/context-menu
 - Eingebaut in Scheibe: postfach-ordner
+
+## 2026-11-13 · Lange Listen (500 Mails)
+- Kandidaten: TanStack Virtual 3 (im Konzept genannt; `useVirtualizer` löst in oxlint die Warnung „incompatible library“ aus, die `pruefen` scheitern lässt), virtua 0.54 (fertige Liste `VList`, feste Zeilenhöhe, `scrollToIndex`, MIT, keine Warnung), react-window (älter), alle Zeilen zeichnen (über 3000 Elemente)
+- Entscheidung: `virtua` (Nutzer, nach der Warnung bei TanStack Virtual)
+- Grund: weniger eigener Code als mit TanStack Virtual (Liste samt Lage der Zeilen fertig); feste Zeilenhöhe aus `werte/postfach.ts`.
+- Link: https://github.com/inokawa/virtua
+- Eingebaut in Scheibe: postfach-liste

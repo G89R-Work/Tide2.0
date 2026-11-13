@@ -9,15 +9,17 @@ import { Knopf } from '../bausteine/Knopf'
 import { Menue, MenueAusloeser, MenueInhalt, MenuePunkt, MenueTitel, MenueTrenner, MenueUnter, MenueUnterInhalt, MenueUnterPunkt } from '../bausteine/Menue'
 import { cn } from '../bausteine/cn'
 import { aktionVon } from '../logik/aktionen'
+import { kannHinein, mailsText } from '../logik/mails'
 import { markeFuer } from '../logik/ebenen'
 import { anheften, einordnen, loesche, nachkommen, neuerOrdner, ordnerListe, stand, verschiebeNach, type Lage, type OrdnerZeile } from '../logik/ordner'
 import type { Ordner, OrdnerFarbe, OrdnerStand } from '../vertrag/postfach'
 import { leiste } from '../werte/leiste'
 import { ordnerFarben } from '../werte/ordner'
 import { aktionSymbole } from './aktionSymbole'
-import { aendereOrdnerMitSchritt, useOrdner, useOrdnerFehler } from './daten'
+import { aendereMailsMitSchritt, aendereOrdnerMitSchritt, useOrdner, useOrdnerFehler } from './daten'
 import { EbenenZeile } from './EbenenZeile'
 import { ebenenSymbol } from './ebenenSymbole'
+import { gezogeneMails } from './mailZiehen'
 import { klappe, useOrdnerZu } from './ordnerZu'
 
 const neueMail = aktionVon('neue-mail')!
@@ -34,6 +36,7 @@ const neueId = () => `ordner-${crypto.randomUUID().slice(0, 8)}`
 // Ordnerleiste des Postfachs wie die Vorlage (bilder/postfach-ordner.jpg): Neue Mail, Systemordner,
 // deine Ordner mit Unterordnern, intelligente Ordner, unten Einstellungen. Lädt erst mit dem Postfach (Ziehen und Menü sind groß).
 // Rechtsklick, langer Druck oder Menütaste öffnen das Menü des Ordners; Ziehen legt davor, danach oder hinein.
+// Gezogene Mails aus der Liste landen in dem Ordner, über dem sie losgelassen werden.
 export default function PostfachOrdner({ aktiv, beiWahl }: { aktiv: string | null; beiWahl?: () => void }) {
   const { ordner, fehler } = useOrdner()
   const speicherFehler = useOrdnerFehler()
@@ -181,9 +184,13 @@ function Zeile({ o, ordner, aktiv, beiWahl, bearbeite }: { o: OrdnerZeile; ordne
       draggable({ element: link, getInitialData: () => ({ ordner: o.id }), onDragStart: () => setZieht(true), onDrop: () => setZieht(false) }),
       dropTargetForElements({
         element,
-        canDrop: ({ source }) => typeof source.data.ordner === 'string' && source.data.ordner !== o.id,
+        canDrop: ({ source }) => {
+          const mails = gezogeneMails(source.data)
+          if (mails) return kannHinein(o) && mails.aus !== o.id
+          return typeof source.data.ordner === 'string' && source.data.ordner !== o.id
+        },
         getData: ({ input, element: el, source }) =>
-          attachInstruction(
+          gezogeneMails(source.data) ? { ordner: o.id } : attachInstruction(
             { ordner: o.id },
             {
               input,
@@ -195,13 +202,19 @@ function Zeile({ o, ordner, aktiv, beiWahl, bearbeite }: { o: OrdnerZeile; ordne
               },
             },
           ),
-        onDrag: ({ self }) => {
+        onDrag: ({ self, source }) => {
+          if (gezogeneMails(source.data)) return setZiel('hinein')
           const i = extractInstruction(self.data)
           setZiel(i && !i.blocked ? lageVon[i.operation] : null)
         },
         onDragLeave: () => setZiel(null),
         onDrop: ({ self, source }) => {
           setZiel(null)
+          const mails = gezogeneMails(source.data)
+          if (mails) {
+            const text = mails.mails.length === 1 ? `Mail liegt jetzt in „${o.name}“` : `${mailsText(mails.mails.length)} liegen jetzt in „${o.name}“`
+            return void aendereMailsMitSchritt(mails.mails.map((id) => ({ id, ordner: o.id })), text)
+          }
           const i = extractInstruction(self.data)
           const quelle = source.data.ordner
           if (!i || i.blocked || typeof quelle !== 'string') return
@@ -213,7 +226,7 @@ function Zeile({ o, ordner, aktiv, beiWahl, bearbeite }: { o: OrdnerZeile; ordne
         },
       }),
     )
-  }, [ordner, o.id, o.name])
+  }, [ordner, o])
 
   const eigen = o.art === 'eigen'
   const Symbol = ebenenSymbol('postfach', o.id) ?? (o.art === 'intelligent' ? ListFilter : Folder)

@@ -4,11 +4,12 @@
 import { MutationObserver, QueryClient, useMutationState, useQuery, type QueryKey } from '@tanstack/react-query'
 import { eintragAendern } from '../logik/eintraege'
 import { unterschied, type Werte } from '../logik/einstellungen'
+import { mailsAendern, vorherWerte } from '../logik/mails'
 import { stand } from '../logik/ordner'
 import { tagSchluessel } from '../logik/zeit'
 import { aendereEinstellungen, holeEinstellungen } from '../vertrag/einstellungen'
 import { aendereEintrag, holeEintraege, holeTermine, type Aenderung, type Eintrag } from '../vertrag/eintrag'
-import { holeOrdner, speichereOrdner, type Ordner, type OrdnerStand } from '../vertrag/postfach'
+import { aendereMails, holeKategorien, holeMails, holeOrdner, speichereOrdner, type Mail, type MailAenderung, type Ordner, type OrdnerStand } from '../vertrag/postfach'
 import { holeWetter, holeWetterTage } from '../vertrag/wetter'
 import { merke } from './rueckgaengig'
 
@@ -27,6 +28,8 @@ const schluessel = {
   wetter: ['wetter'],
   wetterTage: ['wetter', 'tage'],
   ordner: ['ordner'],
+  mails: ['mails'],
+  kategorien: ['kategorien'],
   einstellungen: ['einstellungen'],
   feiertage: ['feiertage'],
 } as const satisfies Record<string, QueryKey>
@@ -59,6 +62,18 @@ export function useWetterTage(von: Date, bis: Date) {
 export function useOrdner() {
   const q = useQuery({ queryKey: schluessel.ordner, queryFn: holeOrdner })
   return { ordner: q.data, fehler: meldung('Ordner', q.error) }
+}
+
+/** Mails eines Ordners (auch „Braucht dich“ und intelligente Ordner). */
+export function useMails(ordner: string) {
+  const q = useQuery({ queryKey: [...schluessel.mails, ordner], queryFn: () => holeMails(ordner) })
+  return { mails: q.data, fehler: meldung('Mails', q.error) }
+}
+
+/** Kategorien der Mails mit Farbe. */
+export function useKategorien() {
+  const q = useQuery({ queryKey: schluessel.kategorien, queryFn: holeKategorien, staleTime: Infinity })
+  return { kategorien: q.data, fehler: meldung('Kategorien', q.error) }
 }
 
 /** Feiertage vom Vorjahr bis zum Folgejahr; der große Baustein wird erst hier nachgeladen. Bis dahin gibt es keine. */
@@ -193,4 +208,41 @@ export async function aendereOrdnerMitSchritt(vorher: readonly Ordner[], neu: re
     () => false,
   )
   if (ok) merke({ text, zurueck: senden(alt), vor: senden([...neu]), bereich: 'postfach' })
+}
+
+// ── Mails ändern (verschieben, gelesen, anheften): wirkt sofort in jeder geladenen Liste; Zähler der Ordner danach neu.
+
+const mailListen = { queryKey: schluessel.mails }
+
+const mailsSpeichern = new MutationObserver(abfragen, {
+  mutationKey: ['mails'],
+  mutationFn: (liste: MailAenderung[]) => aendereMails(liste),
+  onMutate: async (liste) => {
+    await abfragen.cancelQueries(mailListen)
+    const vorher = abfragen.getQueriesData<Mail[]>(mailListen)
+    // Der Schlüssel nennt den Ordner der Liste: Verschobenes fällt dort sofort heraus.
+    vorher.forEach(([k, l]) => l && abfragen.setQueryData(k, mailsAendern(l, liste, String(k[1]))))
+    return vorher
+  },
+  onError: (_f, _l, vorher) => vorher?.forEach(([k, l]) => abfragen.setQueryData(k, l)),
+  onSettled: () => Promise.all([abfragen.invalidateQueries(mailListen), abfragen.invalidateQueries({ queryKey: schluessel.ordner })]),
+})
+
+/** Fehler der letzten Änderung an Mails, sonst nichts. */
+export function useMailFehler() {
+  return meldung('Mails nicht geändert', useLetzterFehler('mails'))
+}
+
+/** Ändert Mails; `text` beschreibt den Schritt für „Rückgängig“. Den Stand davor kennen die geladenen Listen. Gemerkt wird nur, was gespeichert ist. */
+export async function aendereMailsMitSchritt(liste: readonly MailAenderung[], text: string): Promise<void> {
+  const geladen = abfragen.getQueriesData<Mail[]>(mailListen).flatMap(([, l]) => l ?? [])
+  const vorher = vorherWerte(geladen, liste)
+  const senden = (l: MailAenderung[]) => async () => {
+    await mailsSpeichern.mutate(l).catch(() => undefined)
+  }
+  const ok = await mailsSpeichern.mutate([...liste]).then(
+    () => true,
+    () => false,
+  )
+  if (ok) merke({ text, zurueck: senden(vorher), vor: senden([...liste]), bereich: 'postfach' })
 }

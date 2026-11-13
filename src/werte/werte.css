@@ -430,6 +430,50 @@
     color: var(--text-blass);
   }
 }
+/* Zeile der Mail-Liste: ungelesen mit Strich links, gewählt hinterlegt, mehrfach gewählt im Akzent getönt. */
+@utility mail-zeile {
+  position: relative;
+  border-bottom: 1px solid var(--linie);
+  cursor: pointer;
+  user-select: none;
+  &:hover {
+    background: var(--knopf-ton);
+  }
+  &[data-ungelesen]::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0.5rem;
+    bottom: 0.5rem;
+    width: 3px;
+    border-radius: 2px;
+    background: var(--akzent);
+  }
+  &[aria-selected='true'] {
+    background: var(--knopf-ton-hover);
+  }
+  &[data-mehrfach] {
+    background: color-mix(in srgb, var(--akzent) 12%, transparent);
+  }
+  &[data-zieht] {
+    opacity: 0.5;
+  }
+}
+/* Kleines Schild für Kategorie und Hinweis in der Farbe des Textes. */
+@utility schild {
+  display: inline-block;
+  flex: none;
+  padding: 0 0.45rem;
+  border-radius: var(--radius-voll);
+  border: 1px solid color-mix(in srgb, currentColor 40%, transparent);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  line-height: 1.5;
+  white-space: nowrap;
+}
+@utility schild-gefuellt {
+  background: color-mix(in srgb, currentColor 14%, transparent);
+}
 /* Ziel beim Ziehen eines Ordners: Linie davor oder danach, Rahmen beim Hineinlegen. */
 @utility ordner-ziel {
   border-radius: var(--radius-knopf);
