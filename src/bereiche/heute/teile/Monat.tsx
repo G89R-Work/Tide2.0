@@ -10,7 +10,8 @@ import { useSchmal } from '../../../geruest/useSchmal'
 import { useFeiertage } from '../../../geruest/useFeiertage'
 import { Leistenknopf } from './Leistenknopf'
 import { einstellungen, type Einstellung } from '../../../logik/einstellungen'
-import { monatsRaster, tagSchluessel, wochenTage, type Wochenbeginn } from '../../../logik/heute'
+import { monatsRaster, wochenTage, type Wochenbeginn } from '../../../logik/heute'
+import { tagSchluessel } from '../../../logik/zeit'
 import type { Eintrag } from '../../../vertrag/eintrag'
 
 const bundesland = einstellungen.find((e) => e.id === 'bundesland')! as Extract<Einstellung, { art: 'auswahl' }>

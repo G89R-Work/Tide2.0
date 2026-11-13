@@ -1,3 +1,4 @@
+import { addDays, set, startOfDay, subDays } from 'date-fns'
 import { http, HttpResponse } from 'msw'
 import { eintragAendern } from '../logik/eintraege'
 import { termineImZeitraum } from '../logik/gezeiten'
@@ -41,7 +42,7 @@ function geaendert(): Geaendert {
 function beispieleUm(datum: Date, ueber: Geaendert): Eintrag[] {
   const zeit = (hhmm: string) => {
     const [h, m] = hhmm.split(':').map(Number)
-    return new Date(datum.getFullYear(), datum.getMonth(), datum.getDate(), h, m).toISOString()
+    return set(datum, { hours: h, minutes: m, seconds: 0, milliseconds: 0 }).toISOString()
   }
   const t = zeit('00:00')
   return tag.flatMap(([titel, von, bis, wann], i): Eintrag[] => {
@@ -55,7 +56,7 @@ function beispieleUm(datum: Date, ueber: Geaendert): Eintrag[] {
 function tageUm(von: Date, bis: Date): Eintrag[] {
   const ueber = geaendert()
   const tage: Eintrag[] = []
-  for (let d = new Date(von.getFullYear(), von.getMonth(), von.getDate() - 1); d <= bis; d.setDate(d.getDate() + 1)) {
+  for (let d = startOfDay(subDays(von, 1)); d <= bis; d = addDays(d, 1)) {
     tage.push(...beispieleUm(d, ueber))
   }
   return tage

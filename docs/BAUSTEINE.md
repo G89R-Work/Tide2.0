@@ -134,3 +134,10 @@ Muster für einen Eintrag:
 - Grund: Wahl des Nutzers; wird erst bei Bedarf nachgeladen (`geruest/useFeiertage.ts`), der Startcode bleibt klein. `npm audit` meldet drei schwache Lücken in deepmerge (nur interne Daten, kein Eingang von außen).
 - Link: https://github.com/commenthol/date-holidays
 - Eingebaut in Scheibe: aussehen-wochenleiste
+
+## 2026-11-13 · Datum und Uhrzeit
+- Kandidaten: date-fns 4 (einzelne Funktionen, MIT, deutsche Sprache `de`), Day.js (Plugins für ISO-Woche), Temporal (noch nicht in allen Browsern)
+- Entscheidung: date-fns
+- Grund: Ja des Nutzers vom 2026-11-12 (PRUEFUNG E3); bewährt bei Sommerzeit und Jahreswechsel, nur genutzte Funktionen landen im Code. Rechnungen in `logik/zeit.ts`, Anzeige über `geruest/format.ts`.
+- Link: https://date-fns.org
+- Eingebaut in Scheibe: aufraeumen-datum

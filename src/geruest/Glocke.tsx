@@ -3,13 +3,9 @@ import { useEffect, useRef, useState, type CSSProperties } from 'react'
 import { cn } from '../bausteine/cn'
 import { Flaeche } from '../bausteine/Flaeche'
 import { Knopf } from '../bausteine/Knopf'
+import { ruheBisText } from '../logik/meldungen'
+import { uhrzeit } from './format'
 import { gelesen, useMeldungen } from './meldungen'
-
-const zweistellig = (n: number) => String(n).padStart(2, '0')
-const uhr = (ms: number) => {
-  const d = new Date(ms)
-  return `${zweistellig(d.getHours())}:${zweistellig(d.getMinutes())}`
-}
 
 // Glocke: hierhin falten sich Meldungen nach sechs Sekunden. Die Zahl zählt, was seit dem letzten Öffnen dazukam.
 // Die Liste ist ein natives Popover (Esc oder Klick daneben schließt) und nennt oben das Ebbe-Fenster.
@@ -52,13 +48,13 @@ export function Glocke({ className }: { className?: string }) {
             <ul className="flex flex-col gap-1">
               {da.map((m) => (
                 <li key={m.id} className="flex gap-2">
-                  <span className="text-text-gedaempft tabular-nums">{uhr(m.ankunft)}</span>
+                  <span className="text-text-gedaempft tabular-nums">{uhrzeit(m.ankunft)}</span>
                   <span className={cn('min-w-0', m.wichtig && 'text-warnung')}>{m.text}</span>
                 </li>
               ))}
             </ul>
           )}
-          {wartend > 0 && <p className="text-xs text-text-gedaempft">{wartend === 1 ? 'Eine Meldung wartet' : `${wartend} Meldungen warten`} bis 7:00 (Ebbe-Modus).</p>}
+          {wartend > 0 && <p className="text-xs text-text-gedaempft">{wartend === 1 ? 'Eine Meldung wartet' : `${wartend} Meldungen warten`} bis {ruheBisText} (Ebbe-Modus).</p>}
         </Flaeche>
       </div>
     </>

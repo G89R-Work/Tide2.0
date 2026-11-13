@@ -1,14 +1,12 @@
-import { tagSchluessel } from '../logik/heute'
+import { addDays } from 'date-fns'
+import { tagSchluessel } from '../logik/zeit'
 import type { Eintrag } from '../vertrag/eintrag'
 
 const t = '2026-11-11T08:00:00.000Z'
 // Fristen liegen relativ zum Tag des ersten Ladens (−1 = gestern), damit „Braucht dich“ immer etwas zeigt.
 const e = (id: string, art: Eintrag['art'], titel: string, fristIn?: number): Eintrag => {
   const eintrag: Eintrag = { id, art, titel, erledigt: false, erstellt: t, geaendert: t }
-  if (fristIn !== undefined) {
-    const d = new Date()
-    eintrag.frist = tagSchluessel(new Date(d.getFullYear(), d.getMonth(), d.getDate() + fristIn))
-  }
+  if (fristIn !== undefined) eintrag.frist = tagSchluessel(addDays(new Date(), fristIn))
   return eintrag
 }
 

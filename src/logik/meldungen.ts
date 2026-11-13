@@ -1,7 +1,9 @@
 // Meldungen der Gezeitenkurve (docs/konzept/06-gezeitenkurve.md, 03-geruest.md „Meldungen").
 // Eine Meldung kommt an, steht kurz in der Kopfzeile und faltet sich dann in die Glocke.
 // Im Ebbe-Modus warten Meldungen aus der Ruhezeit (22:30 bis 7:00) bis zur Flut am Morgen; Wichtiges nie.
+import { addDays, set, startOfDay } from 'date-fns'
 import type { Eintrag } from '../vertrag/eintrag'
+import { uhrzeit as uhr } from './zeit'
 
 export type Meldung = { id: string; text: string; /** ms seit 1970 */ ankunft: number; wichtig?: boolean }
 
@@ -13,8 +15,10 @@ const EBBE_AB_MIN = 45
 const VORLAUF_MIN = 15
 const MIN_MS = 60_000
 
-const zweistellig = (n: number) => String(n).padStart(2, '0')
-const uhr = (d: Date) => `${zweistellig(d.getHours())}:${zweistellig(d.getMinutes())}`
+/** Ende der Ruhezeit am Tag von `d` (Ortszeit, auch an Tagen mit Zeitumstellung). */
+const ruheEnde = (d: Date) => set(startOfDay(d), { hours: Math.floor(RUHE_BIS / 60), minutes: RUHE_BIS % 60 })
+/** „07:00“: bis dahin warten Meldungen im Ebbe-Modus. */
+export const ruheBisText = uhr(ruheEnde(new Date()))
 
 export function inRuhezeit(d: Date): boolean {
   const m = d.getHours() * 60 + d.getMinutes()
@@ -25,8 +29,8 @@ export function inRuhezeit(d: Date): boolean {
 export function zeigeAb(m: Meldung, ebbeModus: boolean): number {
   const an = new Date(m.ankunft)
   if (!ebbeModus || m.wichtig || !inRuhezeit(an)) return m.ankunft
-  const tag = an.getHours() * 60 + an.getMinutes() >= RUHE_VON ? an.getDate() + 1 : an.getDate()
-  return new Date(an.getFullYear(), an.getMonth(), tag, RUHE_BIS / 60).getTime()
+  const abends = an.getHours() * 60 + an.getMinutes() >= RUHE_VON
+  return ruheEnde(abends ? addDays(an, 1) : an).getTime()
 }
 
 /** Angekommene Meldungen, die neueste zuerst. */

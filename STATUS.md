@@ -1,6 +1,12 @@
 # Status
 Etappe: 2 Gezeitenkurve und Heute
 Nächste Scheibe: `aufraeumen-datum`
+In Arbeit: aufraeumen-datum
+1. date-fns einbauen, Eintrag in `docs/BAUSTEINE.md`.
+2. `src/logik/zeit.ts` mit Tests: Tagesbeginn, Tage plus, Tage zwischen, Kalenderwoche, Monatstage, Tag-Schlüssel, `uhrzeit`.
+3. `logik/heute.ts`, `logik/meldungen.ts`, Attrappe und Hooks darauf umstellen, eigene Hilfen löschen.
+4. `geruest/format.ts` mit date-fns `format` und `de`; Glocke, Kurve, Kurven-Einträge nutzen `uhrzeit`.
+5. „bis 7:00" in der Glocke aus `RUHE_BIS`.
 
 ## Stand
 Das Gerüst steht am PC (wie die Vorlage, ohne Zellraster: Leiste mit Logo von oben bis unten, Kopfzeile mit Uhr, Wetter und Knöpfen außer auf Heute) und am Handy mit Seitenleiste, zweiter Ebene, belegbaren Knöpfen, Einstellungsliste, Kacheln und Hintergrund. Die Gezeitenkurve zeigt den Beispieltag (PC unten über die volle Breite, Handy über der unteren Leiste; Einstellung „Lage“ je Gerät), scrollt endlos, folgt der Uhr und steuert beim Scrollen den Hintergrund. Der Himmel folgt dem Sonnenstand (Lichthof, Dämmerung, Mondschein nach Phase). Termine liegen als Punkte (mit Karte, Bündel, Überschneidung) oder Bänder auf ihr, lassen sich ziehen und zurücknehmen; dazu Treibgut und Wetterzeile. Die Kurve ist je Seite und Gerät abschaltbar; Meldungen fließen an der Jetzt-Linie ein und falten sich in die Glocke. Heute hat einen festen Aufbau (Gruß, Als Nächstes, Wetter, Uhr, Knöpfe, Braucht dich als Reiter mit aufklappender Liste, Wochenleiste wie die Vorlage mit kleinem Kalender samt Feiertagen, Notiz, Rückblick), Text ohne Hintergrund. **Aufräumen:** `docs/PRUEFUNG.md` wird in acht Scheiben `aufraeumen-*` abgearbeitet (siehe Fahrplan). Bausteine dafür sind freigegeben.

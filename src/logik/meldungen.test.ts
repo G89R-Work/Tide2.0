@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { Eintrag } from '../vertrag/eintrag'
-import { ebbeFenster, erinnerungen, inRuhezeit, sichtbare, ungelesen, wartende, zeigeAb, type Meldung } from './meldungen'
+import { ebbeFenster, erinnerungen, inRuhezeit, ruheBisText, sichtbare, ungelesen, wartende, zeigeAb, type Meldung } from './meldungen'
 
 const um = (h: number, m = 0, tag = 12) => new Date(2026, 10, tag, h, m)
 const termin = (id: string, von: Date, bis: Date, mehr: Partial<Eintrag> = {}): Eintrag => ({
@@ -23,6 +23,12 @@ describe('Ruhezeit', () => {
     expect(inRuhezeit(um(3))).toBe(true)
     expect(inRuhezeit(um(6, 59))).toBe(true)
     expect(inRuhezeit(um(7))).toBe(false)
+  })
+})
+
+describe('ruheBisText', () => {
+  it('nennt das Ende der Ruhezeit als Uhrzeit', () => {
+    expect(ruheBisText).toBe('07:00')
   })
 })
 

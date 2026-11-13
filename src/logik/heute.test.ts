@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { alsNaechstes, anteilTag, brauchtDich, fuellstand, kalenderwoche, monatsRaster, monatsTage, schichtBuchstabe, wetterHeute, schicht, seitText, tagSchluessel, wochenTage, wochenrueckblick } from './heute'
+import { alsNaechstes, anteilTag, brauchtDich, fuellstand, monatsRaster, schichtBuchstabe, wetterHeute, schicht, seitText, wochenTage, wochenrueckblick } from './heute'
 
 // Erfundene Beispieldaten. Zeiten in Ortszeit, damit die Tests in jeder Zeitzone gleich laufen.
 const um = (tag: number, h: number, m = 0, monat = 10) => new Date(2026, monat, tag, h, m)
@@ -165,12 +165,6 @@ describe('seitText', () => {
   })
 })
 
-describe('tagSchluessel', () => {
-  it('schreibt den Ortstag als Jahr-Monat-Tag', () => {
-    expect(tagSchluessel(um(1, 0, 5, 0))).toBe('2026-01-01')
-  })
-})
-
 describe('wochenrueckblick', () => {
   it('zählt Termine, Stunden in Schichten und erledigte Aufgaben der Woche bis jetzt', () => {
     const tage = wochenTage(um(12, 9), 'montag', 0)
@@ -186,25 +180,6 @@ describe('wochenrueckblick', () => {
       { ...aufgabe('C'), geaendert: um(11, 10).toISOString() },
     ]
     expect(wochenrueckblick(termine, eintraege, tage, um(12, 9))).toEqual({ termine: 1, schichtStunden: 8, erledigt: 1 })
-  })
-})
-
-describe('kalenderwoche', () => {
-  it('zählt nach ISO: die Woche mit dem ersten Donnerstag ist Woche 1', () => {
-    expect(kalenderwoche(um(12, 9))).toBe(46)
-    expect(kalenderwoche(new Date(2026, 0, 1))).toBe(1)
-    expect(kalenderwoche(new Date(2027, 0, 1))).toBe(53)
-    expect(kalenderwoche(new Date(2025, 11, 29))).toBe(1)
-  })
-})
-
-describe('monatsTage', () => {
-  it('liefert alle Tage des Monats als Mitternächte, auch im Februar und über die Zeitumstellung', () => {
-    expect(monatsTage(um(12, 9)).map((t) => t.getDate())).toHaveLength(30)
-    expect(monatsTage(new Date(2028, 1, 10))).toHaveLength(29)
-    const oktober = monatsTage(new Date(2026, 9, 5))
-    expect(oktober).toHaveLength(31)
-    for (const t of oktober) expect(t.getHours()).toBe(0)
   })
 })
 

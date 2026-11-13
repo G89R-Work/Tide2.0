@@ -1,3 +1,4 @@
+import { addDays } from 'date-fns'
 import { CloudRain, Moon, Sun } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { einstellungen } from '../logik/einstellungen'
@@ -18,7 +19,7 @@ export function useWetter(jetzt: Date): { wetter?: WetterHeute | null; Symbol: t
   useEffect(() => {
     let aktuell = true
     const d = new Date(tag)
-    holeWetter(d, new Date(d.getFullYear(), d.getMonth(), d.getDate() + 1))
+    holeWetter(d, addDays(d, 1))
       .then((s) => aktuell && setStunden(s))
       .catch((f: unknown) => aktuell && setFehler(`Wetter: ${f instanceof Error ? f.message : String(f)}`))
     return () => {

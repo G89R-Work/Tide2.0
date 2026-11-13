@@ -1,20 +1,14 @@
-// Datumsformate der Seite Heute, einmal angelegt: Intl-Formate neu zu bauen kostet bei jedem Tag spürbar Zeit.
-const f = (o: Intl.DateTimeFormatOptions) => new Intl.DateTimeFormat('de-DE', o)
+// Anzeige von Datum und Uhrzeit für die Oberfläche, alles über date-fns auf Deutsch.
+// Rechnungen und Zeit-Texte der Logik stehen in `logik/zeit.ts`; `uhrzeit` kommt von dort.
+import { format } from 'date-fns'
+import { de } from 'date-fns/locale'
 
-const formate = {
-  uhrzeit: f({ hour: '2-digit', minute: '2-digit' }),
-  datumLang: f({ weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }),
-  tagLang: f({ weekday: 'long', day: 'numeric', month: 'long' }),
-  tagKurz: f({ weekday: 'short' }),
-  monat: f({ month: 'long' }),
-  monatKurz: f({ month: 'short' }),
-  monatJahr: f({ month: 'long', year: 'numeric' }),
-}
+export { uhrzeit } from '../logik/zeit'
 
-export const uhrzeit = (d: Date) => formate.uhrzeit.format(d)
-export const datumLang = (d: Date) => formate.datumLang.format(d)
-export const tagLang = (d: Date) => formate.tagLang.format(d)
-export const tagKurz = (d: Date) => formate.tagKurz.format(d).replace('.', '')
-export const monatName = (d: Date) => formate.monat.format(d)
-export const monatKurz = (d: Date) => formate.monatKurz.format(d)
-export const monatJahr = (d: Date) => formate.monatJahr.format(d)
+const f = (muster: string) => (d: Date) => format(d, muster, { locale: de })
+
+export const datumLang = f('EEEE, d. MMMM yyyy')
+export const tagLang = f('EEEE, d. MMMM')
+export const tagKurz = f('EEEEEE')
+export const monatName = f('LLLL')
+export const monatKurz = f('LLL')

@@ -1,4 +1,5 @@
 import { useDrag } from '@use-gesture/react'
+import { addMinutes, startOfDay } from 'date-fns'
 import { useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties } from 'react'
 import { cn } from '../bausteine/cn'
 import { Knopf } from '../bausteine/Knopf'
@@ -45,9 +46,6 @@ const HOEHE = 100
 // Zweimal gemittelt über ±30 Minuten: weiche, ruhige Wellen (Wunsch des Nutzers); kurze Termine werden flache Hügel.
 const GLAETTEN = 6
 
-const tagBeginnVon = (d: Date) => new Date(d.getFullYear(), d.getMonth(), d.getDate())
-const zweistellig = (n: number) => String(n).padStart(2, '0')
-const uhrzeit = (m: number) => `${zweistellig(Math.floor(m / 60) % 24)}:${zweistellig(Math.floor(m % 60))}`
 // Gleiten nur, wenn der Browser das Ende meldet (scrollend) und keine reduzierte Bewegung gewünscht ist; sonst springen.
 const gleitenMoeglich = () => 'onscrollend' in window && !matchMedia('(prefers-reduced-motion: reduce)').matches
 
@@ -61,7 +59,7 @@ export function Gezeitenkurve({ className, onAntippen }: { className?: string; o
   const ganzerTag = useEinstellung(e.ganzerTag) === true
   const gewaehlt = Number(useEinstellung(e.stunden))
   const stunden = ganzerTag ? 24 : gewaehlt
-  const tagStart = tagBeginnVon(jetzt).getTime()
+  const tagStart = startOfDay(jetzt).getTime()
   const bandHoehe = Number(useEinstellung(e.band))
   const frisch = useFrischerSchritt()
   const meldung = useMeldungen().frisch
@@ -143,7 +141,7 @@ export function Gezeitenkurve({ className, onAntippen }: { className?: string; o
 
   // Hintergrund folgt der gezeigten Uhrzeit, solange die Kurve nicht der echten folgt.
   useEffect(() => {
-    setzeGezeigteZeit(folgt ? null : new Date(tagStart + gezeigt * 60_000))
+    setzeGezeigteZeit(folgt ? null : addMinutes(tagStart, gezeigt))
   }, [folgt, gezeigt, tagStart])
   useEffect(() => () => setzeGezeigteZeit(null), [])
 
@@ -205,7 +203,7 @@ export function Gezeitenkurve({ className, onAntippen }: { className?: string; o
       </svg>
       {marken.map((h) => (
         <span key={h} className="pointer-events-none absolute bottom-1 -translate-x-1/2 text-xs text-text-blass tabular-nums" style={{ left: `${(h / 72) * 100}%` }}>
-          {uhrzeit((h % 24) * 60)}
+          {uhrzeit(addMinutes(tagStart, (h % 24) * 60))}
         </span>
       ))}
       {/* Neue Meldung fließt an der Jetzt-Linie ein und steht dort, solange sie in der Kopfzeile steht. */}
@@ -248,7 +246,7 @@ export function Gezeitenkurve({ className, onAntippen }: { className?: string; o
               </>
             )}
           </div>
-          {!folgt && <span className="text-sm text-text-gedaempft tabular-nums">Ansicht {uhrzeit(gezeigt)}</span>}
+          {!folgt && <span className="text-sm text-text-gedaempft tabular-nums">Ansicht {uhrzeit(addMinutes(tagStart, gezeigt))}</span>}
           <Knopf groesse="klein" className="h-7 rounded-voll" onClick={zuJetzt}>
             Zu jetzt
           </Knopf>
@@ -285,7 +283,7 @@ export function Gezeitenkurve({ className, onAntippen }: { className?: string; o
               linie={linie}
               kopfzeileBelegt={ueberdeckt}
               schilder={mitKopf}
-              jetztText={`Jetzt ${uhrzeit(minuteJetzt)}`}
+              jetztText={`Jetzt ${uhrzeit(addMinutes(tagStart, minuteJetzt))}`}
             />
           ) : (
             linie

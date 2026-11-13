@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { tagSchluessel } from '../logik/heute'
+import { tagSchluessel } from '../logik/zeit'
 
 type Nachschlagen = (tag: Date) => string | undefined
 

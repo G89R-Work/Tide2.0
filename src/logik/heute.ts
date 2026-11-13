@@ -1,4 +1,6 @@
 // Rechnungen der Seite Heute (docs/konzept/10-heute.md). Zeiten in Ortszeit; „jetzt" kommt immer von außen.
+import { addDays, differenceInCalendarDays, isSameDay, startOfDay, startOfMonth, startOfWeek } from 'date-fns'
+import { ausSchluessel } from './zeit'
 
 type MitZeit = { titel: string; art: string; beginn?: string; ende?: string }
 type MitFrist = { titel: string; art: string; erledigt: boolean; frist?: string }
@@ -7,12 +9,6 @@ const minute = 60_000
 const nahMinuten = 30
 const wachStunden = 16
 
-const mitternacht = (d: Date) => new Date(d.getFullYear(), d.getMonth(), d.getDate())
-const plusTage = (d: Date, n: number) => new Date(d.getFullYear(), d.getMonth(), d.getDate() + n)
-
-/** Ganze Kalendertage von a nach b (Ortszeit), unabhängig von Zeitumstellungen. */
-const tageZwischen = (a: Date, b: Date) => Math.round((Date.UTC(b.getFullYear(), b.getMonth(), b.getDate()) - Date.UTC(a.getFullYear(), a.getMonth(), a.getDate())) / 86_400_000)
-
 function zeiten<T extends MitZeit>(liste: readonly T[]) {
   return liste.flatMap((e) => {
     if (!e.beginn || !e.ende) return []
@@ -20,18 +16,6 @@ function zeiten<T extends MitZeit>(liste: readonly T[]) {
     const bis = new Date(e.ende)
     return Number.isNaN(von.getTime()) || Number.isNaN(bis.getTime()) ? [] : [{ e, von, bis }]
   })
-}
-
-export function tagSchluessel(d: Date): string {
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
-}
-
-/** Liest „JJJJ-MM-TT" als Ortstag; null, wenn das Datum nicht eindeutig ist. */
-function ausSchluessel(text: string): Date | null {
-  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(text)
-  if (!m) return null
-  const d = new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]))
-  return tagSchluessel(d) === text ? d : null
 }
 
 export type Naechstes = { titel: string; beginn: Date; nah: boolean; wann: string }
@@ -51,14 +35,14 @@ export function alsNaechstes(termine: readonly MitZeit[], jetzt: Date): Naechste
   let wann = h === 0 ? `in ${minuten} Minuten` : m === 0 ? `in ${h} Std.` : `in ${h} Std. ${m} Min.`
   if (minuten === 0) wann = 'jetzt'
   else if (minuten === 1) wann = 'in 1 Minute'
-  else if (tageZwischen(jetzt, von) === 1) wann = 'morgen'
+  else if (differenceInCalendarDays(von, jetzt) === 1) wann = 'morgen'
   return { titel: e.titel, beginn: von, nah, wann }
 }
 
 /** Anteil des Tages von Mitternacht bis Mitternacht (0 bis 1), mit der echten Länge des Tages. */
 export function anteilTag(jetzt: Date): number {
-  const start = mitternacht(jetzt).getTime()
-  return (jetzt.getTime() - start) / (plusTage(jetzt, 1).getTime() - start)
+  const start = startOfDay(jetzt)
+  return (jetzt.getTime() - start.getTime()) / (addDays(start, 1).getTime() - start.getTime())
 }
 
 export type Schicht = { titel: string; anteil: number; restMinuten: number }
@@ -73,19 +57,19 @@ export function schicht(termine: readonly MitZeit[], jetzt: Date): Schicht | nul
 }
 
 export type Wochenbeginn = 'montag' | 'sonntag'
+const wocheAb = { montag: 1, sonntag: 0 } as const
 
 /** Sieben Mitternächte der Woche um „jetzt", verschoben um `versatz` Wochen. */
 export function wochenTage(jetzt: Date, beginn: Wochenbeginn, versatz: number): Date[] {
-  const erster = beginn === 'montag' ? 1 : 0
-  const zurueck = (jetzt.getDay() - erster + 7) % 7
-  const start = plusTage(jetzt, -zurueck + 7 * versatz)
-  return Array.from({ length: 7 }, (_, i) => plusTage(start, i))
+  const start = addDays(startOfWeek(jetzt, { weekStartsOn: wocheAb[beginn] }), 7 * versatz)
+  return Array.from({ length: 7 }, (_, i) => addDays(start, i))
 }
 
 /** Belegte Zeit des Tages durch 16 wache Stunden, Überschneidungen einmal gezählt; höchstens 1. */
 export function fuellstand(termine: readonly MitZeit[], tag: Date): number {
-  const von = mitternacht(tag).getTime()
-  const bis = plusTage(tag, 1).getTime()
+  const beginn = startOfDay(tag)
+  const von = beginn.getTime()
+  const bis = addDays(beginn, 1).getTime()
   const stuecke = zeiten(termine)
     .map((z) => [Math.max(von, z.von.getTime()), Math.min(bis, z.bis.getTime())] as const)
     .filter(([a, b]) => b > a)
@@ -107,7 +91,7 @@ export function brauchtDich<T extends MitFrist>(eintraege: readonly T[], jetzt: 
   const mitTag = eintraege
     .flatMap((e) => {
       const tag = !e.erledigt && e.frist ? ausSchluessel(e.frist) : null
-      return tag ? [{ e, abstand: tageZwischen(jetzt, tag) }] : []
+      return tag ? [{ e, abstand: differenceInCalendarDays(tag, jetzt) }] : []
     })
     .sort((a, b) => a.abstand - b.abstand)
   const ueberfaellig = mitTag.filter((x) => x.abstand < 0).map((x) => x.e)
@@ -121,7 +105,7 @@ export function brauchtDich<T extends MitFrist>(eintraege: readonly T[], jetzt: 
 export function seitText(frist: string, jetzt: Date): string {
   const tag = ausSchluessel(frist)
   if (!tag) return ''
-  const n = tageZwischen(jetzt, tag)
+  const n = differenceInCalendarDays(tag, jetzt)
   if (n === -1) return 'seit gestern'
   if (n < 0) return `seit ${-n} Tagen`
   if (n === 0) return 'heute'
@@ -134,7 +118,7 @@ export type Rueckblick = { termine: number; schichtStunden: number; erledigt: nu
 /** Was in der Woche bis jetzt geschah: Termine, Stunden in Schichten, erledigte Einträge. */
 export function wochenrueckblick(termine: readonly MitZeit[], eintraege: readonly { erledigt: boolean; geaendert: string }[], tage: readonly Date[], jetzt: Date): Rueckblick {
   const start = tage[0]
-  const ende = Math.min(jetzt.getTime(), plusTage(tage[tage.length - 1], 1).getTime())
+  const ende = Math.min(jetzt.getTime(), addDays(tage[tage.length - 1], 1).getTime())
   const inWoche = (d: Date) => d >= start && d.getTime() < ende
   const z = zeiten(termine)
   const schichtMs = z
@@ -147,29 +131,15 @@ export function wochenrueckblick(termine: readonly MitZeit[], eintraege: readonl
   }
 }
 
-/** Kalenderwoche nach ISO 8601 (Woche mit dem ersten Donnerstag des Jahres ist Woche 1). */
-export function kalenderwoche(d: Date): number {
-  const donnerstag = plusTage(d, 3 - ((d.getDay() + 6) % 7))
-  const jan4 = new Date(donnerstag.getFullYear(), 0, 4)
-  return 1 + Math.round((tageZwischen(jan4, donnerstag) - 3 + ((jan4.getDay() + 6) % 7)) / 7)
-}
-
-/** Alle Tage des Monats von `d` als Mitternächte. */
-export function monatsTage(d: Date): Date[] {
-  const anzahl = new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate()
-  return Array.from({ length: anzahl }, (_, i) => new Date(d.getFullYear(), d.getMonth(), i + 1))
-}
-
 /** Monat in sechs Wochenzeilen zu je sieben Tagen, mit den Tagen davor und danach (der Kalender bleibt gleich groß). */
 export function monatsRaster(d: Date, beginn: Wochenbeginn): Date[][] {
-  const erster = new Date(d.getFullYear(), d.getMonth(), 1)
-  const vorne = (erster.getDay() - (beginn === 'montag' ? 1 : 0) + 7) % 7
-  return Array.from({ length: 6 }, (_, w) => Array.from({ length: 7 }, (_, i) => plusTage(erster, w * 7 + i - vorne)))
+  const start = startOfWeek(startOfMonth(d), { weekStartsOn: wocheAb[beginn] })
+  return Array.from({ length: 6 }, (_, w) => Array.from({ length: 7 }, (_, i) => addDays(start, w * 7 + i)))
 }
 
 /** Erster Buchstabe der Schicht, die an diesem Tag beginnt (Großbuchstabe), sonst null. */
 export function schichtBuchstabe(termine: readonly MitZeit[], tag: Date): string | null {
-  const s = zeiten(termine).find(({ e, von }) => e.art === 'schicht' && tageZwischen(tag, von) === 0)
+  const s = zeiten(termine).find(({ e, von }) => e.art === 'schicht' && isSameDay(von, tag))
   return s ? s.e.titel.charAt(0).toUpperCase() : null
 }
 
@@ -179,8 +149,7 @@ export type WetterHeute = { grad: number; hoch: number; tief: number; regnet: bo
 
 /** Wetterzeile: Temperatur der laufenden Stunde, Spanne des Tages und der nächste Regen ab jetzt (ab 0,1 mm). */
 export function wetterHeute(stunden: readonly { zeit: string; grad: number; regen: number }[], jetzt: Date): WetterHeute | null {
-  const heute = tagSchluessel(jetzt)
-  const tag = stunden.map((s) => ({ ...s, d: new Date(s.zeit) })).filter((s) => tagSchluessel(s.d) === heute).sort((a, b) => a.d.getTime() - b.d.getTime())
+  const tag = stunden.map((s) => ({ ...s, d: new Date(s.zeit) })).filter((s) => isSameDay(s.d, jetzt)).sort((a, b) => a.d.getTime() - b.d.getTime())
   if (tag.length === 0) return null
   const laufend = [...tag].reverse().find((s) => s.d <= jetzt) ?? tag[0]
   const grade = tag.map((s) => s.grad)

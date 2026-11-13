@@ -1,4 +1,5 @@
 import { Fragment, useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type FormEvent, type ReactNode } from 'react'
+import { uhrzeit } from './format'
 import { cn } from '../bausteine/cn'
 import { Eingabe } from '../bausteine/Eingabe'
 import { Flaeche } from '../bausteine/Flaeche'
@@ -30,11 +31,6 @@ const WETTER_ABSTAND = 120
 type Aendere = (e: Eintrag, aenderung: Aenderung, text: string) => Promise<void>
 type Karte = { art: 'termine' | 'treibgut'; ids: string[]; x: number; y: number; oben: boolean }
 
-const zweistellig = (n: number) => String(n).padStart(2, '0')
-const zeitText = (iso: string) => {
-  const d = new Date(iso)
-  return `${zweistellig(d.getHours())}:${zweistellig(d.getMinutes())}`
-}
 const links = (k: number, minute: number) => `${((k * MIN_TAG + minute) / (3 * MIN_TAG)) * 100}%`
 const kopien = [0, 1, 2] as const
 const fokus = 'rounded-voll outline-none focus-visible:ring-2 focus-visible:ring-akzent'
@@ -69,7 +65,7 @@ export function KurveEintraege(p: {
 
   const verschiebe = (e: Eintrag, delta: number, art: Ziehart = 'lage') => {
     const neu = gezogen(e, art, delta)
-    const text = art === 'lage' ? `auf ${zeitText(neu.beginn)}` : `jetzt ${zeitText(neu.beginn)}–${zeitText(neu.ende)}`
+    const text = art === 'lage' ? `auf ${uhrzeit(neu.beginn)}` : `jetzt ${uhrzeit(neu.beginn)}–${uhrzeit(neu.ende)}`
     return aendere(e, neu, `„${e.titel}" ${text}`)
   }
 
@@ -156,7 +152,7 @@ export function KurveEintraege(p: {
                 title={b.titel}
                 className={cn(fokus, 'kurve-band kurve-schrift drueck absolute inset-0 flex cursor-grab touch-none items-center px-2 text-left text-text-gedaempft')}
               >
-                <span className="truncate">{neu ? `${zeitText(neu.beginn)}–${zeitText(neu.ende)}` : b.titel}</span>
+                <span className="truncate">{neu ? `${uhrzeit(neu.beginn)}–${uhrzeit(neu.ende)}` : b.titel}</span>
               </button>
               <span aria-hidden {...ziehen(b.eintrag, 'beginn')} title="Beginn" className="kurve-band-griff left-0 -translate-x-1/2" />
               <span aria-hidden {...ziehen(b.eintrag, 'ende')} title="Ende" className="kurve-band-griff right-0 translate-x-1/2" />
@@ -187,7 +183,7 @@ export function KurveEintraege(p: {
                 <span className={cn('kurve-buendel', g.some((x) => x.ueberschneidet.length) && 'kurve-punkt-ueberschneidet')}>{g.length}</span>
               </button>
             )
-          const zeit = zeitText(zug?.id === erster.id ? verschoben(erster.eintrag, zug.delta).beginn : erster.eintrag.beginn!)
+          const zeit = uhrzeit(zug?.id === erster.id ? verschoben(erster.eintrag, zug.delta).beginn : erster.eintrag.beginn!)
           return (
             <Fragment key={`${k}-${erster.id}`}>
               <button
@@ -312,7 +308,7 @@ function KarteFenster(p: {
               <p className="text-xs text-text-gedaempft">{gewaehlt.length} Termine</p>
               {gewaehlt.map((t) => (
                 <Knopf key={t.id} art="leise" className="justify-start text-text" onClick={() => p.waehle(t.id)}>
-                  <span className="text-text-gedaempft tabular-nums">{zeitText(t.eintrag.beginn!)}</span>
+                  <span className="text-text-gedaempft tabular-nums">{uhrzeit(t.eintrag.beginn!)}</span>
                   <span className="truncate">{t.titel}</span>
                 </Knopf>
               ))}
@@ -341,7 +337,7 @@ function TerminKarte({ t, verschiebe, aendere }: { t: Punkt | Band; verschiebe: 
   return (
     <>
       <p className="text-xs text-text-gedaempft tabular-nums">
-        {zeitText(e.beginn!)} – {zeitText(e.ende!)}
+        {uhrzeit(e.beginn!)} – {uhrzeit(e.ende!)}
       </p>
       {bearbeiten ? (
         <form onSubmit={sichern} className="flex gap-2">

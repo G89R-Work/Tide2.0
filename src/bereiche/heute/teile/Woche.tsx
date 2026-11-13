@@ -1,10 +1,12 @@
+import { getISOWeek } from 'date-fns'
 import { useLayoutEffect, useRef, useState, type CSSProperties } from 'react'
 import { cn } from '../../../bausteine/cn'
 import { useEinstellung } from '../../../geruest/einstellungen'
 import { monatName, tagKurz, tagLang } from '../../../geruest/format'
 import { useSchmal } from '../../../geruest/useSchmal'
 import { einstellungen } from '../../../logik/einstellungen'
-import { fuellstand, kalenderwoche, monatsTage, schichtBuchstabe, tagSchluessel } from '../../../logik/heute'
+import { fuellstand, schichtBuchstabe } from '../../../logik/heute'
+import { monatsTage, tagSchluessel } from '../../../logik/zeit'
 import type { Eintrag } from '../../../vertrag/eintrag'
 
 const kwZeigen = einstellungen.find((e) => e.id === 'kalenderwoche')!
@@ -40,7 +42,7 @@ export function Woche({ termine, monat, fokus, jetzt, feiertag }: Props) {
   const ersterSichtbar = tage[Math.min(tage.length - 1, Math.max(0, vorn))]
   return (
     <div className="flex h-full flex-col">
-      {kw && <p className="beschriftung leading-none">KW {kalenderwoche(ersterSichtbar)}</p>}
+      {kw && <p className="beschriftung leading-none">KW {getISOWeek(ersterSichtbar)}</p>}
       <ol
         ref={scroller}
         className="tage-scroller min-h-0 flex-1"
