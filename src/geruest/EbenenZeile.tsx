@@ -1,4 +1,5 @@
 import type { LucideIcon } from 'lucide-react'
+import type { ComponentProps, ReactNode, Ref } from 'react'
 import { Knopf } from '../bausteine/Knopf'
 import { cn } from '../bausteine/cn'
 import { leiste } from '../werte/leiste'
@@ -13,8 +14,14 @@ export function EbenenZeile({
   zahl = 0,
   wichtig = false,
   tiefe = 0,
+  symbolKlasse,
+  hinten,
+  linkRef,
   onClick,
-}: {
+  className,
+  style,
+  ...li
+}: Omit<ComponentProps<'li'>, 'onClick'> & {
   href: string
   name: string
   aktiv: boolean
@@ -23,19 +30,25 @@ export function EbenenZeile({
   zahl?: number
   wichtig?: boolean
   tiefe?: number
+  /** Farbe des Symbols (eigene Ordner) */
+  symbolKlasse?: string
+  /** Rechts neben der Zeile, etwa der Knopf zum Ein- und Ausklappen */
+  hinten?: ReactNode
+  /** Der Link selbst, etwa als Griff zum Ziehen */
+  linkRef?: Ref<HTMLAnchorElement>
   onClick?: () => void
 }) {
   return (
-    <li style={tiefe > 0 ? { marginLeft: tiefe * leiste.einzugPx } : undefined}>
-      <Knopf alsKind art="leise" className={cn('w-full justify-start', Symbol && 'gap-3 px-2', aktiv && 'bg-knopf-ton text-text')}>
-        <a href={href} aria-current={aktiv ? 'page' : undefined} onClick={onClick}>
+    <li {...li} className={cn(hinten !== undefined && 'flex items-center gap-1', className)} style={{ ...style, ...(tiefe > 0 ? { marginLeft: tiefe * leiste.einzugPx } : {}) }}>
+      <Knopf alsKind art="leise" className={cn('w-full min-w-0 flex-1 justify-start', Symbol && 'gap-3 px-2', aktiv && 'bg-knopf-ton text-text')}>
+        <a ref={linkRef} href={href} aria-current={aktiv ? 'page' : undefined} onClick={onClick}>
           {Symbol &&
             (kasten ? (
               <span className="grid size-8 shrink-0 place-items-center rounded-knopf bg-knopf-ton text-akzent">
                 <Symbol aria-hidden className="size-4" />
               </span>
             ) : (
-              <Symbol aria-hidden className={cn('size-4 shrink-0', aktiv && 'text-akzent')} />
+              <Symbol aria-hidden className={cn('size-4 shrink-0', symbolKlasse ?? (aktiv && 'text-akzent'))} />
             ))}
           <span className="truncate">{name}</span>
           {zahl > 0 && (
@@ -50,6 +63,7 @@ export function EbenenZeile({
           )}
         </a>
       </Knopf>
+      {hinten}
     </li>
   )
 }

@@ -17,7 +17,7 @@ export async function anfrage<S extends z.ZodType>(
   schema: S,
   was: string,
   adresse: string,
-  methode: 'GET' | 'PATCH' = 'GET',
+  methode: 'GET' | 'PATCH' | 'PUT' = 'GET',
   daten?: unknown,
 ): Promise<z.output<S>> {
   const r = await fetch(

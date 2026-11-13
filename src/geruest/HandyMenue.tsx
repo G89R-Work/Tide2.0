@@ -1,9 +1,10 @@
 import { Menu, Tags } from 'lucide-react'
-import { useRef, useState } from 'react'
+import { useState } from 'react'
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import { Knopf } from '../bausteine/Knopf'
 import { cn } from '../bausteine/cn'
+import { PortalZiel } from '../bausteine/portalZiel'
 import { bereiche, type BereichId } from '../logik/bereiche'
 import { ebeneVon, markeFuer, type Ort } from '../logik/ebenen'
 import { symbole, vorladen } from './seiten'
@@ -16,15 +17,16 @@ import { ZweiteEbene } from './ZweiteEbene'
 const useNamen = create<{ an: boolean }>()(persist((): { an: boolean } => ({ an: false }), { name: 'tide.menue.namen' }))
 
 export function HandyMenue({ ort, zahl }: { ort: Ort; zahl: number }) {
-  const dialog = useRef<HTMLDialogElement>(null)
+  // Das Dialogfenster; schwebende Karten und Menüs darin hängen sich hier ein (siehe bausteine/portalZiel.ts).
+  const [dialog, setDialog] = useState<HTMLDialogElement | null>(null)
   const [gewaehlt, setGewaehlt] = useState<BereichId>(ort.bereich)
   const mitNamen = useNamen((s) => s.an)
 
   const oeffnen = () => {
     setGewaehlt(ort.bereich)
-    dialog.current?.showModal()
+    dialog?.showModal()
   }
-  const schliessen = () => dialog.current?.close()
+  const schliessen = () => dialog?.close()
   const namenUmschalten = () => void useNamen.setState({ an: !mitNamen })
 
   const eintrag = (b: (typeof bereiche)[number]) => {
@@ -69,31 +71,33 @@ export function HandyMenue({ ort, zahl }: { ort: Ort; zahl: number }) {
         {zahl > 0 && <span aria-hidden className="absolute top-2 right-2 size-2 rounded-voll bg-akzent" />}
       </Knopf>
       <dialog
-        ref={dialog}
+        ref={setDialog}
         aria-label="Menü"
         className="menue-links"
         onClick={(e) => e.target === e.currentTarget && schliessen()}
       >
-        <div className="flaeche-schwebend flex h-full">
-          <nav aria-label="Bereiche" className={cn('flex shrink-0 flex-col gap-1 p-2', mitNamen ? 'w-44' : 'w-16')}>
-            {bereiche.map(eintrag)}
-            <Knopf
-              art="leise"
-              groesse="klein"
-              aria-pressed={mitNamen}
-              onClick={namenUmschalten}
-              className={cn('mt-auto w-full', !mitNamen && 'px-0')}
-              title="Namen der Bereiche zeigen"
-            >
-              <Tags aria-hidden className="size-4 shrink-0" />
-              {mitNamen ? 'Namen aus' : <span className="sr-only">Namen zeigen</span>}
-            </Knopf>
-          </nav>
-          <div className="min-w-0 flex-1 overflow-y-auto border-l border-linie p-2">
-            <h2 className="px-3 pt-2 pb-3 text-lg font-semibold">{name}</h2>
-            <ZweiteEbene bereich={gewaehlt} aktiv={gewaehlt === ort.bereich ? ort.unter : null} beiWahl={schliessen} />
+        <PortalZiel value={dialog}>
+          <div className="flaeche-schwebend flex h-full">
+            <nav aria-label="Bereiche" className={cn('flex shrink-0 flex-col gap-1 p-2', mitNamen ? 'w-44' : 'w-16')}>
+              {bereiche.map(eintrag)}
+              <Knopf
+                art="leise"
+                groesse="klein"
+                aria-pressed={mitNamen}
+                onClick={namenUmschalten}
+                className={cn('mt-auto w-full', !mitNamen && 'px-0')}
+                title="Namen der Bereiche zeigen"
+              >
+                <Tags aria-hidden className="size-4 shrink-0" />
+                {mitNamen ? 'Namen aus' : <span className="sr-only">Namen zeigen</span>}
+              </Knopf>
+            </nav>
+            <div className="min-w-0 flex-1 overflow-y-auto border-l border-linie p-2">
+              <h2 className="px-3 pt-2 pb-3 text-lg font-semibold">{name}</h2>
+              <ZweiteEbene bereich={gewaehlt} aktiv={gewaehlt === ort.bereich ? ort.unter : null} beiWahl={schliessen} />
+            </div>
           </div>
-        </div>
+        </PortalZiel>
       </dialog>
     </>
   )

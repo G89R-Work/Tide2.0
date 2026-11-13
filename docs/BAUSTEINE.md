@@ -169,3 +169,17 @@ Muster für einen Eintrag:
 - Grund: Ja des Nutzers vom 2026-11-12 (Regel C); Zeile „Doppelt“ in `npm run pruefen`, Grenze 0 %, Einstellungen in `.jscpd.json`.
 - Link: https://github.com/kucherenko/jscpd
 - Eingebaut in Scheibe: aufraeumen-waechter
+
+## 2026-11-13 · Ordner ziehen
+- Kandidaten: Pragmatic drag and drop 4 mit Hitbox „list-item“ (davor, danach, hinein fertig; klein; Apache 2.0), dnd-kit (gute Fingerbedienung, Baum-Logik selbst), kein Ziehen
+- Entscheidung: `@atlaskit/pragmatic-drag-and-drop` und `@atlaskit/pragmatic-drag-and-drop-hitbox` (Nutzer)
+- Grund: Baum-Ablage ohne Eigenbau; gezogen wird am Link der Zeile. Für Tastatur und Finger zusätzlich „Verschieben nach“ im Menü.
+- Link: https://atlassian.design/components/pragmatic-drag-and-drop
+- Eingebaut in Scheibe: postfach-ordner
+
+## 2026-11-13 · Menü per Rechtsklick und langem Druck
+- Kandidaten: shadcn Context Menu (@radix-ui/react-context-menu: Rechtsklick, langer Druck, Menütaste, Untermenüs), shadcn Dropdown Menu (nur am Knopf)
+- Entscheidung: `@radix-ui/react-context-menu` als `bausteine/Menue.tsx` (Nutzer)
+- Grund: dieselbe Familie wie `Aufklapp`; ein Menü für Maus, Finger und Tastatur.
+- Link: https://ui.shadcn.com/docs/components/context-menu
+- Eingebaut in Scheibe: postfach-ordner

@@ -57,7 +57,7 @@ Vorlage ist `docs/vorlage-aussehen/prototyp3.html`; was übernommen wird, zeigen
 
 ## Etappe 3: Postfach
 Vorlage ist das Postfach aus `docs/vorlage-aussehen/prototyp3.html` (Nutzer 2026-11-12): Grundgedanke, Aufbau, Ordner, Regeln und Funktionen wie dort; das Aussehen danach gemeinsam verfeinern. Jede Scheibe sieht sich ihren Teil der Vorlage als Bild an; die Ordnerleiste wie `docs/vorlage-aussehen/bilder/postfach-ordner.jpg` (Neue Mail, Systemordner mit Zählern, Deine Ordner mit Unterordnern, Intelligente Ordner, Einstellungen unten).
-- [ ] `postfach-ordner` · liest: 11-postfach.md · Systemordner, eigene Ordner mit Unterordnern, Farben, Anheften und Ziehen, intelligente Ordner, Zähler für Ungelesenes · Fertig, wenn: ein Ordner sich verschachteln lässt und der Zähler stimmt
+- [x] `postfach-ordner` · liest: 11-postfach.md · Systemordner, eigene Ordner mit Unterordnern, Farben, Anheften und Ziehen, intelligente Ordner, Zähler für Ungelesenes · Fertig, wenn: ein Ordner sich verschachteln lässt und der Zähler stimmt
 - [ ] `postfach-liste` · liest: 11-postfach.md · Liste mit Suche, Filter, Mehrfachauswahl, Angeheftetem, Etiketten und Hinweis je Mail; Mails in Ordner ziehen · Fertig, wenn: 500 Beispielmails flüssig scrollen
 - [ ] `postfach-leser` · liest: 11-postfach.md · Leser mit allen Aktionen, jede mit Rückgängig; ziehbare Trennlinien · Fertig, wenn: jede Aktion sich zurücknehmen lässt
 - [ ] `postfach-schreiben` · liest: 11-postfach.md · Antworten unter der Mail, neue Mail, Signatur je Konto, sofort oder geplant senden, fünf Sekunden rückholbar · Fertig, wenn: ein Entwurf das Neuladen übersteht

@@ -1,3 +1,4 @@
+import { Suspense, lazy } from 'react'
 import { cn } from '../bausteine/cn'
 import type { BereichId } from '../logik/bereiche'
 import { ebeneVon, markeFuer } from '../logik/ebenen'
@@ -5,7 +6,9 @@ import { EbenenZeile } from './EbenenZeile'
 import { ebenenSymbol } from './ebenenSymbole'
 import { EinstellungenSuchfeld } from './EinstellungenSuchfeld'
 import { setzeEinstellungenSuche } from './einstellungenSuche'
-import { PostfachOrdner } from './PostfachOrdner'
+
+// Die Ordnerleiste lädt erst mit dem Postfach nach (Ziehen und Menü sollen nicht ins Startpaket).
+const PostfachOrdner = lazy(() => import('./PostfachOrdner'))
 
 // Die zweite Ebene eines Bereichs: Unterpunkte als Links, nach Gruppen mit Beschriftung; wo vorhanden mit Symbol.
 // Das Postfach zeigt seine Ordner aus den Daten.
@@ -18,7 +21,12 @@ export function ZweiteEbene({
   aktiv: string | null
   beiWahl?: () => void
 }) {
-  if (bereich === 'postfach') return <PostfachOrdner aktiv={aktiv} beiWahl={beiWahl} />
+  if (bereich === 'postfach')
+    return (
+      <Suspense>
+        <PostfachOrdner aktiv={aktiv} beiWahl={beiWahl} />
+      </Suspense>
+    )
   const ebene = ebeneVon(bereich)
   const einstellungen = bereich === 'einstellungen'
   const waehlen = () => {

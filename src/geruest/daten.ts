@@ -4,10 +4,11 @@
 import { MutationObserver, QueryClient, useMutationState, useQuery, type QueryKey } from '@tanstack/react-query'
 import { eintragAendern } from '../logik/eintraege'
 import { unterschied, type Werte } from '../logik/einstellungen'
+import { stand } from '../logik/ordner'
 import { tagSchluessel } from '../logik/zeit'
 import { aendereEinstellungen, holeEinstellungen } from '../vertrag/einstellungen'
 import { aendereEintrag, holeEintraege, holeTermine, type Aenderung, type Eintrag } from '../vertrag/eintrag'
-import { holeOrdner } from '../vertrag/postfach'
+import { holeOrdner, speichereOrdner, type Ordner, type OrdnerStand } from '../vertrag/postfach'
 import { holeWetter, holeWetterTage } from '../vertrag/wetter'
 import { merke } from './rueckgaengig'
 
@@ -157,4 +158,39 @@ export async function aendereEintragMitSchritt(e: Eintrag, aenderung: Aenderung,
     await eintragSpeichernVon(e.id, a)
   }
   if (await eintragSpeichernVon(e.id, aenderung)) merke({ text, zurueck: senden(vorher), vor: senden(aenderung) })
+}
+
+// ── Ordner des Postfachs: gespeichert wird immer die ganze Liste (Reihenfolge, Eltern, Name, Farbe, Anheften).
+
+const ordnerSpeichern = new MutationObserver(abfragen, {
+  mutationKey: ['ordner'],
+  mutationFn: (neu: OrdnerStand[]) => speichereOrdner(neu),
+  onMutate: async (neu) => {
+    await abfragen.cancelQueries({ queryKey: schluessel.ordner })
+    const vorher = abfragen.getQueryData<Ordner[]>(schluessel.ordner)
+    // Sofort zeigen; Zähler bleiben, neue Ordner zählen 0, bis der Server antwortet.
+    const zahl = new Map(vorher?.map((x) => [x.id, x]))
+    abfragen.setQueryData<Ordner[]>(schluessel.ordner, neu.map((x) => ({ ...x, zahl: zahl.get(x.id)?.zahl ?? 0, ...(zahl.get(x.id)?.wichtig ? { wichtig: true as const } : {}) })))
+    return vorher
+  },
+  onSuccess: (liste) => abfragen.setQueryData(schluessel.ordner, liste),
+  onError: (_f, _neu, vorher) => abfragen.setQueryData(schluessel.ordner, vorher),
+})
+
+/** Fehler der letzten Änderung an den Ordnern, sonst nichts. */
+export function useOrdnerFehler() {
+  return meldung('Ordner nicht gespeichert', useLetzterFehler('ordner'))
+}
+
+/** Speichert den neuen Stand der Ordner; `text` beschreibt den Schritt für „Rückgängig“. Gemerkt wird nur, was gespeichert ist. */
+export async function aendereOrdnerMitSchritt(vorher: readonly Ordner[], neu: readonly OrdnerStand[], text: string): Promise<void> {
+  const senden = (l: OrdnerStand[]) => async () => {
+    await ordnerSpeichern.mutate(l).catch(() => undefined)
+  }
+  const alt = stand(vorher)
+  const ok = await ordnerSpeichern.mutate([...neu]).then(
+    () => true,
+    () => false,
+  )
+  if (ok) merke({ text, zurueck: senden(alt), vor: senden([...neu]), bereich: 'postfach' })
 }

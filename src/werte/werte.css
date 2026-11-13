@@ -401,6 +401,51 @@
   transform-origin: var(--radix-popover-content-transform-origin);
   animation: aufklappen var(--dauer-sanft) var(--kurve);
 }
+/* Menü des Bausteins Menue (src/bausteine/Menue.tsx): Rechtsklick, langer Druck, Menütaste. */
+@utility menue {
+  z-index: 50;
+  min-width: 12rem;
+  padding: 0.25rem;
+  color: var(--text);
+  max-height: var(--radix-context-menu-content-available-height);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  transform-origin: var(--radix-context-menu-content-transform-origin);
+  animation: aufklappen var(--dauer-sanft) var(--kurve);
+}
+@utility menue-punkt {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: var(--radius-knopf);
+  font-size: 0.875rem;
+  cursor: default;
+  user-select: none;
+  outline: none;
+  &[data-highlighted] {
+    background: var(--knopf-ton-hover);
+  }
+  &[data-disabled] {
+    color: var(--text-blass);
+  }
+}
+/* Ziel beim Ziehen eines Ordners: Linie davor oder danach, Rahmen beim Hineinlegen. */
+@utility ordner-ziel {
+  border-radius: var(--radius-knopf);
+  &[data-ziel='davor'] {
+    box-shadow: inset 0 2px 0 var(--akzent);
+  }
+  &[data-ziel='danach'] {
+    box-shadow: inset 0 -2px 0 var(--akzent);
+  }
+  &[data-ziel='hinein'] {
+    box-shadow: inset 0 0 0 2px var(--akzent);
+  }
+  &[data-zieht] {
+    opacity: 0.5;
+  }
+}
 @keyframes aufklappen {
   from {
     opacity: 0;
