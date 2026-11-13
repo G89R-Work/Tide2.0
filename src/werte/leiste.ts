@@ -8,6 +8,8 @@ export const leiste = {
   innenPx: 7,
   /** Zweite Ebene (Ordner, Listen). */
   ebenePx: 208,
+  /** Zweite Ebene der Einstellungen mit Suche und Symbolen (Vorlage `#v-einstellungen .sin`). */
+  ebeneEinstellungenPx: 300,
   /** Unter dieser Fensterbreite gilt die Handy-Ansicht mit Menü statt Seitenleiste. */
   schmalUnter: 768,
 } as const

@@ -1,5 +1,6 @@
 // Zentrale Liste aller Einstellungen (docs/konzept/20-einstellungen.md).
 // Neue Option = eine Zeile in `einstellungen`. Seite, Suche und „Auf Standard" entstehen daraus.
+// Gruppen und Reihenfolge der Abschnitte wie die mittlere Spalte der Vorlage (bilder/einstellungen-spalte.jpg).
 // Gemerkt werden nur Abweichungen vom Standard; je Geräteart unter „<id>@pc" bzw. „<id>@handy".
 import { bereiche, type BereichId } from './bereiche'
 
@@ -11,16 +12,12 @@ export type Werte = Readonly<Record<string, Wert>>
 export type WerteAenderung = Readonly<Record<string, Wert | null>>
 
 export const abschnitte = [
-  { id: 'start', name: 'Grundlegendes' },
+  { id: 'start', name: 'Grundlegendes', gruppe: 'Allgemein' },
   { id: 'konten', name: 'Konten und Kalender', gruppe: 'Allgemein' },
   { id: 'benachrichtigungen', name: 'Benachrichtigungen', gruppe: 'Allgemein' },
   { id: 'darstellung', name: 'Darstellung', gruppe: 'Allgemein' },
   { id: 'navigation', name: 'Seitenleiste und Leisten', gruppe: 'Allgemein' },
   { id: 'kurve', name: 'Gezeitenkurve', gruppe: 'Allgemein' },
-  { id: 'schreiben', name: 'Sprache und Schreiben', gruppe: 'Allgemein' },
-  { id: 'raeume', name: 'Privat und Arbeit', gruppe: 'Allgemein' },
-  { id: 'daten', name: 'Daten und Sicherung', gruppe: 'Allgemein' },
-  { id: 'nutzer', name: 'Nutzer und Räume', gruppe: 'Allgemein' },
   { id: 'heute', name: 'Heute', gruppe: 'Bereiche' },
   { id: 'postfach', name: 'Postfach', gruppe: 'Bereiche' },
   { id: 'kalender', name: 'Kalender', gruppe: 'Bereiche' },
@@ -29,7 +26,11 @@ export const abschnitte = [
   { id: 'finanzen', name: 'Finanzen', gruppe: 'Bereiche' },
   { id: 'arbeit', name: 'Arbeit', gruppe: 'Bereiche' },
   { id: 'notizen', name: 'Notizen', gruppe: 'Bereiche' },
-] as const satisfies readonly { id: string; name: string; gruppe?: string }[]
+  { id: 'schreiben', name: 'Sprache und Schreiben', gruppe: 'Schreiben' },
+  { id: 'nutzer', name: 'Nutzer und Räume', gruppe: 'Personen' },
+  { id: 'raeume', name: 'Privat und Arbeit', gruppe: 'Daten und Kosten' },
+  { id: 'daten', name: 'Daten und Sicherung', gruppe: 'Daten und Kosten' },
+] as const satisfies readonly { id: string; name: string; gruppe: string }[]
 
 export type AbschnittId = (typeof abschnitte)[number]['id']
 

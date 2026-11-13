@@ -1,7 +1,6 @@
-import { RotateCcw, Search } from 'lucide-react'
-import { useState } from 'react'
-import { Eingabe } from '../../bausteine/Eingabe'
+import { RotateCcw } from 'lucide-react'
 import { Knopf } from '../../bausteine/Knopf'
+import { useEinstellungenSuche } from '../../geruest/einstellungenSuche'
 import { einstellungenAendern, useEinstellungen, useGeraet } from '../../geruest/einstellungen'
 import { RueckgaengigKnoepfe } from '../../geruest/RueckgaengigKnoepfe'
 import { Seitenkopf } from '../../geruest/Seitenkopf'
@@ -17,7 +16,7 @@ export default function Seite() {
   const abschnitt = abschnitte.find((a) => a.id === ort.unter) ?? abschnitte[0]
   const { werte, geladen, fehler } = useEinstellungen()
   const geraet = useGeraet()
-  const [text, setText] = useState('')
+  const text = useEinstellungenSuche()
 
   const sucht = text.trim() !== ''
   const sichtbar: Einstellung[] = sucht ? suche(text) : einstellungenIn(abschnitt.id)
@@ -35,19 +34,6 @@ export default function Seite() {
       <p className="mt-1 text-lg text-text-gedaempft">{sucht ? 'Suche' : abschnitt.name}</p>
 
       <div className="mt-6 flex max-w-xl flex-col gap-4">
-        <label className="relative block">
-          <span className="sr-only">Einstellungen durchsuchen</span>
-          <Search aria-hidden className="pointer-events-none absolute top-3.5 left-3 size-4 text-text-gedaempft" />
-          <Eingabe
-            type="search"
-            placeholder="Einstellung suchen"
-            className="w-full pl-9"
-            value={text}
-            onChange={(x) => setText(x.currentTarget.value)}
-            onKeyDown={(x) => x.key === 'Escape' && setText('')}
-          />
-        </label>
-
         <div className="flex flex-wrap gap-2">
           <RueckgaengigKnoepfe bereich="einstellungen" />
           <Knopf

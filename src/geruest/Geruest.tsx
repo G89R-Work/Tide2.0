@@ -114,7 +114,7 @@ function Pc({ ort }: { ort: Ort }) {
     <div className="flex h-dvh gap-abstand p-rand">
       <Seitenleiste offen={ort.bereich} mitNamen={mitNamen} />
       {mitEbene && (
-        <nav aria-label="Zweite Ebene" className="flaeche-leiste shrink-0 overflow-y-auto p-2" style={{ width: leiste.ebenePx }}>
+        <nav aria-label="Zweite Ebene" className="flaeche-leiste shrink-0 overflow-y-auto p-2" style={{ width: ort.bereich === 'einstellungen' ? leiste.ebeneEinstellungenPx : leiste.ebenePx }}>
           <ZweiteEbene bereich={ort.bereich} aktiv={ort.unter} />
         </nav>
       )}

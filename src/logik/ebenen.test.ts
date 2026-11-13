@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { bereiche } from './bereiche'
 import { ebeneVon, markeFuer, ortAusMarke } from './ebenen'
+import { einstellungen } from './einstellungen'
 
 describe('ebeneVon', () => {
   it('Heute hat keine zweite Ebene, jeder andere Bereich eine', () => {
@@ -46,5 +47,17 @@ describe('markeFuer', () => {
     expect(markeFuer('kochen', 'wochenplan')).toBe('#kochen/wochenplan')
     for (const b of bereiche)
       for (const u of ebeneVon(b.id)) expect(ortAusMarke(markeFuer(b.id, u.id))).toEqual({ bereich: b.id, unter: u.id })
+  })
+})
+
+describe('Einstellungen in der mittleren Spalte', () => {
+  const ebene = ebeneVon('einstellungen')
+  it('hat die Gruppen der Vorlage in fester Reihenfolge, ohne KI', () => {
+    const gruppen = ebene.map((p) => p.gruppe).filter((g, i, a) => g !== a[i - 1])
+    expect(gruppen).toEqual(['Allgemein', 'Bereiche', 'Schreiben', 'Personen', 'Daten und Kosten'])
+    expect(ebene.some((p) => /\bKI\b/.test(`${p.name} ${p.gruppe}`))).toBe(false)
+  })
+  it('erreicht jede Einstellung über eine Zeile', () => {
+    for (const e of einstellungen) expect(ebene.some((p) => p.id === e.abschnitt), e.id).toBe(true)
   })
 })
