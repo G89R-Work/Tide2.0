@@ -46,12 +46,12 @@ export function buendeln<T extends { minute: number }>(punkte: readonly T[], abs
   return gruppen
 }
 
-/** Höchste Breite eines Schilds, das mittig unter oder über seinem Punkt steht: bis 8 px vor die Mitte zum nächsten
+/** Höchste Breite eines Schilds, das mittig unter oder über seinem Punkt steht: bis `luecke` px vor die Mitte zum nächsten
  *  und zum vorigen Punkt (über Mitternacht weiter), höchstens `max`. So berühren sich zwei Schilder nie. */
-export function schildBreite(minuten: readonly number[], pxProMinute: number, max: number): number[] {
+export function schildBreite(minuten: readonly number[], pxProMinute: number, max: number, luecke: number): number[] {
   if (minuten.length < 2) return minuten.map(() => max)
   const abstand = minuten.map((m, i) => ((i + 1 < minuten.length ? minuten[i + 1] : minuten[0] + MIN_TAG) - m) * pxProMinute)
-  return minuten.map((_, i) => Math.min(max, abstand[i] - 8, abstand[(i - 1 + minuten.length) % minuten.length] - 8))
+  return minuten.map((_, i) => Math.min(max, abstand[i] - luecke, abstand[(i - 1 + minuten.length) % minuten.length] - luecke))
 }
 
 /** Rundet eine Verschiebung in Minuten auf das Zieh-Raster. */

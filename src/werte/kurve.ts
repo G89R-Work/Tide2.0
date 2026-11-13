@@ -17,4 +17,17 @@ export const kurve = {
   hoeheMax: '38.2%',
   /** Am Handy nach dem Antippen: so groß wie erlaubt. Ein zweites Antippen stellt `hoehe` her. */
   hoeheGross: '38.2%',
+  /** Kleinster Abstand zweier Punkte (px), darunter werden sie gebündelt: eine Fingerbreite. */
+  fingerPx: 44,
+  /** Breitestes Schildchen an einem Punkt (px); schmaler als `schildMinPx` wird es weggelassen. */
+  schildMaxPx: 200,
+  schildMinPx: 40,
+  /** So weit (px) bleibt ein Schild vor der Mitte zum nächsten Punkt, damit sich zwei nie berühren. */
+  schildLueckePx: 8,
+  /** Platz für „Jetzt 23:06“ und „9 offen treiben mit“ in der oberen Zeile (px). */
+  jetztBreitePx: 200,
+  /** Kleinster Abstand zweier Wetterangaben („12° · 20 % Regen“) (px). */
+  wetterAbstandPx: 120,
+  /** Erst ab dieser Strecke (px) wird aus einem Druck ein Ziehen; darunter ist es ein Klick. */
+  ziehAbPx: 6,
 } as const

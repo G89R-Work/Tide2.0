@@ -39,10 +39,10 @@ describe('buendeln', () => {
 describe('schildBreite', () => {
   it('ein mittiges Schild reicht bis kurz vor die Mitte zum nächsten und vorigen Punkt, ringförmig über Mitternacht', () => {
     // Abstände in px: 60→120 = 120, 120→1400 = 2560, 1400→60 (über Mitternacht) = 200.
-    expect(schildBreite([60, 120, 1400], 2, 300)).toEqual([120 - 8, 120 - 8, 200 - 8])
+    expect(schildBreite([60, 120, 1400], 2, 300, 8)).toEqual([120 - 8, 120 - 8, 200 - 8])
   })
   it('ein einzelner Punkt hat den Höchstwert', () => {
-    expect(schildBreite([60], 2, 160)).toEqual([160])
+    expect(schildBreite([60], 2, 160, 8)).toEqual([160])
   })
 })
 

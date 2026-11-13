@@ -625,20 +625,6 @@ html {
   line-height: 1rem;
   text-shadow: 0 0 4px var(--grund);
 }
-/* Karte als natives Popover: liegt über allem und schließt mit Esc oder Klick daneben. Lage kommt als --x/--y/--unten (px). */
-@utility kurve-karte {
-  position: fixed;
-  inset: auto;
-  margin: 0;
-  padding: 0;
-  border: 0;
-  background: transparent;
-  overflow: visible;
-  left: calc(var(--x) * 1px);
-  top: calc(var(--y) * 1px);
-  width: min(18rem, calc(100vw - 1rem));
-}
-
 /* Inhalt läuft hinter Kurve und unterer Leiste durch (src/geruest/MitKurve.tsx). Der verdeckte Platz kommt als Zahl in Pixeln. */
 @utility inhalt-frei {
   padding-top: calc(var(--frei-oben, 0) * 1px);

@@ -1,16 +1,16 @@
 # Status
 Etappe: 2 Gezeitenkurve und Heute
-Nächste Scheibe: `aufraeumen-menues`
+Nächste Scheibe: `aufraeumen-waechter`
 ## Stand
 Das Gerüst steht am PC (wie die Vorlage, ohne Zellraster: Leiste mit Logo von oben bis unten, Kopfzeile mit Uhr, Wetter und Knöpfen außer auf Heute) und am Handy mit Seitenleiste, zweiter Ebene, belegbaren Knöpfen, Einstellungsliste, Kacheln und Hintergrund. Die Gezeitenkurve zeigt den Beispieltag (PC unten über die volle Breite, Handy über der unteren Leiste; Einstellung „Lage“ je Gerät), scrollt endlos, folgt der Uhr und steuert beim Scrollen den Hintergrund. Der Himmel folgt dem Sonnenstand (Lichthof, Dämmerung, Mondschein nach Phase). Termine liegen als Punkte (mit Karte, Bündel, Überschneidung) oder Bänder auf ihr, lassen sich ziehen und zurücknehmen; dazu Treibgut und Wetterzeile. Die Kurve ist je Seite und Gerät abschaltbar; Meldungen fließen an der Jetzt-Linie ein und falten sich in die Glocke. Heute hat einen festen Aufbau (Gruß, Als Nächstes, Wetter, Uhr, Knöpfe, Braucht dich als Reiter mit aufklappender Liste, Wochenleiste wie die Vorlage mit kleinem Kalender samt Feiertagen, Notiz, Rückblick), Text ohne Hintergrund. **Aufräumen:** `docs/PRUEFUNG.md` wird in acht Scheiben `aufraeumen-*` abgearbeitet (siehe Fahrplan). Bausteine dafür sind freigegeben.
 ## Zuletzt erledigt
+- aufraeumen-menues: Glocke und Kurven-Karte über `Aufklapp` (nachgeladen), eigenes Öffnen und Lage-Rechnung weg, Kurven-Pixelwerte in `werte/kurve.ts`
 - aufraeumen-speicher: Zustand; alle eigenen Hörer-Listen und `localStorage`-try/catch weg, Gemerktes über `persist` (Belegung geprüft beim Laden)
 - aufraeumen-schema: Zod; Typen aus Schemas in `src/vertrag/`, ein Weg `anfrage()` prüft jede Antwort (deutsche Meldung mit Feld), Attrappe prüft Anfragen und Gemerktes, Belegung über Schema
 - aufraeumen-daten: TanStack Query, ein Hook je Anfrage in `geruest/daten.ts`, Ändern mit Zurückrollen über den Baustein; `kurveDaten`, `useTermine`, `useOrdner`, `useFeiertage`, eigener Einstellungs-Speicher weg; Wechsel 10–40 ms
 - aufraeumen-einstellungen-typen: `einstellung('name')` mit festen Namen und Werttyp (`WertVon`), `find(…)!` und `as` weg; dazu `tagesBelegung` (Termine einmal lesen) und `tagSchluessel` über `formatISO`
-- aufraeumen-datum: date-fns; Rechnung und Uhrzeit in `logik/zeit.ts` (mit Tests), Anzeige `geruest/format.ts`; eigene Hilfen gelöscht, „bis 07:00“ aus `RUHE_BIS`
 ## Stolpersteine
-- Tempo-Messung läuft ohne Grafikkarte: jedes Bild mit Glas kostet dort 20–25 ms; Wechsel, die auf Daten warten, sprengen schnell die 100 ms. Daten deshalb immer über `daten.ts` (Zwischenspeicher). Startcode 189 KB von 200 erlaubt (mit Zod): große Bausteine nachladen.
+- Tempo-Messung läuft ohne Grafikkarte: jedes Bild mit Glas kostet dort 20–25 ms; Wechsel, die auf Daten warten, sprengen schnell die 100 ms. Daten deshalb immer über `daten.ts` (Zwischenspeicher). Startcode 190 KB von 200 erlaubt: Bausteine, die erst bei Bedienung gebraucht werden (Popover), per `lazy` nachladen wie Glocke und Kurven-Karte.
 - Datum und Uhrzeit: rechnen mit date-fns direkt, Zusammengesetztes nur aus `logik/zeit.ts`, Anzeige über `geruest/format.ts`. `addDays` behält die Uhrzeit (anders als das alte `plusTage`): für Tagesgrenzen erst `startOfDay`.
 - Stil prüft oxlint, nicht ESLint. Warnungen zählen als Fehler. Freie Tailwind-Werte wie `data-[…]` verbietet die Werte-Prüfung.
 - `npm run pruefen` steckt in `skripte/pruefen.mjs`; neue Prüfung = eine Zeile. Neue Seiten hinten an die Zeile „Tempo" hängen, dann wird auch der Wechsel gemessen. Tempo-Grenzen nur in `src/logik/tempoGrenzen.ts`; `skripte/sicht.mjs` liest die Datei direkt (Node streicht die Typen).
@@ -30,7 +30,7 @@ Das Gerüst steht am PC (wie die Vorlage, ohne Zellraster: Leiste mit Logo von o
 - Gezeitenkurve: Rechnung in `src/logik/gezeiten.ts`, Oberfläche `src/geruest/Gezeitenkurve.tsx`, Farben `kurve-*` in `werte.css`, Größen in `src/werte/kurve.ts`; am Handy Lage und Höhe in `src/geruest/MitKurve.tsx`. Termine über `useTermine(von, bis)` aus `geruest/daten.ts` (Attrappe `src/attrappe/termine.ts`).
 - Gezeigte Uhrzeit der Kurve teilt `src/geruest/gezeigteZeit.ts` (null = folgt der Uhr); der Hintergrund liest sie.
 - Feiertage nur über `useFeiertage(jahr, land)` aus `geruest/daten.ts` (lädt date-holidays nach); nie `logik/feiertage` direkt in die Oberfläche importieren.
-- Schwebende Karte am Knopf: `Aufklapp`, `AufklappKnopf`, `AufklappAnker`, `AufklappInhalt` aus `bausteine/Aufklapp.tsx` (`breite="anker"` ab Werk, `"inhalt"` mit eigener Breite; scrollt bei wenig Platz).
+- Schwebende Karte am Knopf: `Aufklapp`, `AufklappKnopf`, `AufklappAnker`, `AufklappInhalt` aus `bausteine/Aufklapp.tsx` (`breite="anker"` ab Werk, `"inhalt"` mit eigener Breite; scrollt bei wenig Platz). An einem Element ohne Knopf: `AufklappAnker virtualRef`. Im Gerüst nur nachgeladen.
 - Zieh-Griffe nur über den Baustein `Trenner` (`src/bausteine/Trenner.tsx`), nie direkt `Separator`.
 - PC und Tablet: Gerüst als Flex-Layout in `Geruest.tsx` (`Pc`), Maße in `src/werte/leiste.ts` und `kurve.hoehePc`. Wischen: `useDrag` von @use-gesture/react; scrollbare Kinder brauchen `touch-pan-y`, sonst bricht der Browser die Finger-Geste ab. `node_modules/@use-gesture/*/dist` ist gesperrt, Schnittstelle über tsc prüfen.
 - Meldungen: `melde({id, text, ankunft, wichtig?})` aus `src/geruest/meldungen.ts`; gleiche id kommt nur einmal. Kopfzeile zeigt `useMeldungen().frisch`, Falten läuft einmal im Gerüst.
