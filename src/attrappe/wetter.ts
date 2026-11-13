@@ -1,5 +1,6 @@
 import { http, HttpResponse } from 'msw'
 import type { WetterStunde } from '../vertrag/wetter'
+import { anfrageZeitraum } from './pruefen'
 
 // Erfundenes Novemberwetter: nachts 3 Grad, am frühen Nachmittag 9 Grad, Schauer am späten Nachmittag.
 function stunde(zeit: Date): WetterStunde {
@@ -13,12 +14,9 @@ function stunde(zeit: Date): WetterStunde {
 
 export const wetterAntworten = [
   http.get('/api/wetter', ({ request }) => {
-    const q = new URL(request.url).searchParams
-    const von = new Date(q.get('von') ?? '')
-    const bis = new Date(q.get('bis') ?? '')
-    if (Number.isNaN(von.getTime()) || Number.isNaN(bis.getTime()) || bis <= von) {
-      return new HttpResponse(`Zeitraum ungültig: von=${q.get('von')} bis=${q.get('bis')}`, { status: 400 })
-    }
+    const zeitraum = anfrageZeitraum(request)
+    if (zeitraum instanceof HttpResponse) return zeitraum
+    const { von, bis } = zeitraum
     const liste: WetterStunde[] = []
     const d = new Date(von)
     d.setMinutes(0, 0, 0)

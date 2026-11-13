@@ -162,3 +162,10 @@ Muster für einen Eintrag:
 - Grund: Ja des Nutzers vom 2026-11-12 (PRUEFUNG E2); ein Muster für alle Speicher, Merken im Browser samt Fehlerbehandlung fertig.
 - Link: https://zustand.docs.pmnd.rs
 - Eingebaut in Scheibe: aufraeumen-speicher
+
+## 2026-11-13 · Doppelten Code finden
+- Kandidaten: jscpd 5 (viele Sprachen, Grenze in Prozent, Ausgabe mit Datei und Zeile, MIT), eigene Suche (keine Erkennung von Kopien mit anderen Namen)
+- Entscheidung: jscpd (Entwicklungs-Abhängigkeit)
+- Grund: Ja des Nutzers vom 2026-11-12 (Regel C); Zeile „Doppelt“ in `npm run pruefen`, Grenze 0 %, Einstellungen in `.jscpd.json`.
+- Link: https://github.com/kucherenko/jscpd
+- Eingebaut in Scheibe: aufraeumen-waechter

@@ -27,3 +27,14 @@ export async function anfrageInhalt<S extends z.ZodType>(request: Request, schem
 
 /** Antwort 400 mit dem Grund des Fehlers. */
 export const abgelehnt = (f: unknown) => new HttpResponse<string>(f instanceof Error ? f.message : String(f), { status: 400 })
+
+/** Zeitraum `von`/`bis` aus der Adresse prüfen: beide Zeitpunkte, oder eine Antwort 400 mit Grund. */
+export function anfrageZeitraum(request: Request): { von: Date; bis: Date } | HttpResponse<string> {
+  const q = new URL(request.url).searchParams
+  const von = new Date(q.get('von') ?? '')
+  const bis = new Date(q.get('bis') ?? '')
+  if (Number.isNaN(von.getTime()) || Number.isNaN(bis.getTime()) || bis <= von) {
+    return abgelehnt(`Zeitraum ungültig: von=${q.get('von')} bis=${q.get('bis')}`)
+  }
+  return { von, bis }
+}

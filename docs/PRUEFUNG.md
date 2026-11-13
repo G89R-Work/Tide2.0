@@ -51,3 +51,13 @@ Gut gelöst (bleibt): react-grid-layout, react-resizable-panels, SunCalc, d3-sha
 
 ## Antwort des Nutzers (2026-11-12)
 Alles umsetzen, aber getrennt in Scheiben vor `heute-uhr-und-wetter`. Plan: `docs/FAHRPLAN.md`, Zwischenetappe „Aufräumen“. Alle genannten Bausteine sind freigegeben. Neue Regel C (alles nur einmal) steht in `CLAUDE.md`. U13 erledigt: in `node_modules` sind nur noch Programmdateien gesperrt; gelesen werden nur `.d.ts`, `README.md`, `package.json` (Regel in `CLAUDE.md`).
+
+## Nachprüfung E6–E9 (2026-11-13, aufraeumen-waechter)
+| # | Ergebnis | Bewertung |
+|---|---|---|
+| E6 | `useTastenkuerzel` hat 21 Zeilen, `kuerzelAus` ist getestet. Ein Baustein spart kaum Code. | bleibt, niedrig |
+| E7 | `useSprungmarke` hat 12 Zeilen; es gibt weiter keine Unterseiten mit Parametern. Wieder ansehen, wenn Postfach-Mails eigene Adressen bekommen. | bleibt, niedrig |
+| E8 | **Geändert:** @use-gesture/react ist inzwischen eingebaut (`Gezeitenkurve.tsx` zweimal, `Seitenleiste.tsx`, `Monat.tsx`). Das Ziehen von Terminen (`KurveEintraege.tsx:69`, `ziehen`) ist damit ein zweiter Weg zum Ziehen (Regel C). | mittel, auf `useDrag` umstellen (Zeile in `docs/IDEEN.md`) |
+| E9 | Schalter, Eingabe und Auswahl sind je ein Baustein in `src/bausteine/` über native Felder; zugänglich und schnell. | bleibt, niedrig |
+
+Wächter: `npm run pruefen` enthält die Zeile „Doppelt“ (jscpd, `.jscpd.json`). Jede Kopie ab 5 Zeilen und 50 Tokens in `src/` oder `skripte/` lässt die Prüfung scheitern. Einzige gefundene Kopie (Zeitraum prüfen in `attrappe/termine.ts` und `attrappe/wetter.ts`) liegt jetzt einmal als `anfrageZeitraum` in `attrappe/pruefen.ts`.

@@ -4,7 +4,7 @@ import { eintragAendern } from '../logik/eintraege'
 import { termineImZeitraum } from '../logik/gezeiten'
 import { z } from 'zod'
 import { aenderungSchema, eintragSchema, type Eintrag } from '../vertrag/eintrag'
-import { abgelehnt, anfrageInhalt, gemerkt } from './pruefen'
+import { abgelehnt, anfrageInhalt, anfrageZeitraum, gemerkt } from './pruefen'
 
 // Beispieltag für die Gezeitenkurve: liegt immer auf dem Tag der Anfrage. Die Schicht kommt an vier Werktagen,
 // am Wochenende bleiben nur Mittag und Sport (damit die Wochenleiste auf Heute verschiedene Füllstände zeigt).
@@ -57,12 +57,9 @@ function tageUm(von: Date, bis: Date): Eintrag[] {
 
 export const termineAntworten = [
   http.get('/api/termine', ({ request }) => {
-    const q = new URL(request.url).searchParams
-    const von = new Date(q.get('von') ?? '')
-    const bis = new Date(q.get('bis') ?? '')
-    if (Number.isNaN(von.getTime()) || Number.isNaN(bis.getTime()) || bis <= von) {
-      return new HttpResponse(`Zeitraum ungültig: von=${q.get('von')} bis=${q.get('bis')}`, { status: 400 })
-    }
+    const zeitraum = anfrageZeitraum(request)
+    if (zeitraum instanceof HttpResponse) return zeitraum
+    const { von, bis } = zeitraum
     return HttpResponse.json(termineImZeitraum(tageUm(von, bis), von, bis))
   }),
   // Termine des Beispieltags (id „t-…") ändert diese Antwort; alle anderen gehen weiter an src/attrappe/eintraege.ts.

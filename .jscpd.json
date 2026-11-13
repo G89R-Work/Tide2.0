@@ -1,0 +1,6 @@
+{
+  "path": ["src", "skripte"],
+  "threshold": 0,
+  "reporters": ["console"],
+  "noTips": true
+}

@@ -54,3 +54,4 @@ Was umgesetzt ist, wandert beim Abschluss einer Scheibe nach „Erledigt“, mit
 - 2026-11-12 · Kalenderwoche an der Wochenleiste (heute-kacheln)
 - 2026-11-12 · Monatskalender klappt aus dem Knopf „Monat“ nach oben auf, kleiner Kalender mit Walze und Feiertagen (aussehen-wochenleiste)
 - 2026-11-12 · Buchstaben der Schicht an den Tagen der Wochenleiste, vorerst aus dem Titel (aussehen-wochenleiste)
+- 2026-11-13 · Termine auf der Kurve mit `useDrag` von @use-gesture/react ziehen statt Pointer-Capture von Hand, damit es nur einen Weg zum Ziehen gibt (PRUEFUNG E8, aufraeumen-waechter)
