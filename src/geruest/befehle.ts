@@ -1,13 +1,30 @@
 import { aktionen } from '../logik/aktionen'
 import { ortAusMarke } from '../logik/ebenen'
+import type { Mail } from '../vertrag/postfach'
 import { kurveUmschalten } from './einstellungen'
 import { rueckgaengig, wiederherstellen } from './rueckgaengig'
 
+type MailAktionen = typeof import('./mailAktionen')
+
+/** Wirkt auf die gewählten Mails, wenn das Postfach offen ist; sonst nichts. Die Aktionen laden erst mit dem ersten Druck. */
+const mitMails = (tun: (a: MailAktionen, ms: Mail[]) => Promise<void>) => async () => {
+  const ort = ortAusMarke(location.hash)
+  if (ort.bereich !== 'postfach' || !ort.unter) return
+  const a = await import('./mailAktionen')
+  const ms = a.gewaehlteMails(ort.unter)
+  if (ms.length) await tun(a, ms)
+}
+
 // Was Aktionen mit `befehl` tun. Eine neue Befehls-Aktion braucht hier eine Zeile.
-const befehle: Record<string, () => void> = {
+const befehle: Record<string, () => unknown> = {
   rueckgaengig: () => rueckgaengig(),
   wiederherstellen: () => wiederherstellen(),
   kurve: () => kurveUmschalten(ortAusMarke(location.hash).bereich),
+  'mail-archivieren': mitMails((a, ms) => a.archiviere(ms)),
+  'mail-loeschen': mitMails((a, ms) => a.loesche(ms)),
+  'mail-ungelesen': mitMails((a, ms) => a.schalte(ms, 'ungelesen')),
+  'mail-anheften': mitMails((a, ms) => a.schalte(ms, 'angeheftet')),
+  'mail-wichtig': mitMails((a, ms) => a.schalte(ms, 'wichtig')),
 }
 
 if (import.meta.env.DEV)
@@ -16,5 +33,5 @@ if (import.meta.env.DEV)
 export function fuehreAus(id: string) {
   const b = befehle[id]
   if (!b) throw new Error(`Aktion ${id} hat keinen Befehl (src/geruest/befehle.ts)`)
-  b()
+  void b()
 }

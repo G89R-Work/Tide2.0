@@ -78,12 +78,22 @@ export const mailSchema = z.object({
   hinweis: hinweisSchema.optional(),
   /** Steht in „Braucht dich“, solange sie im Posteingang liegt */
   brauchtDich: z.boolean(),
+  /** ISO-Zeitpunkt, zu dem eine zurückgestellte Mail wieder in den Posteingang kommt */
+  erinnernAm: z.iso.datetime({ offset: true }).optional(),
 })
 export type Mail = z.infer<typeof mailSchema>
 
-/** Was sich an einer Mail ändern lässt; jede Zeile nennt ihre Mail. */
-export const mailAenderungSchema = mailSchema.pick({ ordner: true, ungelesen: true, angeheftet: true, wichtig: true }).partial().extend({ id: z.string().min(1) })
+/** Was sich an einer Mail ändern lässt; jede Zeile nennt ihre Mail. `null` entfernt Fälligkeit oder Erinnerung. */
+export const mailAenderungSchema = mailSchema
+  .pick({ ordner: true, ungelesen: true, angeheftet: true, wichtig: true, nachverfolgen: true, kategorien: true })
+  .extend({ faellig: mailSchema.shape.faellig.unwrap().nullable(), erinnernAm: mailSchema.shape.erinnernAm.unwrap().nullable() })
+  .partial()
+  .extend({ id: z.string().min(1) })
 export type MailAenderung = z.infer<typeof mailAenderungSchema>
+
+/** Was nur der Leser braucht: Empfänger und Text. */
+export const mailInhaltSchema = z.object({ id: z.string().min(1), an: z.array(z.string()), cc: z.array(z.string()), text: z.string() })
+export type MailInhalt = z.infer<typeof mailInhaltSchema>
 
 /** Mails eines Ordners; auch für „Braucht dich“ und intelligente Ordner (der Server wertet die Suche aus). */
 export function holeMails(ordner: string): Promise<Mail[]> {
@@ -93,6 +103,11 @@ export function holeMails(ordner: string): Promise<Mail[]> {
 /** Ändert mehrere Mails auf einmal (je Mail eigene Werte, etwa für Rückgängig); Antwort: die geänderten Mails. */
 export function aendereMails(liste: readonly MailAenderung[]): Promise<Mail[]> {
   return anfrage(z.array(mailSchema), 'Mails ändern', '/api/postfach/mails', 'PATCH', liste)
+}
+
+/** Empfänger und Text einer Mail. */
+export function holeMailInhalt(id: string): Promise<MailInhalt> {
+  return anfrage(mailInhaltSchema, 'Mail öffnen', `/api/postfach/mails/${encodeURIComponent(id)}/inhalt`)
 }
 
 /** Kategorien mit Farbe, in ihrer Reihenfolge. */

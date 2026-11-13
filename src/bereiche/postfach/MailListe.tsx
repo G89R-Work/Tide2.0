@@ -9,13 +9,16 @@ import { Knopf } from '../../bausteine/Knopf'
 import { cn } from '../../bausteine/cn'
 import { useKategorien, useMailFehler, useMails, useOrdner } from '../../geruest/daten'
 import { mailZeit } from '../../geruest/format'
+import { gelesen } from '../../geruest/mailAktionen'
+import { mailAuswahlJetzt, useMailAuswahl, waehleMails } from '../../geruest/mailAuswahl'
 import { mailDaten } from '../../geruest/mailZiehen'
 import { useMinute } from '../../geruest/useMinute'
 import { seitText } from '../../logik/heute'
-import { gezogen, mailFilter, mailSortierung, mailsText, waehle, zeigeMails, type Ansicht, type Auswahl, type MailFilter, type MailSortierung, type Wahl } from '../../logik/mails'
+import { gezogen, mailFilter, mailSortierung, mailsText, waehle, zeigeMails, type Ansicht, type Auswahl, type Wahl } from '../../logik/mails'
 import type { Mail } from '../../vertrag/postfach'
 import { ordnerFarben } from '../../werte/ordner'
 import { hinweisKlassen, postfach } from '../../werte/postfach'
+import { Wahlliste } from './Wahlliste'
 
 const keine: Auswahl = { ids: [], anker: null }
 const start: Ansicht = { suche: '', filter: 'alle', sortierung: 'neu' }
@@ -26,28 +29,38 @@ const wahlVon = (e: MouseEvent) => (e.shiftKey ? 'bereich' : e.metaKey || e.ctrl
 // Mail-Liste eines Ordners wie in der Vorlage: Kopf mit Alle-Häkchen, Name, Zahl, „Ungelesen“ und Filter; Suche;
 // darunter die Mails. Nur die sichtbaren Zeilen entstehen (virtua), darum bleibt die Liste bei 500 Mails ruhig.
 // Auswahl per Klick, Strg/Cmd, Umschalt, Häkchen und Pfeiltasten; gezogen wird die ganze Auswahl in einen Ordner der Leiste.
-/** Ohne `breite` füllt die Liste den Platz (Handy). */
-export function MailListe({ ordner, breite }: { ordner: string; breite?: number }) {
+export function MailListe({ ordner }: { ordner: string }) {
   const { mails, fehler } = useMails(ordner)
   const { kategorien } = useKategorien()
   const name = useOrdner().ordner?.find((o) => o.id === ordner)?.name ?? ''
   const aendernFehler = useMailFehler()
   const jetzt = useMinute()
   const [ansicht, setAnsicht] = useState(start)
-  const [auswahl, setAuswahl] = useState(keine)
+  const auswahl = useMailAuswahl(ordner)
+  const setAuswahl = (a: Auswahl) => waehleMails(ordner, a)
   const liste = useMemo(() => (mails ? zeigeMails(mails, ansicht) : []), [mails, ansicht])
   const reihe = useMemo(() => liste.map((m) => m.id), [liste])
   const gewaehlt = useMemo(() => new Set(auswahl.ids.filter((id) => reihe.includes(id))), [auswahl, reihe])
   const farbe = useMemo(() => new Map(kategorien?.map((k) => [k.name, ordnerFarben[k.farbe].klasse])), [kategorien])
   const vliste = useRef<VListHandle>(null)
 
-  const alleGewaehlt = gewaehlt.size > 0 && gewaehlt.size === reihe.length
+  // Häkchen zählen erst ab zwei Mails; eine einzelne ist nur geöffnet.
+  const mehrfach = gewaehlt.size > 1
+  const alleGewaehlt = mehrfach && gewaehlt.size === reihe.length
   const alleKasten = useRef<HTMLInputElement>(null)
   useEffect(() => {
-    if (alleKasten.current) alleKasten.current.indeterminate = gewaehlt.size > 0 && !alleGewaehlt
-  }, [gewaehlt, alleGewaehlt])
+    if (alleKasten.current) alleKasten.current.indeterminate = mehrfach && !alleGewaehlt
+  }, [mehrfach, alleGewaehlt])
 
-  const klick = (id: string, wahl: Wahl) => setAuswahl((a) => waehle(a, reihe, id, wahl))
+  // Liest die Auswahl beim Klick, nicht beim Zeichnen: so bleiben die Zeilen unverändert, solange sich nichts an ihnen ändert.
+  const klick = (id: string, wahl: Wahl) => {
+    const jetzt = mailAuswahlJetzt()
+    const neu = waehle(jetzt.ordner === ordner ? jetzt : keine, reihe, id, wahl)
+    setAuswahl(neu)
+    // Eine einzeln geöffnete Mail gilt als gelesen.
+    const m = neu.ids.length === 1 ? liste.find((x) => x.id === id && x.ungelesen) : undefined
+    if (m) void gelesen(m)
+  }
   const setze = (x: Partial<Ansicht>) => setAnsicht((a) => ({ ...a, ...x }))
 
   const tasten = (e: KeyboardEvent) => {
@@ -67,10 +80,9 @@ export function MailListe({ ordner, breite }: { ordner: string; breite?: number 
   }
 
   const gefiltert = ansicht.filter !== 'alle' || ansicht.sortierung !== 'neu'
-  const mehrfach = gewaehlt.size > 1
 
   return (
-    <section aria-label={name} className={cn('flaeche-kachel flex min-h-0 flex-col overflow-hidden', breite ? 'shrink-0' : 'flex-1')} style={{ width: breite }}>
+    <section aria-label={name} className="flaeche-kachel flex h-full min-h-0 flex-1 flex-col overflow-hidden">
       <header className="flex items-center gap-2 px-3 pt-3">
         <input
           ref={alleKasten}
@@ -97,8 +109,8 @@ export function MailListe({ ordner, breite }: { ordner: string; breite?: number 
             </Knopf>
           </AufklappKnopf>
           <AufklappInhalt breite="inhalt" align="end" aria-label="Filtern und sortieren" className="flex w-56 flex-col gap-1 p-2">
-            <Wahlen titel="Zeigen" werte={mailFilter} aktiv={ansicht.filter} waehle={(filter: MailFilter) => setze({ filter })} />
-            <Wahlen titel="Sortieren" werte={mailSortierung} aktiv={ansicht.sortierung} waehle={(sortierung: MailSortierung) => setze({ sortierung })} />
+            <Wahlliste titel="Zeigen" punkte={punkte(mailFilter, ansicht.filter, (filter) => setze({ filter }))} />
+            <Wahlliste titel="Sortieren" punkte={punkte(mailSortierung, ansicht.sortierung, (sortierung) => setze({ sortierung }))} />
           </AufklappInhalt>
         </Aufklapp>
       </header>
@@ -138,20 +150,9 @@ export function MailListe({ ordner, breite }: { ordner: string; breite?: number 
   )
 }
 
-/** Eine Gruppe von Wahlen im Filter-Menü; die aktive hat ein Häkchen. */
-function Wahlen<K extends string>({ titel, werte, aktiv, waehle }: { titel: string; werte: Record<K, string>; aktiv: K; waehle: (k: K) => void }) {
-  return (
-    <div role="group" aria-label={titel} className="flex flex-col">
-      <p className="beschriftung px-3 pt-2 pb-1">{titel}</p>
-      {(Object.keys(werte) as K[]).map((k) => (
-        <Knopf key={k} art="leise" groesse="klein" aria-pressed={k === aktiv} className="w-full justify-start" onClick={() => waehle(k)}>
-          {werte[k]}
-          {k === aktiv && <span className="ml-auto text-akzent">✓</span>}
-        </Knopf>
-      ))}
-    </div>
-  )
-}
+/** Punkte der Wahlliste aus einer Tabelle Schlüssel → Name. */
+const punkte = <K extends string>(werte: Record<K, string>, aktiv: K, waehle: (k: K) => void) =>
+  (Object.keys(werte) as K[]).map((k) => ({ id: k, name: werte[k], aktiv: k === aktiv, tun: () => waehle(k) }))
 
 type ZeileProps = {
   m: Mail

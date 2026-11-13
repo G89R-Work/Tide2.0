@@ -4,8 +4,12 @@ import type { Hinweis } from '../vertrag/postfach'
 const zeilePx = 88
 
 export const postfach = {
-  /** Breite der Mail-Liste am PC und Tablet (Vorlage `.mails`). */
-  listePx: 380,
+  /** Breite der Mail-Liste am PC und Tablet ab Werk (Vorlage `.mails`), kleinste und größte beim Ziehen der Trennlinie. */
+  liste: '380px',
+  listeMin: '280px',
+  listeMax: '60%',
+  /** Kleinste Breite des Lesers. */
+  leserMin: '360px',
   /** Feste Höhe einer Mail-Zeile: so rechnet die Liste ohne Messen und scrollt auch bei 500 Mails ruhig. */
   zeilePx,
   /** Platz über und unter dem sichtbaren Teil, in dem Zeilen schon bereitliegen: drei Zeilen. */

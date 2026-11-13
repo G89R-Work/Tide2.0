@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { Mail, OrdnerStand } from '../vertrag/postfach'
-import { gezogen, inOrdner, kannHinein, mailsAendern, mailsText, ordnerZahl, passt, vorherWerte, waehle, zeigeMails } from './mails'
+import { erinnernZeiten, gezogen, inOrdner, kannHinein, kategorieUmschalten, kuerzel, mailsAendern, mailsText, nachverfolgenWahl, umschalten, zurueckGekommen, ordnerZahl, passt, vorherWerte, waehle, zeigeMails } from './mails'
 
 // Erfundene Mails; `zeit` zählt Minuten ab Mitternacht am 13.11.2026.
 const m = (id: string, x: Partial<Mail> = {}): Mail => ({
@@ -132,5 +132,79 @@ describe('mailsText', () => {
     expect(mailsText(1)).toBe('1 Mail')
     expect(mailsText(0)).toBe('0 Mails')
     expect(mailsText(3)).toBe('3 Mails')
+  })
+})
+
+describe('Felder entfernen', () => {
+  it('null entfernt Fälligkeit und Erinnerung, Rückgängig bekommt null für Fehlendes', () => {
+    const x = m('a', { nachverfolgen: true, faellig: '2026-11-13' })
+    const neu = mailsAendern([x], [{ id: 'a', nachverfolgen: false, faellig: null }])[0]
+    expect(neu?.faellig).toBeUndefined()
+    expect('faellig' in (neu ?? {})).toBe(false)
+    expect(vorherWerte([m('a')], [{ id: 'a', erinnernAm: '2026-11-14T07:00:00.000Z', ordner: 'zurueckgestellt' }])).toEqual([{ id: 'a', erinnernAm: null, ordner: 'eingang' }])
+  })
+})
+
+describe('Umschalten für mehrere Mails', () => {
+  it('schaltet aus, wenn alle an sind, sonst für alle an', () => {
+    expect(umschalten([m('a', { wichtig: true }), m('b')], 'wichtig')).toEqual([{ id: 'a', wichtig: true }, { id: 'b', wichtig: true }])
+    expect(umschalten([m('a', { ungelesen: true }), m('b', { ungelesen: true })], 'ungelesen')).toEqual([{ id: 'a', ungelesen: false }, { id: 'b', ungelesen: false }])
+  })
+
+  it('nimmt eine Kategorie bei allen weg, wenn alle sie haben, sonst bekommen sie alle', () => {
+    const l = [m('a', { kategorien: ['Familie'] }), m('b', { kategorien: ['Rechnung'] })]
+    expect(kategorieUmschalten(l, 'Familie')).toEqual([{ id: 'a', kategorien: ['Familie'] }, { id: 'b', kategorien: ['Rechnung', 'Familie'] }])
+    expect(kategorieUmschalten([l[0]!], 'Familie')).toEqual([{ id: 'a', kategorien: [] }])
+  })
+})
+
+describe('Erinnern', () => {
+  it('bietet heute Abend nur vor 18 Uhr an, dann morgen früh, Samstag und Montag', () => {
+    const vormittag = erinnernZeiten(new Date(2026, 10, 13, 9, 30))
+    expect(vormittag.map((z) => [z.name, z.zeit.toString()])).toEqual([
+      ['Heute Abend', new Date(2026, 10, 13, 18).toString()],
+      ['Morgen früh', new Date(2026, 10, 14, 8).toString()],
+      ['Am Wochenende', new Date(2026, 10, 14, 9).toString()],
+      ['Nächste Woche', new Date(2026, 10, 16, 8).toString()],
+    ])
+    expect(erinnernZeiten(new Date(2026, 10, 13, 18, 0)).map((z) => z.name)).toEqual(['Morgen früh', 'Am Wochenende', 'Nächste Woche'])
+  })
+
+  it('springt am Samstag zum nächsten Wochenende und rechnet über die Zeitumstellung in Ortszeit', () => {
+    const samstag = erinnernZeiten(new Date(2026, 9, 24, 20))
+    expect(samstag.find((z) => z.name === 'Am Wochenende')?.zeit.toString()).toBe(new Date(2026, 9, 31, 9).toString())
+    expect(samstag.find((z) => z.name === 'Morgen früh')?.zeit.getHours()).toBe(8)
+  })
+
+  it('holt zurückgestellte Mails ab ihrer Zeit ungelesen in den Posteingang', () => {
+    const jetzt = new Date('2026-11-13T10:00:00.000Z')
+    const l = [m('a', { ordner: 'zurueckgestellt', erinnernAm: '2026-11-13T09:00:00.000Z' }), m('b', { ordner: 'zurueckgestellt', erinnernAm: '2026-11-13T11:00:00.000Z' })]
+    const neu = zurueckGekommen(l, jetzt)
+    expect(neu.map((x) => [x.id, x.ordner, x.ungelesen, x.erinnernAm])).toEqual([['a', 'eingang', true, undefined], ['b', 'zurueckgestellt', false, '2026-11-13T11:00:00.000Z']])
+  })
+})
+
+describe('Nachverfolgen', () => {
+  it('bietet heute, morgen, Freitag dieser Woche, Montag der nächsten und ohne Datum', () => {
+    expect(nachverfolgenWahl(new Date(2026, 10, 11, 9))).toEqual([
+      { name: 'Heute', faellig: '2026-11-11' },
+      { name: 'Morgen', faellig: '2026-11-12' },
+      { name: 'Diese Woche', faellig: '2026-11-13' },
+      { name: 'Nächste Woche', faellig: '2026-11-16' },
+      { name: 'Ohne Datum', faellig: null },
+    ])
+  })
+
+  it('lässt „Diese Woche“ ab Freitag weg', () => {
+    expect(nachverfolgenWahl(new Date(2026, 10, 13, 9)).map((x) => x.name)).toEqual(['Heute', 'Morgen', 'Nächste Woche', 'Ohne Datum'])
+  })
+})
+
+describe('kuerzel', () => {
+  it('nimmt die Anfänge der ersten zwei Wörter, ohne „An:“', () => {
+    expect(kuerzel('Stadtwerke Pforzheim')).toBe('SP')
+    expect(kuerzel('Zeliha')).toBe('Z')
+    expect(kuerzel('An: Zeliha')).toBe('Z')
+    expect(kuerzel('Hausarztpraxis Dr. Weber')).toBe('HD')
   })
 })

@@ -1,6 +1,6 @@
 import { subMinutes } from 'date-fns'
 import { tagSchluessel } from '../logik/zeit'
-import type { Hinweis, Kategorie, Mail } from '../vertrag/postfach'
+import type { Hinweis, Kategorie, Mail, MailInhalt } from '../vertrag/postfach'
 
 // 500 erfundene Beispielmails für den Prototyp: zuerst einige ausgeschriebene, dann erzeugte aus festen Bausteinen
 // (immer dieselben, damit ids und Inhalt beim Neuladen gleich bleiben). Zeiten zählen rückwärts ab dem Laden.
@@ -93,4 +93,16 @@ export function beispielMails(jetzt: Date): Mail[] {
       ...(q.hinweis ? { hinweis: q.hinweis } : {}),
     }
   })
+}
+
+/** Empfänger und Text einer Beispielmail: Anrede, Vorschau als erster Absatz, Gruß. Jede siebte Mail geht auch in Kopie an das zweite Konto. */
+export function beispielInhalt(m: Mail): MailInhalt {
+  const nr = Number(m.id.replace(/\D/g, ''))
+  const aus = m.von.startsWith('An: ')
+  return {
+    id: m.id,
+    an: [aus ? m.adresse : m.konto],
+    cc: nr % 7 === 0 ? [m.konto === ich ? familie : ich] : [],
+    text: `Hallo,\n\n${m.vorschau}\n\nViele Grüße\n${aus ? 'ich' : m.von}`,
+  }
 }

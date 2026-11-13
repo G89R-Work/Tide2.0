@@ -4,10 +4,12 @@ import { cn } from './cn'
 import { usePortalZiel } from './portalZiel'
 
 // Schwebende Karte an einem Knopf oder Anker (shadcn-Popover auf Radix): Lage am Rand, Esc, Klick daneben und Fokus macht Radix.
-// `Aufklapp` hält offen/zu, `AufklappKnopf` öffnet, `AufklappAnker` (wahlweise) gibt Lage und Breite vor.
+// `Aufklapp` hält offen/zu, `AufklappKnopf` öffnet, `AufklappAnker` (wahlweise) gibt Lage und Breite vor,
+// `AufklappZu` schließt die Karte (etwa um einen Punkt einer Wahlliste).
 export const Aufklapp = Popover.Root
 export const AufklappKnopf = Popover.Trigger
 export const AufklappAnker = Popover.Anchor
+export const AufklappZu = Popover.Close
 
 type InhaltProps = ComponentProps<typeof Popover.Content> & {
   /** `anker`: so breit wie Anker oder Knopf; `inhalt`: so breit wie der Inhalt (Breite dann über `className`). */

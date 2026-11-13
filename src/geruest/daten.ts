@@ -9,7 +9,7 @@ import { stand } from '../logik/ordner'
 import { tagSchluessel } from '../logik/zeit'
 import { aendereEinstellungen, holeEinstellungen } from '../vertrag/einstellungen'
 import { aendereEintrag, holeEintraege, holeTermine, type Aenderung, type Eintrag } from '../vertrag/eintrag'
-import { aendereMails, holeKategorien, holeMails, holeOrdner, speichereOrdner, type Mail, type MailAenderung, type Ordner, type OrdnerStand } from '../vertrag/postfach'
+import { aendereMails, holeKategorien, holeMailInhalt, holeMails, holeOrdner, speichereOrdner, type Mail, type MailAenderung, type Ordner, type OrdnerStand } from '../vertrag/postfach'
 import { holeWetter, holeWetterTage } from '../vertrag/wetter'
 import { merke } from './rueckgaengig'
 
@@ -30,6 +30,7 @@ const schluessel = {
   ordner: ['ordner'],
   mails: ['mails'],
   kategorien: ['kategorien'],
+  mailInhalt: ['mail-inhalt'],
   einstellungen: ['einstellungen'],
   feiertage: ['feiertage'],
 } as const satisfies Record<string, QueryKey>
@@ -69,6 +70,15 @@ export function useMails(ordner: string) {
   const q = useQuery({ queryKey: [...schluessel.mails, ordner], queryFn: () => holeMails(ordner) })
   return { mails: q.data, fehler: meldung('Mails', q.error) }
 }
+
+/** Empfänger und Text einer Mail; ändert sich nicht, darum nur einmal geholt. */
+export function useMailInhalt(id: string) {
+  const q = useQuery({ queryKey: [...schluessel.mailInhalt, id], queryFn: () => holeMailInhalt(id), staleTime: Infinity })
+  return { inhalt: q.data, fehler: meldung('Mail', q.error) }
+}
+
+/** Die geladenen Mails eines Ordners (für Befehle außerhalb von React); leer, solange nichts geladen ist. */
+export const mailsJetzt = (ordner: string): readonly Mail[] => abfragen.getQueryData<Mail[]>([...schluessel.mails, ordner]) ?? []
 
 /** Kategorien der Mails mit Farbe. */
 export function useKategorien() {
@@ -233,8 +243,9 @@ export function useMailFehler() {
   return meldung('Mails nicht geändert', useLetzterFehler('mails'))
 }
 
-/** Ändert Mails; `text` beschreibt den Schritt für „Rückgängig“. Den Stand davor kennen die geladenen Listen. Gemerkt wird nur, was gespeichert ist. */
-export async function aendereMailsMitSchritt(liste: readonly MailAenderung[], text: string): Promise<void> {
+/** Ändert Mails; `text` beschreibt den Schritt für „Rückgängig“. Den Stand davor kennen die geladenen Listen. Gemerkt wird nur, was gespeichert ist.
+ *  `still`: lässt sich zurücknehmen, erscheint aber nicht als Meldung (etwa „gelesen“ beim Öffnen). */
+export async function aendereMailsMitSchritt(liste: readonly MailAenderung[], text: string, still = false): Promise<void> {
   const geladen = abfragen.getQueriesData<Mail[]>(mailListen).flatMap(([, l]) => l ?? [])
   const vorher = vorherWerte(geladen, liste)
   const senden = (l: MailAenderung[]) => async () => {
@@ -244,5 +255,5 @@ export async function aendereMailsMitSchritt(liste: readonly MailAenderung[], te
     () => true,
     () => false,
   )
-  if (ok) merke({ text, zurueck: senden(vorher), vor: senden([...liste]), bereich: 'postfach' })
+  if (ok) merke({ text, zurueck: senden(vorher), vor: senden([...liste]), bereich: 'postfach', ...(still ? { still } : {}) })
 }

@@ -7,16 +7,25 @@ import { aktionSymbole, titelVon } from './aktionSymbole'
 import { fuehreAus } from './befehle'
 
 // Ein belegbarer Platz: zeigt die Aktion als Symbol-Knopf. Noch nicht gebaute Aktionen sind ausgegraut und sagen, wann sie kommen.
-type Props = { id: string | null; art?: ComponentProps<typeof Knopf>['art']; className?: string }
+// `mitName`: kleiner Knopf mit Symbol und Namen (etwa im Leser des Postfachs).
+type KnopfStil = ComponentProps<typeof Knopf>
+type Props = { id: string | null; art?: KnopfStil['art']; groesse?: KnopfStil['groesse']; mitName?: boolean; className?: string }
 
-export function AktionKnopf({ id, art = 'symbol', className }: Props) {
+export function AktionKnopf({ id, art, groesse, mitName = false, className }: Props) {
   const a = id ? aktionVon(id) : undefined
   if (!a) return null
   const Symbol = aktionSymbole[a.id] ?? Plus
-  const inhalt = <Symbol aria-hidden className="size-5" />
+  const inhalt = mitName ? (
+    <>
+      <Symbol aria-hidden className="size-4" /> {a.name}
+    </>
+  ) : (
+    <Symbol aria-hidden className={groesse === 'klein' ? 'size-4' : 'size-5'} />
+  )
+  const stil = { art: art ?? (mitName ? 'standard' : 'symbol'), groesse: groesse ?? (mitName ? 'klein' : 'normal') }
   if (a.ziel)
     return (
-      <Knopf alsKind art={art} className={className}>
+      <Knopf alsKind {...stil} className={className}>
         <a href={a.ziel} aria-label={a.name} title={titelVon(a)}>
           {inhalt}
         </a>
@@ -24,12 +33,12 @@ export function AktionKnopf({ id, art = 'symbol', className }: Props) {
     )
   if (a.befehl)
     return (
-      <Knopf art={art} className={className} aria-label={a.name} title={titelVon(a)} onClick={() => fuehreAus(a.id)}>
+      <Knopf {...stil} className={className} aria-label={a.name} title={titelVon(a)} onClick={() => fuehreAus(a.id)}>
         {inhalt}
       </Knopf>
     )
   return (
-    <Knopf art={art} className={cn('cursor-default opacity-40', className)} aria-disabled aria-label={a.name} title={titelVon(a)}>
+    <Knopf {...stil} className={cn('cursor-default opacity-40', className)} aria-disabled aria-label={a.name} title={titelVon(a)}>
       {inhalt}
     </Knopf>
   )

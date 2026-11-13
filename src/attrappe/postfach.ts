@@ -1,9 +1,9 @@
 import { http, HttpResponse } from 'msw'
 import { z } from 'zod'
-import { echterOrdner, inOrdner, mailsAendern, ordnerZahl } from '../logik/mails'
+import { echterOrdner, inOrdner, mailsAendern, ordnerZahl, zurueckGekommen } from '../logik/mails'
 import { ordnerFehler } from '../logik/ordner'
 import { mailAenderungSchema, mailSchema, ordnerStandSchema, type Mail, type Ordner, type OrdnerStand } from '../vertrag/postfach'
-import { beispielKategorien, beispielMails } from './mails'
+import { beispielInhalt, beispielKategorien, beispielMails } from './mails'
 import { abgelehnt, anfrageInhalt, gemerkt } from './pruefen'
 
 // Beispielordner wie in der Vorlage (docs/vorlage-aussehen/bilder/postfach-ordner.jpg), Systemordner wie im Konzept.
@@ -37,7 +37,8 @@ const ausgang: OrdnerStand[] = [
 
 const laden = () => gemerkt(schluessel, z.array(ordnerStandSchema), () => ausgang, 'Ordner')
 // Gemerkt wird erst nach der ersten Änderung; bis dahin entstehen die Beispielmails beim Laden neu (Zeiten relativ zu jetzt).
-const mailsLaden = () => gemerkt(mailSchluessel, z.array(mailSchema), () => beispielMails(new Date()), 'Mails')
+// Zurückgestellte Mails kommen zu ihrer Zeit von selbst zurück, wie beim echten Server.
+const mailsLaden = () => zurueckGekommen(gemerkt(mailSchluessel, z.array(mailSchema), () => beispielMails(new Date()), 'Mails'), new Date())
 const mitZahlen = (liste: readonly OrdnerStand[]): Ordner[] => {
   const mails = mailsLaden()
   return liste.map((x) => ({ ...x, zahl: ordnerZahl(mails, x), ...(x.id === 'braucht-dich' ? { wichtig: true as const } : {}) }))
@@ -76,6 +77,10 @@ export const postfachAntworten = [
     localStorage.setItem(mailSchluessel, JSON.stringify(neu))
     const ids = new Set(liste.map((a) => a.id))
     return HttpResponse.json(neu.filter((m) => ids.has(m.id)))
+  }),
+  http.get('/api/postfach/mails/:id/inhalt', ({ params }) => {
+    const m = mailsLaden().find((x) => x.id === params.id)
+    return m ? HttpResponse.json(beispielInhalt(m)) : abgelehnt(`Mail unbekannt: ${String(params.id)}`)
   }),
   http.get('/api/postfach/kategorien', () => HttpResponse.json(beispielKategorien)),
 ]

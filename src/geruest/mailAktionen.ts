@@ -1,0 +1,56 @@
+import { kategorieUmschalten, mailsText, umschalten } from '../logik/mails'
+import type { Mail, Ordner } from '../vertrag/postfach'
+import { aendereMailsMitSchritt, mailsJetzt } from './daten'
+import { mailAuswahlJetzt } from './mailAuswahl'
+
+// Jede Aktion auf einer oder mehreren Mails, einmal für Leser, Menü und Tastenkürzel. Jede lässt sich zurücknehmen.
+
+/** „„Betreff““ bei einer Mail, sonst „3 Mails“ – für die Texte der Rückgängig-Schritte. */
+const was = (ms: readonly Mail[]) => (ms.length === 1 ? `„${ms[0]?.betreff}“` : mailsText(ms.length))
+const mit = (ms: readonly Mail[], aenderung: Omit<Parameters<typeof aendereMailsMitSchritt>[0][number], 'id'>) => ms.map((m) => ({ ...aenderung, id: m.id }))
+
+export function verschiebe(ms: readonly Mail[], ziel: Pick<Ordner, 'id' | 'name'>) {
+  return aendereMailsMitSchritt(mit(ms, { ordner: ziel.id }), `${was(ms)} liegt jetzt in „${ziel.name}“`)
+}
+
+export const archiviere = (ms: readonly Mail[]) => aendereMailsMitSchritt(mit(ms, { ordner: 'archiv' }), `${was(ms)} archiviert`)
+export const loesche = (ms: readonly Mail[]) => aendereMailsMitSchritt(mit(ms, { ordner: 'papierkorb' }), `${was(ms)} gelöscht`)
+
+const schalterText = {
+  ungelesen: ['als ungelesen markiert', 'als gelesen markiert'],
+  angeheftet: ['angeheftet', 'gelöst'],
+  wichtig: ['als wichtig markiert', 'nicht mehr wichtig'],
+} as const
+
+/** Schaltet für alle um: sind alle an, gehen alle aus, sonst alle an. */
+export function schalte(ms: readonly Mail[], feld: keyof typeof schalterText) {
+  const liste = umschalten(ms, feld)
+  const an = liste[0]?.[feld] === true
+  return aendereMailsMitSchritt(liste, `${was(ms)} ${schalterText[feld][an ? 0 : 1]}`)
+}
+
+/** Beim Öffnen gelesen: zurücknehmbar, aber ohne Meldung. */
+export const gelesen = (m: Mail) => aendereMailsMitSchritt([{ id: m.id, ungelesen: false }], `${was([m])} gelesen`, true)
+
+export function kategorie(ms: readonly Mail[], name: string) {
+  const weg = ms.every((m) => m.kategorien.includes(name))
+  return aendereMailsMitSchritt(kategorieUmschalten(ms, name), `${was(ms)} ${weg ? 'ohne' : 'mit'} Kategorie „${name}“`)
+}
+
+/** Nachverfolgen bis `faellig` („JJJJ-MM-TT“) oder ohne Datum (`null`); `name` steht im Text. */
+export const nachverfolgen = (ms: readonly Mail[], faellig: string | null, name: string) =>
+  aendereMailsMitSchritt(mit(ms, { nachverfolgen: true, faellig }), `${was(ms)} nachverfolgen: ${name}`)
+
+export const nichtNachverfolgen = (ms: readonly Mail[]) => aendereMailsMitSchritt(mit(ms, { nachverfolgen: false, faellig: null }), `${was(ms)} erledigt`)
+
+/** Zurückstellen bis `zeit`; dann kommt die Mail wieder in den Posteingang. */
+export const erinnere = (ms: readonly Mail[], zeit: Date, name: string) =>
+  aendereMailsMitSchritt(mit(ms, { ordner: 'zurueckgestellt', erinnernAm: zeit.toISOString() }), `${was(ms)} zurückgestellt: ${name}`)
+
+/** Die gewählten Mails im Ordner `offen` (für Tastenkürzel); gehört die Auswahl zu einem anderen Ordner, keine. */
+export function gewaehlteMails(offen: string): Mail[] {
+  const { ordner, ids } = mailAuswahlJetzt()
+  if (ordner !== offen) return []
+  const set = new Set(ids)
+  return mailsJetzt(ordner).filter((m) => set.has(m.id))
+}
