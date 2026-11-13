@@ -1,23 +1,16 @@
 # Status
 Etappe: 2 Gezeitenkurve und Heute
-Nächste Scheibe: `aufraeumen-datum`
-In Arbeit: aufraeumen-datum
-1. date-fns einbauen, Eintrag in `docs/BAUSTEINE.md`.
-2. `src/logik/zeit.ts` mit Tests: Tagesbeginn, Tage plus, Tage zwischen, Kalenderwoche, Monatstage, Tag-Schlüssel, `uhrzeit`.
-3. `logik/heute.ts`, `logik/meldungen.ts`, Attrappe und Hooks darauf umstellen, eigene Hilfen löschen.
-4. `geruest/format.ts` mit date-fns `format` und `de`; Glocke, Kurve, Kurven-Einträge nutzen `uhrzeit`.
-5. „bis 7:00" in der Glocke aus `RUHE_BIS`.
-
+Nächste Scheibe: `aufraeumen-einstellungen-typen`
 ## Stand
 Das Gerüst steht am PC (wie die Vorlage, ohne Zellraster: Leiste mit Logo von oben bis unten, Kopfzeile mit Uhr, Wetter und Knöpfen außer auf Heute) und am Handy mit Seitenleiste, zweiter Ebene, belegbaren Knöpfen, Einstellungsliste, Kacheln und Hintergrund. Die Gezeitenkurve zeigt den Beispieltag (PC unten über die volle Breite, Handy über der unteren Leiste; Einstellung „Lage“ je Gerät), scrollt endlos, folgt der Uhr und steuert beim Scrollen den Hintergrund. Der Himmel folgt dem Sonnenstand (Lichthof, Dämmerung, Mondschein nach Phase). Termine liegen als Punkte (mit Karte, Bündel, Überschneidung) oder Bänder auf ihr, lassen sich ziehen und zurücknehmen; dazu Treibgut und Wetterzeile. Die Kurve ist je Seite und Gerät abschaltbar; Meldungen fließen an der Jetzt-Linie ein und falten sich in die Glocke. Heute hat einen festen Aufbau (Gruß, Als Nächstes, Wetter, Uhr, Knöpfe, Braucht dich als Reiter mit aufklappender Liste, Wochenleiste wie die Vorlage mit kleinem Kalender samt Feiertagen, Notiz, Rückblick), Text ohne Hintergrund. **Aufräumen:** `docs/PRUEFUNG.md` wird in acht Scheiben `aufraeumen-*` abgearbeitet (siehe Fahrplan). Bausteine dafür sind freigegeben.
-
 ## Zuletzt erledigt
+- aufraeumen-datum: date-fns; Rechnung und Uhrzeit in `logik/zeit.ts` (mit Tests), Anzeige `geruest/format.ts`; eigene Hilfen gelöscht, „bis 07:00“ aus `RUHE_BIS`
 - aussehen-postfach-ordner: Ordnerleiste wie Vorlage (`geruest/PostfachOrdner.tsx`), Ordner über Vertrag `holeOrdner` + `useOrdner`, Baum in `logik/ordner.ts`, gemeinsame Zeile `geruest/EbenenZeile.tsx`
 - aussehen-ohne-erklaerungen: `hilfe` und Unterzeile der Einstellungen weg, Aktionen `spaeter: true` statt `kommt`-Text, Platzhalter- und Zieh-Hinweise entfernt
 - aussehen-einstellungen: mittlere Spalte mit Suche oben (`geruest/EinstellungenSuchfeld.tsx`, Speicher `einstellungenSuche.ts`), Gruppen der Vorlage, Zeilen mit Symbol (`geruest/ebenenSymbole.ts`), Breite `leiste.ebeneEinstellungenPx`
 - aussehen-kurve: Kopfzeile, Wetter „12° · 20 % Regen“ (Vertrag `regenChance`), Jetzt-Punkt mit Treibgut, Schildchen, „10:00“-Stunden, Einklappen per Wischen (`KurveRand`, `klappeKurve`)
-- aussehen-wochenleiste: Wochenleiste und kleiner Kalender wie Vorlage (`teile/Monat.tsx`, `Leistenknopf`), Feiertage `logik/feiertage.ts` + `useFeiertage`, `monatsRaster` immer 6 Wochen, `schichtBuchstabe`
 ## Stolpersteine
+- Datum und Uhrzeit: rechnen mit date-fns direkt, Zusammengesetztes nur aus `logik/zeit.ts`, Anzeige über `geruest/format.ts`. `addDays` behält die Uhrzeit (anders als das alte `plusTage`): für Tagesgrenzen erst `startOfDay`.
 - Stil prüft oxlint, nicht ESLint. Warnungen zählen als Fehler. Freie Tailwind-Werte wie `data-[…]` verbietet die Werte-Prüfung.
 - `npm run pruefen` steckt in `skripte/pruefen.mjs`; neue Prüfung = eine Zeile. Neue Seiten hinten an die Zeile „Tempo" hängen, dann wird auch der Wechsel gemessen. Tempo-Grenzen nur in `src/logik/tempoGrenzen.ts`; `skripte/sicht.mjs` liest die Datei direkt (Node streicht die Typen).
 - `npm run sicht` meldet Konsolen-Fehler und -Warnungen der Seite als Fehler. Seiten mit Unterpunkt: `npm run sicht -- postfach/gesendet`.
