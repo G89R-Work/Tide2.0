@@ -9,7 +9,9 @@ const minute = 60_000
 const nahMinuten = 30
 const wachStunden = 16
 
-function zeiten<T extends MitZeit>(liste: readonly T[]) {
+type Zeit<T> = { e: T; von: Date; bis: Date }
+
+function zeiten<T extends MitZeit>(liste: readonly T[]): Zeit<T>[] {
   return liste.flatMap((e) => {
     if (!e.beginn || !e.ende) return []
     const von = new Date(e.beginn)
@@ -65,12 +67,20 @@ export function wochenTage(jetzt: Date, beginn: Wochenbeginn, versatz: number): 
   return Array.from({ length: 7 }, (_, i) => addDays(start, i))
 }
 
+export type TagesBelegung = { /** belegt durch 16 wache Stunden, höchstens 1 */ anteil: number; /** Buchstabe der Schicht, die an diesem Tag beginnt */ schicht: string | null }
+
+/** Füllstand und Schicht-Buchstabe je Tag; die Termine werden dafür nur einmal gelesen. */
+export function tagesBelegung(termine: readonly MitZeit[], tage: readonly Date[]): TagesBelegung[] {
+  const z = zeiten(termine)
+  return tage.map((tag) => ({ anteil: fuellstand(z, tag), schicht: schichtBuchstabe(z, tag) }))
+}
+
 /** Belegte Zeit des Tages durch 16 wache Stunden, Überschneidungen einmal gezählt; höchstens 1. */
-export function fuellstand(termine: readonly MitZeit[], tag: Date): number {
+function fuellstand(z: readonly Zeit<MitZeit>[], tag: Date): number {
   const beginn = startOfDay(tag)
   const von = beginn.getTime()
   const bis = addDays(beginn, 1).getTime()
-  const stuecke = zeiten(termine)
+  const stuecke = z
     .map((z) => [Math.max(von, z.von.getTime()), Math.min(bis, z.bis.getTime())] as const)
     .filter(([a, b]) => b > a)
     .sort((x, y) => x[0] - y[0])
@@ -138,8 +148,8 @@ export function monatsRaster(d: Date, beginn: Wochenbeginn): Date[][] {
 }
 
 /** Erster Buchstabe der Schicht, die an diesem Tag beginnt (Großbuchstabe), sonst null. */
-export function schichtBuchstabe(termine: readonly MitZeit[], tag: Date): string | null {
-  const s = zeiten(termine).find(({ e, von }) => e.art === 'schicht' && isSameDay(von, tag))
+function schichtBuchstabe(z: readonly Zeit<MitZeit>[], tag: Date): string | null {
+  const s = z.find(({ e, von }) => e.art === 'schicht' && isSameDay(von, tag))
   return s ? s.e.titel.charAt(0).toUpperCase() : null
 }
 

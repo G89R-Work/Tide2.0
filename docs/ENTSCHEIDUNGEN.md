@@ -143,6 +143,8 @@ Eine Zeile je Entscheidung, neueste unten. Was hier steht, gilt und wird nicht n
 - 2026-11-13 · Ohne Erklärtexte: Einstellungen haben kein Feld `hilfe` mehr, Aktionen statt `kommt` (Text) nur `spaeter: true` (ausgegraut). Der Typ selbst verhindert neue Erklärtexte, eine eigene Prüfung in `pruefen` braucht es nicht. Auch „Gilt für den PC/das Handy“ entfällt.
 - 2026-11-13 · Postfach-Ordner kommen ganz über den Vertrag (`holeOrdner` in `src/vertrag/postfach.ts`: id, name, art, eltern, zahl, wichtig); Systemordner wie das Vorlagen-Bild (Posteingang, Braucht dich, Entwürfe, Gesendet, Mit Erinnerung, Archiv, Papierkorb). Entschieden vom Nutzer.
 - 2026-11-13 · Datum mit date-fns: Rechnung direkt mit date-fns (`startOfDay`, `addDays`, `differenceInCalendarDays`, `getISOWeek`, `startOfWeek`, `set`), eigene Zusammensetzungen (`uhrzeit`, `tagSchluessel`, `ausSchluessel`, `monatsTage`) nur in `logik/zeit.ts`; Anzeige-Formate in `geruest/format.ts`, das `uhrzeit` von dort weiterreicht. Glocke zeigt „bis 07:00“ (aus `RUHE_BIS`, zweistellig wie alle Uhrzeiten).
+- 2026-11-13 · Einstellungen mit festen Namen: Liste `as const satisfies`, `einstellung('name')` liefert die genaue Art, `WertVon` den Werttyp (Auswahl nur ihre Werte). Der Test für den falschen Namen nutzt `@ts-expect-error` (schlägt fehl, wenn kein Typfehler kommt); das ist kein Umgehen, sondern der Prüfer.
+- 2026-11-13 · Tempo (Nutzer: Messung prüfen und Seiten schneller): Messung ist in Ordnung (Vergleich 0,4 ms je Bild) und bleibt; Grenze bleibt 100 ms. Ursache ist Neuladen der Daten bei jedem Wechsel, daher `aufraeumen-daten` vor `aufraeumen-schema` gezogen. Gleich mit erledigt: Wochenleiste liest Termine nur einmal (`tagesBelegung`), `tagSchluessel` über `formatISO`.
 
 ## Offen
 

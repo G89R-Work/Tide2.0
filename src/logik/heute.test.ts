@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { alsNaechstes, anteilTag, brauchtDich, fuellstand, monatsRaster, schichtBuchstabe, wetterHeute, schicht, seitText, wochenTage, wochenrueckblick } from './heute'
+import { alsNaechstes, anteilTag, brauchtDich, monatsRaster, tagesBelegung, wetterHeute, schicht, seitText, wochenTage, wochenrueckblick } from './heute'
 
 // Erfundene Beispieldaten. Zeiten in Ortszeit, damit die Tests in jeder Zeitzone gleich laufen.
 const um = (tag: number, h: number, m = 0, monat = 10) => new Date(2026, monat, tag, h, m)
@@ -97,19 +97,35 @@ describe('wochenTage', () => {
   })
 })
 
-describe('fuellstand', () => {
+describe('tagesBelegung', () => {
+  const an = (termine: ReturnType<typeof termin>[], tag: Date) => tagesBelegung(termine, [tag])[0]
+
   it('teilt die belegte Zeit durch 16 wache Stunden und zählt Überschneidungen einmal', () => {
     const tag = [termin('Schicht', um(12, 8), um(12, 16), 'schicht'), termin('Runde', um(12, 9), um(12, 10))]
-    expect(fuellstand(tag, um(12, 0))).toBeCloseTo(0.5)
+    expect(an(tag, um(12, 0)).anteil).toBeCloseTo(0.5)
   })
 
   it('zählt nur den Teil, der am Tag liegt', () => {
     const nacht = [termin('Nachtdienst', um(11, 20), um(12, 4), 'schicht')]
-    expect(fuellstand(nacht, um(12, 0))).toBeCloseTo(4 / 16)
+    expect(an(nacht, um(12, 0)).anteil).toBeCloseTo(4 / 16)
   })
 
   it('ist höchstens voll', () => {
-    expect(fuellstand([termin('Messe', um(12, 0), um(13, 0))], um(12, 0))).toBe(1)
+    expect(an([termin('Messe', um(12, 0), um(13, 0))], um(12, 0)).anteil).toBe(1)
+  })
+
+  it('nimmt den ersten Buchstaben der Schicht an diesem Tag', () => {
+    const t = [termin('Spätschicht', um(12, 13, 30), um(12, 18), 'schicht'), termin('Zahnarzt', um(13, 9), um(13, 10))]
+    expect(tagesBelegung(t, [um(12, 0), um(13, 0)]).map((b) => b.schicht)).toEqual(['S', null])
+  })
+
+  it('zählt eine Nachtschicht zum Tag ihres Beginns', () => {
+    const t = [termin('nachtdienst', um(12, 22), um(13, 6), 'schicht')]
+    expect(tagesBelegung(t, [um(12, 0), um(13, 0)]).map((b) => b.schicht)).toEqual(['N', null])
+  })
+
+  it('liefert für jeden Tag einen Wert, auch ohne Termine', () => {
+    expect(tagesBelegung([], [um(12, 0), um(13, 0)])).toEqual([{ anteil: 0, schicht: null }, { anteil: 0, schicht: null }])
   })
 })
 
@@ -193,19 +209,6 @@ describe('monatsRaster', () => {
     expect(raster[0][6]).toEqual(new Date(2026, 10, 1))
     expect(raster[5][6]).toEqual(new Date(2026, 11, 6))
     expect(monatsRaster(um(12, 9), 'sonntag')[0][0]).toEqual(new Date(2026, 10, 1))
-  })
-})
-
-describe('schichtBuchstabe', () => {
-  it('nimmt den ersten Buchstaben der Schicht an diesem Tag', () => {
-    const t = [termin('Spätschicht', um(12, 13, 30), um(12, 18), 'schicht'), termin('Zahnarzt', um(13, 9), um(13, 10))]
-    expect(schichtBuchstabe(t, um(12, 0))).toBe('S')
-    expect(schichtBuchstabe(t, um(13, 0))).toBeNull()
-  })
-
-  it('zählt eine Nachtschicht zum Tag ihres Beginns', () => {
-    expect(schichtBuchstabe([termin('nachtdienst', um(12, 22), um(13, 6), 'schicht')], um(13, 0))).toBeNull()
-    expect(schichtBuchstabe([termin('nachtdienst', um(12, 22), um(13, 6), 'schicht')], um(12, 0))).toBe('N')
   })
 })
 

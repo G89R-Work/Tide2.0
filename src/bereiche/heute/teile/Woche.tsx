@@ -1,11 +1,11 @@
 import { getISOWeek } from 'date-fns'
-import { useLayoutEffect, useRef, useState, type CSSProperties } from 'react'
+import { useLayoutEffect, useMemo, useRef, useState, type CSSProperties } from 'react'
 import { cn } from '../../../bausteine/cn'
 import { useEinstellung } from '../../../geruest/einstellungen'
 import { monatName, tagKurz, tagLang } from '../../../geruest/format'
 import { useSchmal } from '../../../geruest/useSchmal'
 import { einstellung } from '../../../logik/einstellungen'
-import { fuellstand, schichtBuchstabe } from '../../../logik/heute'
+import { tagesBelegung } from '../../../logik/heute'
 import { monatsTage, tagSchluessel } from '../../../logik/zeit'
 import type { Eintrag } from '../../../vertrag/eintrag'
 
@@ -26,7 +26,12 @@ export function Woche({ termine, monat, fokus, jetzt, feiertag }: Props) {
   const kw = useEinstellung(kwZeigen)
   // Am Handy ist die Spalte zu schmal für den Buchstaben der Schicht neben dem Wochentag.
   const schichtZeigen = !useSchmal()
-  const tage = monatsTage(monat)
+  // Gerechnet nur, wenn Monat oder Termine wechseln, nicht bei jedem Scroll-Schritt.
+  const monatMs = monat.getTime()
+  const { tage, belegung } = useMemo(() => {
+    const t = monatsTage(new Date(monatMs))
+    return { tage: t, belegung: tagesBelegung(termine, t) }
+  }, [monatMs, termine])
   // Erster sichtbarer Tag; nach ihm richtet sich die Kalenderwoche oben links.
   const [vorn, setVorn] = useState(fokus.getDate() - 1)
   const heute = tagSchluessel(jetzt)
@@ -49,11 +54,11 @@ export function Woche({ termine, monat, fokus, jetzt, feiertag }: Props) {
         aria-label={`Tage im ${monatName(monat)}`}
         onScroll={(e) => setVorn(Math.round(e.currentTarget.scrollLeft / (e.currentTarget.clientWidth / 7)))}
       >
-        {tage.map((t) => {
-          const f = fuellstand(termine, t)
+        {tage.map((t, i) => {
+          const { anteil: f, schicht: buchstabe } = belegung[i]
           const ist = tagSchluessel(t) === heute
           const name = feiertag(t)
-          const schicht = schichtZeigen ? schichtBuchstabe(termine, t) : null
+          const schicht = schichtZeigen ? buchstabe : null
           return (
             <li key={t.getTime()} title={`${tagLang(t)}${name ? `, ${name}` : ''}: ${Math.round(f * 100)} % belegt`} className="p-0.5">
               <div className={cn('relative flex h-full flex-col items-center justify-center gap-0.5 rounded-knopf border border-durchsichtig', ist && 'tag-heute')}>
