@@ -1,20 +1,21 @@
 // Vertrag: Wetter je Stunde für die feine Zeile über der Gezeitenkurve. Gilt für Attrappe und späteren Server.
+import { z } from 'zod'
+import { anfrage } from './anfrage'
 
-export type WetterStunde = {
+export const wetterStundeSchema = z.object({
   /** ISO-Zeitpunkt der vollen Stunde */
-  zeit: string
+  zeit: z.iso.datetime({ offset: true }),
   /** Temperatur in Grad Celsius */
-  grad: number
+  grad: z.number(),
   /** Regen in Millimetern in dieser Stunde */
-  regen: number
+  regen: z.number().nonnegative(),
   /** Wahrscheinlichkeit für Regen in dieser Stunde, 0 bis 100 Prozent */
-  regenChance: number
-}
+  regenChance: z.number().min(0).max(100),
+})
+export type WetterStunde = z.infer<typeof wetterStundeSchema>
 
 /** Je volle Stunde im Zeitraum ein Wert. */
-export async function holeWetter(von: Date, bis: Date): Promise<WetterStunde[]> {
+export function holeWetter(von: Date, bis: Date): Promise<WetterStunde[]> {
   const q = new URLSearchParams({ von: von.toISOString(), bis: bis.toISOString() })
-  const r = await fetch(`/api/wetter?${q}`)
-  if (!r.ok) throw new Error(`Wetter holen fehlgeschlagen: ${r.status} ${await r.text()}`)
-  return (await r.json()) as WetterStunde[]
+  return anfrage(z.array(wetterStundeSchema), 'Wetter holen', `/api/wetter?${q}`)
 }

@@ -2,6 +2,7 @@
 // Neue Option = eine Zeile in `einstellungen`, ohne Erklärtext (nur Name, Werte, Abschnitt). Seite, Suche und „Auf Standard" entstehen daraus.
 // Gruppen und Reihenfolge der Abschnitte wie die mittlere Spalte der Vorlage (bilder/einstellungen-spalte.jpg).
 // Gemerkt werden nur Abweichungen vom Standard; je Geräteart unter „<id>@pc" bzw. „<id>@handy".
+import { z } from 'zod'
 import { bereiche, type BereichId } from './bereiche'
 
 export type Geraet = 'pc' | 'handy'
@@ -127,18 +128,21 @@ const imRaster = (w: number, schritt: number) => Math.abs(w / schritt - Math.rou
 
 const standardVon = (e: Einstellung, geraet: Geraet): Wert => (geraet === 'handy' && e.standardHandy !== undefined ? e.standardHandy : e.standard)
 
-function gueltig(e: Einstellung, w: unknown): w is Wert {
+/** Schema einer Einstellung: was als Wert gilt. */
+function schemaVon(e: Einstellung): z.ZodType<Wert> {
   switch (e.art) {
     case 'schalter':
-      return typeof w === 'boolean'
+      return z.boolean()
     case 'auswahl':
-      return e.optionen.some(([o]) => o === w)
+      return z.enum(e.optionen.map(([o]) => o))
     case 'text':
-      return typeof w === 'string' && w.length <= e.laenge
+      return z.string().max(e.laenge)
     case 'zahl':
-      return typeof w === 'number' && imRaster(w, e.schritt ?? 1) && w >= e.min && w <= e.max
+      return z.number().min(e.min).max(e.max).refine((w) => imRaster(w, e.schritt ?? 1), 'liegt nicht im Raster')
   }
 }
+
+const gueltig = (e: Einstellung, w: unknown): w is Wert => schemaVon(e).safeParse(w).success
 
 export function wertVon<E extends Einstellung>(e: E, werte: Werte, geraet: Geraet): WertVon<E>
 export function wertVon(e: Einstellung, werte: Werte, geraet: Geraet): Wert {
@@ -176,18 +180,23 @@ export function suche(text: string): Einstellung[] {
   })
 }
 
-/** Vom Server Geliefertes prüfen: nur bekannte Schlüssel mit gültigem Wert bleiben. */
+const geraete: readonly Geraet[] = ['pc', 'handy']
+
+/** Gespeicherte Werte: nur bekannte Schlüssel; ungültige Werte fallen weg (es gilt der Standard). Kein Objekt ist ein Fehler. */
+export const werteSchema = z
+  .object(
+    Object.fromEntries(
+      einstellungen.flatMap((e) => (e.jeGeraet ? geraete.map((g) => schluessel(e, g)) : [e.id]).map((k) => [k, schemaVon(e).optional().catch(undefined)])),
+    ),
+  )
+  .transform((w): Werte => Object.fromEntries(Object.entries(w).filter((p): p is [string, Wert] => p[1] !== undefined)))
+
+/** Eine Änderung: je Schlüssel neuer Wert oder null für „zurück auf Standard". Gültig wird sie erst mit `werteAusDaten`. */
+export const werteAenderungSchema = z.record(z.string(), z.union([z.boolean(), z.number(), z.string(), z.null()]))
+
+/** Gemerktes lesen: wie `werteSchema`, Unlesbares ergibt den Standard. */
 export function werteAusDaten(daten: unknown): Werte {
-  if (!daten || typeof daten !== 'object' || Array.isArray(daten)) return {}
-  const geraete: Geraet[] = ['pc', 'handy']
-  const raus: Record<string, Wert> = {}
-  for (const e of einstellungen) {
-    for (const k of e.jeGeraet ? geraete.map((g) => schluessel(e, g)) : [e.id]) {
-      const w = (daten as Record<string, unknown>)[k]
-      if (gueltig(e, w)) raus[k] = w
-    }
-  }
-  return raus
+  return werteSchema.catch({}).parse(daten)
 }
 
 export function unterschied(alt: Werte, neu: Werte): WerteAenderung {

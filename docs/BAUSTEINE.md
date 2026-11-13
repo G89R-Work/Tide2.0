@@ -148,3 +148,10 @@ Muster für einen Eintrag:
 - Grund: Ja des Nutzers vom 2026-11-12 (PRUEFUNG E1); ein Hook je Anfrage in `geruest/daten.ts`, Seitenwechsel zeigen Gespeichertes sofort.
 - Link: https://tanstack.com/query
 - Eingebaut in Scheibe: aufraeumen-daten
+
+## 2026-11-13 · Daten prüfen
+- Kandidaten: Zod 4 (Schemas mit Typen, deutsche Meldungen, `.catch()` für Ersatzwerte, MIT), Valibot (kleiner, aber zweite Schreibweise je Schema), eigene `typeof`-Ketten (PRUEFUNG E5)
+- Entscheidung: Zod (`zod`)
+- Grund: Ja des Nutzers vom 2026-11-12 (PRUEFUNG E5); ein Schema je Vertrag prüft Server, Attrappe und Gemerktes gleich, Typen entstehen daraus.
+- Link: https://zod.dev
+- Eingebaut in Scheibe: aufraeumen-schema

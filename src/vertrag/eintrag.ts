@@ -1,53 +1,48 @@
 // Vertrag: Grundfelder, die jeder Eintrag in Tide hat (Mail, Termin, To-do, Notiz …).
-// Gilt für die Attrappe und den späteren Server gleich.
+// Gilt für die Attrappe und den späteren Server gleich. Die Typen entstehen aus den Schemas.
+import { z } from 'zod'
+import { anfrage } from './anfrage'
 
-export type Art = 'aufgabe' | 'notiz' | 'termin' | 'schicht' | 'mail' | 'einkauf'
+const zeitpunkt = z.iso.datetime({ offset: true })
 
-export type Eintrag = {
-  id: string
-  art: Art
-  titel: string
-  erledigt: boolean
+export const artSchema = z.enum(['aufgabe', 'notiz', 'termin', 'schicht', 'mail', 'einkauf'])
+export type Art = z.infer<typeof artSchema>
+
+export const eintragSchema = z.object({
+  id: z.string(),
+  art: artSchema,
+  titel: z.string(),
+  erledigt: z.boolean(),
   /** ISO-Zeitpunkt der Anlage */
-  erstellt: string
+  erstellt: zeitpunkt,
   /** ISO-Zeitpunkt der letzten Änderung */
-  geaendert: string
+  geaendert: zeitpunkt,
   /** ISO-Zeitpunkt des Beginns, nur bei Einträgen mit Uhrzeit (Termin, Schicht) */
-  beginn?: string
+  beginn: zeitpunkt.optional(),
   /** ISO-Zeitpunkt des Endes, gehört zu `beginn` */
-  ende?: string
+  ende: zeitpunkt.optional(),
   /** Fälliger Tag als „JJJJ-MM-TT“ (Ortszeit), nur bei Einträgen mit Frist */
-  frist?: string
-}
+  frist: z.iso.date().optional(),
+})
+export type Eintrag = z.infer<typeof eintragSchema>
+export const eintraegeSchema = z.array(eintragSchema)
 
 /** Was sich an einem Eintrag ändern lässt. Beginn und Ende nur zusammen und nur bei Einträgen mit Uhrzeit. */
-export type Aenderung = Partial<Pick<Eintrag, 'titel' | 'erledigt' | 'beginn' | 'ende'>>
+export const aenderungSchema = eintragSchema.pick({ titel: true, erledigt: true, beginn: true, ende: true }).partial()
+export type Aenderung = z.infer<typeof aenderungSchema>
 
 const adresse = '/api/eintraege'
 
-async function antwort<T>(lauf: Promise<Response>, was: string): Promise<T> {
-  const r = await lauf
-  if (!r.ok) throw new Error(`${was} fehlgeschlagen: ${r.status} ${await r.text()}`)
-  return (await r.json()) as T
-}
-
 export function holeEintraege(): Promise<Eintrag[]> {
-  return antwort(fetch(adresse), 'Einträge holen')
+  return anfrage(eintraegeSchema, 'Einträge holen', adresse)
 }
 
 export function aendereEintrag(id: string, aenderung: Aenderung): Promise<Eintrag> {
-  return antwort(
-    fetch(`${adresse}/${encodeURIComponent(id)}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(aenderung),
-    }),
-    'Eintrag ändern',
-  )
+  return anfrage(eintragSchema, 'Eintrag ändern', `${adresse}/${encodeURIComponent(id)}`, 'PATCH', aenderung)
 }
 
 /** Einträge mit Uhrzeit, die den Zeitraum berühren (für Gezeitenkurve und Kalender). */
 export function holeTermine(von: Date, bis: Date): Promise<Eintrag[]> {
   const q = new URLSearchParams({ von: von.toISOString(), bis: bis.toISOString() })
-  return antwort(fetch(`/api/termine?${q}`), 'Termine holen')
+  return anfrage(eintraegeSchema, 'Termine holen', `/api/termine?${q}`)
 }

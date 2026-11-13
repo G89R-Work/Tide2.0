@@ -1,22 +1,22 @@
 // Vertrag: Ordner des Postfachs für die zweite Ebene. Gilt für Attrappe und späteren Server.
+import { z } from 'zod'
+import { anfrage } from './anfrage'
 
-export type OrdnerArt = 'system' | 'eigen' | 'intelligent'
-
-export type Ordner = {
-  id: string
-  name: string
-  art: OrdnerArt
+export const ordnerSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  art: z.enum(['system', 'eigen', 'intelligent']),
   /** Übergeordneter eigener Ordner (nur bei `eigen`) */
-  eltern?: string
+  eltern: z.string().optional(),
   /** Zahl rechts: Ungelesenes, bei Entwürfen und intelligenten Ordnern alle Treffer; 0 zeigt keine Zahl */
-  zahl: number
+  zahl: z.int().nonnegative(),
   /** Hervorgehoben (Braucht dich) */
-  wichtig?: true
-}
+  wichtig: z.literal(true).optional(),
+})
+export type Ordner = z.infer<typeof ordnerSchema>
+export type OrdnerArt = Ordner['art']
 
 /** Alle Ordner in ihrer Reihenfolge. */
-export async function holeOrdner(): Promise<Ordner[]> {
-  const r = await fetch('/api/postfach/ordner')
-  if (!r.ok) throw new Error(`Ordner holen fehlgeschlagen: ${r.status} ${await r.text()}`)
-  return (await r.json()) as Ordner[]
+export function holeOrdner(): Promise<Ordner[]> {
+  return anfrage(z.array(ordnerSchema), 'Ordner holen', '/api/postfach/ordner')
 }

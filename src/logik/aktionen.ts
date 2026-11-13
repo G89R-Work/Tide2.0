@@ -1,5 +1,6 @@
 // Liste aller Aktionen und die belegbaren Knöpfe (docs/konzept/03-geruest.md, „Belegbare Knöpfe").
 // Eine neue Funktion wird hier einmal eingetragen und ist dann auf jedem Platz und per Kürzel wählbar.
+import { z } from 'zod'
 import { bereiche } from './bereiche'
 
 export type Aktion = {
@@ -54,8 +55,18 @@ export const abWerk: Belegung = {
   unten: ['bereich-heute', 'bereich-postfach', 'neues-todo', 'bereich-kalender', 'bereich-einkauf'],
 }
 
-const orte = Object.keys(plaetze) as Ort[]
-const gueltig = (id: unknown): id is string | null => id === null || (typeof id === 'string' && nachId.has(id))
+/** Ein Platz: eine bekannte Aktion oder null für leer. */
+const platzSchema = z.union([z.null(), z.string().refine((id) => nachId.has(id), 'unbekannte Aktion')])
+const gueltig = (id: unknown): id is string | null => platzSchema.safeParse(id).success
+
+/** Plätze eines Orts: Fehlendes und Unbekanntes ersetzt die Werkseinstellung je Platz, Überzähliges fällt weg. */
+const ortSchema = (ort: Ort) =>
+  z
+    .array(z.unknown())
+    .catch([])
+    .transform((liste) => abWerk[ort].map((werk, i) => platzSchema.catch(werk).parse(liste[i])))
+
+const belegungSchema: z.ZodType<Belegung> = z.object({ pc: ortSchema('pc'), oben: ortSchema('oben'), unten: ortSchema('unten') })
 
 /** Gemerkte Belegung lesen. Fehlendes, Unbekanntes oder Unlesbares ersetzt die Werkseinstellung je Platz. */
 export function belegungAusText(text: string | null): Belegung {
@@ -63,15 +74,10 @@ export function belegungAusText(text: string | null): Belegung {
   try {
     roh = text ? JSON.parse(text) : null
   } catch {
-    roh = null
+    return abWerk
   }
-  const daten = typeof roh === 'object' && roh !== null ? (roh as Record<string, unknown>) : {}
-  const b = {} as Record<Ort, (string | null)[]>
-  for (const ort of orte) {
-    const liste = Array.isArray(daten[ort]) ? (daten[ort] as unknown[]) : []
-    b[ort] = abWerk[ort].map((werk, i) => (i < liste.length && gueltig(liste[i]) ? (liste[i] as string | null) : werk))
-  }
-  return b
+  const b = belegungSchema.safeParse(roh)
+  return b.success ? b.data : abWerk
 }
 
 /** Einen Platz neu belegen. Unbekannter Platz oder unbekannte Aktion ändert nichts. */

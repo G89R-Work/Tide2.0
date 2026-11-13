@@ -2,7 +2,9 @@ import { addDays, set, startOfDay, subDays } from 'date-fns'
 import { http, HttpResponse } from 'msw'
 import { eintragAendern } from '../logik/eintraege'
 import { termineImZeitraum } from '../logik/gezeiten'
-import type { Aenderung, Eintrag } from '../vertrag/eintrag'
+import { z } from 'zod'
+import { aenderungSchema, eintragSchema, type Eintrag } from '../vertrag/eintrag'
+import { abgelehnt, anfrageInhalt, gemerkt } from './pruefen'
 
 // Beispieltag für die Gezeitenkurve: liegt immer auf dem Tag der Anfrage. Die Schicht kommt an vier Werktagen,
 // am Wochenende bleiben nur Mittag und Sport (damit die Wochenleiste auf Heute verschiedene Füllstände zeigt).
@@ -26,18 +28,9 @@ function kommt(wann: Wann, wochentag: number): boolean {
 }
 
 const schluessel = 'tide.attrappe.termine'
-type Geaendert = Record<string, Eintrag>
-
-function geaendert(): Geaendert {
-  const text = localStorage.getItem(schluessel)
-  if (!text) return {}
-  try {
-    return JSON.parse(text) as Geaendert
-  } catch (f) {
-    console.warn(`Attrappe: gespeicherte Termine unlesbar, nehme den Beispieltag (${String(f)})`)
-    return {}
-  }
-}
+const geaendertSchema = z.record(z.string(), eintragSchema)
+type Geaendert = z.infer<typeof geaendertSchema>
+const geaendert = () => gemerkt(schluessel, geaendertSchema, () => ({}), 'Termine')
 
 function beispieleUm(datum: Date, ueber: Geaendert): Eintrag[] {
   const zeit = (hhmm: string) => {
@@ -79,12 +72,14 @@ export const termineAntworten = [
     if (!treffer) return undefined
     const datum = new Date(treffer[1])
     if (Number.isNaN(datum.getTime())) return new HttpResponse(`Termin ${id} gibt es nicht`, { status: 404 })
+    const aenderung = await anfrageInhalt(request, aenderungSchema)
+    if (aenderung instanceof HttpResponse) return aenderung
     const ueber = geaendert()
     let ergebnis
     try {
-      ergebnis = eintragAendern(beispieleUm(datum, ueber), id, (await request.json()) as Aenderung, new Date())
+      ergebnis = eintragAendern(beispieleUm(datum, ueber), id, aenderung, new Date())
     } catch (f) {
-      return new HttpResponse((f as Error).message, { status: 400 })
+      return abgelehnt(f)
     }
     if (!ergebnis.eintrag) return new HttpResponse(`Termin ${id} gibt es nicht`, { status: 404 })
     localStorage.setItem(schluessel, JSON.stringify({ ...ueber, [id]: ergebnis.eintrag }))
