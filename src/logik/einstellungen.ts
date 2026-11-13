@@ -71,6 +71,15 @@ const bundeslaender = [
   ['sh', 'Schleswig-Holstein'], ['th', 'Thüringen'],
 ] as const
 
+/** Zeitzonen für die Weltzeit hinter der Uhr: IANA-Name und Stadt. */
+const zonen = [
+  ['aus', 'Aus'], ['Pacific/Honolulu', 'Honolulu'], ['America/Los_Angeles', 'Los Angeles'], ['America/Chicago', 'Chicago'],
+  ['America/New_York', 'New York'], ['America/Sao_Paulo', 'São Paulo'], ['UTC', 'UTC'], ['Europe/London', 'London'],
+  ['Europe/Berlin', 'Berlin'], ['Europe/Athens', 'Athen'], ['Europe/Istanbul', 'Istanbul'], ['Asia/Dubai', 'Dubai'],
+  ['Asia/Kolkata', 'Neu-Delhi'], ['Asia/Bangkok', 'Bangkok'], ['Asia/Shanghai', 'Peking'], ['Asia/Tokyo', 'Tokio'],
+  ['Australia/Sydney', 'Sydney'], ['Pacific/Auckland', 'Auckland'],
+] as const
+
 const liste = [
   { id: 'morgen-zusammenfassung', name: 'Morgen-Zusammenfassung', abschnitt: 'benachrichtigungen', art: 'schalter', standard: true, wichtig: true },
   { id: 'ebbe-modus', name: 'Ebbe-Modus', abschnitt: 'benachrichtigungen', art: 'schalter', standard: false },
@@ -95,6 +104,9 @@ const liste = [
   ...bereiche.map((b) => ({ id: `kurve-zeigen-${b.id}` as const, name: `Zeigen auf ${b.name}`, abschnitt: 'kurve', art: 'schalter', standard: true, jeGeraet: true }) as const),
   { id: 'name', name: 'Dein Name', abschnitt: 'nutzer', art: 'text', standard: 'Moritz', laenge: 30, wichtig: true },
   { id: 'heute-uhr', name: 'Uhr', abschnitt: 'heute', art: 'schalter', standard: true, jeGeraet: true },
+  { id: 'weltzeit-1', name: 'Weltzeit 1', abschnitt: 'heute', art: 'auswahl', standard: 'America/New_York', optionen: zonen },
+  { id: 'weltzeit-2', name: 'Weltzeit 2', abschnitt: 'heute', art: 'auswahl', standard: 'Asia/Tokyo', optionen: zonen },
+  { id: 'weltzeit-3', name: 'Weltzeit 3', abschnitt: 'heute', art: 'auswahl', standard: 'aus', optionen: zonen },
   { id: 'rechtschreibung', name: 'Rechtschreibprüfung', abschnitt: 'schreiben', art: 'schalter', standard: true },
   { id: 'wochenbeginn', name: 'Wochenbeginn', abschnitt: 'kalender', art: 'auswahl', standard: 'montag', optionen: [['montag', 'Montag'], ['sonntag', 'Sonntag']], wichtig: true },
   { id: 'kalenderwoche', name: 'Kalenderwoche anzeigen', abschnitt: 'kalender', art: 'schalter', standard: true },

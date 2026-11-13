@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { alsNaechstes, anteilTag, brauchtDich, monatsRaster, tagesBelegung, wetterHeute, schicht, seitText, wochenTage, wochenrueckblick } from './heute'
+import { abweichung, alsNaechstes, anteilTag, brauchtDich, monatsRaster, tagesBelegung, wetterHeute, schicht, seitText, stundenAb, wochenTage, wochenrueckblick } from './heute'
 
 // Erfundene Beispieldaten. Zeiten in Ortszeit, damit die Tests in jeder Zeitzone gleich laufen.
 const um = (tag: number, h: number, m = 0, monat = 10) => new Date(2026, monat, tag, h, m)
@@ -218,6 +218,7 @@ describe('wetterHeute', () => {
 
   it('nimmt die Temperatur der laufenden Stunde und die Spanne des Tages', () => {
     expect(wetterHeute(tag, um(12, 13, 40))).toMatchObject({ grad: 13, hoch: 13, tief: 4 })
+    expect(wetterHeute(tag, um(12, 13, 40))?.stunde).toBe(tag[3])
   })
 
   it('nennt den ersten Regen ab jetzt und übergeht Nieselspuren', () => {
@@ -232,5 +233,26 @@ describe('wetterHeute', () => {
 
   it('liefert nichts ohne Werte für heute', () => {
     expect(wetterHeute([], um(12, 9))).toBeNull()
+  })
+})
+
+describe('abweichung', () => {
+  it('nennt wärmer, kälter oder gleich in ganzen Grad', () => {
+    expect(abweichung(9, 7)).toBe('2° wärmer')
+    expect(abweichung(6.6, 8)).toBe('1° kälter')
+    expect(abweichung(8.2, 8)).toBe('gleich warm')
+  })
+})
+
+describe('stundenAb', () => {
+  const stunde = (h: number, tag = 12) => ({ zeit: um(tag, h).toISOString() })
+  const liste = [stunde(22, 11), stunde(9), stunde(10), stunde(11), stunde(23), stunde(0, 13), stunde(1, 13)]
+
+  it('beginnt mit der laufenden Stunde, sortiert und begrenzt', () => {
+    expect(stundenAb(liste, um(12, 10, 30), 3).map((s) => s.zeit)).toEqual([stunde(10), stunde(11), stunde(23)].map((s) => s.zeit))
+  })
+
+  it('läuft über Mitternacht weiter', () => {
+    expect(stundenAb(liste, um(12, 23, 10), 5)).toHaveLength(3)
   })
 })

@@ -8,7 +8,7 @@ import { tagSchluessel } from '../logik/zeit'
 import { aendereEinstellungen, holeEinstellungen } from '../vertrag/einstellungen'
 import { aendereEintrag, holeEintraege, holeTermine, type Aenderung, type Eintrag } from '../vertrag/eintrag'
 import { holeOrdner } from '../vertrag/postfach'
-import { holeWetter } from '../vertrag/wetter'
+import { holeWetter, holeWetterTage } from '../vertrag/wetter'
 import { merke } from './rueckgaengig'
 
 export const abfragen = new QueryClient({
@@ -24,6 +24,7 @@ const schluessel = {
   eintraege: ['eintraege'],
   termine: ['termine'],
   wetter: ['wetter'],
+  wetterTage: ['wetter', 'tage'],
   ordner: ['ordner'],
   einstellungen: ['einstellungen'],
   feiertage: ['feiertage'],
@@ -45,6 +46,12 @@ export function useTermine(von: Date, bis: Date) {
 export function useWetter(von: Date, bis: Date, an = true) {
   const q = useQuery({ queryKey: [...schluessel.wetter, von.getTime(), bis.getTime()], queryFn: () => holeWetter(von, bis), enabled: an })
   return { stunden: an ? q.data : undefined, fehler: meldung('Wetter', q.error) }
+}
+
+/** Wetter je Ortstag im Zeitraum (Vorschau, Vergleich mit Vorjahr und Mittel). */
+export function useWetterTage(von: Date, bis: Date) {
+  const q = useQuery({ queryKey: [...schluessel.wetterTage, von.getTime(), bis.getTime()], queryFn: () => holeWetterTage(von, bis) })
+  return { tage: q.data, fehler: meldung('Wettervorschau', q.error) }
 }
 
 /** Ordner des Postfachs. */

@@ -11,12 +11,16 @@ export type Mond = Lage & {
   beleuchtet: number
   /** Drehung der hellen Seite im Bild, Grad im Uhrzeigersinn ab oben. */
   neigung: number
+  /** Phase 0 bis 1: 0 Neumond, 0,25 erstes Viertel, 0,5 Vollmond, 0,75 letztes Viertel. */
+  phase: number
 }
 export type Himmel = {
   sonne: Lage
   mond: Mond
   aufgang: Date | null
   untergang: Date | null
+  /** Höhe der Sonne über dem Horizont in Grad (unter dem Horizont negativ). */
+  sonnenHoehe: number
   /** Sonne über dem Horizont. */
   tag: boolean
   /** Helligkeit des Himmels 0 (Nacht) bis 1 (Mittag), mit Dämmerung bis 6° unter dem Horizont. */
@@ -113,9 +117,10 @@ export function himmel(zeit: Date, ort: Standort, bahn: Bahn): Himmel {
 
   return {
     sonne,
-    mond: { ...mondLage, beleuchtet: phase.fraction, neigung: -(phase.angle - m.parallacticAngle) },
+    mond: { ...mondLage, beleuchtet: phase.fraction, neigung: -(phase.angle - m.parallacticAngle), phase: phase.phase },
     aufgang,
     untergang,
+    sonnenHoehe: s.altitude,
     tag: s.altitude > 0,
     licht: l.hell,
     waerme: l.waerme,

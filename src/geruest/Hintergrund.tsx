@@ -4,13 +4,12 @@ import { himmel, mondPfad, type Lage } from '../logik/himmel'
 import { useEinstellung } from './einstellungen'
 import { useGezeigteZeit } from './gezeigteZeit'
 import { useMinute } from './useMinute'
+import { useOrt } from './useOrt'
 
 // Himmel, Sonne, Mond und Wellen hinter der ganzen App (docs/konzept/05-design.md).
 // Rückt einmal pro Minute weiter oder mit der gezeigten Uhrzeit der Gezeitenkurve; dazwischen läuft keine Animation.
 const e = {
   bahn: einstellung('bahn'),
-  breite: einstellung('ort-breite'),
-  laenge: einstellung('ort-laenge'),
   mondNachts: einstellung('mond-nachts'),
   tageszeit: einstellung('hintergrund-tageszeit'),
   wellenHoehe: einstellung('wellen-hoehe'),
@@ -39,7 +38,7 @@ export function Hintergrund() {
   // Scrollt jemand in der Gezeitenkurve, gilt deren Uhrzeit.
   const zeit = useGezeigteZeit() ?? minute
   const bahn = useEinstellung(e.bahn)
-  const ort = { breite: useEinstellung(e.breite), laenge: useEinstellung(e.laenge) }
+  const ort = useOrt()
   const mondNachts = useEinstellung(e.mondNachts)
   const folgtTageszeit = useEinstellung(e.tageszeit)
   const wellenHoehe = useEinstellung(e.wellenHoehe)

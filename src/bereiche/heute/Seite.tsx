@@ -6,9 +6,9 @@ import { useEinstellung } from '../../geruest/einstellungen'
 import { useFeiertage, useTermine } from '../../geruest/daten'
 import { useBrauchtDich } from '../../geruest/useBrauchtDich'
 import { useMinute } from '../../geruest/useMinute'
-import { Uhr } from '../../geruest/Uhr'
+import UhrAufklapp from '../../geruest/UhrAufklapp'
 import { useSchmal } from '../../geruest/useSchmal'
-import { Wetter } from '../../geruest/Wetter'
+import WetterAufklapp from '../../geruest/WetterAufklapp'
 import { einstellung } from '../../logik/einstellungen'
 import { wochenrueckblick, wochenTage } from '../../logik/heute'
 import { AlsNaechstes } from './teile/AlsNaechstes'
@@ -69,8 +69,8 @@ export default function Seite() {
         </div>
         <div className={cn('flex flex-col gap-abstand', schmal ? 'w-full' : 'items-end')}>
           <div className={cn('flex items-start gap-abstand', schmal && 'grid grid-cols-2')}>
-            <Wetter jetzt={jetzt} />
-            {uhrZeigen && <Uhr termine={termine} jetzt={jetzt} />}
+            <WetterAufklapp jetzt={jetzt} />
+            {uhrZeigen && <UhrAufklapp termine={termine} jetzt={jetzt} />}
           </div>
           {!schmal && <Knoepfe />}
         </div>

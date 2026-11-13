@@ -1,5 +1,5 @@
 // Rechnungen der Seite Heute (docs/konzept/10-heute.md). Zeiten in Ortszeit; „jetzt" kommt immer von außen.
-import { addDays, differenceInCalendarDays, isSameDay, startOfDay, startOfMonth, startOfWeek } from 'date-fns'
+import { addDays, differenceInCalendarDays, isSameDay, startOfDay, startOfHour, startOfMonth, startOfWeek } from 'date-fns'
 import { ausSchluessel } from './zeit'
 
 type MitZeit = { titel: string; art: string; beginn?: string; ende?: string }
@@ -155,20 +155,40 @@ function schichtBuchstabe(z: readonly Zeit<MitZeit>[], tag: Date): string | null
 
 const spurRegen = 0.1
 
-export type WetterHeute = { grad: number; hoch: number; tief: number; regnet: boolean; regenAb: Date | null }
+type StundenWert = { zeit: string; grad: number; regen: number }
+export type WetterHeute<S extends StundenWert = StundenWert> = { grad: number; hoch: number; tief: number; regnet: boolean; regenAb: Date | null; stunde: S }
 
-/** Wetterzeile: Temperatur der laufenden Stunde, Spanne des Tages und der nächste Regen ab jetzt (ab 0,1 mm). */
-export function wetterHeute(stunden: readonly { zeit: string; grad: number; regen: number }[], jetzt: Date): WetterHeute | null {
-  const tag = stunden.map((s) => ({ ...s, d: new Date(s.zeit) })).filter((s) => isSameDay(s.d, jetzt)).sort((a, b) => a.d.getTime() - b.d.getTime())
+/** Wetterzeile: Temperatur der laufenden Stunde (samt allen Werten in `stunde`), Spanne des Tages und der nächste Regen ab jetzt (ab 0,1 mm). */
+export function wetterHeute<S extends StundenWert>(stunden: readonly S[], jetzt: Date): WetterHeute<S> | null {
+  const tag = stunden.map((s) => ({ s, d: new Date(s.zeit) })).filter((s) => isSameDay(s.d, jetzt)).sort((a, b) => a.d.getTime() - b.d.getTime())
   if (tag.length === 0) return null
   const laufend = [...tag].reverse().find((s) => s.d <= jetzt) ?? tag[0]
-  const grade = tag.map((s) => s.grad)
-  const regen = tag.find((s) => s.d.getTime() >= laufend.d.getTime() && s.regen >= spurRegen)
+  const grade = tag.map((s) => s.s.grad)
+  const regen = tag.find((s) => s.d.getTime() >= laufend.d.getTime() && s.s.regen >= spurRegen)
   return {
-    grad: laufend.grad,
+    grad: laufend.s.grad,
     hoch: Math.max(...grade),
     tief: Math.min(...grade),
     regnet: regen === laufend,
     regenAb: regen ? regen.d : null,
+    stunde: laufend.s,
   }
+}
+
+/** Die Stunden ab der laufenden, der Zeit nach, höchstens `anzahl`. */
+export function stundenAb<S extends { zeit: string }>(stunden: readonly S[], jetzt: Date, anzahl: number): S[] {
+  const ab = startOfHour(jetzt).getTime()
+  return stunden
+    .map((s) => ({ s, t: new Date(s.zeit).getTime() }))
+    .filter((s) => s.t >= ab)
+    .sort((a, b) => a.t - b.t)
+    .slice(0, anzahl)
+    .map((s) => s.s)
+}
+
+/** Unterschied zweier Temperaturen in ganzen Grad: „2° wärmer“, „1° kälter“ oder „gleich warm“. */
+export function abweichung(grad: number, vergleich: number): string {
+  const d = Math.round(grad - vergleich)
+  if (d === 0) return 'gleich warm'
+  return `${Math.abs(d)}° ${d > 0 ? 'wärmer' : 'kälter'}`
 }
