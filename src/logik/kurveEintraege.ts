@@ -54,6 +54,23 @@ export function schildBreite(minuten: readonly number[], pxProMinute: number, ma
   return minuten.map((_, i) => Math.min(max, abstand[i] - luecke, abstand[(i - 1 + minuten.length) % minuten.length] - luecke))
 }
 
+/** Platz für den Namen eines Bands (px): links im Band, bis `rand` vor das Bandende und vor das erste Schildchen, das ins
+ *  Band ragt. Schildchen stehen mittig an ihrem Punkt und haben Vorrang. Unter 0 gibt es nicht. */
+export function bandTitelBreite(
+  band: { von: number; bis: number },
+  schilder: readonly { minute: number; breite: number }[],
+  pxProMinute: number,
+  rand: number,
+): number {
+  const start = band.von * pxProMinute
+  const ende = band.bis * pxProMinute
+  const kanten = schilder
+    .map((s) => ({ links: s.minute * pxProMinute - s.breite / 2, rechts: s.minute * pxProMinute + s.breite / 2 }))
+    .filter((k) => k.rechts > start && k.links < ende)
+    .map((k) => k.links - rand)
+  return Math.max(0, Math.min(ende - rand, ...kanten) - start - rand)
+}
+
 /** Rundet eine Verschiebung in Minuten auf das Zieh-Raster. */
 export const aufRaster = (minuten: number) => Math.round(minuten / ZIEH_RASTER) * ZIEH_RASTER || 0
 

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { Eintrag } from '../vertrag/eintrag'
-import { BAND_AB, aufRaster, gezogen, schildBreite, buendeln, hoeheBei, ordne, treibgut, verschoben } from './kurveEintraege'
+import { BAND_AB, aufRaster, bandTitelBreite, gezogen, schildBreite, buendeln, hoeheBei, ordne, treibgut, verschoben } from './kurveEintraege'
 
 const tag = new Date(2026, 10, 12)
 const um = (h: number, m = 0) => new Date(2026, 10, 12, h, m).toISOString()
@@ -97,3 +97,21 @@ describe('gezogen', () => {
   })
 })
 
+
+describe('bandTitelBreite', () => {
+  // 2 px je Minute, 8 px Rand: Band 13:30–18:00 beginnt bei 1620 px.
+  const band = { von: 810, bis: 1080 }
+  it('ohne Schildchen reicht der Name über das Band bis kurz vor sein Ende', () => {
+    expect(bandTitelBreite(band, [], 2, 8)).toBe(270 * 2 - 16)
+  })
+  it('ein Schildchen im Band begrenzt den Namen bis kurz davor', () => {
+    // Punkt 14:30 (60 Minuten nach Beginn = 120 px), Schild 100 px breit, mittig: linke Kante bei 70 px.
+    expect(bandTitelBreite(band, [{ minute: 870, breite: 100 }], 2, 8)).toBe(70 - 16)
+  })
+  it('ein Schildchen, das von links ins Band ragt, lässt keinen Platz', () => {
+    expect(bandTitelBreite(band, [{ minute: 800, breite: 100 }], 2, 8)).toBe(0)
+  })
+  it('Schildchen ganz vor oder hinter dem Band zählen nicht', () => {
+    expect(bandTitelBreite(band, [{ minute: 600, breite: 100 }, { minute: 1200, breite: 100 }], 2, 8)).toBe(270 * 2 - 16)
+  })
+})

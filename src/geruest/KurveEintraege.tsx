@@ -3,7 +3,7 @@ import { uhrzeit } from './format'
 import { cn } from '../bausteine/cn'
 import { Knopf } from '../bausteine/Knopf'
 import { MIN_TAG, ausduennen, vonOben } from '../logik/gezeiten'
-import { aufRaster, buendeln, gezogen, hoeheBei, schildBreite, verschoben, type Band, type Punkt, type Ziehart } from '../logik/kurveEintraege'
+import { aufRaster, bandTitelBreite, buendeln, gezogen, hoeheBei, schildBreite, verschoben, type Band, type Punkt, type Ziehart } from '../logik/kurveEintraege'
 import type { Meldung } from '../logik/meldungen'
 import type { Aenderung, Eintrag } from '../vertrag/eintrag'
 import type { WetterStunde } from '../vertrag/wetter'
@@ -27,7 +27,7 @@ export type Aendere = (e: Eintrag, aenderung: Aenderung, text: string) => Promis
 
 const links = (k: number, minute: number) => `${((k * MIN_TAG + minute) / (3 * MIN_TAG)) * 100}%`
 const kopien = [0, 1, 2] as const
-const fokus = 'rounded-voll outline-none focus-visible:ring-2 focus-visible:ring-akzent'
+const fokus = 'outline-none focus-visible:ring-2 focus-visible:ring-akzent'
 
 export function KurveEintraege(p: {
   punkte: Punkt[]
@@ -116,6 +116,8 @@ export function KurveEintraege(p: {
     schildLueckePx,
   )
   const einzeln = gruppen.map((g, i) => ({ g, platz: breiten[i] }))
+  // Gezeigte Schildchen; Band-Namen weichen ihnen aus.
+  const schilder = p.schilder ? einzeln.filter(({ g, platz }) => g.length === 1 && platz >= schildMinPx).map(({ g, platz }) => ({ minute: g[0].minute, breite: platz })) : []
   // Obere Zeile: Jetzt-Angabe mit Treibgut an der Jetzt-Linie, sonst Wetter; das Wetter weicht der Jetzt-Angabe aus.
   // Abstand nach der Jetzt-Linie, ringförmig über Mitternacht.
   const frei = (minute: number) => {
@@ -135,6 +137,7 @@ export function KurveEintraege(p: {
           const um = (alt: string, jetzt?: string) => (jetzt ? (Date.parse(jetzt) - Date.parse(alt)) / 60_000 : 0)
           const von = b.von + um(b.eintrag.beginn!, neu?.beginn)
           const bis = b.bis + um(b.eintrag.ende!, neu?.ende)
+          const titelPlatz = bandTitelBreite(b, schilder, pxProMinute, schildLueckePx)
           return (
             <div key={`${k}-${b.id}`} className="kurve-band-lage" style={{ left: links(k, von), width: (bis - von) * pxProMinute }}>
               <button
@@ -143,7 +146,15 @@ export function KurveEintraege(p: {
                 title={b.titel}
                 className={cn(fokus, 'kurve-band kurve-schrift drueck absolute inset-0 flex cursor-grab touch-none items-center px-2 text-left text-text-gedaempft')}
               >
-                <span className="truncate">{neu ? `${uhrzeit(neu.beginn)}–${uhrzeit(neu.ende)}` : b.titel}</span>
+                {neu ? (
+                  <span className="truncate">{`${uhrzeit(neu.beginn)}–${uhrzeit(neu.ende)}`}</span>
+                ) : (
+                  titelPlatz >= schildMinPx && (
+                    <span className="truncate" style={{ maxWidth: titelPlatz }}>
+                      {b.titel}
+                    </span>
+                  )
+                )}
               </button>
               <span aria-hidden {...ziehen(b.eintrag, 'beginn')} title="Beginn" className="kurve-band-griff left-0 -translate-x-1/2" />
               <span aria-hidden {...ziehen(b.eintrag, 'ende')} title="Ende" className="kurve-band-griff right-0 translate-x-1/2" />
@@ -168,7 +179,7 @@ export function KurveEintraege(p: {
                 aria-hidden={k !== p.kopie || undefined}
                 aria-label={`${g.length} Termine, auffächern`}
                 onClick={(ev) => oeffne(ev.currentTarget, 'termine', g.map((x) => x.id))}
-                className={cn(fokus, 'drueck absolute grid size-11 -translate-1/2 cursor-pointer place-items-center')}
+                className={cn(fokus, 'drueck absolute grid size-11 rounded-voll -translate-1/2 cursor-pointer place-items-center')}
                 style={lage}
               >
                 <span className={cn('kurve-buendel', g.some((x) => x.ueberschneidet.length) && 'kurve-punkt-ueberschneidet')}>{g.length}</span>
@@ -181,7 +192,7 @@ export function KurveEintraege(p: {
                 type="button"
                 {...griff(erster.eintrag, k)}
                 aria-label={`${zeit} ${erster.titel}${erster.ueberschneidet.length ? ', überschneidet sich' : ''}`}
-                className={cn(fokus, 'absolute grid size-11 -translate-1/2 cursor-grab touch-none place-items-center')}
+                className={cn(fokus, 'absolute grid size-11 rounded-voll -translate-1/2 cursor-grab touch-none place-items-center')}
                 style={lage}
               >
                 <span className={cn('kurve-punkt', zug?.id === erster.id && 'scale-150', erster.ueberschneidet.length > 0 && 'kurve-punkt-ueberschneidet')} />
@@ -212,7 +223,7 @@ export function KurveEintraege(p: {
                 tabIndex={k === p.kopie ? 0 : -1}
                 aria-hidden={k !== p.kopie || undefined}
                 onClick={(ev) => oeffne(ev.currentTarget, 'treibgut', [])}
-                className={cn(fokus, 'kurve-schrift drueck cursor-pointer border border-linie bg-knopf-ton px-2 font-semibold text-text hover:text-akzent')}
+                className={cn(fokus, 'kurve-schrift drueck cursor-pointer rounded-voll border border-linie bg-knopf-ton px-2 font-semibold text-text hover:text-akzent')}
               >
                 {p.treibgut.length} offen treiben mit
               </button>

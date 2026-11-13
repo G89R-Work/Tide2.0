@@ -226,23 +226,23 @@ export function Gezeitenkurve({ className, onAntippen }: { className?: string; o
     <section
       {...wischen()}
       aria-label="Gezeitenkurve"
-      className={cn('flaeche-leiste relative flex h-full touch-pan-x flex-col overflow-hidden', className)}
+      className={cn('flaeche-leiste @container relative flex h-full touch-pan-x flex-col overflow-hidden', className)}
       style={{ '--band-hoehe': bandHoehe } as CSSProperties}
     >
       {mitKopf && (
         <header className="flex shrink-0 items-center gap-3 px-5 pt-2">
           <div className="flex min-w-0 flex-1 items-baseline gap-3.5">
-            <h2 className="beschriftung shrink-0">Dein Tag als Gezeitenkurve</h2>
+            <h2 className="beschriftung hidden min-w-0 truncate @xl:block">Dein Tag als Gezeitenkurve</h2>
             {kopfzeileBelegt ? (
               <KurveKopfzeile schritt={frisch} fehler={fehler} meldung={meldung} className="min-w-0" />
             ) : (
               <>
-                {fenster && <span className="kurve-schrift truncate text-text-blass tabular-nums">{fenster}</span>}
+                {fenster && <span className="kurve-schrift hidden truncate text-text-blass tabular-nums @xl:inline">{fenster}</span>}
                 <Knopf
                   art="leise"
                   groesse="klein"
                   aria-pressed={ebbeModus}
-                  className={cn('beschriftung h-6 px-1.5', ebbeModus && 'text-akzent')}
+                  className={cn('beschriftung h-6 shrink-0 px-1.5', ebbeModus && 'text-akzent')}
                   onClick={() => setzeHier(e.ebbeModus, !ebbeModus, { text: ebbeModus ? 'Ebbe-Modus aus' : 'Ebbe-Modus an' })}
                 >
                   Ebbe-Modus
@@ -250,8 +250,8 @@ export function Gezeitenkurve({ className, onAntippen }: { className?: string; o
               </>
             )}
           </div>
-          {!folgt && <span className="text-sm text-text-gedaempft tabular-nums">Ansicht {uhrzeit(addMinutes(tagStart, gezeigt))}</span>}
-          <Knopf groesse="klein" className="h-7 rounded-voll" onClick={zuJetzt}>
+          {!folgt && <span className="shrink-0 text-sm text-text-gedaempft tabular-nums">Ansicht {uhrzeit(addMinutes(tagStart, gezeigt))}</span>}
+          <Knopf groesse="klein" className="h-7 shrink-0 rounded-voll" onClick={zuJetzt}>
             Zu jetzt
           </Knopf>
           <Glocke />
