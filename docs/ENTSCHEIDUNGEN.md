@@ -141,6 +141,7 @@ Eine Zeile je Entscheidung, neueste unten. Was hier steht, gilt und wird nicht n
 - 2026-11-13 · Reihenfolge (Nutzer): erst alle Aussehen-Scheiben aus der Vorlage (`aussehen-einstellungen`, `aussehen-ohne-erklaerungen`, neu `aussehen-postfach-ordner`), danach Aufräumen, dann Etappe 3 Postfach.
 - 2026-11-13 · Einstellungen: Gruppen wie die Vorlage (Allgemein, Bereiche, Schreiben, Personen, Daten und Kosten); „Grundlegendes“ steht oben unter Allgemein, „Privat und Arbeit“ unter Daten und Kosten. Die Suche steht oben in der mittleren Spalte (Breite 300 px wie die Vorlage); die Seite zeigt die Treffer.
 - 2026-11-13 · Ohne Erklärtexte: Einstellungen haben kein Feld `hilfe` mehr, Aktionen statt `kommt` (Text) nur `spaeter: true` (ausgegraut). Der Typ selbst verhindert neue Erklärtexte, eine eigene Prüfung in `pruefen` braucht es nicht. Auch „Gilt für den PC/das Handy“ entfällt.
+- 2026-11-13 · Postfach-Ordner kommen ganz über den Vertrag (`holeOrdner` in `src/vertrag/postfach.ts`: id, name, art, eltern, zahl, wichtig); Systemordner wie das Vorlagen-Bild (Posteingang, Braucht dich, Entwürfe, Gesendet, Mit Erinnerung, Archiv, Papierkorb). Entschieden vom Nutzer.
 
 ## Offen
 

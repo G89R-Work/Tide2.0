@@ -1,5 +1,5 @@
 // Zweite Ebene je Bereich (docs/konzept/03-geruest.md). Erreichbar unter #<bereich>/<unterpunkt>.
-// Eigene Ordner sind bis zu ihren Etappen feste Beispiele; danach kommen sie über den Vertrag.
+// Eigene Ordner sind bis zu ihren Etappen feste Beispiele; danach kommen sie über den Vertrag (Postfach: `holeOrdner`).
 import { bereichAusMarke, type BereichId } from './bereiche'
 import { abschnitte } from './einstellungen'
 
@@ -10,12 +10,8 @@ const u = (gruppe: string | undefined, ...paare: [string, string][]): Unterpunkt
 
 const ebenen: Record<BereichId, Unterpunkt[]> = {
   heute: [],
-  postfach: [
-    ...u('Ordner', ['eingang', 'Eingang'], ['entwuerfe', 'Entwürfe'], ['gesendet', 'Gesendet'], ['archiv', 'Archiv'], ['papierkorb', 'Papierkorb']),
-    ...u('Eigene Ordner', ['familie', 'Familie'], ['rechnungen', 'Rechnungen']),
-    ...u('Intelligente Ordner', ['ungelesen', 'Ungelesen'], ['markiert', 'Markiert']),
-    ...u('Verwalten', ['regeln', 'Regeln'], ['einstellungen', 'Postfach-Einstellungen']),
-  ],
+  // Die Ordner selbst kommen aus den Daten (`ausDaten`); fest sind nur diese Seiten.
+  postfach: u(undefined, ['einstellungen', 'Einstellungen'], ['regeln', 'Regeln']),
   kalender: [
     ...u('Ansichten', ['woche', 'Woche'], ['tag', 'Tag'], ['monat', 'Monat']),
     ...u('Kalender', ['privat', 'Privat'], ['arbeit', 'Arbeit'], ['feiertage', 'Feiertage']),
@@ -33,17 +29,22 @@ const ebenen: Record<BereichId, Unterpunkt[]> = {
   einstellungen: abschnitte.map((a) => ({ ...a })),
 }
 
+/** Bereiche, deren Unterpunkte auch aus den Daten kommen, mit dem Unterpunkt ab Werk. */
+const ausDaten: Partial<Record<BereichId, string>> = { postfach: 'eingang' }
+
 export function ebeneVon(bereich: BereichId): readonly Unterpunkt[] {
   return ebenen[bereich]
 }
 
 export type Ort = { bereich: BereichId; unter: string | null }
 
-/** „#postfach/gesendet" → Ort. Fehlt der Unterpunkt oder ist er unbekannt, gilt der erste. */
+/** „#postfach/gesendet" → Ort. Fehlt der Unterpunkt oder ist er unbekannt, gilt der erste; wo Unterpunkte aus den Daten kommen, gilt jeder. */
 export function ortAusMarke(marke: string): Ort {
   const [kopf, rest = ''] = marke.split('/', 2)
   const bereich = bereichAusMarke(kopf)
   const ebene = ebenen[bereich]
+  const standard = ausDaten[bereich]
+  if (standard) return { bereich, unter: rest || standard }
   const unter = ebene.find((p) => p.id === rest) ?? ebene[0]
   return { bereich, unter: unter?.id ?? null }
 }

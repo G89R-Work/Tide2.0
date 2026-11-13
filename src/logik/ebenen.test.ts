@@ -30,8 +30,12 @@ describe('ortAusMarke', () => {
 
   it('nimmt ohne oder bei unbekanntem Unterpunkt den ersten', () => {
     expect(ortAusMarke('#postfach')).toEqual({ bereich: 'postfach', unter: 'eingang' })
-    expect(ortAusMarke('#postfach/gibtsnicht')).toEqual({ bereich: 'postfach', unter: 'eingang' })
     expect(ortAusMarke('#finanzen/')).toEqual({ bereich: 'finanzen', unter: 'uebersicht' })
+  })
+
+  it('nimmt im Postfach jeden Ordner, denn die Ordner kommen aus den Daten', () => {
+    expect(ortAusMarke('#postfach/versicherung')).toEqual({ bereich: 'postfach', unter: 'versicherung' })
+    expect(ortAusMarke('#postfach/einstellungen')).toEqual({ bereich: 'postfach', unter: 'einstellungen' })
   })
 
   it('Heute und Unbekanntes haben keinen Unterpunkt', () => {

@@ -37,6 +37,8 @@ Was umgesetzt ist, wandert beim Abschluss einer Scheibe nach „Erledigt“, mit
 - Wochenleiste: Buchstabe der Schicht aus der Schichtart statt aus dem ersten Buchstaben des Titels, sobald Arbeit die Schichtart kennt
 - Höhe der Wellen in der Gezeitenkurve am Handy prüfen, vielleicht zu viel (heute-kacheln)
 - Eigene Kacheln/Widgets anlegen und festlegen, auf welchen Seiten sie verfügbar sind (Wunsch des Nutzers, 2026-11-12)
+- Regeln des Postfachs sind in der Ordnerleiste nicht mehr verlinkt (nur `#postfach/regeln`); Zugang über Postfach-Einstellungen (postfach-regeln)
+- Ordnerzeilen am PC dichter (Vorlage 34 px statt 44 px), damit „Einstellungen“ ohne Scrollen sichtbar ist (postfach-ordner)
 
 ## Erledigt
 - 2026-11-12 · Jede Kachel zeigt je nach Größe eine Darstellung klein/mittel/groß: entfällt, Kachel-Raster entfernt (aussehen-heute)
