@@ -34,8 +34,8 @@ export const abschnitte = [
 
 export type AbschnittId = (typeof abschnitte)[number]['id']
 
-type Basis = {
-  id: string
+type Basis<I extends string> = {
+  id: I
   name: string
   abschnitt: Exclude<AbschnittId, 'start'>
   /** Gilt je Geräteart getrennt (Anordnungen, Größen). */
@@ -45,13 +45,23 @@ type Basis = {
   /** Abweichender Standard am Handy; nur mit `jeGeraet`. */
   standardHandy?: Wert
 }
-export type Einstellung = Basis &
+/** `I`: die erlaubten Namen; ab Werk jeder Text. */
+export type Einstellung<I extends string = string> = Basis<I> &
   (
     | { art: 'schalter'; standard: boolean }
     | { art: 'auswahl'; standard: string; optionen: readonly (readonly [wert: string, name: string])[] }
     | { art: 'text'; standard: string; laenge: number }
     | { art: 'zahl'; standard: number; min: number; max: number; einheit?: string; /** Raster, ab Werk 1 (ganze Zahlen). */ schritt?: number }
   )
+
+/** Werttyp einer Einstellung: Auswahl nur ihre Werte, Schalter ja/nein, Zahl, Text. */
+export type WertVon<E extends Einstellung> = E extends { art: 'auswahl'; optionen: readonly (readonly [infer W, string])[] }
+  ? W
+  : E extends { art: 'schalter' }
+    ? boolean
+    : E extends { art: 'zahl' }
+      ? number
+      : string
 
 const bundeslaender = [
   ['bund', 'Nur bundesweite'], ['bw', 'Baden-Württemberg'], ['by', 'Bayern'], ['be', 'Berlin'], ['bb', 'Brandenburg'],
@@ -60,7 +70,7 @@ const bundeslaender = [
   ['sh', 'Schleswig-Holstein'], ['th', 'Thüringen'],
 ] as const
 
-export const einstellungen: readonly Einstellung[] = [
+const liste = [
   { id: 'morgen-zusammenfassung', name: 'Morgen-Zusammenfassung', abschnitt: 'benachrichtigungen', art: 'schalter', standard: true, wichtig: true },
   { id: 'ebbe-modus', name: 'Ebbe-Modus', abschnitt: 'benachrichtigungen', art: 'schalter', standard: false },
   { id: 'design', name: 'Design', abschnitt: 'darstellung', art: 'auswahl', standard: 'glut', optionen: [['glut', 'Glut'], ['tinte', 'Tinte']], wichtig: true },
@@ -81,7 +91,7 @@ export const einstellungen: readonly Einstellung[] = [
   { id: 'kurve-lage', name: 'Lage', abschnitt: 'kurve', art: 'auswahl', standard: 'unten', optionen: [['unten', 'Unten'], ['oben', 'Oben']], jeGeraet: true },
   { id: 'leiste-breite', name: 'Breite der Seitenleiste', abschnitt: 'navigation', art: 'auswahl', standard: 'schmal', optionen: [['schmal', 'Schmal, nur Symbole'], ['breit', 'Breit, mit Namen']], wichtig: true },
   // Sichtbar je Seite: ein Schalter je Bereich (docs/konzept/06-gezeitenkurve.md).
-  ...bereiche.map((b) => ({ id: `kurve-zeigen-${b.id}`, name: `Zeigen auf ${b.name}`, abschnitt: 'kurve' as const, art: 'schalter' as const, standard: true, jeGeraet: true as const })),
+  ...bereiche.map((b) => ({ id: `kurve-zeigen-${b.id}` as const, name: `Zeigen auf ${b.name}`, abschnitt: 'kurve', art: 'schalter', standard: true, jeGeraet: true }) as const),
   { id: 'name', name: 'Dein Name', abschnitt: 'nutzer', art: 'text', standard: 'Moritz', laenge: 30, wichtig: true },
   { id: 'heute-uhr', name: 'Uhr', abschnitt: 'heute', art: 'schalter', standard: true, jeGeraet: true },
   { id: 'rechtschreibung', name: 'Rechtschreibprüfung', abschnitt: 'schreiben', art: 'schalter', standard: true },
@@ -89,12 +99,23 @@ export const einstellungen: readonly Einstellung[] = [
   { id: 'kalenderwoche', name: 'Kalenderwoche anzeigen', abschnitt: 'kalender', art: 'schalter', standard: true },
   { id: 'bundesland', name: 'Bundesland für Feiertage', abschnitt: 'kalender', art: 'auswahl', standard: 'bund', optionen: bundeslaender },
   { id: 'archivfrist', name: 'Erledigtes ins Archiv nach', abschnitt: 'todos', art: 'zahl', standard: 30, min: 1, max: 365, einheit: 'Tagen' },
-]
+] as const satisfies readonly Einstellung[]
 
-const zeigen = new Map(bereiche.map((b) => [b.id, einstellungen.find((e) => e.id === `kurve-zeigen-${b.id}`)!]))
+type Liste = (typeof liste)[number]
+/** Name jeder Einstellung; ein Tippfehler ist ein Typfehler. */
+export type EinstellungId = Liste['id']
+export const einstellungen: readonly Einstellung<EinstellungId>[] = liste
+type Nach<I extends EinstellungId, L = Liste> = L extends Liste ? (I extends L['id'] ? L : never) : never
+
+/** Die Einstellung mit diesem Namen, mit ihrer genauen Art und ihren Werten. */
+export function einstellung<I extends EinstellungId>(id: I): Nach<I> {
+  const e = liste.find((x): x is Nach<I> => x.id === id)
+  if (!e) throw new Error(`Einstellung „${id}" steht nicht in der Liste`)
+  return e
+}
 
 /** Schalter „Kurve zeigen" einer Seite. */
-export const kurveZeigen = (bereich: BereichId): Einstellung => zeigen.get(bereich)!
+export const kurveZeigen = (bereich: BereichId) => einstellung(`kurve-zeigen-${bereich}`)
 
 export function einstellungenIn(abschnitt: AbschnittId): Einstellung[] {
   return einstellungen.filter((e) => (abschnitt === 'start' ? e.wichtig : e.abschnitt === abschnitt))
@@ -119,6 +140,7 @@ function gueltig(e: Einstellung, w: unknown): w is Wert {
   }
 }
 
+export function wertVon<E extends Einstellung>(e: E, werte: Werte, geraet: Geraet): WertVon<E>
 export function wertVon(e: Einstellung, werte: Werte, geraet: Geraet): Wert {
   const w = werte[schluessel(e, geraet)]
   return gueltig(e, w) ? w : standardVon(e, geraet)

@@ -1,6 +1,7 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, expectTypeOf, it } from 'vitest'
 import {
   abschnitte,
+  einstellung,
   einstellungen,
   einstellungenIn,
   istStandard,
@@ -12,13 +13,11 @@ import {
   wertVon,
   kurveZeigen,
   zuruecksetzen,
-  type Einstellung,
 } from './einstellungen'
 
-const nach = (id: string): Einstellung => einstellungen.find((e) => e.id === id)!
-const design = nach('design')
-const schrift = nach('schriftgroesse') // gilt je Geräteart
-const stunden = nach('kurve-stunden')
+const design = einstellung('design')
+const schrift = einstellung('schriftgroesse') // gilt je Geräteart
+const stunden = einstellung('kurve-stunden')
 
 describe('Liste', () => {
   it('hat eindeutige Namen und gültige Standardwerte in bekannten Abschnitten', () => {
@@ -36,6 +35,23 @@ describe('Liste', () => {
     expect(einstellungenIn('start').length).toBeGreaterThan(0)
     expect(einstellungenIn('start').every((e) => e.wichtig)).toBe(true)
     expect(einstellungenIn('darstellung')).toContain(design)
+  })
+})
+
+describe('einstellung', () => {
+  it('holt jede Einstellung der Liste über ihren Namen', () => {
+    for (const e of einstellungen) expect(einstellung(e.id)).toBe(e)
+  })
+  it('kennt die Art und die Werte einer Einstellung schon beim Schreiben', () => {
+    expectTypeOf(wertVon(einstellung('wochenbeginn'), {}, 'pc')).toEqualTypeOf<'montag' | 'sonntag'>()
+    expectTypeOf(wertVon(einstellung('ebbe-modus'), {}, 'pc')).toEqualTypeOf<boolean>()
+    expectTypeOf(wertVon(einstellung('kurve-stunden'), {}, 'pc')).toEqualTypeOf<number>()
+    expectTypeOf(wertVon(einstellung('name'), {}, 'pc')).toEqualTypeOf<string>()
+    expectTypeOf(wertVon(kurveZeigen('heute'), {}, 'pc')).toEqualTypeOf<boolean>()
+  })
+  it('meldet einen falsch geschriebenen Namen als Typfehler', () => {
+    // @ts-expect-error: „wochenbegin" gibt es nicht; ohne Typfehler schlägt diese Zeile in tsc fehl.
+    expect(() => einstellung('wochenbegin')).toThrow('wochenbegin')
   })
 })
 
@@ -63,7 +79,7 @@ describe('setze und wertVon', () => {
   })
 
   it('nimmt beim Namen Text bis zur Länge an, auch leer, aber keine Zahl', () => {
-    const name = nach('name')
+    const name = einstellung('name')
     expect(wertVon(name, setze({}, name, 'pc', 'Sam'), 'pc')).toBe('Sam')
     expect(wertVon(name, setze({}, name, 'pc', ''), 'pc')).toBe('')
     expect(setze({}, name, 'pc', 'x'.repeat(31))).toEqual({})
@@ -71,8 +87,8 @@ describe('setze und wertVon', () => {
   })
 
   it('nimmt beim Ort Nachkommastellen im Raster an, auch südlich und westlich', () => {
-    const breite = nach('ort-breite')
-    const laenge = nach('ort-laenge')
+    const breite = einstellung('ort-breite')
+    const laenge = einstellung('ort-laenge')
     expect(setze({}, breite, 'pc', -33.87)).toEqual({ 'ort-breite': -33.87 })
     expect(setze({}, laenge, 'pc', 151.21)).toEqual({ 'ort-laenge': 151.21 })
     expect(setze({}, breite, 'pc', 52.123)).toEqual({})

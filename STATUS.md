@@ -1,6 +1,12 @@
 # Status
 Etappe: 2 Gezeitenkurve und Heute
 Nächste Scheibe: `aufraeumen-einstellungen-typen`
+In Arbeit: aufraeumen-einstellungen-typen
+1. Liste in `logik/einstellungen.ts` mit `as const satisfies`, Typ `EinstellungId` aus den Namen.
+2. `einstellung('name')` holt eine Einstellung mit genauem Typ; falscher Name = Typfehler (Test zuerst).
+3. Art je Einstellung genau (Schalter, Auswahl mit ihren Werten, Zahl, Text); `useEinstellung` liefert den passenden Werttyp.
+4. Alle `einstellungen.find(…)!` und `useEinstellung(…) as …` ersetzen.
+Stand: Code fertig, Typen und Tests grün; Abschluss wartet, weil die Tempo-Messung zufällig über 100 ms liegt (auch auf dem alten Stand, siehe `docs/IDEEN.md`).
 ## Stand
 Das Gerüst steht am PC (wie die Vorlage, ohne Zellraster: Leiste mit Logo von oben bis unten, Kopfzeile mit Uhr, Wetter und Knöpfen außer auf Heute) und am Handy mit Seitenleiste, zweiter Ebene, belegbaren Knöpfen, Einstellungsliste, Kacheln und Hintergrund. Die Gezeitenkurve zeigt den Beispieltag (PC unten über die volle Breite, Handy über der unteren Leiste; Einstellung „Lage“ je Gerät), scrollt endlos, folgt der Uhr und steuert beim Scrollen den Hintergrund. Der Himmel folgt dem Sonnenstand (Lichthof, Dämmerung, Mondschein nach Phase). Termine liegen als Punkte (mit Karte, Bündel, Überschneidung) oder Bänder auf ihr, lassen sich ziehen und zurücknehmen; dazu Treibgut und Wetterzeile. Die Kurve ist je Seite und Gerät abschaltbar; Meldungen fließen an der Jetzt-Linie ein und falten sich in die Glocke. Heute hat einen festen Aufbau (Gruß, Als Nächstes, Wetter, Uhr, Knöpfe, Braucht dich als Reiter mit aufklappender Liste, Wochenleiste wie die Vorlage mit kleinem Kalender samt Feiertagen, Notiz, Rückblick), Text ohne Hintergrund. **Aufräumen:** `docs/PRUEFUNG.md` wird in acht Scheiben `aufraeumen-*` abgearbeitet (siehe Fahrplan). Bausteine dafür sind freigegeben.
 ## Zuletzt erledigt

@@ -1,6 +1,6 @@
 import { useSyncExternalStore } from 'react'
 import type { BereichId } from '../logik/bereiche'
-import { einstellungen, kurveZeigen, setze, unterschied, werteAendern, wertVon, type Einstellung, type Geraet, type Wert, type Werte } from '../logik/einstellungen'
+import { einstellung, kurveZeigen, setze, unterschied, werteAendern, wertVon, type Einstellung, type Geraet, type Wert, type Werte } from '../logik/einstellungen'
 import { merke, type Schritt } from './rueckgaengig'
 import { aendereEinstellungen, holeEinstellungen } from '../vertrag/einstellungen'
 import { istSchmal, useSchmal } from './useSchmal'
@@ -43,22 +43,22 @@ export function useGeraet(): Geraet {
 }
 
 /** Wert einer Einstellung für dieses Gerät, solange nichts geladen ist der Standard. */
-export function useEinstellung(e: Einstellung) {
+export function useEinstellung<E extends Einstellung>(e: E) {
   return wertVon(e, useEinstellungen().werte, useGeraet())
 }
 
-const kurveLage = einstellungen.find((e) => e.id === 'kurve-lage')!
+const kurveLage = einstellung('kurve-lage')
 
 /** Liegt die Gezeitenkurve oben? Der Inhalt braucht dann den Abstand unten statt oben. */
 export function useKurveOben() {
   return useEinstellung(kurveLage) === 'oben'
 }
 
-const kurveEingeklappt = einstellungen.find((e) => e.id === 'kurve-eingeklappt')!
+const kurveEingeklappt = einstellung('kurve-eingeklappt')
 
 /** Ist die Kurve eingeklappt (nur ein Rand guckt hervor)? Gemerkt je Gerät. */
 export function useKurveEingeklappt() {
-  return useEinstellung(kurveEingeklappt) === true
+  return useEinstellung(kurveEingeklappt)
 }
 
 /** Kurve ein- oder ausklappen (gemerkt je Gerät, lässt sich zurücknehmen). Ändert nichts, wenn es schon so ist. */
@@ -68,7 +68,7 @@ export function klappeKurve(zu: boolean) {
 
 /** Ist die Kurve auf dieser Seite eingeblendet? */
 export function useKurveSichtbar(bereich: BereichId) {
-  return useEinstellung(kurveZeigen(bereich)) === true
+  return useEinstellung(kurveZeigen(bereich))
 }
 
 /** Wert einer Einstellung für dieses Gerät, außerhalb von React (Befehle, Tasten). */

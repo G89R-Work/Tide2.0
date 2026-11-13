@@ -9,8 +9,8 @@ import { Uhr } from '../../geruest/Uhr'
 import { useTermine } from '../../geruest/useTermine'
 import { useSchmal } from '../../geruest/useSchmal'
 import { Wetter } from '../../geruest/Wetter'
-import { einstellungen } from '../../logik/einstellungen'
-import { wochenrueckblick, wochenTage, type Wochenbeginn } from '../../logik/heute'
+import { einstellung } from '../../logik/einstellungen'
+import { wochenrueckblick, wochenTage } from '../../logik/heute'
 import { AlsNaechstes } from './teile/AlsNaechstes'
 import { BrauchtDich } from './teile/BrauchtDich'
 import { Gruss } from './teile/Gruss'
@@ -20,18 +20,18 @@ import { Notiz } from './teile/Notiz'
 import { Rueckblick } from './teile/Rueckblick'
 import { Woche } from './teile/Woche'
 
-const wochenbeginn = einstellungen.find((e) => e.id === 'wochenbeginn')!
-const bundesland = einstellungen.find((e) => e.id === 'bundesland')!
-const heuteUhr = einstellungen.find((e) => e.id === 'heute-uhr')!
+const wochenbeginn = einstellung('wochenbeginn')
+const bundesland = einstellung('bundesland')
+const heuteUhr = einstellung('heute-uhr')
 
 // Heute (docs/konzept/10-heute.md): viel Himmel, wenig Text, fester Aufbau ohne Kopfzeile.
 export default function Seite() {
   const jetzt = useMinute()
-  const beginn = useEinstellung(wochenbeginn) as Wochenbeginn
+  const beginn = useEinstellung(wochenbeginn)
   const { termine, fehler } = useTermine(14, 42, jetzt)
   const braucht = useBrauchtDich()
   const schmal = useSchmal()
-  const uhrZeigen = useEinstellung(heuteUhr) === true
+  const uhrZeigen = useEinstellung(heuteUhr)
   // Gezeigter Monat der Wochenleiste und der Tag, der vorn steht: ab Werk der Beginn der laufenden Woche, im Monat gehalten.
   const [wahl, setWahl] = useState<{ monat: Date; fokus: Date }>(() => {
     const start = wochenTage(new Date(), beginn, 0)[0]
@@ -39,7 +39,7 @@ export default function Seite() {
     const monat = new Date(heute.getFullYear(), heute.getMonth(), 1)
     return { monat, fokus: start < monat ? monat : start }
   })
-  const land = useEinstellung(bundesland) as string
+  const land = useEinstellung(bundesland)
   const feiertag = useFeiertage(wahl.monat.getFullYear(), land)
   // Knöpfe neben der Wochenleiste: am Handy schmal wie in der Vorlage, damit alles in eine Reihe passt.
   const knopfBreite = schmal ? 'w-14 shrink-0' : 'min-w-20'

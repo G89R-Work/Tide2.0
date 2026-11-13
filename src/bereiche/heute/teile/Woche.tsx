@@ -4,12 +4,12 @@ import { cn } from '../../../bausteine/cn'
 import { useEinstellung } from '../../../geruest/einstellungen'
 import { monatName, tagKurz, tagLang } from '../../../geruest/format'
 import { useSchmal } from '../../../geruest/useSchmal'
-import { einstellungen } from '../../../logik/einstellungen'
+import { einstellung } from '../../../logik/einstellungen'
 import { fuellstand, schichtBuchstabe } from '../../../logik/heute'
 import { monatsTage, tagSchluessel } from '../../../logik/zeit'
 import type { Eintrag } from '../../../vertrag/eintrag'
 
-const kwZeigen = einstellungen.find((e) => e.id === 'kalenderwoche')!
+const kwZeigen = einstellung('kalenderwoche')
 
 type Props = {
   termine: readonly Eintrag[]
@@ -23,7 +23,7 @@ type Props = {
 /** Wochenleiste wie die Vorlage: Wochentag, Datum, Füllstand, Buchstabe der Schicht (nur PC und Tablet); sieben sichtbar, wischbar innerhalb des Monats. */
 export function Woche({ termine, monat, fokus, jetzt, feiertag }: Props) {
   const scroller = useRef<HTMLOListElement>(null)
-  const kw = useEinstellung(kwZeigen) === true
+  const kw = useEinstellung(kwZeigen)
   // Am Handy ist die Spalte zu schmal für den Buchstaben der Schicht neben dem Wochentag.
   const schichtZeigen = !useSchmal()
   const tage = monatsTage(monat)

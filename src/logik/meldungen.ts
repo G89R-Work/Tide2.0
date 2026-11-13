@@ -18,7 +18,7 @@ const MIN_MS = 60_000
 /** Ende der Ruhezeit am Tag von `d` (Ortszeit, auch an Tagen mit Zeitumstellung). */
 const ruheEnde = (d: Date) => set(startOfDay(d), { hours: Math.floor(RUHE_BIS / 60), minutes: RUHE_BIS % 60 })
 /** „07:00“: bis dahin warten Meldungen im Ebbe-Modus. */
-export const ruheBisText = uhr(ruheEnde(new Date()))
+export const ruheBisText = uhr(ruheEnde(new Date(0)))
 
 export function inRuhezeit(d: Date): boolean {
   const m = d.getHours() * 60 + d.getMinutes()

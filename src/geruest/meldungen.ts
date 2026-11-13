@@ -1,5 +1,5 @@
 import { useEffect, useSyncExternalStore } from 'react'
-import { einstellungen } from '../logik/einstellungen'
+import { einstellung } from '../logik/einstellungen'
 import { ebbeFenster, erinnerungen, sichtbare, ungelesen, wartende, type Meldung } from '../logik/meldungen'
 import { holeTermine } from '../vertrag/eintrag'
 import { useEinstellung } from './einstellungen'
@@ -50,13 +50,13 @@ export function gelesen(bis: number) {
   setze({ gelesenBis: bis })
 }
 
-const ebbeModus = einstellungen.find((e) => e.id === 'ebbe-modus')!
+const ebbeModus = einstellung('ebbe-modus')
 
 /** Was gerade gilt: Meldungen in der Glocke, wartende, ungelesene, die frische für die Kopfzeile und das Ebbe-Fenster. */
 export function useMeldungen() {
   const z = useSyncExternalStore(abo, () => zustand)
   const jetzt = useMinute()
-  const ebbe = useEinstellung(ebbeModus) === true
+  const ebbe = useEinstellung(ebbeModus)
   const da = sichtbare(z.liste, jetzt, ebbe)
   const frisch = da.filter((m) => !z.gefaltet.has(m.id))
   return {

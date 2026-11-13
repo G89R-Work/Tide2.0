@@ -4,7 +4,7 @@ import { uhrzeit } from './format'
 import { useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties } from 'react'
 import { cn } from '../bausteine/cn'
 import { Knopf } from '../bausteine/Knopf'
-import { einstellungen } from '../logik/einstellungen'
+import { einstellung } from '../logik/einstellungen'
 import {
   MIN_TAG,
   ebbeFlut,
@@ -33,13 +33,12 @@ import { useMinute } from './useMinute'
 // Gezeitenkurve (docs/konzept/06-gezeitenkurve.md). Eine gezeichnete Linie, dreimal nebeneinander; der Browser scrollt sie.
 // Folgt der Uhrzeit, bis jemand selbst scrollt; „Zu jetzt" gleitet zurück. Die Mitte zeigt die Uhrzeit, die den Hintergrund steuert.
 // Im Ruhezustand läuft nichts: gerechnet wird nur beim Laden, beim Scrollen und einmal pro Minute.
-const nach = (id: string) => einstellungen.find((e) => e.id === id)!
 const e = {
-  stunden: nach('kurve-stunden'),
-  ganzerTag: nach('kurve-ganzer-tag'),
-  wetter: nach('kurve-wetter'),
-  band: nach('kurve-band-hoehe'),
-  ebbeModus: nach('ebbe-modus'),
+  stunden: einstellung('kurve-stunden'),
+  ganzerTag: einstellung('kurve-ganzer-tag'),
+  wetter: einstellung('kurve-wetter'),
+  band: einstellung('kurve-band-hoehe'),
+  ebbeModus: einstellung('ebbe-modus'),
 }
 
 
@@ -54,19 +53,19 @@ const gleitenMoeglich = () => 'onscrollend' in window && !matchMedia('(prefers-r
  *  Wischen zum Rand hin klappt sie ein; eingeklappt zeigt `KurveRand` nur einen Rand. */
 export function Gezeitenkurve({ className, onAntippen }: { className?: string; onAntippen?: () => void }) {
   const oben = useKurveOben()
-  const ebbeModus = useEinstellung(e.ebbeModus) === true
+  const ebbeModus = useEinstellung(e.ebbeModus)
   const fenster = useMeldungen().fenster
   const jetzt = useMinute()
-  const ganzerTag = useEinstellung(e.ganzerTag) === true
-  const gewaehlt = Number(useEinstellung(e.stunden))
+  const ganzerTag = useEinstellung(e.ganzerTag)
+  const gewaehlt = useEinstellung(e.stunden)
   const stunden = ganzerTag ? 24 : gewaehlt
   const tagStart = startOfDay(jetzt).getTime()
-  const bandHoehe = Number(useEinstellung(e.band))
+  const bandHoehe = useEinstellung(e.band)
   const frisch = useFrischerSchritt()
   const meldung = useMeldungen().frisch
   const termine = useTermine(tagStart)
   const treibgut = useTreibgut()
-  const wetter = useWetter(tagStart, useEinstellung(e.wetter) === true)
+  const wetter = useWetter(tagStart, useEinstellung(e.wetter))
 
   const scroller = useRef<HTMLDivElement>(null)
   const [sichtbar, setSichtbar] = useState(0)

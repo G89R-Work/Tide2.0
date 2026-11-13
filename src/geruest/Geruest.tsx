@@ -1,7 +1,7 @@
 import { Suspense, useEffect } from 'react'
 import { mitteUnten } from '../logik/aktionen'
 import { ebeneVon, ortAusMarke, type Ort } from '../logik/ebenen'
-import { einstellungen } from '../logik/einstellungen'
+import { einstellung } from '../logik/einstellungen'
 import { kurve } from '../werte/kurve'
 import { leiste } from '../werte/leiste'
 import { AktionKnopf } from './AktionKnopf'
@@ -89,7 +89,7 @@ function Handy({ ort, zahl }: { ort: Ort; zahl: number }) {
   )
 }
 
-const leisteBreite = einstellungen.find((x) => x.id === 'leiste-breite')!
+const leisteBreite = einstellung('leiste-breite')
 
 function Pc({ ort }: { ort: Ort }) {
   const sichtbar = useKurveSichtbar(ort.bereich)

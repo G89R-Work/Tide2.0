@@ -3,12 +3,12 @@ import { Knopf } from '../bausteine/Knopf'
 import { Logo } from '../bausteine/Logo'
 import { cn } from '../bausteine/cn'
 import { bereiche, type BereichId } from '../logik/bereiche'
-import { einstellungen as alleEinstellungen } from '../logik/einstellungen'
+import { einstellung } from '../logik/einstellungen'
 import { leiste } from '../werte/leiste'
 import { setzeHier } from './einstellungen'
 import { symbole, vorladen } from './seiten'
 
-const breite = alleEinstellungen.find((e) => e.id === 'leiste-breite')!
+const breite = einstellung('leiste-breite')
 
 // Links die Bereiche, von ganz oben bis ganz unten; oben das Logo (führt zu Heute). Schmal nur Symbole (Name als Hinweis),
 // breit Symbole mit Namen. Wischen nach rechts macht sie breit, nach links schmal (mit Rückgängig). Unten das Zahnrad.

@@ -9,12 +9,12 @@ import { monatKurz, monatName, tagKurz, tagLang } from '../../../geruest/format'
 import { useSchmal } from '../../../geruest/useSchmal'
 import { useFeiertage } from '../../../geruest/useFeiertage'
 import { Leistenknopf } from './Leistenknopf'
-import { einstellungen, type Einstellung } from '../../../logik/einstellungen'
+import { einstellung } from '../../../logik/einstellungen'
 import { monatsRaster, wochenTage, type Wochenbeginn } from '../../../logik/heute'
 import { tagSchluessel } from '../../../logik/zeit'
 import type { Eintrag } from '../../../vertrag/eintrag'
 
-const bundesland = einstellungen.find((e) => e.id === 'bundesland')! as Extract<Einstellung, { art: 'auswahl' }>
+const bundesland = einstellung('bundesland')
 const kuerzel = (land: string) => (land === 'bund' ? 'DE' : land.toUpperCase())
 const ersterJahr = 1950
 const jahre = Array.from({ length: 151 }, (_, i) => ersterJahr + i)
@@ -34,7 +34,7 @@ export function Monat({ monat, gewaehlt, jetzt, beginn, termine, waehle }: Props
   const [offen, setOffen] = useState(false)
   const [zeige, setZeige] = useState({ monat: ersterDes(monat), richtung: 0 })
   const [zug, setZug] = useState(0)
-  const land = useEinstellung(bundesland) as string
+  const land = useEinstellung(bundesland)
   const feiertag = useFeiertage(zeige.monat.getFullYear(), land)
   const heute = tagSchluessel(jetzt)
   const gewaehltS = tagSchluessel(gewaehlt)
