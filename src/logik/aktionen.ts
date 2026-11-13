@@ -18,7 +18,7 @@ export type Aktion = {
 
 export const aktionen: readonly Aktion[] = [
   ...bereiche.map((b, i) => ({ id: `bereich-${b.id}`, name: b.name, ziel: `#${b.id}`, kuerzel: `Alt+${(i + 1) % 10}` })),
-  { id: 'neue-mail', name: 'Neue Mail', ziel: '#postfach/entwuerfe', kuerzel: 'Alt+M' },
+  { id: 'neue-mail', name: 'Neue Mail', befehl: true, kuerzel: 'Alt+M' },
   { id: 'neuer-termin', name: 'Neuer Termin', ziel: '#kalender', kuerzel: 'Alt+T' },
   { id: 'neues-todo', name: 'Neues To-do', ziel: '#todos', kuerzel: 'Alt+N' },
   { id: 'einkaufsmodus', name: 'Einkaufsmodus', ziel: '#einkauf/listen', kuerzel: 'Alt+E' },
@@ -26,9 +26,9 @@ export const aktionen: readonly Aktion[] = [
   { id: 'rueckgaengig', name: 'Rückgängig', befehl: true, kuerzel: 'Alt+Z' },
   { id: 'wiederherstellen', name: 'Wiederherstellen', befehl: true, kuerzel: 'Alt+Y' },
   { id: 'kurve', name: 'Gezeitenkurve ein/aus', befehl: true, kuerzel: 'Alt+K' },
-  { id: 'mail-antworten', name: 'Antworten', spaeter: true },
-  { id: 'mail-allen-antworten', name: 'Allen antworten', spaeter: true },
-  { id: 'mail-weiterleiten', name: 'Weiterleiten', spaeter: true },
+  { id: 'mail-antworten', name: 'Antworten', befehl: true, kuerzel: 'Alt+R' },
+  { id: 'mail-allen-antworten', name: 'Allen antworten', befehl: true },
+  { id: 'mail-weiterleiten', name: 'Weiterleiten', befehl: true },
   { id: 'mail-archivieren', name: 'Archivieren', befehl: true, kuerzel: 'Alt+A' },
   { id: 'mail-loeschen', name: 'Löschen', befehl: true, kuerzel: 'Alt+L' },
   { id: 'mail-ungelesen', name: 'Gelesen oder ungelesen', befehl: true, kuerzel: 'Alt+U' },

@@ -44,6 +44,9 @@ export function versatzText(minuten: number): string {
   return `${minuten > 0 ? '+' : '−'}${dauerText(Math.abs(minuten))}`
 }
 
+/** „Freitag, 13. November 2026“ (auch im Zitat einer Antwort). */
+export const datumLang = (d: Date | string) => format(d, 'EEEE, d. MMMM yyyy', { locale: de })
+
 /** Kurze Zeit einer Mail: heute „HH:MM“, „gestern“, in den letzten sieben Tagen der Wochentag, sonst „7. Nov.“ oder mit Jahr „24.12.25“. */
 export function mailZeit(d: Date | string, jetzt: Date): string {
   const tage = differenceInCalendarDays(jetzt, d)

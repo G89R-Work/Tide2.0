@@ -135,8 +135,8 @@ export function kategorieUmschalten(liste: readonly Mail[], name: string): MailA
 
 const um = (tag: Date, stunde: number) => setHours(startOfDay(tag), stunde)
 
-/** Zeiten zum Erinnern (Ortszeit): heute Abend nur vor 18 Uhr, morgen früh, nächster Samstag, nächster Montag. */
-export function erinnernZeiten(jetzt: Date): { name: string; zeit: Date }[] {
+/** Zeiten für „später“ (Erinnern, Senden; Ortszeit): heute Abend nur vor 18 Uhr, morgen früh, nächster Samstag, nächster Montag. */
+export function spaeterZeiten(jetzt: Date): { name: string; zeit: Date }[] {
   const abend = um(jetzt, 18)
   return [
     ...(jetzt < abend ? [{ name: 'Heute Abend', zeit: abend }] : []),

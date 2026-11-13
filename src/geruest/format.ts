@@ -3,11 +3,10 @@
 import { format } from 'date-fns'
 import { de } from 'date-fns/locale'
 
-export { dauerText, mailZeit, uhrzeit, versatzText } from '../logik/zeit'
+export { datumLang, dauerText, mailZeit, uhrzeit, versatzText } from '../logik/zeit'
 
 const f = (muster: string) => (d: Date) => format(d, muster, { locale: de })
 
-export const datumLang = f('EEEE, d. MMMM yyyy')
 export const tagLang = f('EEEE, d. MMMM')
 export const tagKurz = f('EEEEEE')
 export const stundeKurz = f('HH')

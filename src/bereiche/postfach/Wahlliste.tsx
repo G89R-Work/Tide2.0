@@ -1,5 +1,6 @@
+import type { LucideIcon } from 'lucide-react'
 import type { ReactNode } from 'react'
-import { AufklappZu } from '../../bausteine/Aufklapp'
+import { Aufklapp, AufklappInhalt, AufklappKnopf, AufklappZu } from '../../bausteine/Aufklapp'
 import { Knopf } from '../../bausteine/Knopf'
 import { cn } from '../../bausteine/cn'
 
@@ -20,5 +21,22 @@ export function Wahlliste({ titel, punkte, className }: { titel?: string; punkte
         </AufklappZu>
       ))}
     </div>
+  )
+}
+
+/** Knopf, der eine Wahlliste aufklappt. */
+export function MitListe({ name, Symbol, nurSymbol = false, haupt = false, className, children }: { name: string; Symbol: LucideIcon; nurSymbol?: boolean; haupt?: boolean; className?: string; children: ReactNode }) {
+  return (
+    <Aufklapp>
+      <AufklappKnopf asChild>
+        <Knopf art={haupt ? 'haupt' : nurSymbol ? 'symbol' : 'standard'} groesse="klein" aria-label={name} title={name} className={className}>
+          <Symbol aria-hidden className="size-4" />
+          {!nurSymbol && name}
+        </Knopf>
+      </AufklappKnopf>
+      <AufklappInhalt breite="inhalt" align="start" aria-label={name} className="flex w-60 flex-col gap-1 p-2">
+        {children}
+      </AufklappInhalt>
+    </Aufklapp>
   )
 }

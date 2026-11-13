@@ -9,7 +9,7 @@ import { stand } from '../logik/ordner'
 import { tagSchluessel } from '../logik/zeit'
 import { aendereEinstellungen, holeEinstellungen } from '../vertrag/einstellungen'
 import { aendereEintrag, holeEintraege, holeTermine, type Aenderung, type Eintrag } from '../vertrag/eintrag'
-import { aendereMails, holeKategorien, holeMailInhalt, holeMails, holeOrdner, speichereOrdner, type Mail, type MailAenderung, type Ordner, type OrdnerStand } from '../vertrag/postfach'
+import { aendereMails, holeKategorien, holeKonten, holeMailInhalt, holeMails, holeZurueck, sendeMail, speichereEntwurf, type Entwurf, holeOrdner, speichereOrdner, type Mail, type MailAenderung, type Ordner, type OrdnerStand } from '../vertrag/postfach'
 import { holeWetter, holeWetterTage } from '../vertrag/wetter'
 import { merke } from './rueckgaengig'
 
@@ -31,6 +31,7 @@ const schluessel = {
   mails: ['mails'],
   kategorien: ['kategorien'],
   mailInhalt: ['mail-inhalt'],
+  konten: ['konten'],
   einstellungen: ['einstellungen'],
   feiertage: ['feiertage'],
 } as const satisfies Record<string, QueryKey>
@@ -71,11 +72,26 @@ export function useMails(ordner: string) {
   return { mails: q.data, fehler: meldung('Mails', q.error) }
 }
 
-/** Empfänger und Text einer Mail; ändert sich nicht, darum nur einmal geholt. */
+const inhaltAbfrage = (id: string) => ({ queryKey: [...schluessel.mailInhalt, id], queryFn: () => holeMailInhalt(id), staleTime: Infinity })
+
+/** Empfänger und Text einer Mail; ändert sich nur bei Entwürfen (dann setzt das Speichern ihn neu), darum nur einmal geholt. */
 export function useMailInhalt(id: string) {
-  const q = useQuery({ queryKey: [...schluessel.mailInhalt, id], queryFn: () => holeMailInhalt(id), staleTime: Infinity })
+  const q = useQuery(inhaltAbfrage(id))
   return { inhalt: q.data, fehler: meldung('Mail', q.error) }
 }
+
+/** Dasselbe außerhalb von React (etwa um eine Antwort vorzubereiten); holt, was noch fehlt. */
+export const mailInhaltJetzt = (id: string) => abfragen.fetchQuery(inhaltAbfrage(id))
+
+const kontenAbfrage = { queryKey: schluessel.konten, queryFn: holeKonten, staleTime: Infinity }
+
+/** Konten, von denen Tide sendet, mit Signatur. */
+export function useKonten() {
+  const q = useQuery(kontenAbfrage)
+  return { konten: q.data, fehler: meldung('Konten', q.error) }
+}
+
+export const kontenJetzt = () => abfragen.fetchQuery(kontenAbfrage)
 
 /** Die geladenen Mails eines Ordners (für Befehle außerhalb von React); leer, solange nichts geladen ist. */
 export const mailsJetzt = (ordner: string): readonly Mail[] => abfragen.getQueryData<Mail[]>([...schluessel.mails, ordner]) ?? []
@@ -256,4 +272,61 @@ export async function aendereMailsMitSchritt(liste: readonly MailAenderung[], te
     () => false,
   )
   if (ok) merke({ text, zurueck: senden(vorher), vor: senden([...liste]), bereich: 'postfach', ...(still ? { still } : {}) })
+}
+
+// ── Schreiben: Entwürfe speichern sich beim Tippen (ohne Rückgängig-Schritt je Taste); Senden lässt sich zurückholen.
+
+const mailsNeu = () => Promise.all([abfragen.invalidateQueries(mailListen), abfragen.invalidateQueries({ queryKey: schluessel.ordner })])
+
+const entwurfSpeichern = new MutationObserver(abfragen, {
+  mutationKey: ['entwurf'],
+  mutationFn: ({ id, entwurf }: { id: string; entwurf: Entwurf }) => speichereEntwurf(id, entwurf),
+  onSuccess: (_m, { id, entwurf }) => abfragen.setQueryData([...schluessel.mailInhalt, id], { id, an: entwurf.an, cc: entwurf.cc, text: entwurf.text }),
+  onSettled: mailsNeu,
+})
+
+/** Speichert einen Entwurf; liefert, ob es geklappt hat (der Grund steht dann in `useEntwurfFehler`). */
+export function entwurfSpeichernVon(id: string, entwurf: Entwurf): Promise<boolean> {
+  return entwurfSpeichern.mutate({ id, entwurf }).then(
+    () => true,
+    () => false,
+  )
+}
+
+export function useEntwurfFehler() {
+  return meldung('Entwurf nicht gespeichert', useLetzterFehler('entwurf'))
+}
+
+/** Legt einen neuen Entwurf an; Rückgängig legt ihn in den Papierkorb. Liefert, ob es geklappt hat. */
+export async function neuerEntwurfMitSchritt(id: string, entwurf: Entwurf, text: string): Promise<boolean> {
+  if (!(await entwurfSpeichernVon(id, entwurf))) return false
+  const nach = (ordner: string) => async () => {
+    await mailsSpeichern.mutate([{ id, ordner }]).catch(() => undefined)
+  }
+  merke({ text, zurueck: nach('papierkorb'), vor: nach('entwuerfe'), bereich: 'postfach' })
+  return true
+}
+
+const senden = new MutationObserver(abfragen, {
+  mutationKey: ['senden'],
+  mutationFn: ({ id, am, zurueck }: { id: string; am: Date | null; zurueck: boolean }) => (zurueck ? holeZurueck(id) : sendeMail(id, am)),
+  onSettled: mailsNeu,
+})
+
+export function useSendeFehler() {
+  return meldung('Nicht gesendet', useLetzterFehler('senden'))
+}
+
+/** Sendet (`zurueck = false`; sofort mit `am = null` oder geplant) oder holt eine geplante Mail zurück (`true`).
+ *  Rückgängig tut jeweils das Gegenteil; zurückholen lässt sich nur, was noch nicht verschickt ist. */
+export async function sendenMitSchritt(id: string, am: Date | null, zurueck: boolean, text: string): Promise<boolean> {
+  const tun = (z: boolean) => async () => {
+    await senden.mutate({ id, am, zurueck: z }).catch(() => undefined)
+  }
+  const ok = await senden.mutate({ id, am, zurueck }).then(
+    () => true,
+    () => false,
+  )
+  if (ok) merke({ text, zurueck: tun(!zurueck), vor: tun(zurueck), bereich: 'postfach' })
+  return ok
 }

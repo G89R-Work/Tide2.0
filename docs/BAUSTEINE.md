@@ -190,3 +190,10 @@ Muster für einen Eintrag:
 - Grund: weniger eigener Code als mit TanStack Virtual (Liste samt Lage der Zeilen fertig); feste Zeilenhöhe aus `werte/postfach.ts`.
 - Link: https://github.com/inokawa/virtua
 - Eingebaut in Scheibe: postfach-liste
+
+## 2026-11-13 · Entwurf beim Tippen speichern
+- Kandidaten: use-debounce 10 (`useDebouncedCallback` mit `flush` und `cancel`, ~1 KB, MIT), @tanstack/react-pacer (größer, noch jung), bei jedem Tastendruck speichern (viele Anfragen am späteren Server)
+- Entscheidung: `use-debounce` (Nutzer)
+- Grund: wartet auf die Tipp-Pause (`werte/postfach.ts`), `flush` beim Verlassen der Seite und vor dem Senden.
+- Link: https://github.com/xnimorz/use-debounce
+- Eingebaut in Scheibe: postfach-schreiben

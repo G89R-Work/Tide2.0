@@ -80,6 +80,10 @@ export const mailSchema = z.object({
   brauchtDich: z.boolean(),
   /** ISO-Zeitpunkt, zu dem eine zurückgestellte Mail wieder in den Posteingang kommt */
   erinnernAm: z.iso.datetime({ offset: true }).optional(),
+  /** Entwurf oder gesendete Mail: Antwort auf diese Mail */
+  antwortAuf: z.string().optional(),
+  /** Nur in „Geplant“: ISO-Zeitpunkt, zu dem der Server sie verschickt; bis dahin lässt sie sich zurückholen */
+  sendenAm: z.iso.datetime({ offset: true }).optional(),
 })
 export type Mail = z.infer<typeof mailSchema>
 
@@ -108,6 +112,42 @@ export function aendereMails(liste: readonly MailAenderung[]): Promise<Mail[]> {
 /** Empfänger und Text einer Mail. */
 export function holeMailInhalt(id: string): Promise<MailInhalt> {
   return anfrage(mailInhaltSchema, 'Mail öffnen', `/api/postfach/mails/${encodeURIComponent(id)}/inhalt`)
+}
+
+export const kontoSchema = z.object({ adresse: z.string().min(1), name: z.string(), signatur: z.string() })
+export type Konto = z.infer<typeof kontoSchema>
+
+/** Was ein Entwurf festhält; daraus macht der Server eine Mail in „Entwürfe“ samt Inhalt. */
+export const entwurfSchema = z.object({
+  konto: z.string().min(1),
+  an: z.array(z.string()),
+  cc: z.array(z.string()),
+  betreff: z.string(),
+  /** Text samt Signatur und Zitat */
+  text: z.string(),
+  wichtig: z.boolean(),
+  antwortAuf: z.string().optional(),
+})
+export type Entwurf = z.infer<typeof entwurfSchema>
+
+/** Konten, von denen Tide sendet, je mit ihrer Signatur. */
+export function holeKonten(): Promise<Konto[]> {
+  return anfrage(z.array(kontoSchema), 'Konten holen', '/api/postfach/konten')
+}
+
+/** Legt einen Entwurf an oder ändert ihn; Antwort: der Entwurf als Mail. */
+export function speichereEntwurf(id: string, entwurf: Entwurf): Promise<Mail> {
+  return anfrage(mailSchema, 'Entwurf speichern', `/api/postfach/entwuerfe/${encodeURIComponent(id)}`, 'PUT', entwurf)
+}
+
+/** Sendet einen Entwurf: `am` plant ihn, `null` heißt sofort. Er liegt bis zum Versand in „Geplant“ (sofort: noch einige Sekunden). */
+export function sendeMail(id: string, am: Date | null): Promise<Mail> {
+  return anfrage(mailSchema, 'Senden', `/api/postfach/mails/${encodeURIComponent(id)}/senden`, 'PUT', { am: am?.toISOString() ?? null })
+}
+
+/** Gegen-Anfrage zum Senden: holt eine noch nicht verschickte Mail zurück in die Entwürfe. */
+export function holeZurueck(id: string): Promise<Mail> {
+  return anfrage(mailSchema, 'Zurückholen', `/api/postfach/mails/${encodeURIComponent(id)}/zurueckholen`, 'PUT', {})
 }
 
 /** Kategorien mit Farbe, in ihrer Reihenfolge. */

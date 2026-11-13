@@ -1,5 +1,6 @@
 import { aktionen } from '../logik/aktionen'
 import { ortAusMarke } from '../logik/ebenen'
+import type { Antwortart } from '../logik/schreiben'
 import type { Mail } from '../vertrag/postfach'
 import { kurveUmschalten } from './einstellungen'
 import { rueckgaengig, wiederherstellen } from './rueckgaengig'
@@ -15,11 +16,18 @@ const mitMails = (tun: (a: MailAktionen, ms: Mail[]) => Promise<void>) => async 
   if (ms.length) await tun(a, ms)
 }
 
+/** Antwort oder Weiterleitung: nur, wenn genau eine Mail gewählt ist. */
+const antwort = (art: Antwortart) => mitMails((a, ms) => (ms.length === 1 && ms[0] ? a.antworte(ms[0], art) : Promise.resolve()))
+
 // Was Aktionen mit `befehl` tun. Eine neue Befehls-Aktion braucht hier eine Zeile.
 const befehle: Record<string, () => unknown> = {
   rueckgaengig: () => rueckgaengig(),
   wiederherstellen: () => wiederherstellen(),
   kurve: () => kurveUmschalten(ortAusMarke(location.hash).bereich),
+  'neue-mail': () => void import('./mailAktionen').then((a) => a.neueMail()),
+  'mail-antworten': antwort('antworten'),
+  'mail-allen-antworten': antwort('allen'),
+  'mail-weiterleiten': antwort('weiterleiten'),
   'mail-archivieren': mitMails((a, ms) => a.archiviere(ms)),
   'mail-loeschen': mitMails((a, ms) => a.loesche(ms)),
   'mail-ungelesen': mitMails((a, ms) => a.schalte(ms, 'ungelesen')),

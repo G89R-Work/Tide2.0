@@ -1,6 +1,6 @@
 import { subMinutes } from 'date-fns'
 import { tagSchluessel } from '../logik/zeit'
-import type { Hinweis, Kategorie, Mail, MailInhalt } from '../vertrag/postfach'
+import type { Hinweis, Kategorie, Konto, Mail, MailInhalt } from '../vertrag/postfach'
 
 // 500 erfundene Beispielmails für den Prototyp: zuerst einige ausgeschriebene, dann erzeugte aus festen Bausteinen
 // (immer dieselben, damit ids und Inhalt beim Neuladen gleich bleiben). Zeiten zählen rückwärts ab dem Laden.
@@ -17,6 +17,11 @@ export const beispielKategorien: Kategorie[] = [
 
 const ich = 'ich@beispiel.example'
 const familie = 'familie@beispiel.example'
+
+export const beispielKonten: Konto[] = [
+  { adresse: ich, name: 'Privat', signatur: 'Viele Grüße' },
+  { adresse: familie, name: 'Familie', signatur: 'Liebe Grüße' },
+]
 
 type Teil = Partial<Mail> & Pick<Mail, 'von' | 'adresse' | 'betreff' | 'vorschau'>
 

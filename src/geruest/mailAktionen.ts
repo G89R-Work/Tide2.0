@@ -1,7 +1,9 @@
+import { markeFuer } from '../logik/ebenen'
 import { kategorieUmschalten, mailsText, umschalten } from '../logik/mails'
-import type { Mail, Ordner } from '../vertrag/postfach'
-import { aendereMailsMitSchritt, mailsJetzt } from './daten'
-import { mailAuswahlJetzt } from './mailAuswahl'
+import { antwortEntwurf, neuerEntwurf, type Antwortart } from '../logik/schreiben'
+import type { Entwurf, Mail, Ordner } from '../vertrag/postfach'
+import { aendereMailsMitSchritt, kontenJetzt, mailInhaltJetzt, mailsJetzt, neuerEntwurfMitSchritt, sendenMitSchritt } from './daten'
+import { mailAuswahlJetzt, waehleMails } from './mailAuswahl'
 
 // Jede Aktion auf einer oder mehreren Mails, einmal für Leser, Menü und Tastenkürzel. Jede lässt sich zurücknehmen.
 
@@ -54,3 +56,33 @@ export function gewaehlteMails(offen: string): Mail[] {
   const set = new Set(ids)
   return mailsJetzt(ordner).filter((m) => set.has(m.id))
 }
+
+// ── Schreiben
+
+/** Legt einen Entwurf an. Antworten bleiben unter ihrer Mail, alles andere öffnet sich in „Entwürfe“. */
+async function entwerfe(entwurf: Entwurf, text: string) {
+  const id = `entwurf-${crypto.randomUUID().slice(0, 8)}`
+  if (!(await neuerEntwurfMitSchritt(id, entwurf, text)) || entwurf.antwortAuf) return
+  location.hash = markeFuer('postfach', 'entwuerfe')
+  waehleMails('entwuerfe', { ids: [id], anker: id })
+}
+
+const antwortText: Record<Antwortart, string> = { antworten: 'Antwort', allen: 'Antwort an alle', weiterleiten: 'Weiterleitung' }
+
+/** Antwort, Antwort an alle oder Weiterleitung als Entwurf, vom Konto, an das die Mail ging. */
+export async function antworte(m: Mail, art: Antwortart) {
+  const [konten, inhalt] = await Promise.all([kontenJetzt(), mailInhaltJetzt(m.id)])
+  await entwerfe(antwortEntwurf(m, inhalt, art, konten), `${antwortText[art]} auf ${was([m])} angelegt`)
+}
+
+export async function neueMail() {
+  await entwerfe(neuerEntwurf(await kontenJetzt()), 'Neue Mail angelegt')
+}
+
+export const verwerfe = (m: Mail) => aendereMailsMitSchritt([{ id: m.id, ordner: 'papierkorb' }], `Entwurf ${was([m])} verworfen`)
+
+/** Senden: sofort (`am = null`, kurz rückholbar) oder geplant; `name` beschreibt die Zeit („Morgen früh“). */
+export const sende = (m: Mail, am: Date | null, name?: string) => sendenMitSchritt(m.id, am, false, am ? `${was([m])} geplant: ${name ?? ''}` : `${was([m])} gesendet`)
+
+/** Holt eine geplante Mail zurück in die Entwürfe. */
+export const holeZurueck = (m: Mail) => sendenMitSchritt(m.id, m.sendenAm ? new Date(m.sendenAm) : null, true, `${was([m])} zurückgeholt`)

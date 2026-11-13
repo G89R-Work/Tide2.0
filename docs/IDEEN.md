@@ -45,6 +45,8 @@ Was umgesetzt ist, wandert beim Abschluss einer Scheibe nach „Erledigt“, mit
 - 2026-11-13 · Attrappe: Regenwahrscheinlichkeit je Tag variieren, damit die 7-Tage-Vorschau nicht überall 90 % zeigt (heute-uhr-und-wetter)
 - Wird ein eigener Ordner gelöscht, bleiben seine Mails ohne Ordner unsichtbar: beim Löschen fragen, wohin sie gehen (Posteingang oder Archiv) (postfach-liste)
 - Nach Archivieren oder Löschen der offenen Mail gleich die nächste öffnen, wie in Mail-Programmen üblich (postfach-leser)
+- Entwurf auch beim Neuladen mitten im Tippen sichern: mit dem echten Server Änderungen beim Verlassen per `keepalive` senden (mit der Attrappe nicht prüfbar, sie verschwindet mit der Seite) (postfach-schreiben)
+- Geplant und Gesendet sofort neu laden, wenn die Rückholzeit einer gesendeten Mail vorbei ist (jetzt erst beim nächsten Holen) (postfach-schreiben)
 
 ## Erledigt
 - 2026-11-13 · Tempo: erster Wechsel zu Postfach und Wechsel zu Heute am PC liegen schon auf dem Stand vor `aufraeumen-datum` bei 93–111 ms (Grenze 100); `npm run pruefen` wird dadurch zufällig rot. Erledigt 2026-11-13 in `aufraeumen-daten` (Zwischenspeicher, jetzt 10–40 ms).

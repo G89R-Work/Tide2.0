@@ -2,14 +2,18 @@ import { http, HttpResponse } from 'msw'
 import { z } from 'zod'
 import { echterOrdner, inOrdner, mailsAendern, ordnerZahl, zurueckGekommen } from '../logik/mails'
 import { ordnerFehler } from '../logik/ordner'
-import { mailAenderungSchema, mailSchema, ordnerStandSchema, type Mail, type Ordner, type OrdnerStand } from '../vertrag/postfach'
-import { beispielInhalt, beispielKategorien, beispielMails } from './mails'
+import { abgeschickt, entwurfAlsMail, sendeFehler } from '../logik/schreiben'
+import { entwurfSchema, mailAenderungSchema, mailInhaltSchema, mailSchema, ordnerStandSchema, type Mail, type MailInhalt, type Ordner, type OrdnerStand } from '../vertrag/postfach'
+import { beispielInhalt, beispielKategorien, beispielKonten, beispielMails } from './mails'
 import { abgelehnt, anfrageInhalt, gemerkt } from './pruefen'
 
 // Beispielordner wie in der Vorlage (docs/vorlage-aussehen/bilder/postfach-ordner.jpg), Systemordner wie im Konzept.
 // Die Attrappe merkt sich Reihenfolge, Namen, Farben und Anheften im Browser; die Zähler rechnet sie aus den Mails.
 const schluessel = 'tide.attrappe.ordner'
 const mailSchluessel = 'tide.attrappe.mails'
+const inhaltSchluessel = 'tide.attrappe.inhalte'
+/** So lange bleibt eine sofort gesendete Mail in „Geplant“ und lässt sich zurückholen (wie beim echten Server). */
+const RUECKHOL_MS = 5000
 
 const ab = (x: Omit<OrdnerStand, 'angeheftet'> & { angeheftet?: boolean }): OrdnerStand => ({ angeheftet: true, ...x })
 const ausgang: OrdnerStand[] = [
@@ -37,8 +41,22 @@ const ausgang: OrdnerStand[] = [
 
 const laden = () => gemerkt(schluessel, z.array(ordnerStandSchema), () => ausgang, 'Ordner')
 // Gemerkt wird erst nach der ersten Änderung; bis dahin entstehen die Beispielmails beim Laden neu (Zeiten relativ zu jetzt).
-// Zurückgestellte Mails kommen zu ihrer Zeit von selbst zurück, wie beim echten Server.
-const mailsLaden = () => zurueckGekommen(gemerkt(mailSchluessel, z.array(mailSchema), () => beispielMails(new Date()), 'Mails'), new Date())
+// Zurückgestellte Mails kommen zu ihrer Zeit von selbst zurück, geplante gehen zu ihrer Zeit hinaus, wie beim echten Server.
+const mailsLaden = () => {
+  const jetzt = new Date()
+  return abgeschickt(zurueckGekommen(gemerkt(mailSchluessel, z.array(mailSchema), () => beispielMails(jetzt), 'Mails'), jetzt), jetzt)
+}
+const mailsMerken = (l: readonly Mail[]) => localStorage.setItem(mailSchluessel, JSON.stringify(l))
+// Inhalt geschriebener Mails (Entwürfe); alle anderen entstehen aus der Beispielmail.
+const inhalteLaden = () => gemerkt(inhaltSchluessel, z.record(z.string(), mailInhaltSchema), () => ({}), 'Inhalte')
+const inhaltVon = (m: Mail): MailInhalt => inhalteLaden()[m.id] ?? beispielInhalt(m)
+
+/** Ersetzt eine Mail (gleiche id) oder stellt sie an den Anfang und merkt die Liste. */
+function mailMerken(neu: Mail): Mail {
+  const mails = mailsLaden()
+  mailsMerken(mails.some((m) => m.id === neu.id) ? mails.map((m) => (m.id === neu.id ? neu : m)) : [neu, ...mails])
+  return neu
+}
 const mitZahlen = (liste: readonly OrdnerStand[]): Ordner[] => {
   const mails = mailsLaden()
   return liste.map((x) => ({ ...x, zahl: ordnerZahl(mails, x), ...(x.id === 'braucht-dich' ? { wichtig: true as const } : {}) }))
@@ -74,13 +92,41 @@ export const postfachAntworten = [
     const ziel = liste.find((a) => a.ordner !== undefined && !ordner.some((o) => o.id === a.ordner && echterOrdner(o)))
     if (ziel) return abgelehnt(`In „${ziel.ordner}“ kann keine Mail liegen`)
     const neu = mailsAendern(mails, liste)
-    localStorage.setItem(mailSchluessel, JSON.stringify(neu))
+    mailsMerken(neu)
     const ids = new Set(liste.map((a) => a.id))
     return HttpResponse.json(neu.filter((m) => ids.has(m.id)))
   }),
   http.get('/api/postfach/mails/:id/inhalt', ({ params }) => {
     const m = mailsLaden().find((x) => x.id === params.id)
-    return m ? HttpResponse.json(beispielInhalt(m)) : abgelehnt(`Mail unbekannt: ${String(params.id)}`)
+    return m ? HttpResponse.json(inhaltVon(m)) : abgelehnt(`Mail unbekannt: ${String(params.id)}`)
+  }),
+  http.get('/api/postfach/konten', () => HttpResponse.json(beispielKonten)),
+  http.put('/api/postfach/entwuerfe/:id', async ({ params, request }) => {
+    const id = String(params.id)
+    const e = await anfrageInhalt(request, entwurfSchema)
+    if (e instanceof HttpResponse) return e
+    const alt = mailsLaden().find((m) => m.id === id)
+    if (alt && alt.ordner !== 'entwuerfe') return abgelehnt(`„${alt.betreff}“ ist kein Entwurf mehr`)
+    if (!beispielKonten.some((k) => k.adresse === e.konto)) return abgelehnt(`Konto unbekannt: ${e.konto}`)
+    localStorage.setItem(inhaltSchluessel, JSON.stringify({ ...inhalteLaden(), [id]: { id, an: e.an, cc: e.cc, text: e.text } }))
+    return HttpResponse.json(mailMerken(entwurfAlsMail(id, e, new Date())))
+  }),
+  http.put('/api/postfach/mails/:id/senden', async ({ params, request }) => {
+    const wann = await anfrageInhalt(request, z.object({ am: z.iso.datetime({ offset: true }).nullable() }))
+    if (wann instanceof HttpResponse) return wann
+    const m = mailsLaden().find((x) => x.id === params.id)
+    if (!m || m.ordner !== 'entwuerfe') return abgelehnt(`Kein Entwurf: ${String(params.id)}`)
+    const i = inhaltVon(m)
+    const fehler = sendeFehler({ konto: m.konto, an: i.an, cc: i.cc, betreff: m.betreff, text: i.text, wichtig: m.wichtig })
+    if (fehler) return abgelehnt(fehler)
+    const am = wann.am ?? new Date(Date.now() + RUECKHOL_MS).toISOString()
+    return HttpResponse.json(mailMerken({ ...m, ordner: 'geplant', sendenAm: am }))
+  }),
+  http.put('/api/postfach/mails/:id/zurueckholen', ({ params }) => {
+    const m = mailsLaden().find((x) => x.id === params.id)
+    if (!m || m.ordner !== 'geplant') return abgelehnt('Schon verschickt')
+    const { sendenAm: _weg, ...rest } = m
+    return HttpResponse.json(mailMerken({ ...rest, ordner: 'entwuerfe' }))
   }),
   http.get('/api/postfach/kategorien', () => HttpResponse.json(beispielKategorien)),
 ]

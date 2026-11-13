@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { Mail, OrdnerStand } from '../vertrag/postfach'
-import { erinnernZeiten, gezogen, inOrdner, kannHinein, kategorieUmschalten, kuerzel, mailsAendern, mailsText, nachverfolgenWahl, umschalten, zurueckGekommen, ordnerZahl, passt, vorherWerte, waehle, zeigeMails } from './mails'
+import { spaeterZeiten, gezogen, inOrdner, kannHinein, kategorieUmschalten, kuerzel, mailsAendern, mailsText, nachverfolgenWahl, umschalten, zurueckGekommen, ordnerZahl, passt, vorherWerte, waehle, zeigeMails } from './mails'
 
 // Erfundene Mails; `zeit` zählt Minuten ab Mitternacht am 13.11.2026.
 const m = (id: string, x: Partial<Mail> = {}): Mail => ({
@@ -160,18 +160,18 @@ describe('Umschalten für mehrere Mails', () => {
 
 describe('Erinnern', () => {
   it('bietet heute Abend nur vor 18 Uhr an, dann morgen früh, Samstag und Montag', () => {
-    const vormittag = erinnernZeiten(new Date(2026, 10, 13, 9, 30))
+    const vormittag = spaeterZeiten(new Date(2026, 10, 13, 9, 30))
     expect(vormittag.map((z) => [z.name, z.zeit.toString()])).toEqual([
       ['Heute Abend', new Date(2026, 10, 13, 18).toString()],
       ['Morgen früh', new Date(2026, 10, 14, 8).toString()],
       ['Am Wochenende', new Date(2026, 10, 14, 9).toString()],
       ['Nächste Woche', new Date(2026, 10, 16, 8).toString()],
     ])
-    expect(erinnernZeiten(new Date(2026, 10, 13, 18, 0)).map((z) => z.name)).toEqual(['Morgen früh', 'Am Wochenende', 'Nächste Woche'])
+    expect(spaeterZeiten(new Date(2026, 10, 13, 18, 0)).map((z) => z.name)).toEqual(['Morgen früh', 'Am Wochenende', 'Nächste Woche'])
   })
 
   it('springt am Samstag zum nächsten Wochenende und rechnet über die Zeitumstellung in Ortszeit', () => {
-    const samstag = erinnernZeiten(new Date(2026, 9, 24, 20))
+    const samstag = spaeterZeiten(new Date(2026, 9, 24, 20))
     expect(samstag.find((z) => z.name === 'Am Wochenende')?.zeit.toString()).toBe(new Date(2026, 9, 31, 9).toString())
     expect(samstag.find((z) => z.name === 'Morgen früh')?.zeit.getHours()).toBe(8)
   })

@@ -8,6 +8,8 @@ export const postfach = {
   liste: '380px',
   listeMin: '280px',
   listeMax: '60%',
+  /** Tipp-Pause, nach der ein Entwurf sich speichert. */
+  entwurfSpeichernMs: 800,
   /** Kleinste Breite des Lesers. */
   leserMin: '360px',
   /** Feste Höhe einer Mail-Zeile: so rechnet die Liste ohne Messen und scrollt auch bei 500 Mails ruhig. */

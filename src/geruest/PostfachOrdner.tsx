@@ -15,7 +15,8 @@ import { anheften, einordnen, loesche, nachkommen, neuerOrdner, ordnerListe, sta
 import type { Ordner, OrdnerFarbe, OrdnerStand } from '../vertrag/postfach'
 import { leiste } from '../werte/leiste'
 import { ordnerFarben } from '../werte/ordner'
-import { aktionSymbole } from './aktionSymbole'
+import { aktionSymbole, titelVon } from './aktionSymbole'
+import { fuehreAus } from './befehle'
 import { aendereMailsMitSchritt, aendereOrdnerMitSchritt, useOrdner, useOrdnerFehler } from './daten'
 import { EbenenZeile } from './EbenenZeile'
 import { ebenenSymbol } from './ebenenSymbole'
@@ -99,10 +100,16 @@ export default function PostfachOrdner({ aktiv, beiWahl }: { aktiv: string | nul
 
   return (
     <div className="flex min-h-full flex-col">
-      <Knopf alsKind art="haupt" className="mb-2 w-full">
-        <a href={neueMail.ziel} onClick={beiWahl}>
-          <NeuSymbol aria-hidden className="size-4" /> {neueMail.name}
-        </a>
+      <Knopf
+        art="haupt"
+        className="mb-2 w-full"
+        title={titelVon(neueMail)}
+        onClick={() => {
+          fuehreAus(neueMail.id)
+          beiWahl?.()
+        }}
+      >
+        <NeuSymbol aria-hidden className="size-4" /> {neueMail.name}
       </Knopf>
       {fehler && <p className="px-3 text-sm text-warnung">{fehler}</p>}
       {speicherFehler && <p className="px-3 text-sm text-warnung">{speicherFehler}</p>}

@@ -7,7 +7,7 @@ import { Aufklapp, AufklappInhalt, AufklappKnopf } from '../../bausteine/Aufklap
 import { Eingabe } from '../../bausteine/Eingabe'
 import { Knopf } from '../../bausteine/Knopf'
 import { cn } from '../../bausteine/cn'
-import { useKategorien, useMailFehler, useMails, useOrdner } from '../../geruest/daten'
+import { useKategorien, useMailFehler, useMails, useOrdner, useSendeFehler } from '../../geruest/daten'
 import { mailZeit } from '../../geruest/format'
 import { gelesen } from '../../geruest/mailAktionen'
 import { mailAuswahlJetzt, useMailAuswahl, waehleMails } from '../../geruest/mailAuswahl'
@@ -33,7 +33,9 @@ export function MailListe({ ordner }: { ordner: string }) {
   const { mails, fehler } = useMails(ordner)
   const { kategorien } = useKategorien()
   const name = useOrdner().ordner?.find((o) => o.id === ordner)?.name ?? ''
-  const aendernFehler = useMailFehler()
+  const mailFehler = useMailFehler()
+  const sendenFehler = useSendeFehler()
+  const aendernFehler = mailFehler ?? sendenFehler
   const jetzt = useMinute()
   const [ansicht, setAnsicht] = useState(start)
   const auswahl = useMailAuswahl(ordner)

@@ -1,19 +1,18 @@
 import { AlarmClock, CircleAlert, Ellipsis, Flag, FolderInput, Mail as MailSymbol, Pin } from 'lucide-react'
-import type { ReactNode } from 'react'
-import { Aufklapp, AufklappInhalt, AufklappKnopf } from '../../bausteine/Aufklapp'
-import { Knopf } from '../../bausteine/Knopf'
 import { cn } from '../../bausteine/cn'
 import { AktionKnopf } from '../../geruest/AktionKnopf'
-import { useKategorien, useMailInhalt, useOrdner } from '../../geruest/daten'
+import { Knopf } from '../../bausteine/Knopf'
+import { useKategorien, useMailInhalt, useMails, useOrdner } from '../../geruest/daten'
 import { datumLang, tagKurz, uhrzeit } from '../../geruest/format'
-import { erinnere, kategorie, nachverfolgen, nichtNachverfolgen, schalte, verschiebe } from '../../geruest/mailAktionen'
+import { erinnere, holeZurueck, kategorie, nachverfolgen, nichtNachverfolgen, schalte, verschiebe } from '../../geruest/mailAktionen'
 import { useMinute } from '../../geruest/useMinute'
 import { seitText } from '../../logik/heute'
-import { erinnernZeiten, kannHinein, kuerzel, mailsText, nachverfolgenWahl } from '../../logik/mails'
+import { spaeterZeiten, kannHinein, kuerzel, mailsText, nachverfolgenWahl } from '../../logik/mails'
 import type { Mail } from '../../vertrag/postfach'
 import { ordnerFarben } from '../../werte/ordner'
 import { hinweisKlassen } from '../../werte/postfach'
-import { Wahlliste, type Punkt } from './Wahlliste'
+import { Schreiben } from './Schreiben'
+import { MitListe, Wahlliste, type Punkt } from './Wahlliste'
 
 // Leser rechts neben der Liste wie in der Vorlage: Knöpfe für alle Aktionen, darunter Kopf und Text einer Mail.
 // Sind mehrere Mails gewählt, wirken dieselben Knöpfe auf alle. Jede Aktion lässt sich zurücknehmen (geruest/mailAktionen.ts).
@@ -25,9 +24,16 @@ export function Leser({ mails, ordner }: { mails: readonly Mail[]; ordner: strin
         <MailSymbol aria-hidden className="m-auto size-10 text-text-blass" />
       ) : (
         <>
-          {m ? <Kopf m={m} /> : <h2 className="text-xl font-semibold">{mailsText(mails.length)} ausgewählt</h2>}
-          <Knoepfe mails={mails} ordner={ordner} einzeln={!!m} />
-          {m && <Text m={m} />}
+          {m?.ordner === 'entwuerfe' ? (
+            <Schreiben m={m} />
+          ) : (
+            <>
+              {m ? <Kopf m={m} /> : <h2 className="text-xl font-semibold">{mailsText(mails.length)} ausgewählt</h2>}
+              <Knoepfe mails={mails} ordner={ordner} einzeln={!!m} />
+              {m && <Text m={m} />}
+              {m && <Antworten m={m} />}
+            </>
+          )}
         </>
       )}
     </section>
@@ -82,6 +88,14 @@ function Kopf({ m }: { m: Mail }) {
               Zurück am {datumLang(new Date(m.erinnernAm))}, {uhrzeit(m.erinnernAm)}
             </p>
           )}
+          {m.sendenAm && (
+            <p className="flex flex-wrap items-center gap-2 font-semibold text-akzent">
+              Wird gesendet am {datumLang(new Date(m.sendenAm))}, {uhrzeit(m.sendenAm)}
+              <Knopf groesse="klein" onClick={() => void holeZurueck(m)}>
+                Zurückholen
+              </Knopf>
+            </p>
+          )}
         </div>
         {m.hinweis && <span className={cn('schild', hinweisKlassen[m.hinweis])}>{m.hinweis}</span>}
       </div>
@@ -96,21 +110,15 @@ function Text({ m }: { m: Mail }) {
   return <div className="mt-5 max-w-prose leading-relaxed whitespace-pre-line">{inhalt?.text}</div>
 }
 
-/** Knopf, der eine Wahlliste aufklappt. */
-function MitListe({ name, Symbol, nurSymbol = false, children }: { name: string; Symbol: typeof Flag; nurSymbol?: boolean; children: ReactNode }) {
-  return (
-    <Aufklapp>
-      <AufklappKnopf asChild>
-        <Knopf art={nurSymbol ? 'symbol' : 'standard'} groesse="klein" aria-label={name} title={name}>
-          <Symbol aria-hidden className="size-4" />
-          {!nurSymbol && name}
-        </Knopf>
-      </AufklappKnopf>
-      <AufklappInhalt breite="inhalt" align="start" aria-label={name} className="flex w-60 flex-col gap-1 p-2">
-        {children}
-      </AufklappInhalt>
-    </Aufklapp>
-  )
+/** Entwürfe von Antworten auf diese Mail, direkt darunter. */
+function Antworten({ m }: { m: Mail }) {
+  const { mails } = useMails('entwuerfe')
+  const antworten = (mails ?? []).filter((x) => x.antwortAuf === m.id)
+  return antworten.map((a) => (
+    <div key={a.id} className="mt-6 border-t border-linie pt-4">
+      <Schreiben m={a} />
+    </div>
+  ))
 }
 
 /** Alle Aktionen für die gewählten Mails; Antworten und Weiterleiten nur bei einer. */
@@ -124,7 +132,7 @@ function Knoepfe({ mails, ordner, einzeln }: { mails: readonly Mail[]; ordner: s
     ...nachverfolgenWahl(jetzt).map((w) => ({ id: w.name, name: w.name, aktiv: alle((x) => x.nachverfolgen && (x.faellig ?? null) === w.faellig), tun: () => void nachverfolgen(mails, w.faellig, w.name) })),
     ...(mails.some((x) => x.nachverfolgen) ? [{ id: 'erledigt', name: 'Erledigt', tun: () => void nichtNachverfolgen(mails) }] : []),
   ]
-  const erinnern: Punkt[] = erinnernZeiten(jetzt).map((z) => ({
+  const erinnern: Punkt[] = spaeterZeiten(jetzt).map((z) => ({
     id: z.name,
     name: (
       <>
