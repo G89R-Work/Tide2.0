@@ -41,8 +41,11 @@ export function aendereEintrag(id: string, aenderung: Aenderung): Promise<Eintra
   return anfrage(eintragSchema, 'Eintrag ändern', `${adresse}/${encodeURIComponent(id)}`, 'PATCH', aenderung)
 }
 
-/** Was Tide beim Anlegen schickt; Anlage- und Änderungszeit setzt der Server. */
-export const neuerEintragSchema = eintragSchema.pick({ id: true, art: true, titel: true, frist: true })
+/** Was Tide beim Anlegen schickt; Anlage- und Änderungszeit setzt der Server. Beginn und Ende nur zusammen, Ende nach Beginn. */
+export const neuerEintragSchema = eintragSchema
+  .pick({ id: true, art: true, titel: true, frist: true, beginn: true, ende: true })
+  .refine((e) => (e.beginn === undefined) === (e.ende === undefined), 'Beginn und Ende nur zusammen')
+  .refine((e) => !e.beginn || !e.ende || e.ende > e.beginn, 'Ende muss nach dem Beginn liegen')
 export type NeuerEintrag = z.infer<typeof neuerEintragSchema>
 
 export function legeEintragAn(neu: NeuerEintrag): Promise<Eintrag> {

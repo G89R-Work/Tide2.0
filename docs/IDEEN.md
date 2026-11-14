@@ -52,6 +52,9 @@ Was umgesetzt ist, wandert beim Abschluss einer Scheibe nach „Erledigt“, mit
 - Absender aus dem Rechtsklick auf eine Mail blockieren (postfach-erkannt-und-handy)
 - Termin aus dem Erkannt-Kasten in den Kalender eintragen, sobald es den Kalender gibt (postfach-erkannt-und-handy)
 
+- Termine in der Tages-Kachel bearbeiten (Titel, Zeit), nicht nur löschen (kalender-monat)
+- Startcode wieder unter 200 KB: Handy-Gerüst (MitKurve mit react-resizable-panels) nur am Handy nachladen (kalender-monat)
+
 ## Erledigt
 - 2026-11-13 · Tempo: erster Wechsel zu Postfach und Wechsel zu Heute am PC liegen schon auf dem Stand vor `aufraeumen-datum` bei 93–111 ms (Grenze 100); `npm run pruefen` wird dadurch zufällig rot. Erledigt 2026-11-13 in `aufraeumen-daten` (Zwischenspeicher, jetzt 10–40 ms).
 - 2026-11-12 · Jede Kachel zeigt je nach Größe eine Darstellung klein/mittel/groß: entfällt, Kachel-Raster entfernt (aussehen-heute)

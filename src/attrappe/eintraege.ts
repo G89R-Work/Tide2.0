@@ -7,7 +7,8 @@ import { abgelehnt, anfrageInhalt, gemerkt } from './pruefen'
 // Die Attrappe merkt sich Änderungen im Browser, damit sie das Neuladen überstehen.
 const schluessel = 'tide.attrappe.eintraege'
 
-const laden = () => gemerkt(schluessel, eintraegeSchema, beispielEintraege, 'Einträge')
+/** Alle gemerkten Einträge (auch selbst angelegte Termine, die `/api/termine` mitliefert). */
+export const laden = () => gemerkt(schluessel, eintraegeSchema, beispielEintraege, 'Einträge')
 
 const merken = (l: readonly Eintrag[]) => localStorage.setItem(schluessel, JSON.stringify(l))
 

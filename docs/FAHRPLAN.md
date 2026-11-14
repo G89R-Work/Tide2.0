@@ -65,7 +65,7 @@ Vorlage ist das Postfach aus `docs/vorlage-aussehen/prototyp3.html` (Nutzer 2026
 - [x] `postfach-erkannt-und-handy` · liest: 11-postfach.md · Erkannt-Kasten für Rechnung, Termin, Sendung und Frist; Kategorien, Signaturen, Abwesenheit, Blockiert; Handy-Ansicht mit Wisch-Aktionen · Fertig, wenn: das Postfach am Handy ohne die frühere Wisch-Leiste bedienbar ist
 
 ## Etappe 4: Kalender und Arbeit
-- [ ] `kalender-monat` · liest: 12-kalender.md · Monat mit sechs Wochen, Tages-Kachel rechts, Kalenderwoche, Feiertage aus date-holidays, Termin per Rechtsklick oder langem Druck · Fertig, wenn: die Kalenderwoche an jeder Zeile und in der Kopfzeile steht
+- [x] `kalender-monat` · liest: 12-kalender.md · Monat mit sechs Wochen, Tages-Kachel rechts, Kalenderwoche, Feiertage aus date-holidays, Termin per Rechtsklick oder langem Druck · Fertig, wenn: die Kalenderwoche an jeder Zeile und in der Kopfzeile steht
 - [ ] `kalender-woche` · liest: 12-kalender.md · Wochenansicht, Versuch mit Schedule-X, Wechsel per Knopf und Wischen, Blättern nach oben und unten · Fertig, wenn: Monat und Woche sich per Wischen wechseln lassen
 - [ ] `kalender-handy` · liest: 12-kalender.md · Handy: Monat mit Punkten über der Terminliste, Sprung zum Tag; Termin anlegen mit Warnung bei Schicht · Fertig, wenn: ein Termin in einer Schicht schon im Eingabefenster warnt
 - [ ] `arbeit-rhythmus` · liest: 17-arbeit.md · Schichtarten, Wochenmuster, Abfolge, Startdatum, Ausnahmen, Vorschau über acht Wochen; reine Logik mit Tests · Fertig, wenn: jede Zeile der Rhythmus-Tabelle ihren Test besteht

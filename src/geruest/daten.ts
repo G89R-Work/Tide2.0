@@ -2,6 +2,7 @@
 // Gespeichertes zeigt eine Seite sofort; nach einer Minute wird im Hintergrund nachgefragt.
 // Änderungen wirken sofort, scheitert das Speichern, rollt der Baustein zurück und der Grund steht im Fehler.
 import { MutationObserver, QueryClient, useMutationState, useQuery, type QueryKey } from '@tanstack/react-query'
+import type { BereichId } from '../logik/bereiche'
 import { eintragAendern } from '../logik/eintraege'
 import { unterschied, type Werte } from '../logik/einstellungen'
 import { mailsAendern, vorherWerte } from '../logik/mails'
@@ -233,16 +234,17 @@ const eintragAnlegen = new MutationObserver(abfragen, {
   onSettled: () => abfragen.invalidateQueries(mitEintraegen),
 })
 
-/** Legt einen Eintrag an (Aufgabe aus einer Mail); Rückgängig löscht ihn wieder. Liefert, ob es geklappt hat. */
-export async function eintragAnlegenMitSchritt(neu: NeuerEintrag, text: string): Promise<boolean> {
+/** Legt einen Eintrag an (`loeschen = false`) oder löscht ihn; Rückgängig tut das Gegenteil. Liefert, ob es geklappt hat.
+ *  `bereich`: Seite, deren Rückgängig-Knöpfe den Schritt zeigen. */
+export async function eintragMitSchritt(neu: NeuerEintrag, loeschen: boolean, text: string, bereich: BereichId): Promise<boolean> {
   const tun = (weg: boolean) => async () => {
     await eintragAnlegen.mutate({ neu, weg }).catch(() => undefined)
   }
-  const ok = await eintragAnlegen.mutate({ neu, weg: false }).then(
+  const ok = await eintragAnlegen.mutate({ neu, weg: loeschen }).then(
     () => true,
     () => false,
   )
-  if (ok) merke({ text, zurueck: tun(true), vor: tun(false), bereich: 'postfach' })
+  if (ok) merke({ text, zurueck: tun(!loeschen), vor: tun(loeschen), bereich })
   return ok
 }
 

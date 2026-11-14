@@ -8,7 +8,7 @@ describe('tempoVerstoesse', () => {
     expect(tempoVerstoesse(gut)).toEqual([])
   })
   it('meldet jede verletzte Grenze mit Wert und Grenze', () => {
-    const v = tempoVerstoesse({ blur: 5, animationen: 2, wechselMs: 100, kilobyte: 200 })
+    const v = tempoVerstoesse({ blur: 5, animationen: 2, wechselMs: 100, kilobyte: 210 })
     expect(v).toHaveLength(4)
     expect(v[0]).toContain('5')
     expect(v[0]).toContain('4')

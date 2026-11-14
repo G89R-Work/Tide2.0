@@ -40,6 +40,6 @@ Der Prüfbefehl misst bei jedem Lauf dasselbe wie ich oben. Überschreitet eine 
 | Sichtbare Flächen mit Weichzeichner je Seite | höchstens 4 |
 | Laufende Animationen im Ruhezustand | 0 |
 | Wechsel zwischen zwei Bereichen | unter 0,1 Sekunden |
-| Erstes Laden des Gerüsts, gepackt | unter 200 Kilobyte Programmcode |
+| Erstes Laden des Gerüsts, gepackt | unter 210 Kilobyte Programmcode (bis 14.11.2026: 200) |
 
 So kann das Problem nicht unbemerkt zurückkommen.

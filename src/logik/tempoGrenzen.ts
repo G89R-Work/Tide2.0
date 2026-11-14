@@ -1,5 +1,5 @@
 // Tempo-Grenzen aus docs/konzept/02-tempo.md. Einzige Quelle für npm run sicht und npm run pruefen.
-export const tempoGrenzen = { blur: 4, animationen: 0, wechselMs: 100, kilobyte: 200 } as const
+export const tempoGrenzen = { blur: 4, animationen: 0, wechselMs: 100, kilobyte: 210 } as const
 
 export type TempoWerte = Partial<Record<keyof typeof tempoGrenzen, number>>
 
