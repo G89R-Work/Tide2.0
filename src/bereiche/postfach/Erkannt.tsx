@@ -55,7 +55,7 @@ export function Erkannt({ m }: { m: Mail }) {
       </dl>
       <div className="flex flex-wrap gap-2">
         {frist && (
-          <Knopf art="haupt" groesse="klein" onClick={() => void alsAufgabe(titel, frist)}>
+          <Knopf art="haupt" groesse="klein" onClick={() => void alsAufgabe(titel, frist, liste.some((e) => e.art === 'rechnung') ? 'rechnung' : 'mail')}>
             Frist eintragen
           </Knopf>
         )}

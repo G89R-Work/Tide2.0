@@ -2,7 +2,7 @@ import type { Aenderung, Eintrag } from '../vertrag/eintrag'
 
 /** Wendet eine Änderung auf einen Eintrag an. Gibt eine neue Liste zurück; eintrag fehlt, wenn die id unbekannt ist. */
 export function eintragAendern(liste: Eintrag[], id: string, aenderung: Aenderung, jetzt: Date) {
-  const erlaubt: Aenderung = {}
+  const erlaubt: Omit<Aenderung, 'frist'> = {}
   if (typeof aenderung.titel === 'string') erlaubt.titel = aenderung.titel
   if (typeof aenderung.erledigt === 'boolean') erlaubt.erledigt = aenderung.erledigt
   if (typeof aenderung.text === 'string') erlaubt.text = aenderung.text
@@ -12,6 +12,9 @@ export function eintragAendern(liste: Eintrag[], id: string, aenderung: Aenderun
     if (e.id !== id) return e
     if (erlaubt.beginn && !e.beginn) throw new Error(`Eintrag ${id} hat keine Uhrzeit, die sich verschieben ließe`)
     eintrag = { ...e, ...erlaubt, geaendert: jetzt.toISOString() }
+    // Frist: neuer Tag, oder `null` für keine (dann fällt das Feld weg).
+    if (aenderung.frist) eintrag.frist = aenderung.frist
+    else if (aenderung.frist === null) delete eintrag.frist
     return eintrag
   })
   return { liste: neu, eintrag }

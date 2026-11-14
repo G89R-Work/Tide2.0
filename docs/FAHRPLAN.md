@@ -73,7 +73,7 @@ Vorlage ist das Postfach aus `docs/vorlage-aussehen/prototyp3.html` (Nutzer 2026
 - [x] `arbeit-urlaub-und-wissen` · liest: 17-arbeit.md · Urlaubsplaner als kleine Kachel mit Planer dahinter; Wissen als Notizen im Raum Arbeit · Fertig, wenn: der Planer für das nächste Jahr Vorschläge um jeden Feiertag zeigt
 
 ## Etappe 5: To-dos und Notizen
-- [ ] `todos-liste` · liest: 13-todos.md · zweite Ebene nach Herkunft, Liste nach Fälligkeit gruppiert, Ziehen ändert die Frist, Eingabezeile versteht „heute" und „morgen" · Fertig, wenn: ein To-do sich zwischen den Gruppen ziehen lässt
+- [x] `todos-liste` · liest: 13-todos.md · zweite Ebene nach Herkunft, Liste nach Fälligkeit gruppiert, Ziehen ändert die Frist, Eingabezeile versteht „heute" und „morgen" · Fertig, wenn: ein To-do sich zwischen den Gruppen ziehen lässt
 - [ ] `todos-funktionen` · liest: 13-todos.md · Suche mit markierten Treffern, Archiv mit Frist, Quelle und verknüpft erledigen, Irgendwann-Wecker, hartnäckige To-dos · Fertig, wenn: ein erledigtes To-do im Archiv liegt und seine Mail mit erledigt ist
 - [ ] `notizen-kacheln` · liest: 18-notizen.md, 04-kacheln.md · Notizen als Kacheln mit Größe, Platz und Farbe; Ordner mit Unterordnern; Suche und „Neue Notiz" · Fertig, wenn: eine Notiz sich groß ziehen und in einen Ordner ziehen lässt
 - [ ] `notizen-editor` · liest: 18-notizen.md · großes Fenster zum Lesen und Schreiben mit einem fertigen Markdown-Editor, sofortiges Speichern, Verknüpfen mit Termin, Mail oder Rezept · Fertig, wenn: der Rohtext als Markdown erhalten bleibt

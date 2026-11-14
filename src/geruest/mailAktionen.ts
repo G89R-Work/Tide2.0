@@ -109,5 +109,5 @@ export async function fuehreRegelAus(r: Pick<Regel, 'name' | 'bedingung' | 'akti
 /** Nicht mehr in „Braucht dich“. */
 export const erledigt = (ms: readonly Mail[]) => aendereMailsMitSchritt(mit(ms, { brauchtDich: false }), `${was(ms)} erledigt`)
 
-/** Aufgabe aus der Mail, mit Frist („JJJJ-MM-TT“) oder ohne; Rückgängig löscht sie. */
-export const alsAufgabe = (titel: string, frist?: string) => aufgabeMitSchritt(titel, frist, 'postfach')
+/** Aufgabe aus der Mail (Herkunft Mail oder Rechnung), mit Frist („JJJJ-MM-TT“) oder ohne; Rückgängig löscht sie. */
+export const alsAufgabe = (titel: string, frist?: string, herkunft: 'mail' | 'rechnung' = 'mail') => aufgabeMitSchritt(titel, frist, 'postfach', { herkunft })

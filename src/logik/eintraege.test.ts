@@ -25,6 +25,12 @@ describe('eintragAendern', () => {
   it('ändert den Text einer Notiz', () => {
     expect(eintragAendern(liste, 'b', { text: '# Ablauf\n- erst A' }, jetzt).eintrag).toMatchObject({ titel: 'Idee', text: '# Ablauf\n- erst A' })
   })
+  it('setzt und entfernt die Frist', () => {
+    const mit = eintragAendern(liste, 'a', { frist: '2026-11-20' }, jetzt).eintrag
+    expect(mit?.frist).toBe('2026-11-20')
+    expect(eintragAendern([mit!], 'a', { frist: null }, jetzt).eintrag).not.toHaveProperty('frist')
+    expect(eintragAendern([mit!], 'a', { erledigt: true }, jetzt).eintrag?.frist).toBe('2026-11-20')
+  })
   it('übernimmt nur erlaubte Felder', () => {
     const neu = eintragAendern(liste, 'a', { id: 'z', art: 'mail' } as never, jetzt)
     expect(neu.eintrag).toMatchObject({ id: 'a', art: 'aufgabe' })

@@ -231,7 +231,8 @@ export function useEintragFehler() {
 /** Ändert einen Eintrag; `text` beschreibt den Schritt für „Rückgängig“. Gemerkt wird nur, was gespeichert ist. Liefert, ob es geklappt hat.
  *  `bereich`: Seite, deren Rückgängig-Knöpfe den Schritt zeigen (ohne: nur Alt+Z). */
 export async function aendereEintragMitSchritt(e: Eintrag, aenderung: Aenderung, text: string, bereich?: BereichId): Promise<boolean> {
-  const vorher: Aenderung = Object.fromEntries(Object.keys(aenderung).map((k) => [k, e[k as keyof Aenderung]]))
+  // Fehlt die Frist, heißt der alte Stand „keine Frist“ (null), sonst nähme Rückgängig nichts zurück.
+  const vorher: Aenderung = Object.fromEntries(Object.keys(aenderung).map((k) => [k, k === 'frist' ? (e.frist ?? null) : e[k as keyof Aenderung]]))
   const senden = (a: Aenderung) => async () => {
     await eintragSpeichernVon(e.id, a)
   }
@@ -261,8 +262,8 @@ export async function eintragMitSchritt(neu: NeuerEintrag, loeschen: boolean, te
 }
 
 /** Legt ein To-do an, mit Frist („JJJJ-MM-TT“) oder ohne; Rückgängig löscht es. Liefert, ob es geklappt hat. */
-export const aufgabeMitSchritt = (titel: string, frist: string | undefined, bereich: BereichId) =>
-  eintragMitSchritt({ id: `aufgabe-${crypto.randomUUID().slice(0, 8)}`, art: 'aufgabe', titel, ...(frist ? { frist } : {}) }, false, frist ? `Frist „${titel}“ eingetragen` : `To-do „${titel}“ angelegt`, bereich)
+export const aufgabeMitSchritt = (titel: string, frist: string | undefined, bereich: BereichId, mehr: Pick<NeuerEintrag, 'herkunft' | 'raum'> = {}) =>
+  eintragMitSchritt({ id: `aufgabe-${crypto.randomUUID().slice(0, 8)}`, art: 'aufgabe', titel, ...(frist ? { frist } : {}), ...mehr }, false, frist ? `Frist „${titel}“ eingetragen` : `To-do „${titel}“ angelegt`, bereich)
 
 // ── Ordner des Postfachs: gespeichert wird immer die ganze Liste (Reihenfolge, Eltern, Name, Farbe, Anheften).
 

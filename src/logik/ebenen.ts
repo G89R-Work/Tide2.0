@@ -17,7 +17,7 @@ const ebenen: Record<BereichId, Unterpunkt[]> = {
     ...u('Kalender', ['privat', 'Privat'], ['arbeit', 'Arbeit'], ['feiertage', 'Feiertage']),
   ],
   todos: [
-    ...u('Herkunft', ['alle', 'Alle'], ['aus-mails', 'Aus Mails'], ['aus-notizen', 'Aus Notizen']),
+    ...u('Herkunft', ['alle', 'Alle'], ['eigene', 'Eigene'], ['mails', 'Mails'], ['rueckrufe', 'Rückrufe'], ['rechnungen', 'Rechnungen']),
     ...u('Listen', ['privat', 'Privat'], ['arbeit', 'Arbeit']),
     ...u(undefined, ['archiv', 'Archiv']),
   ],
