@@ -1,11 +1,11 @@
 import { describe, expect, it } from 'vitest'
-import { schichtAm, vorschau, type Rhythmus, type Wochenmuster } from './rhythmus'
+import { mitAusnahme, neueId, ohneArt, ohneMuster, schichtAm, vorschau, type Rhythmus, type Wochenmuster } from './rhythmus'
 
 // Erfundene Schichten wie im Konzept (docs/konzept/17-arbeit.md): Früh 8:00–16:30, Spät 13:00–21:30, Nacht über Mitternacht.
-const arten = [
-  { id: 'frueh', name: 'Früh', beginn: '08:00', ende: '16:30', farbe: 'blau' },
-  { id: 'spaet', name: 'Spät', beginn: '13:00', ende: '21:30', farbe: 'orange' },
-  { id: 'nacht', name: 'Nacht', beginn: '22:00', ende: '06:00', farbe: 'lila' },
+const arten: Rhythmus['arten'] = [
+  { id: 'frueh', name: 'Früh', beginn: '08:00', ende: '16:30', farbe: 'meer', pause: 30 },
+  { id: 'spaet', name: 'Spät', beginn: '13:00', ende: '21:30', farbe: 'glut', pause: 30 },
+  { id: 'nacht', name: 'Nacht', beginn: '22:00', ende: '06:00', farbe: 'flieder', pause: 45 },
 ]
 
 /** Montag bis Freitag dieselbe Schicht, Wochenende frei. */
@@ -142,5 +142,37 @@ describe('vorschau', () => {
     const F = 'frueh'
     const S = 'spaet'
     expect(v.map((t) => t.schicht?.art.id ?? 'frei')).toEqual([F, F, F, F, F, 'frei', 'frei', S, S, S, S, S, 'frei', 'frei'])
+  })
+})
+
+describe('bearbeiten', () => {
+  const r = rhythmus([werktags('f', 'frueh'), werktags('s', 'spaet')], [{ muster: 'f', wochen: 2 }, { muster: 's', wochen: 1 }], {
+    ausnahmen: [{ tag: '2026-11-05', art: 'tausch', schicht: 'spaet' }],
+  })
+
+  it('mitAusnahme setzt, ersetzt und entfernt die Ausnahme eines Tages', () => {
+    const urlaub = mitAusnahme(r, new Date(2026, 10, 5), { art: 'urlaub' })
+    expect(urlaub.ausnahmen).toEqual([{ tag: '2026-11-05', art: 'urlaub' }])
+    const zusatz = mitAusnahme(urlaub, new Date(2026, 10, 7), { art: 'zusatz', schicht: 'frueh' })
+    expect(zusatz.ausnahmen).toHaveLength(2)
+    expect(mitAusnahme(zusatz, new Date(2026, 10, 5), null).ausnahmen).toEqual([{ tag: '2026-11-07', art: 'zusatz', schicht: 'frueh' }])
+  })
+
+  it('ohneArt macht ihre Tage frei und streicht Ausnahmen mit ihr', () => {
+    const o = ohneArt(r, 'spaet')
+    expect(o.arten.map((a) => a.id)).toEqual(['frueh', 'nacht'])
+    expect(o.muster[1]?.tage).toEqual([null, null, null, null, null, null, null])
+    expect(o.ausnahmen).toEqual([])
+  })
+
+  it('ohneMuster streicht seine Abschnitte', () => {
+    const o = ohneMuster(r, 'f')
+    expect(o.muster.map((m) => m.id)).toEqual(['s'])
+    expect(o.abfolge).toEqual([{ muster: 's', wochen: 1 }])
+  })
+
+  it('neueId ist frei', () => {
+    expect(neueId(['a', 'a-2'], 'a')).toBe('a-3')
+    expect(neueId(['x'], 'a')).toBe('a')
   })
 })

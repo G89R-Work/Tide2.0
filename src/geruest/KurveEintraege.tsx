@@ -95,9 +95,9 @@ export function KurveEintraege(p: {
     },
   })
 
-  /** Punkt oder Band: ziehen verschiebt, ein Klick ohne Bewegung öffnet die Karte. */
+  /** Punkt oder Band: ziehen verschiebt, ein Klick ohne Bewegung öffnet die Karte. Schichten ändert nur der Schichtplan (Arbeit). */
   const griff = (e: Eintrag, k: number) => ({
-    ...ziehen(e, 'lage'),
+    ...(e.art === 'schicht' ? {} : ziehen(e, 'lage')),
     tabIndex: k === p.kopie ? 0 : -1,
     'aria-hidden': k !== p.kopie || undefined,
     onClick: (ev: React.MouseEvent<HTMLElement>) => {
@@ -144,7 +144,7 @@ export function KurveEintraege(p: {
                 type="button"
                 {...griff(b.eintrag, k)}
                 title={b.titel}
-                className={cn(fokus, 'kurve-band kurve-schrift drueck absolute inset-0 flex cursor-grab touch-none items-center px-2 text-left text-text-gedaempft')}
+                className={cn(fokus, 'kurve-band kurve-schrift drueck absolute inset-0 flex touch-none items-center', b.eintrag.art !== 'schicht' && 'cursor-grab', 'px-2 text-left text-text-gedaempft')}
               >
                 {neu ? (
                   <span className="truncate">{`${uhrzeit(neu.beginn)}–${uhrzeit(neu.ende)}`}</span>
@@ -156,8 +156,12 @@ export function KurveEintraege(p: {
                   )
                 )}
               </button>
-              <span aria-hidden {...ziehen(b.eintrag, 'beginn')} title="Beginn" className="kurve-band-griff left-0 -translate-x-1/2" />
-              <span aria-hidden {...ziehen(b.eintrag, 'ende')} title="Ende" className="kurve-band-griff right-0 translate-x-1/2" />
+              {b.eintrag.art !== 'schicht' && (
+                <>
+                  <span aria-hidden {...ziehen(b.eintrag, 'beginn')} title="Beginn" className="kurve-band-griff left-0 -translate-x-1/2" />
+                  <span aria-hidden {...ziehen(b.eintrag, 'ende')} title="Ende" className="kurve-band-griff right-0 translate-x-1/2" />
+                </>
+              )}
             </div>
           )
         }),

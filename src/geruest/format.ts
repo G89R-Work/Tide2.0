@@ -12,6 +12,7 @@ export const tagKurz = f('EEEEEE')
 export const stundeKurz = f('HH')
 export const monatName = f('LLLL')
 export const monatKurz = f('LLL')
+export const tagMonat = f('d.M.')
 
 const euroFormat = new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' })
 /** Betrag in Cent als „44,95 €“. */

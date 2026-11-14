@@ -243,9 +243,11 @@ function Tag({ ref, tag, termine, neu, setNeu }: { ref: RefObject<HTMLElement | 
             </span>
             <span className="min-w-0 flex-1 truncate">{e.titel}</span>
             <span className="shrink-0 text-xs text-text-gedaempft">{artName[e.art]}</span>
-            <Knopf art="symbol" groesse="klein" aria-label={`${e.titel} löschen`} title="Löschen" onClick={() => void loesche(e)}>
-              <X aria-hidden className="size-4" />
-            </Knopf>
+            {e.art !== 'schicht' && (
+              <Knopf art="symbol" groesse="klein" aria-label={`${e.titel} löschen`} title="Löschen" onClick={() => void loesche(e)}>
+                <X aria-hidden className="size-4" />
+              </Knopf>
+            )}
           </li>
         ))}
       </ul>

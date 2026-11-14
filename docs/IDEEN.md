@@ -57,6 +57,10 @@ Was umgesetzt ist, wandert beim Abschluss einer Scheibe nach „Erledigt“, mit
 - Woche am Handy: Stunden passen nicht in die Kachel, FullCalendar scrollt innen (kalender-woche; in kalender-handy offen geblieben)
 - Startcode wieder unter 200 KB: Handy-Gerüst (MitKurve mit react-resizable-panels) nur am Handy nachladen (kalender-monat)
 
+- 2026-11-14 · Doppelt: `um(tag, "HH:MM")` steht in `bereiche/kalender/Seite.tsx` und `logik/rhythmus.ts`; an einer Stelle in `logik/zeit.ts` zusammenführen (arbeit-seite)
+- 2026-11-14 · Feiertage im Schichtplan auf Wunsch automatisch frei (heute nur Hinweis); Ausnahme auch per Rechtsklick im Kalender setzen (arbeit-seite)
+- 2026-11-14 · Abschnitte der Abfolge per Ziehen umsortieren (arbeit-seite)
+
 ## Erledigt
 - 2026-11-13 · Tempo: erster Wechsel zu Postfach und Wechsel zu Heute am PC liegen schon auf dem Stand vor `aufraeumen-datum` bei 93–111 ms (Grenze 100); `npm run pruefen` wird dadurch zufällig rot. Erledigt 2026-11-13 in `aufraeumen-daten` (Zwischenspeicher, jetzt 10–40 ms).
 - 2026-11-12 · Jede Kachel zeigt je nach Größe eine Darstellung klein/mittel/groß: entfällt, Kachel-Raster entfernt (aussehen-heute)

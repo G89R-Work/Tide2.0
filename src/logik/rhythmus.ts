@@ -1,24 +1,10 @@
 // Rhythmus-Baukasten für den Schichtplan (docs/konzept/17-arbeit.md): Schichtarten, Wochenmuster, Abfolge, Startdatum, Ausnahmen.
 // Reine Rechnung in Ortszeit; Tage als „JJJJ-MM-TT“. Eigenbau, weil es nur wenige Zeilen sind (siehe Konzept).
 import { addDays, differenceInCalendarDays, set, startOfDay, startOfWeek } from 'date-fns'
+import type { Ausnahme, Ausnahmeart, Rhythmus, Schichtart } from '../vertrag/arbeit'
 import { ausSchluessel, tagSchluessel } from './zeit'
 
-export type Schichtart = { id: string; name: string; /** „HH:MM“ */ beginn: string; /** „HH:MM“; nicht nach dem Beginn heißt: am Folgetag */ ende: string; farbe: string }
-/** Montag bis Sonntag je eine Schichtart (id) oder `null` für frei. */
-export type Wochenmuster = { id: string; name: string; tage: readonly (string | null)[] }
-/** Ein Wochenmuster läuft so viele Wochen; nach dem letzten Abschnitt beginnt die Abfolge von vorn. */
-export type Abschnitt = { muster: string; wochen: number }
-export type Ausnahmeart = 'tausch' | 'urlaub' | 'krank' | 'zusatz'
-/** Überschreibt den Rhythmus nur an `tag`. Tausch und Zusatzschicht nennen die Schichtart (Tausch ohne: frei). */
-export type Ausnahme = { tag: string; art: Ausnahmeart; schicht?: string }
-export type Rhythmus = {
-  arten: readonly Schichtart[]
-  muster: readonly Wochenmuster[]
-  abfolge: readonly Abschnitt[]
-  /** Erster Tag des Plans; seine Woche ist die erste Woche der Abfolge. */
-  start: string
-  ausnahmen: readonly Ausnahme[]
-}
+export type { Abschnitt, Ausnahme, Ausnahmeart, Rhythmus, Schichtart, Wochenmuster } from '../vertrag/arbeit'
 
 export type Schicht = { art: Schichtart; beginn: Date; ende: Date; ausnahme?: Ausnahmeart }
 export type VorschauTag = { tag: Date; schicht: Schicht | null; ausnahme?: Ausnahmeart }
@@ -66,4 +52,35 @@ export function schichtAm(r: Rhythmus, tag: Date): Schicht | null {
 export function vorschau(r: Rhythmus, abTag: Date, wochen = 8): VorschauTag[] {
   const montag = startOfWeek(abTag, ab)
   return Array.from({ length: wochen * 7 }, (_, i) => tagIm(r, addDays(montag, i)))
+}
+
+// ── Bearbeiten im Baukasten: jede Funktion liefert einen neuen Rhythmus, der wieder in sich stimmt.
+
+/** Setzt die Ausnahme an diesem Tag (ersetzt eine vorhandene); `null` entfernt sie. */
+export function mitAusnahme(r: Rhythmus, tag: Date, ausnahme: Omit<Ausnahme, 'tag'> | null): Rhythmus {
+  const s = tagSchluessel(tag)
+  const rest = r.ausnahmen.filter((a) => a.tag !== s)
+  return { ...r, ausnahmen: ausnahme ? [...rest, { tag: s, ...ausnahme }] : rest }
+}
+
+/** Ohne diese Schichtart: ihre Tage im Muster werden frei, Ausnahmen mit ihr fallen weg. */
+export function ohneArt(r: Rhythmus, id: string): Rhythmus {
+  return {
+    ...r,
+    arten: r.arten.filter((a) => a.id !== id),
+    muster: r.muster.map((m) => ({ ...m, tage: m.tage.map((t) => (t === id ? null : t)) })),
+    ausnahmen: r.ausnahmen.filter((a) => a.schicht !== id),
+  }
+}
+
+/** Ohne dieses Wochenmuster und seine Abschnitte in der Abfolge. */
+export function ohneMuster(r: Rhythmus, id: string): Rhythmus {
+  return { ...r, muster: r.muster.filter((m) => m.id !== id), abfolge: r.abfolge.filter((a) => a.muster !== id) }
+}
+
+/** `basis`, oder mit Zähler „basis-2“, „basis-3“ …, bis keine der `ids` gleich ist. */
+export function neueId(ids: readonly string[], basis: string): string {
+  let id = basis
+  for (let n = 2; ids.includes(id); n++) id = `${basis}-${n}`
+  return id
 }

@@ -15,8 +15,9 @@ import {
   useKategorien,
   useKonten,
 } from '../../geruest/daten'
-import { blockiertSchema, ordnerFarbeSchema, type Abwesenheit, type Konto } from '../../vertrag/postfach'
+import { blockiertSchema, type Abwesenheit, type Konto } from '../../vertrag/postfach'
 import { ordnerFarben } from '../../werte/ordner'
+import { Farbwahl } from '../../geruest/Farbwahl'
 
 // Postfach-Einstellungen wie in der Vorlage: Kategorien, Signaturen, Abwesenheit, Blockiert. Jede Änderung lässt sich zurücknehmen.
 export default function Einstellungen() {
@@ -62,20 +63,11 @@ function Kategorien() {
             <span className="min-w-0 flex-1 truncate">
               <span className={cn('schild schild-gefuellt', ordnerFarben[k.farbe].klasse)}>{k.name}</span>
             </span>
-            <Auswahl
+            <Farbwahl
               aria-label={`Farbe von ${k.name}`}
-              value={k.farbe}
-              onChange={(e) => {
-                const farbe = ordnerFarbeSchema.parse(e.target.value)
-                void aendereKategorienMitSchritt(liste, liste.map((x) => (x.name === k.name ? { ...x, farbe } : x)), `Kategorie „${k.name}“ in ${ordnerFarben[farbe].name}`)
-              }}
-            >
-              {ordnerFarbeSchema.options.map((f) => (
-                <option key={f} value={f}>
-                  {ordnerFarben[f].name}
-                </option>
-              ))}
-            </Auswahl>
+              wert={k.farbe}
+              aendern={(farbe) => void aendereKategorienMitSchritt(liste, liste.map((x) => (x.name === k.name ? { ...x, farbe } : x)), `Kategorie „${k.name}“ in ${ordnerFarben[farbe].name}`)}
+            />
             <Knopf art="symbol" aria-label={`${k.name} löschen`} title="Löschen" onClick={() => void aendereKategorienMitSchritt(liste, liste.filter((x) => x.name !== k.name), `Kategorie „${k.name}“ gelöscht`)}>
               <X aria-hidden className="size-4" />
             </Knopf>

@@ -2,30 +2,35 @@ import { addDays, set, startOfDay, subDays } from 'date-fns'
 import { http, HttpResponse } from 'msw'
 import { eintragAendern } from '../logik/eintraege'
 import { termineImZeitraum } from '../logik/gezeiten'
+import { schichtAm, type Rhythmus } from '../logik/rhythmus'
+import { tagSchluessel } from '../logik/zeit'
 import { z } from 'zod'
 import { aenderungSchema, eintragSchema, type Eintrag } from '../vertrag/eintrag'
+import { rhythmusLaden } from './arbeit'
 import { laden as eintraegeLaden } from './eintraege'
 import { abgelehnt, anfrageInhalt, anfrageZeitraum, gemerkt } from './pruefen'
 
-// Beispieltag für die Gezeitenkurve: liegt immer auf dem Tag der Anfrage. Die Schicht kommt an vier Werktagen,
-// am Wochenende bleiben nur Mittag und Sport (damit die Wochenleiste auf Heute verschiedene Füllstände zeigt).
+// Beispieltag für die Gezeitenkurve: liegt immer auf dem Tag der Anfrage; am Wochenende nur Mittag und Sport
+// (damit die Wochenleiste auf Heute verschiedene Füllstände zeigt). Schichten kommen aus dem Schichtplan (src/attrappe/arbeit.ts).
 // Geänderte Termine (verschoben, umbenannt) merkt die Attrappe einzeln im Browser und legt sie über den Beispieltag.
-type Wann = 'werktags' | 'schicht' | 'immer'
+type Wann = 'werktags' | 'immer'
 const tag: [titel: string, von: string, bis: string, wann: Wann][] = [
   ['Kita bringen', '07:45', '08:15', 'werktags'],
   ['Planungsrunde', '09:30', '11:00', 'werktags'],
   ['Mittag mit Jana', '12:30', '13:15', 'immer'],
-  ['Spätschicht Praxis', '13:30', '18:00', 'schicht'],
   ['Kundentermin', '14:00', '15:00', 'werktags'],
   ['Zahnarzt', '16:15', '16:45', 'werktags'],
   ['Sport', '19:00', '20:30', 'immer'],
 ]
 
-/** Montag bis Freitag; die Schicht nicht am Dienstag. */
-function kommt(wann: Wann, wochentag: number): boolean {
-  if (wann === 'immer') return true
-  const werktag = wochentag >= 1 && wochentag <= 5
-  return wann === 'werktags' ? werktag : werktag && wochentag !== 2
+const kommt = (wann: Wann, wochentag: number) => wann === 'immer' || (wochentag >= 1 && wochentag <= 5)
+
+/** Die Schicht des Tages laut Schichtplan als Eintrag (id „s-JJJJ-MM-TT“); ändern lässt sie sich nur im Schichtplan. */
+function schichtUm(datum: Date, r: Rhythmus): Eintrag[] {
+  const s = schichtAm(r, datum)
+  if (!s) return []
+  const t = startOfDay(datum).toISOString()
+  return [{ id: `s-${tagSchluessel(datum)}`, art: 'schicht', titel: s.art.name, erledigt: false, erstellt: t, geaendert: t, beginn: s.beginn.toISOString(), ende: s.ende.toISOString() }]
 }
 
 const schluessel = 'tide.attrappe.termine'
@@ -47,7 +52,7 @@ function beispieleUm(datum: Date, ueber: Geaendert): Eintrag[] {
   return tag.flatMap(([titel, von, bis, wann], i): Eintrag[] => {
     if (!kommt(wann, datum.getDay())) return []
     const id = `t-${datum.toDateString()}-${i}`
-    return [ueber[id] ?? { id, art: wann === 'schicht' ? 'schicht' : 'termin', titel, erledigt: false, erstellt: t, geaendert: t, beginn: zeit(von), ende: zeit(bis) }]
+    return [ueber[id] ?? { id, art: 'termin', titel, erledigt: false, erstellt: t, geaendert: t, beginn: zeit(von), ende: zeit(bis) }]
   })
 }
 
@@ -55,9 +60,10 @@ function beispieleUm(datum: Date, ueber: Geaendert): Eintrag[] {
 function tageUm(von: Date, bis: Date): Eintrag[] {
   const ueber = geaendert()
   const ohne = weg()
+  const r = rhythmusLaden()
   const tage: Eintrag[] = []
   for (let d = startOfDay(subDays(von, 1)); d <= bis; d = addDays(d, 1)) {
-    tage.push(...beispieleUm(d, ueber).filter((e) => !ohne.has(e.id)))
+    tage.push(...schichtUm(d, r), ...beispieleUm(d, ueber).filter((e) => !ohne.has(e.id)))
   }
   return tage
 }

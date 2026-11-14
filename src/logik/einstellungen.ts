@@ -116,6 +116,8 @@ const liste = [
   { id: 'wochenbeginn', name: 'Wochenbeginn', abschnitt: 'kalender', art: 'auswahl', standard: 'montag', optionen: [['montag', 'Montag'], ['sonntag', 'Sonntag']], wichtig: true },
   { id: 'kalenderwoche', name: 'Kalenderwoche anzeigen', abschnitt: 'kalender', art: 'schalter', standard: true },
   { id: 'bundesland', name: 'Bundesland für Feiertage', abschnitt: 'kalender', art: 'auswahl', standard: 'bund', optionen: bundeslaender },
+  { id: 'arbeit-wochenstunden', name: 'Wochenstunden', abschnitt: 'arbeit', art: 'zahl', standard: 39, min: 1, max: 60, schritt: 0.5, einheit: 'Std.' },
+  { id: 'arbeit-urlaubstage', name: 'Urlaubstage im Jahr', abschnitt: 'arbeit', art: 'zahl', standard: 30, min: 0, max: 60, einheit: 'Tage' },
   { id: 'wischen-links', name: 'Wischen nach links', abschnitt: 'postfach', art: 'auswahl', standard: 'mail-archivieren', optionen: wischen },
   { id: 'wischen-rechts', name: 'Wischen nach rechts', abschnitt: 'postfach', art: 'auswahl', standard: 'mail-ungelesen', optionen: wischen },
   { id: 'archivfrist', name: 'Erledigtes ins Archiv nach', abschnitt: 'todos', art: 'zahl', standard: 30, min: 1, max: 365, einheit: 'Tagen' },

@@ -8,6 +8,7 @@ import { unterschied, type Werte } from '../logik/einstellungen'
 import { mailsAendern, vorherWerte } from '../logik/mails'
 import { stand } from '../logik/ordner'
 import { tagSchluessel } from '../logik/zeit'
+import { holeRhythmus, speichereRhythmus, type Rhythmus } from '../vertrag/arbeit'
 import { aendereEinstellungen, holeEinstellungen } from '../vertrag/einstellungen'
 import { aendereEintrag, holeEintraege, holeTermine, legeEintragAn, loescheEintrag, type Aenderung, type Eintrag, type NeuerEintrag } from '../vertrag/eintrag'
 import { aendereMails, holeKategorien, holeKonten, holeMailInhalt, holeMails, holeZurueck, sendeMail, speichereEntwurf, type Entwurf, holeOrdner, speichereOrdner, holeRegeln, speichereRegeln, type Regel, holeAbwesenheit, holeBlockiert, speichereAbwesenheit, speichereBlockiert, speichereKategorien, speichereSignatur, type Abwesenheit, type Kategorie, type Konto, type Mail, type MailAenderung, type Ordner, type OrdnerStand } from '../vertrag/postfach'
@@ -38,6 +39,7 @@ const schluessel = {
   blockiert: ['blockiert'],
   einstellungen: ['einstellungen'],
   feiertage: ['feiertage'],
+  rhythmus: ['rhythmus'],
 } as const satisfies Record<string, QueryKey>
 
 /** Alle Einträge (Aufgaben, Notizen, Mails …). */
@@ -127,6 +129,13 @@ export function useBlockiert() {
   const q = useQuery({ queryKey: schluessel.blockiert, queryFn: holeBlockiert })
   const speichern = useLetzterFehler('blockiert')
   return { blockiert: q.data, fehler: meldung('Blockierte', q.error) ?? meldung('Blockierte nicht gespeichert', speichern) }
+}
+
+/** Der Schichtplan (Rhythmus-Baukasten). */
+export function useRhythmus() {
+  const q = useQuery({ queryKey: schluessel.rhythmus, queryFn: holeRhythmus })
+  const speichern = useLetzterFehler('rhythmus')
+  return { rhythmus: q.data, fehler: meldung('Schichtplan', q.error) ?? meldung('Schichtplan nicht gespeichert', speichern) }
 }
 
 /** Feiertage vom Vorjahr bis zum Folgejahr; der große Baustein wird erst hier nachgeladen. Bis dahin gibt es keine. */
@@ -293,7 +302,7 @@ export async function aendereOrdnerMitSchritt(vorher: readonly Ordner[], neu: re
 // ── Ganzer Stand (Regeln, Kategorien, Abwesenheit, Blockierte): sofort zeigen, scheitert es, gilt der alte; mit Rückgängig.
 
 /** Speichert unter `art` (Schlüssel und Art der Änderung) immer den ganzen Stand; `danach` frischt Abhängiges auf. */
-function ganzerStand<T>(art: keyof typeof schluessel, speichere: (neu: T) => Promise<T>, danach?: () => Promise<unknown>) {
+function ganzerStand<T>(art: keyof typeof schluessel, bereich: BereichId, speichere: (neu: T) => Promise<T>, danach?: () => Promise<unknown>) {
   const key = schluessel[art]
   const speichern = new MutationObserver(abfragen, {
     mutationKey: [art],
@@ -317,17 +326,21 @@ function ganzerStand<T>(art: keyof typeof schluessel, speichere: (neu: T) => Pro
       () => true,
       () => false,
     )
-    if (ok) merke({ text, zurueck: senden(vorher), vor: senden(neu), bereich: 'postfach' })
+    if (ok) merke({ text, zurueck: senden(vorher), vor: senden(neu), bereich })
     return ok
   }
 }
 
+const termineNeu = () => abfragen.invalidateQueries({ queryKey: schluessel.termine })
+/** Schichtplan ganz ersetzen; Kalender und Gezeitenkurve holen die Schichten danach neu. */
+export const aendereRhythmusMitSchritt = ganzerStand<Rhythmus>('rhythmus', 'arbeit', speichereRhythmus, termineNeu)
+
 const mailsUndOrdnerNeu = () => Promise.all([abfragen.invalidateQueries({ queryKey: schluessel.mails }), abfragen.invalidateQueries({ queryKey: schluessel.ordner })])
 
-export const aendereRegelnMitSchritt = ganzerStand<readonly Regel[]>('regeln', (l) => speichereRegeln(l))
-export const aendereKategorienMitSchritt = ganzerStand<readonly Kategorie[]>('kategorien', (l) => speichereKategorien(l), mailsUndOrdnerNeu)
-export const aendereAbwesenheitMitSchritt = ganzerStand<Abwesenheit>('abwesenheit', speichereAbwesenheit)
-export const aendereBlockiertMitSchritt = ganzerStand<readonly string[]>('blockiert', (l) => speichereBlockiert(l), mailsUndOrdnerNeu)
+export const aendereRegelnMitSchritt = ganzerStand<readonly Regel[]>('regeln', 'postfach', (l) => speichereRegeln(l))
+export const aendereKategorienMitSchritt = ganzerStand<readonly Kategorie[]>('kategorien', 'postfach', (l) => speichereKategorien(l), mailsUndOrdnerNeu)
+export const aendereAbwesenheitMitSchritt = ganzerStand<Abwesenheit>('abwesenheit', 'postfach', speichereAbwesenheit)
+export const aendereBlockiertMitSchritt = ganzerStand<readonly string[]>('blockiert', 'postfach', (l) => speichereBlockiert(l), mailsUndOrdnerNeu)
 
 const signaturSpeichern = new MutationObserver(abfragen, {
   mutationKey: ['signatur'],
