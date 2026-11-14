@@ -22,6 +22,9 @@ describe('eintragAendern', () => {
   it('meldet einen unbekannten Eintrag', () => {
     expect(eintragAendern(liste, 'x', { erledigt: true }, jetzt).eintrag).toBeUndefined()
   })
+  it('ändert den Text einer Notiz', () => {
+    expect(eintragAendern(liste, 'b', { text: '# Ablauf\n- erst A' }, jetzt).eintrag).toMatchObject({ titel: 'Idee', text: '# Ablauf\n- erst A' })
+  })
   it('übernimmt nur erlaubte Felder', () => {
     const neu = eintragAendern(liste, 'a', { id: 'z', art: 'mail' } as never, jetzt)
     expect(neu.eintrag).toMatchObject({ id: 'a', art: 'aufgabe' })

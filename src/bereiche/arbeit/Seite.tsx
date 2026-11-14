@@ -1,5 +1,5 @@
 import { addDays, addMonths, isSameDay, startOfMonth, startOfWeek } from 'date-fns'
-import { ChevronLeft, ChevronRight, Settings2 } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Palmtree, Settings2 } from 'lucide-react'
 import { lazy, Suspense, useEffect, useState } from 'react'
 import { Aufklapp, AufklappInhalt, AufklappKnopf, AufklappZu } from '../../bausteine/Aufklapp'
 import { Knopf } from '../../bausteine/Knopf'
@@ -18,6 +18,7 @@ import { einstellung } from '../../logik/einstellungen'
 import { monatsRaster } from '../../logik/heute'
 import { mitAusnahme, vorschau, type Ausnahme, type Ausnahmeart, type Rhythmus, type VorschauTag } from '../../logik/rhythmus'
 import { tagSchluessel } from '../../logik/zeit'
+import { Wissen } from './Wissen'
 import { Farbpunkt } from '../../geruest/Farbwahl'
 
 const bundesland = einstellung('bundesland')
@@ -26,6 +27,7 @@ const urlaubstage = einstellung('arbeit-urlaubstage')
 
 // Der Baukasten lädt erst, wenn er aufgeht.
 const Baukasten = lazy(() => import('./Baukasten'))
+const Planer = lazy(() => import('./Planer'))
 
 /** So viele Wochen ab dieser prüfen die Hinweise. */
 const HINWEIS_WOCHEN = 2
@@ -39,10 +41,15 @@ export default function Seite() {
   const { rhythmus, fehler } = useRhythmus()
   const unter = ortAusMarke(useSprungmarke()).unter
   const [baukasten, setBaukasten] = useState(false)
+  // Ohne eigene Wahl ist der Planer offen, wenn die zweite Ebene „Urlaub“ zeigt.
+  const [planerWahl, setPlaner] = useState<boolean | null>(null)
+  const planer = planerWahl ?? unter === 'urlaub'
 
+  // Gesprungen wird, sobald die Kacheln da sind (sie warten auf den Schichtplan).
+  const geladen = rhythmus !== undefined
   useEffect(() => {
-    if (unter) document.getElementById(`arbeit-${unter}`)?.scrollIntoView({ block: 'start' })
-  }, [unter])
+    if (unter && geladen) document.getElementById(`arbeit-${unter}`)?.scrollIntoView({ block: 'start' })
+  }, [unter, geladen])
 
   return (
     <div className="flex min-h-0 flex-1 flex-col gap-3">
@@ -63,10 +70,25 @@ export default function Seite() {
             </Suspense>
           )}
           <div className="grid gap-3 md:grid-cols-2">
-            <Schichtplan rhythmus={rhythmus} jetzt={jetzt} />
+            <div className="flex flex-col gap-3">
+              <Schichtplan rhythmus={rhythmus} jetzt={jetzt} />
+              <Wissen />
+            </div>
             <div className="flex flex-col gap-3">
               <Hinweise rhythmus={rhythmus} jetzt={jetzt} />
               <Arbeitszeit rhythmus={rhythmus} jetzt={jetzt} />
+              <section id="arbeit-urlaub" aria-label="Urlaub planen" className="flaeche-kachel flex items-center gap-3 p-4">
+                <h2 className="min-w-0 flex-1 text-lg font-semibold">Urlaub planen</h2>
+                <Knopf groesse="klein" aria-pressed={planer} onClick={() => setPlaner(!planer)}>
+                  <Palmtree aria-hidden className="size-4" />
+                  Planer
+                </Knopf>
+              </section>
+              {planer && (
+                <Suspense>
+                  <Planer rhythmus={rhythmus} jetzt={jetzt} />
+                </Suspense>
+              )}
             </div>
           </div>
         </div>

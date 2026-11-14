@@ -212,3 +212,9 @@ Muster für einen Eintrag:
 - Grund: einziger kostenloser React-Baustein mit Ziehen, dessen Aussehen ganz aus Tide kommen kann; ca. 80 KB, nur geladen, wenn die Woche aufgeht.
 - Link: https://fullcalendar.io/docs/react
 - Eingebaut in Scheibe: kalender-woche
+
+## 2026-11-14 · Urlaubsplaner (Brückentage)
+- Kandidaten: @fineanmol/holiday-optimizer (rund 400 Downloads, kaum erprobt, kennt nur Wochenende und Feiertage), Web-Rechner ohne Paket (holidaydb, toools.cloud)
+- Entscheidung: Eigenbau `logik/urlaub.ts` (wenige Zeilen, mit Tests); Feiertage weiter aus date-holidays
+- Grund: kein bewährter Baustein, und keiner berücksichtigt einen Dienstplan mit Schichten am Wochenende und freien Werktagen
+- Eingebaut in Scheibe: arbeit-urlaub-und-wissen

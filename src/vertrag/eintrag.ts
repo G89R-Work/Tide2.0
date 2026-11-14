@@ -8,6 +8,10 @@ const zeitpunkt = z.iso.datetime({ offset: true })
 export const artSchema = z.enum(['aufgabe', 'notiz', 'termin', 'schicht', 'mail', 'einkauf'])
 export type Art = z.infer<typeof artSchema>
 
+/** Privates und Arbeit getrennt halten (docs/konzept/17-arbeit.md, „Notizen für die Arbeit“). */
+export const raumSchema = z.enum(['privat', 'arbeit'])
+export type Raum = z.infer<typeof raumSchema>
+
 export const eintragSchema = z.object({
   id: z.string(),
   art: artSchema,
@@ -23,12 +27,16 @@ export const eintragSchema = z.object({
   ende: zeitpunkt.optional(),
   /** Fälliger Tag als „JJJJ-MM-TT“ (Ortszeit), nur bei Einträgen mit Frist */
   frist: z.iso.date().optional(),
+  /** Raum des Eintrags; fehlt er, ist der Eintrag privat */
+  raum: raumSchema.optional(),
+  /** Inhalt als Markdown, etwa einer Notiz */
+  text: z.string().optional(),
 })
 export type Eintrag = z.infer<typeof eintragSchema>
 export const eintraegeSchema = z.array(eintragSchema)
 
 /** Was sich an einem Eintrag ändern lässt. Beginn und Ende nur zusammen und nur bei Einträgen mit Uhrzeit. */
-export const aenderungSchema = eintragSchema.pick({ titel: true, erledigt: true, beginn: true, ende: true }).partial()
+export const aenderungSchema = eintragSchema.pick({ titel: true, erledigt: true, beginn: true, ende: true, text: true }).partial()
 export type Aenderung = z.infer<typeof aenderungSchema>
 
 const adresse = '/api/eintraege'
@@ -43,7 +51,7 @@ export function aendereEintrag(id: string, aenderung: Aenderung): Promise<Eintra
 
 /** Was Tide beim Anlegen schickt; Anlage- und Änderungszeit setzt der Server. Beginn und Ende nur zusammen, Ende nach Beginn. */
 export const neuerEintragSchema = eintragSchema
-  .pick({ id: true, art: true, titel: true, frist: true, beginn: true, ende: true })
+  .pick({ id: true, art: true, titel: true, frist: true, beginn: true, ende: true, raum: true, text: true })
   .refine((e) => (e.beginn === undefined) === (e.ende === undefined), 'Beginn und Ende nur zusammen')
   .refine((e) => !e.beginn || !e.ende || e.ende > e.beginn, 'Ende muss nach dem Beginn liegen')
 export type NeuerEintrag = z.infer<typeof neuerEintragSchema>

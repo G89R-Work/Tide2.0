@@ -5,6 +5,7 @@ export function eintragAendern(liste: Eintrag[], id: string, aenderung: Aenderun
   const erlaubt: Aenderung = {}
   if (typeof aenderung.titel === 'string') erlaubt.titel = aenderung.titel
   if (typeof aenderung.erledigt === 'boolean') erlaubt.erledigt = aenderung.erledigt
+  if (typeof aenderung.text === 'string') erlaubt.text = aenderung.text
   if (aenderung.beginn !== undefined || aenderung.ende !== undefined) Object.assign(erlaubt, zeitraum(aenderung))
   let eintrag: Eintrag | undefined
   const neu = liste.map((e) => {

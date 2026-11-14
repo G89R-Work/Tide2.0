@@ -180,15 +180,16 @@ Eine Zeile je Entscheidung, neueste unten. Was hier steht, gilt und wird nicht n
 - 2026-11-14 · Arbeit-Seite: Der Schichtplan ist Vertrag (`vertrag/arbeit.ts`, `GET/PUT /api/arbeit/rhythmus`, ganzer Stand); die Typen stehen nur dort, `logik/rhythmus.ts` rechnet. Schichtarten haben eine Pause in Minuten (zählt nicht zur Arbeitszeit) und die Farben der Ordner. Schichten erscheinen weiter als Einträge der Art „schicht“ unter `/api/termine` (id `s-JJJJ-MM-TT`), berechnet aus dem Rhythmus; nach dem Speichern holen Kalender und Kurve sie neu.
 - 2026-11-14 · Schichten ändert nur der Schichtplan: auf der Kurve nicht ziehbar, im Kalender nicht löschbar. Einen Tag ändert eine Ausnahme (Antippen im Schichtplan: Urlaub, krank, Tausch, Zusatzschicht, frei, wie im Rhythmus), sofort gespeichert mit Rückgängig; der Baukasten speichert erst nach der Vorschau.
 - 2026-11-14 · Hinweise zum Plan für diese und die nächste Woche, Termine je Tag zusammengefasst; Feiertage mit Schicht sind ein Hinweis (der Plan bleibt, wie er ist). Arbeitszeit: Soll = Wochenstunden auf Mo–Fr verteilt, Urlaub und krank zählen wie ein Soll-Tag, Ist und Überstunden nur aus beendeten Schichten; Wochenstunden und Urlaubstage sind Einstellungen unter Arbeit.
+- 2026-11-14 · Offener Punkt 7 nach Empfehlung: Notizen für die Arbeit sind dieselben Notizen im Raum Arbeit. Vertrag (Ja des Nutzers): jeder Eintrag hat freiwillig `raum` (`privat`/`arbeit`, fehlt = privat) und `text` (Markdown); `text` lässt sich ändern. Wissen auf der Seite Arbeit zeigt, legt an, ändert (Titel und Text als ein Schritt) und löscht Notizen mit `raum: 'arbeit'`, alles mit Rückgängig. Die privaten Notizen (Etappe 5) blenden sie aus.
+- 2026-11-14 · Urlaubsplaner: Eigenbau `logik/urlaub.ts` (siehe BAUSTEINE.md). Je Feiertag das Fenster ±10 Tage mit höchstens 5 Urlaubstagen und den meisten freien Tagen je Urlaubstag (Gleichstand: mehr freie Tage), freie Ränder zählen mit; gleiche Fenster werden zusammengefasst. Arbeitstag nach Dienstplan (Tag mit Schicht; vor dem Start oder ohne Abfolge Mo–Fr). Ab Werk das nächste Jahr; „Eintragen“ setzt Urlaub als Ausnahmen im Schichtplan. Der Planer öffnet sich unter der kleinen Kachel (wie der Baukasten), kein eigenes Fenster.
 
 ## Offen
 
-Sechs Punkte sind offen. Bei jedem steht meine Empfehlung. Ohne Antwort gilt die Empfehlung.
+Fünf Punkte sind offen. Bei jedem steht meine Empfehlung. Ohne Antwort gilt die Empfehlung.
 
 | Nr. | Frage | Empfehlung | Wann nötig |
 | --- | --- | --- | --- |
 | 6 | Belegung am Handy ab Werk | Oben: Kurve, Suche, Einstellungen. Unten: Heute, Postfach, Plus, Kalender, To-dos | In Etappe 1 |
-| 7 | Notizen für die Arbeit | Derselbe Baustein im Raum Arbeit | Vor Etappe 4 |
 | 8 | Bons vom Foto | Später als Versuch hinter einem Schalter | Nach dem Prototyp |
 | 9 | Diktat-Knopf im Prototyp | Ja, mit Hinweis, wohin der Ton geht | Vor Etappe 8 |
 | 10 | Rechtschreibprüfung | Eigener Server auf dem Homeserver | Server-Etappe S6 |

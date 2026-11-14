@@ -70,7 +70,7 @@ Vorlage ist das Postfach aus `docs/vorlage-aussehen/prototyp3.html` (Nutzer 2026
 - [x] `kalender-handy` · liest: 12-kalender.md · Handy: Monat mit Punkten über der Terminliste, Sprung zum Tag; Termin anlegen mit Warnung bei Schicht · Fertig, wenn: ein Termin in einer Schicht schon im Eingabefenster warnt
 - [x] `arbeit-rhythmus` · liest: 17-arbeit.md · Schichtarten, Wochenmuster, Abfolge, Startdatum, Ausnahmen, Vorschau über acht Wochen; reine Logik mit Tests · Fertig, wenn: jede Zeile der Rhythmus-Tabelle ihren Test besteht
 - [x] `arbeit-seite` · liest: 17-arbeit.md · Seite Arbeit: Wochenleiste, Schichtplan mit Baukasten, Arbeitszeit, Hinweise zum Plan · Fertig, wenn: ein geänderter Rhythmus sofort Kalender und Gezeitenkurve ändert
-- [ ] `arbeit-urlaub-und-wissen` · liest: 17-arbeit.md · Urlaubsplaner als kleine Kachel mit Planer dahinter; Wissen als Notizen im Raum Arbeit · Fertig, wenn: der Planer für das nächste Jahr Vorschläge um jeden Feiertag zeigt
+- [x] `arbeit-urlaub-und-wissen` · liest: 17-arbeit.md · Urlaubsplaner als kleine Kachel mit Planer dahinter; Wissen als Notizen im Raum Arbeit · Fertig, wenn: der Planer für das nächste Jahr Vorschläge um jeden Feiertag zeigt
 
 ## Etappe 5: To-dos und Notizen
 - [ ] `todos-liste` · liest: 13-todos.md · zweite Ebene nach Herkunft, Liste nach Fälligkeit gruppiert, Ziehen ändert die Frist, Eingabezeile versteht „heute" und „morgen" · Fertig, wenn: ein To-do sich zwischen den Gruppen ziehen lässt

@@ -17,4 +17,7 @@ export const beispielEintraege = (): Eintrag[] => [
   e('4', 'mail', 'Antwort an die Hausverwaltung', 0),
   e('6', 'aufgabe', 'Fahrrad zur Werkstatt bringen', 1),
   e('5', 'notiz', 'Ideen für den Urlaub im März'),
+  { ...e('w1', 'notiz', 'Übergabe Spätschicht'), raum: 'arbeit', text: '- Kasse zählen\n- Liste für Frühschicht auf den Tresen\n- Fenster im Lager schließen' },
+  { ...e('w2', 'notiz', 'Telefonliste Praxis'), raum: 'arbeit', text: 'Empfang: 210\nLabor: 230\nTechnik: 299' },
+  { ...e('w3', 'notiz', 'Hygieneplan'), raum: 'arbeit', text: '## Täglich\nFlächen abwischen\n\n## Wöchentlich\nKühlschrank prüfen' },
 ]
