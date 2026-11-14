@@ -1,12 +1,13 @@
 import { useDrag, useWheel } from '@use-gesture/react'
 import { addDays, addMonths, addWeeks, isSameDay, startOfMonth } from 'date-fns'
 import { ChevronLeft, ChevronRight, Plus, X } from 'lucide-react'
-import { lazy, Suspense, useMemo, useState, type FormEvent } from 'react'
+import { lazy, Suspense, useMemo, useRef, useState, type FormEvent, type RefObject } from 'react'
 import { Eingabe } from '../../bausteine/Eingabe'
 import { Knopf } from '../../bausteine/Knopf'
+import { Schalter } from '../../bausteine/Schalter'
 import { Menue, MenueAusloeser, MenueInhalt, MenuePunkt } from '../../bausteine/Menue'
 import { cn } from '../../bausteine/cn'
-import { eintragMitSchritt, useEintragFehler, useFeiertage, useTermine } from '../../geruest/daten'
+import { aufgabeMitSchritt, eintragMitSchritt, useEintragFehler, useFeiertage, useTermine } from '../../geruest/daten'
 import { useEinstellung } from '../../geruest/einstellungen'
 import { monatName, tagKurz, tagLang, uhrzeit } from '../../geruest/format'
 import { AktionKnopf } from '../../geruest/AktionKnopf'
@@ -16,8 +17,10 @@ import { ortAusMarke } from '../../logik/ebenen'
 import { RueckgaengigKnoepfe } from '../../geruest/RueckgaengigKnoepfe'
 import { Seitenkopf } from '../../geruest/Seitenkopf'
 import { useMinute } from '../../geruest/useMinute'
+import { useSchmal } from '../../geruest/useSchmal'
 import { einstellung } from '../../logik/einstellungen'
 import { monatsRaster, wochenTage } from '../../logik/heute'
+import { schichtenImTermin } from '../../logik/bezuege/terminInSchicht'
 import { kalenderwoche, termineAm, wischZiel } from '../../logik/kalender'
 import { tagSchluessel } from '../../logik/zeit'
 import type { Eintrag } from '../../vertrag/eintrag'
@@ -43,6 +46,7 @@ export default function Seite() {
   const [monat, setMonat] = useState(() => startOfMonth(jetzt))
   const [gewaehlt, setGewaehlt] = useState(jetzt)
   const [neu, setNeu] = useState(false)
+  const tagRef = useRef<HTMLElement>(null)
   const raster = useMemo(() => monatsRaster(monat, beginn), [monat, beginn])
   const erster = raster[0]?.[0] ?? monat
   const letzter = addDays(raster[5]?.[6] ?? monat, 1)
@@ -80,7 +84,7 @@ export default function Seite() {
       {fehler && <p className="text-sm text-warnung">{fehler}</p>}
       <div className="inhalt-frei flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto md:flex-row md:overflow-hidden">
         {ansicht === 'monat' ? (
-          <Monat raster={raster} monat={monat} jetzt={jetzt} gewaehlt={gewaehlt} termine={termine ?? []} waehle={waehle} wischen={wischen} />
+          <Monat raster={raster} monat={monat} jetzt={jetzt} gewaehlt={gewaehlt} termine={termine ?? []} waehle={waehle} wischen={wischen} tagRef={tagRef} />
         ) : (
           <section {...wischen()} aria-label="Woche" className="flaeche-kachel flex h-96 min-h-0 shrink-0 touch-none flex-col p-3 select-none md:h-auto md:flex-1 md:shrink">
             <Suspense>
@@ -88,7 +92,7 @@ export default function Seite() {
             </Suspense>
           </section>
         )}
-        <Tag key={tagSchluessel(gewaehlt)} tag={gewaehlt} termine={termine ?? []} neu={neu} setNeu={setNeu} />
+        <Tag key={tagSchluessel(gewaehlt)} ref={tagRef} tag={gewaehlt} termine={termine ?? []} neu={neu} setNeu={setNeu} />
       </div>
     </div>
   )
@@ -119,10 +123,13 @@ type MonatProps = {
   termine: readonly Eintrag[]
   waehle: (t: Date, neuerTermin?: boolean) => void
   wischen: ReturnType<typeof useWischen>
+  /** Tages-Kachel: am Handy springt ein angetippter Tag zu seinen Terminen. */
+  tagRef: RefObject<HTMLElement | null>
 }
 
-/** Sechs Wochenzeilen, links je die Kalenderwoche; je Tag Feiertag und Termine als Etiketten. */
-function Monat({ raster, monat, jetzt, gewaehlt, termine, waehle, wischen }: MonatProps) {
+/** Sechs Wochenzeilen, links je die Kalenderwoche; je Tag Feiertag und Termine als Etiketten, am Handy als Punkte. */
+function Monat({ raster, monat, jetzt, gewaehlt, termine, waehle, wischen, tagRef }: MonatProps) {
+  const schmal = useSchmal()
   const kw = useEinstellung(kwZeigen)
   const land = useEinstellung(bundesland)
   const feiertag = useFeiertage(monat.getFullYear(), land)
@@ -136,7 +143,7 @@ function Monat({ raster, monat, jetzt, gewaehlt, termine, waehle, wischen }: Mon
       </div>
       <div {...wischen()} role="grid" aria-label={`${monatName(monat)} ${monat.getFullYear()}`} className="flex min-h-0 flex-1 touch-none flex-col gap-1 select-none">
         {raster.map((zeile) => (
-          <div key={tagSchluessel(zeile[0] ?? monat)} role="row" className={cn('grid min-h-16 flex-1 gap-1', kw ? 'grid-cols-8' : 'grid-cols-7')}>
+          <div key={tagSchluessel(zeile[0] ?? monat)} role="row" className={cn('grid min-h-11 flex-1 gap-1 md:min-h-16', kw ? 'grid-cols-8' : 'grid-cols-7')}>
             {kw && (
               <span role="rowheader" className="self-center text-center text-xs text-text-blass tabular-nums">
                 {kalenderwoche(zeile)}
@@ -152,26 +159,35 @@ function Monat({ raster, monat, jetzt, gewaehlt, termine, waehle, wischen }: Mon
                     <button
                       type="button"
                       role="gridcell"
-                      aria-label={name ? `${tagLang(t)}, ${name}` : tagLang(t)}
+                      aria-label={[tagLang(t), name, am.length ? `${am.length} Termine` : undefined].filter(Boolean).join(', ')}
                       aria-current={s === heute ? 'date' : undefined}
                       aria-selected={s === gewaehltS}
-                      onClick={() => waehle(t)}
+                      onClick={() => {
+                        waehle(t)
+                        if (schmal) tagRef.current?.scrollIntoView({ block: 'start' })
+                      }}
                       className={cn(
                         'drueck flex min-w-0 cursor-pointer flex-col items-stretch gap-0.5 overflow-hidden rounded-knopf p-1 text-left outline-none hover:bg-knopf-ton focus-visible:ring-2 focus-visible:ring-akzent',
                         t.getMonth() !== monat.getMonth() && 'opacity-50',
                         s === gewaehltS && 'ring-1 ring-akzent ring-inset',
                       )}
                     >
-                      <span className={cn('shrink-0 self-start rounded-voll px-1.5 text-sm tabular-nums', s === heute && 'akzent-verlauf font-semibold text-auf-akzent', name && s !== heute && 'text-akzent')}>
+                      <span className={cn('shrink-0 rounded-voll px-1.5 text-sm tabular-nums', schmal ? 'self-center' : 'self-start', s === heute && 'akzent-verlauf font-semibold text-auf-akzent', name && s !== heute && 'text-akzent')}>
                         {t.getDate()}
                       </span>
-                      {name && <span className="shrink-0 truncate text-xs text-akzent">{name}</span>}
-                      {am.slice(0, ETIKETTEN).map((e) => (
-                        <span key={e.id} className={cn('shrink-0 truncate rounded-knopf px-1 text-xs', e.art === 'schicht' ? 'bg-knopf-ton text-text-gedaempft' : 'bg-akzent/15 text-text')}>
-                          {e.titel}
-                        </span>
-                      ))}
-                      {am.length > ETIKETTEN && <span className="shrink-0 px-1 text-xs text-text-gedaempft">+{am.length - ETIKETTEN}</span>}
+                      {schmal ? (
+                        <Punkte termine={am} />
+                      ) : (
+                        <>
+                          {name && <span className="shrink-0 truncate text-xs text-akzent">{name}</span>}
+                          {am.slice(0, ETIKETTEN).map((e) => (
+                            <span key={e.id} className={cn('shrink-0 truncate rounded-knopf px-1 text-xs', e.art === 'schicht' ? 'bg-knopf-ton text-text-gedaempft' : 'bg-akzent/15 text-text')}>
+                              {e.titel}
+                            </span>
+                          ))}
+                          {am.length > ETIKETTEN && <span className="shrink-0 px-1 text-xs text-text-gedaempft">+{am.length - ETIKETTEN}</span>}
+                        </>
+                      )}
                     </button>
                   </MenueAusloeser>
                   <MenueInhalt>
@@ -187,14 +203,28 @@ function Monat({ raster, monat, jetzt, gewaehlt, termine, waehle, wischen }: Mon
   )
 }
 
+/** So viele Punkte zeigt ein Tag am Handy. */
+const PUNKTE = 3
+
+/** Am Handy: je Termin ein Punkt (Schicht blass), höchstens drei. */
+function Punkte({ termine }: { termine: readonly Eintrag[] }) {
+  return (
+    <span aria-hidden className="flex justify-center gap-0.5">
+      {termine.slice(0, PUNKTE).map((e) => (
+        <span key={e.id} className={cn('size-1 rounded-voll', e.art === 'schicht' ? 'bg-text-blass' : 'bg-akzent')} />
+      ))}
+    </span>
+  )
+}
+
 const artName: Partial<Record<Eintrag['art'], string>> = { termin: 'Termin', schicht: 'Schicht' }
 
 /** Der gewählte Tag als Liste: Uhrzeit, Titel, Art; löschen mit Rückgängig. Oben „Neuer Termin“. */
-function Tag({ tag, termine, neu, setNeu }: { tag: Date; termine: readonly Eintrag[]; neu: boolean; setNeu: (n: boolean) => void }) {
+function Tag({ ref, tag, termine, neu, setNeu }: { ref: RefObject<HTMLElement | null>; tag: Date; termine: readonly Eintrag[]; neu: boolean; setNeu: (n: boolean) => void }) {
   const am = termineAm(termine, tag)
   const fehler = useEintragFehler()
   return (
-    <section aria-label={tagLang(tag)} className="flaeche-kachel flex shrink-0 flex-col gap-3 p-5 md:w-80 md:overflow-y-auto">
+    <section ref={ref} aria-label={tagLang(tag)} className="flaeche-kachel flex shrink-0 flex-col gap-3 p-5 md:w-80 md:overflow-y-auto">
       <header className="flex items-center gap-2">
         <h2 className="min-w-0 flex-1 text-lg font-semibold">{tagLang(tag)}</h2>
         <Knopf groesse="klein" onClick={() => setNeu(true)} disabled={neu}>
@@ -203,7 +233,7 @@ function Tag({ tag, termine, neu, setNeu }: { tag: Date; termine: readonly Eintr
         </Knopf>
       </header>
       {fehler && <p className="text-sm text-warnung">{fehler}</p>}
-      {neu && <NeuerTermin tag={tag} fertig={() => setNeu(false)} />}
+      {neu && <NeuerTermin tag={tag} termine={termine} fertig={() => setNeu(false)} />}
       {am.length === 0 && !neu && <p className="text-sm text-text-gedaempft">Keine Termine</p>}
       <ul className="flex flex-col gap-1">
         {am.map((e) => (
@@ -234,21 +264,26 @@ const um = (tag: Date, hhmm: string) => {
   return new Date(tag.getFullYear(), tag.getMonth(), tag.getDate(), h, m)
 }
 
-function NeuerTermin({ tag, fertig }: { tag: Date; fertig: () => void }) {
+/** Neuer Termin; fällt er in eine Schicht, warnt das Feld sofort und bietet eine Erinnerung zum Prüfen (To-do am Tag) an. */
+function NeuerTermin({ tag, termine, fertig }: { tag: Date; termine: readonly Eintrag[]; fertig: () => void }) {
   const [titel, setTitel] = useState('')
   const [von, setVon] = useState('09:00')
   const [bis, setBis] = useState('10:00')
+  const [erinnern, setErinnern] = useState(true)
   const beginn = um(tag, von)
   const ende = um(tag, bis)
   const gueltig = titel.trim() !== '' && ende > beginn
+  const schichten = ende > beginn ? schichtenImTermin(beginn, ende, termine) : []
   const anlegen = async (ev: FormEvent) => {
     ev.preventDefault()
+    const name = titel.trim()
     const ok = await eintragMitSchritt(
-      { id: `termin-${crypto.randomUUID().slice(0, 8)}`, art: 'termin', titel: titel.trim(), beginn: beginn.toISOString(), ende: ende.toISOString() },
+      { id: `termin-${crypto.randomUUID().slice(0, 8)}`, art: 'termin', titel: name, beginn: beginn.toISOString(), ende: ende.toISOString() },
       false,
-      `Termin „${titel.trim()}“ angelegt`,
+      `Termin „${name}“ angelegt`,
       'kalender',
     )
+    if (ok && schichten.length && erinnern) await aufgabeMitSchritt(`„${name}“ in ${schichten.join(', ')} prüfen`, tagSchluessel(tag), 'kalender')
     if (ok) fertig()
   }
   return (
@@ -260,6 +295,15 @@ function NeuerTermin({ tag, fertig }: { tag: Date; fertig: () => void }) {
         <Eingabe type="time" aria-label="Bis" value={bis} onChange={(e) => setBis(e.target.value)} className="flex-1" />
       </div>
       {!(ende > beginn) && <p className="text-sm text-warnung">Ende muss nach dem Beginn liegen</p>}
+      {schichten.length > 0 && (
+        <div role="alert" className="flex flex-col gap-2 rounded-knopf border border-warnung p-2 text-sm">
+          <p className="text-warnung">Liegt in {schichten.join(', ')}</p>
+          <label className="flex cursor-pointer items-center justify-between gap-2">
+            Erinnerung zum Prüfen
+            <Schalter checked={erinnern} onChange={(e) => setErinnern(e.currentTarget.checked)} />
+          </label>
+        </div>
+      )}
       <div className="flex gap-2">
         <Knopf art="haupt" type="submit" disabled={!gueltig}>
           Anlegen

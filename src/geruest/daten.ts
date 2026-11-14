@@ -251,6 +251,10 @@ export async function eintragMitSchritt(neu: NeuerEintrag, loeschen: boolean, te
   return ok
 }
 
+/** Legt ein To-do an, mit Frist („JJJJ-MM-TT“) oder ohne; Rückgängig löscht es. Liefert, ob es geklappt hat. */
+export const aufgabeMitSchritt = (titel: string, frist: string | undefined, bereich: BereichId) =>
+  eintragMitSchritt({ id: `aufgabe-${crypto.randomUUID().slice(0, 8)}`, art: 'aufgabe', titel, ...(frist ? { frist } : {}) }, false, frist ? `Frist „${titel}“ eingetragen` : `To-do „${titel}“ angelegt`, bereich)
+
 // ── Ordner des Postfachs: gespeichert wird immer die ganze Liste (Reihenfolge, Eltern, Name, Farbe, Anheften).
 
 const ordnerSpeichern = new MutationObserver(abfragen, {
