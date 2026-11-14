@@ -1,5 +1,6 @@
 import { draggable } from '@atlaskit/pragmatic-drag-and-drop/element/adapter'
 import { setCustomNativeDragPreview } from '@atlaskit/pragmatic-drag-and-drop/element/set-custom-native-drag-preview'
+import { useDrag } from '@use-gesture/react'
 import { CircleAlert, Flag, ListFilter, Paperclip, Pin, Search } from 'lucide-react'
 import { memo, useEffect, useMemo, useRef, useState, type KeyboardEvent, type MouseEvent } from 'react'
 import { VList, type VListHandle } from 'virtua'
@@ -13,6 +14,12 @@ import { mailZeit } from '../../geruest/format'
 import { gelesen, regelVonMail } from '../../geruest/mailAktionen'
 import { mailAuswahlJetzt, useMailAuswahl, waehleMails } from '../../geruest/mailAuswahl'
 import { mailDaten } from '../../geruest/mailZiehen'
+import { aktionSymbole } from '../../geruest/aktionSymbole'
+import { fuehreAusFuer } from '../../geruest/befehle'
+import { useEinstellung } from '../../geruest/einstellungen'
+import { useSchmal } from '../../geruest/useSchmal'
+import { einstellung } from '../../logik/einstellungen'
+import { WISCH_GRENZE } from '../../werte/bewegung'
 import { useMinute } from '../../geruest/useMinute'
 import { seitText } from '../../logik/heute'
 import { gezogen, mailFilter, mailSortierung, mailsText, waehle, zeigeMails, type Ansicht, type Auswahl, type Wahl } from '../../logik/mails'
@@ -169,10 +176,34 @@ type ZeileProps = {
   klick: (id: string, wahl: Wahl) => void
 }
 
+const wischenLinks = einstellung('wischen-links')
+const wischenRechts = einstellung('wischen-rechts')
+
+/** Wischen am Handy: Weg der Zeile und die eingestellte Aktion je Richtung („aus“ = keine). */
+function useWischen(m: Mail) {
+  const [zug, setZug] = useState(0)
+  const links = useEinstellung(wischenLinks)
+  const rechts = useEinstellung(wischenRechts)
+  const binde = useDrag(
+    ({ active, movement: [mx], swipe: [sx], event }) => {
+      if (active) return setZug(mx)
+      setZug(0)
+      const breite = (event.currentTarget as HTMLElement | null)?.clientWidth ?? 1
+      const richtung = sx !== 0 ? sx : Math.abs(mx) > breite * WISCH_GRENZE ? Math.sign(mx) : 0
+      const id = richtung < 0 ? links : richtung > 0 ? rechts : 'aus'
+      if (id !== 'aus') void fuehreAusFuer(id, [m])
+    },
+    { axis: 'x', filterTaps: true, enabled: useSchmal() },
+  )
+  return { zug, binde, aktion: zug < 0 ? links : zug > 0 ? rechts : 'aus' }
+}
+
 /** Eine Mail: Absender, Symbole, Zeit; Betreff; Kategorien, Fälligkeit, Vorschau und Hinweis. Ziehbar in einen Ordner. */
 const MailZeile = memo(function MailZeile({ m, gewaehlt, mehrfach, mitnehmen, aus, farbe, jetzt, klick }: ZeileProps) {
   const ref = useRef<HTMLDivElement>(null)
   const [zieht, setZieht] = useState(false)
+  const { zug, binde, aktion } = useWischen(m)
+  const Symbol = aktionSymbole[aktion]
 
   useEffect(() => {
     const element = ref.current
@@ -204,41 +235,45 @@ const MailZeile = memo(function MailZeile({ m, gewaehlt, mehrfach, mitnehmen, au
           data-mehrfach={(mehrfach && gewaehlt) || undefined}
           data-zieht={zieht || undefined}
           onClick={(e) => klick(m.id, wahlVon(e))}
-          className="mail-zeile group flex gap-2 px-3 py-2.5"
+          {...binde()}
+          className="mail-zeile group relative flex touch-pan-y overflow-hidden px-3 py-2.5"
           style={{ height: postfach.zeilePx }}
         >
-          <input
-            type="checkbox"
-            aria-label={`${m.betreff} auswählen`}
-            tabIndex={-1}
-            checked={mehrfach && gewaehlt}
-            onClick={(e) => e.stopPropagation()}
-            onChange={() => klick(m.id, 'dazu')}
-            className={cn('mt-0.5 size-4 shrink-0 cursor-pointer accent-akzent opacity-0 group-hover:opacity-100 focus-visible:opacity-100', mehrfach && 'opacity-100')}
-          />
-          <div className="flex min-w-0 flex-1 flex-col gap-0.5">
-            <div className="flex items-center gap-2">
-              <span className={cn('min-w-0 flex-1 truncate text-sm', m.ungelesen && 'font-bold')}>{m.von}</span>
-              {m.angeheftet && <Pin aria-label="Angeheftet" className="size-3.5 shrink-0 text-akzent" />}
-              {m.wichtig && <CircleAlert aria-label="Wichtig" className="size-3.5 shrink-0 text-warnung" />}
-              {m.anhaenge.length > 0 && <Paperclip aria-label="Anhang" className="size-3.5 shrink-0 text-text-gedaempft" />}
-              {m.nachverfolgen && <Flag aria-label="Nachverfolgen" className="size-3.5 shrink-0 text-warnung" />}
-              <time dateTime={m.zeit} className="shrink-0 text-xs text-text-gedaempft tabular-nums">
-                {mailZeit(m.zeit, jetzt)}
-              </time>
-            </div>
-            <span className={cn('truncate text-sm', m.ungelesen ? 'font-semibold' : 'text-text-gedaempft')}>{m.betreff}</span>
-            <div className="flex min-w-0 items-center gap-1.5">
-              {m.kategorien.map((k) => (
-                <span key={k} className={cn('schild schild-gefuellt', farbe.get(k) ?? 'text-text-gedaempft')}>
-                  {k}
+          {Symbol && <Symbol aria-hidden className={cn('absolute top-1/2 size-5 -translate-y-1/2 text-akzent', zug > 0 ? 'left-4' : 'right-4')} />}
+          <div className="flex min-w-0 flex-1 gap-2" style={zug ? { transform: `translateX(${zug}px)` } : undefined}>
+            <input
+              type="checkbox"
+              aria-label={`${m.betreff} auswählen`}
+              tabIndex={-1}
+              checked={mehrfach && gewaehlt}
+              onClick={(e) => e.stopPropagation()}
+              onChange={() => klick(m.id, 'dazu')}
+              className={cn('mt-0.5 size-4 shrink-0 cursor-pointer accent-akzent opacity-0 group-hover:opacity-100 focus-visible:opacity-100', mehrfach && 'opacity-100')}
+            />
+            <div className="flex min-w-0 flex-1 flex-col gap-0.5">
+              <div className="flex items-center gap-2">
+                <span className={cn('min-w-0 flex-1 truncate text-sm', m.ungelesen && 'font-bold')}>{m.von}</span>
+                {m.angeheftet && <Pin aria-label="Angeheftet" className="size-3.5 shrink-0 text-akzent" />}
+                {m.wichtig && <CircleAlert aria-label="Wichtig" className="size-3.5 shrink-0 text-warnung" />}
+                {m.anhaenge.length > 0 && <Paperclip aria-label="Anhang" className="size-3.5 shrink-0 text-text-gedaempft" />}
+                {m.nachverfolgen && <Flag aria-label="Nachverfolgen" className="size-3.5 shrink-0 text-warnung" />}
+                <time dateTime={m.zeit} className="shrink-0 text-xs text-text-gedaempft tabular-nums">
+                  {mailZeit(m.zeit, jetzt)}
+                </time>
+              </div>
+              <span className={cn('truncate text-sm', m.ungelesen ? 'font-semibold' : 'text-text-gedaempft')}>{m.betreff}</span>
+              <div className="flex min-w-0 items-center gap-1.5">
+                {m.kategorien.map((k) => (
+                  <span key={k} className={cn('schild schild-gefuellt', farbe.get(k) ?? 'text-text-gedaempft')}>
+                    {k}
+                  </span>
+                ))}
+                <span className="min-w-0 flex-1 truncate text-xs text-text-gedaempft">
+                  {m.faellig && <b className="font-semibold text-warnung">Fällig {seitText(m.faellig, jetzt)} · </b>}
+                  {m.vorschau}
                 </span>
-              ))}
-              <span className="min-w-0 flex-1 truncate text-xs text-text-gedaempft">
-                {m.faellig && <b className="font-semibold text-warnung">Fällig {seitText(m.faellig, jetzt)} · </b>}
-                {m.vorschau}
-              </span>
-              {m.hinweis && <span className={cn('schild', hinweisKlassen[m.hinweis])}>{m.hinweis}</span>}
+                {m.hinweis && <span className={cn('schild', hinweisKlassen[m.hinweis])}>{m.hinweis}</span>}
+              </div>
             </div>
           </div>
         </div>

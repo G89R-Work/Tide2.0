@@ -1,4 +1,5 @@
 import { useDrag } from '@use-gesture/react'
+import { WISCH_GRENZE } from '../../../werte/bewegung'
 import { CalendarDays, ChevronLeft, ChevronRight } from 'lucide-react'
 import { useState, type CSSProperties } from 'react'
 import { Aufklapp, AufklappInhalt, AufklappKnopf } from '../../../bausteine/Aufklapp'
@@ -19,8 +20,6 @@ const kuerzel = (land: string) => (land === 'bund' ? 'DE' : land.toUpperCase())
 const ersterJahr = 1950
 const jahre = Array.from({ length: 151 }, (_, i) => ersterJahr + i)
 const monate = Array.from({ length: 12 }, (_, i) => i)
-/** Ab so viel Weg (Anteil der Breite) wechselt Wischen den Monat. */
-const wischGrenze = 0.2
 
 const plusMonat = (d: Date, n: number) => new Date(d.getFullYear(), d.getMonth() + n, 1)
 const ersterDes = (d: Date) => new Date(d.getFullYear(), d.getMonth(), 1)
@@ -53,7 +52,7 @@ export function Monat({ monat, gewaehlt, jetzt, beginn, termine, waehle }: Props
       const breite = (event.currentTarget as HTMLElement | null)?.clientWidth ?? 1
       if (active) return setZug(mx)
       setZug(0)
-      const n = sx !== 0 ? -sx : Math.abs(mx) > breite * wischGrenze ? -Math.sign(mx) : 0
+      const n = sx !== 0 ? -sx : Math.abs(mx) > breite * WISCH_GRENZE ? -Math.sign(mx) : 0
       if (n) blaettern(n)
     },
     { axis: 'x', filterTaps: true },

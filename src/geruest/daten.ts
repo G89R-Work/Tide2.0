@@ -8,8 +8,8 @@ import { mailsAendern, vorherWerte } from '../logik/mails'
 import { stand } from '../logik/ordner'
 import { tagSchluessel } from '../logik/zeit'
 import { aendereEinstellungen, holeEinstellungen } from '../vertrag/einstellungen'
-import { aendereEintrag, holeEintraege, holeTermine, type Aenderung, type Eintrag } from '../vertrag/eintrag'
-import { aendereMails, holeKategorien, holeKonten, holeMailInhalt, holeMails, holeZurueck, sendeMail, speichereEntwurf, type Entwurf, holeOrdner, speichereOrdner, holeRegeln, speichereRegeln, type Regel, type Mail, type MailAenderung, type Ordner, type OrdnerStand } from '../vertrag/postfach'
+import { aendereEintrag, holeEintraege, holeTermine, legeEintragAn, loescheEintrag, type Aenderung, type Eintrag, type NeuerEintrag } from '../vertrag/eintrag'
+import { aendereMails, holeKategorien, holeKonten, holeMailInhalt, holeMails, holeZurueck, sendeMail, speichereEntwurf, type Entwurf, holeOrdner, speichereOrdner, holeRegeln, speichereRegeln, type Regel, holeAbwesenheit, holeBlockiert, speichereAbwesenheit, speichereBlockiert, speichereKategorien, speichereSignatur, type Abwesenheit, type Kategorie, type Konto, type Mail, type MailAenderung, type Ordner, type OrdnerStand } from '../vertrag/postfach'
 import { holeWetter, holeWetterTage } from '../vertrag/wetter'
 import { merke } from './rueckgaengig'
 
@@ -33,6 +33,8 @@ const schluessel = {
   mailInhalt: ['mail-inhalt'],
   konten: ['konten'],
   regeln: ['regeln'],
+  abwesenheit: ['abwesenheit'],
+  blockiert: ['blockiert'],
   einstellungen: ['einstellungen'],
   feiertage: ['feiertage'],
 } as const satisfies Record<string, QueryKey>
@@ -89,7 +91,8 @@ const kontenAbfrage = { queryKey: schluessel.konten, queryFn: holeKonten, staleT
 /** Konten, von denen Tide sendet, mit Signatur. */
 export function useKonten() {
   const q = useQuery(kontenAbfrage)
-  return { konten: q.data, fehler: meldung('Konten', q.error) }
+  const speichern = useLetzterFehler('signatur')
+  return { konten: q.data, fehler: meldung('Konten', q.error) ?? meldung('Signatur nicht gespeichert', speichern) }
 }
 
 export const kontenJetzt = () => abfragen.fetchQuery(kontenAbfrage)
@@ -100,7 +103,8 @@ export const mailsJetzt = (ordner: string): readonly Mail[] => abfragen.getQuery
 /** Kategorien der Mails mit Farbe. */
 export function useKategorien() {
   const q = useQuery({ queryKey: schluessel.kategorien, queryFn: holeKategorien, staleTime: Infinity })
-  return { kategorien: q.data, fehler: meldung('Kategorien', q.error) }
+  const speichern = useLetzterFehler('kategorien')
+  return { kategorien: q.data, fehler: meldung('Kategorien', q.error) ?? meldung('Kategorien nicht gespeichert', speichern) }
 }
 
 /** Regeln des Postfachs in ihrer Reihenfolge. */
@@ -108,6 +112,20 @@ export function useRegeln() {
   const q = useQuery({ queryKey: schluessel.regeln, queryFn: holeRegeln })
   const speichern = useLetzterFehler('regeln')
   return { regeln: q.data, fehler: meldung('Regeln', q.error) ?? meldung('Regeln nicht gespeichert', speichern) }
+}
+
+/** Automatische Antwort bei Abwesenheit. */
+export function useAbwesenheit() {
+  const q = useQuery({ queryKey: schluessel.abwesenheit, queryFn: holeAbwesenheit })
+  const speichern = useLetzterFehler('abwesenheit')
+  return { abwesenheit: q.data, fehler: meldung('Abwesenheit', q.error) ?? meldung('Abwesenheit nicht gespeichert', speichern) }
+}
+
+/** Blockierte Absender. */
+export function useBlockiert() {
+  const q = useQuery({ queryKey: schluessel.blockiert, queryFn: holeBlockiert })
+  const speichern = useLetzterFehler('blockiert')
+  return { blockiert: q.data, fehler: meldung('Blockierte', q.error) ?? meldung('Blockierte nicht gespeichert', speichern) }
 }
 
 /** Feiertage vom Vorjahr bis zum Folgejahr; der große Baustein wird erst hier nachgeladen. Bis dahin gibt es keine. */
@@ -209,6 +227,25 @@ export async function aendereEintragMitSchritt(e: Eintrag, aenderung: Aenderung,
   if (await eintragSpeichernVon(e.id, aenderung)) merke({ text, zurueck: senden(vorher), vor: senden(aenderung) })
 }
 
+const eintragAnlegen = new MutationObserver(abfragen, {
+  mutationKey: ['eintrag'],
+  mutationFn: ({ neu, weg }: { neu: NeuerEintrag; weg: boolean }) => (weg ? loescheEintrag(neu.id) : legeEintragAn(neu)),
+  onSettled: () => abfragen.invalidateQueries(mitEintraegen),
+})
+
+/** Legt einen Eintrag an (Aufgabe aus einer Mail); Rückgängig löscht ihn wieder. Liefert, ob es geklappt hat. */
+export async function eintragAnlegenMitSchritt(neu: NeuerEintrag, text: string): Promise<boolean> {
+  const tun = (weg: boolean) => async () => {
+    await eintragAnlegen.mutate({ neu, weg }).catch(() => undefined)
+  }
+  const ok = await eintragAnlegen.mutate({ neu, weg: false }).then(
+    () => true,
+    () => false,
+  )
+  if (ok) merke({ text, zurueck: tun(true), vor: tun(false), bereich: 'postfach' })
+  return ok
+}
+
 // ── Ordner des Postfachs: gespeichert wird immer die ganze Liste (Reihenfolge, Eltern, Name, Farbe, Anheften).
 
 const ordnerSpeichern = new MutationObserver(abfragen, {
@@ -244,32 +281,61 @@ export async function aendereOrdnerMitSchritt(vorher: readonly Ordner[], neu: re
   if (ok) merke({ text, zurueck: senden(alt), vor: senden([...neu]), bereich: 'postfach' })
 }
 
-// ── Regeln: gespeichert wird immer die ganze Liste (anlegen, ändern, an/aus, löschen).
+// ── Ganzer Stand (Regeln, Kategorien, Abwesenheit, Blockierte): sofort zeigen, scheitert es, gilt der alte; mit Rückgängig.
 
-const regelnSpeichern = new MutationObserver(abfragen, {
-  mutationKey: ['regeln'],
-  mutationFn: (neu: Regel[]) => speichereRegeln(neu),
-  onMutate: async (neu) => {
-    await abfragen.cancelQueries({ queryKey: schluessel.regeln })
-    const vorher = abfragen.getQueryData<Regel[]>(schluessel.regeln)
-    abfragen.setQueryData(schluessel.regeln, neu)
-    return vorher
-  },
-  onSuccess: (liste) => abfragen.setQueryData(schluessel.regeln, liste),
-  onError: (_f, _neu, vorher) => abfragen.setQueryData(schluessel.regeln, vorher),
+/** Speichert unter `art` (Schlüssel und Art der Änderung) immer den ganzen Stand; `danach` frischt Abhängiges auf. */
+function ganzerStand<T>(art: keyof typeof schluessel, speichere: (neu: T) => Promise<T>, danach?: () => Promise<unknown>) {
+  const key = schluessel[art]
+  const speichern = new MutationObserver(abfragen, {
+    mutationKey: [art],
+    mutationFn: speichere,
+    onMutate: async (neu: T) => {
+      await abfragen.cancelQueries({ queryKey: key })
+      const vorher = abfragen.getQueryData<T>(key)
+      abfragen.setQueryData(key, neu)
+      return vorher
+    },
+    onSuccess: (x) => abfragen.setQueryData(key, x),
+    onError: (_f, _neu, vorher) => abfragen.setQueryData(key, vorher),
+    ...(danach ? { onSettled: danach } : {}),
+  })
+  /** Speichert `neu`; `text` beschreibt den Schritt für „Rückgängig“. Gemerkt wird nur, was gespeichert ist. Liefert, ob es geklappt hat. */
+  return async (vorher: T, neu: T, text: string): Promise<boolean> => {
+    const senden = (x: T) => async () => {
+      await speichern.mutate(x).catch(() => undefined)
+    }
+    const ok = await speichern.mutate(neu).then(
+      () => true,
+      () => false,
+    )
+    if (ok) merke({ text, zurueck: senden(vorher), vor: senden(neu), bereich: 'postfach' })
+    return ok
+  }
+}
+
+const mailsUndOrdnerNeu = () => Promise.all([abfragen.invalidateQueries({ queryKey: schluessel.mails }), abfragen.invalidateQueries({ queryKey: schluessel.ordner })])
+
+export const aendereRegelnMitSchritt = ganzerStand<readonly Regel[]>('regeln', (l) => speichereRegeln(l))
+export const aendereKategorienMitSchritt = ganzerStand<readonly Kategorie[]>('kategorien', (l) => speichereKategorien(l), mailsUndOrdnerNeu)
+export const aendereAbwesenheitMitSchritt = ganzerStand<Abwesenheit>('abwesenheit', speichereAbwesenheit)
+export const aendereBlockiertMitSchritt = ganzerStand<readonly string[]>('blockiert', (l) => speichereBlockiert(l), mailsUndOrdnerNeu)
+
+const signaturSpeichern = new MutationObserver(abfragen, {
+  mutationKey: ['signatur'],
+  mutationFn: ({ konto, signatur }: { konto: string; signatur: string }) => speichereSignatur(konto, signatur),
+  onSuccess: (k) => abfragen.setQueryData<Konto[]>(schluessel.konten, (l) => l?.map((x) => (x.adresse === k.adresse ? k : x))),
 })
 
-/** Speichert den neuen Stand der Regeln; `text` beschreibt den Schritt für „Rückgängig“. Liefert, ob es geklappt hat. */
-export async function aendereRegelnMitSchritt(vorher: readonly Regel[], neu: readonly Regel[], text: string): Promise<boolean> {
-  const senden = (l: readonly Regel[]) => async () => {
-    await regelnSpeichern.mutate([...l]).catch(() => undefined)
+/** Neue Signatur eines Kontos mit Rückgängig. */
+export async function signaturMitSchritt(k: Konto, signatur: string, text: string): Promise<void> {
+  const tun = (s: string) => async () => {
+    await signaturSpeichern.mutate({ konto: k.adresse, signatur: s }).catch(() => undefined)
   }
-  const ok = await regelnSpeichern.mutate([...neu]).then(
+  const ok = await signaturSpeichern.mutate({ konto: k.adresse, signatur }).then(
     () => true,
     () => false,
   )
-  if (ok) merke({ text, zurueck: senden(vorher), vor: senden(neu), bereich: 'postfach' })
-  return ok
+  if (ok) merke({ text, zurueck: tun(k.signatur), vor: tun(signatur), bereich: 'postfach' })
 }
 
 // ── Mails ändern (verschieben, gelesen, anheften): wirkt sofort in jeder geladenen Liste; Zähler der Ordner danach neu.

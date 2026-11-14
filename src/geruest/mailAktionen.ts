@@ -3,7 +3,7 @@ import { kategorieUmschalten, mailsText, umschalten } from '../logik/mails'
 import { regelAenderungen, regelAusMail } from '../logik/regeln'
 import { antwortEntwurf, neuerEntwurf, type Antwortart } from '../logik/schreiben'
 import type { Entwurf, Mail, Ordner, Regel } from '../vertrag/postfach'
-import { aendereMailsMitSchritt, kontenJetzt, mailInhaltJetzt, mailsJetzt, neuerEntwurfMitSchritt, sendenMitSchritt } from './daten'
+import { aendereMailsMitSchritt, eintragAnlegenMitSchritt, kontenJetzt, mailInhaltJetzt, mailsJetzt, neuerEntwurfMitSchritt, sendenMitSchritt } from './daten'
 import { mailAuswahlJetzt, waehleMails } from './mailAuswahl'
 import { regelId, setzeRegelEntwurf } from './regelEntwurf'
 
@@ -103,3 +103,12 @@ export async function fuehreRegelAus(r: Pick<Regel, 'name' | 'bedingung' | 'akti
   if (liste.length) await aendereMailsMitSchritt(liste, `„${r.name}“ ausgeführt: ${mailsText(liste.length)}`)
   return liste.length
 }
+
+// ── Aus dem Erkannt-Kasten
+
+/** Nicht mehr in „Braucht dich“. */
+export const erledigt = (ms: readonly Mail[]) => aendereMailsMitSchritt(mit(ms, { brauchtDich: false }), `${was(ms)} erledigt`)
+
+/** Aufgabe aus der Mail, mit Frist („JJJJ-MM-TT“) oder ohne; Rückgängig löscht sie. */
+export const alsAufgabe = (titel: string, frist?: string) =>
+  eintragAnlegenMitSchritt({ id: `aufgabe-${crypto.randomUUID().slice(0, 8)}`, art: 'aufgabe', titel, ...(frist ? { frist } : {}) }, frist ? `Frist „${titel}“ eingetragen` : `To-do „${titel}“ angelegt`)

@@ -89,7 +89,7 @@ export type Mail = z.infer<typeof mailSchema>
 
 /** Was sich an einer Mail ändern lässt; jede Zeile nennt ihre Mail. `null` entfernt Fälligkeit oder Erinnerung. */
 export const mailAenderungSchema = mailSchema
-  .pick({ ordner: true, ungelesen: true, angeheftet: true, wichtig: true, nachverfolgen: true, kategorien: true })
+  .pick({ ordner: true, ungelesen: true, angeheftet: true, wichtig: true, nachverfolgen: true, kategorien: true, brauchtDich: true })
   .extend({ faellig: mailSchema.shape.faellig.unwrap().nullable(), erinnernAm: mailSchema.shape.erinnernAm.unwrap().nullable() })
   .partial()
   .extend({ id: z.string().min(1) })
@@ -153,6 +153,49 @@ export function holeZurueck(id: string): Promise<Mail> {
 /** Kategorien mit Farbe, in ihrer Reihenfolge. */
 export function holeKategorien(): Promise<Kategorie[]> {
   return anfrage(z.array(kategorieSchema), 'Kategorien holen', '/api/postfach/kategorien')
+}
+
+/** Speichert alle Kategorien in dieser Reihenfolge (anlegen, umbenennen, Farbe, löschen). Namen sind eindeutig. */
+export function speichereKategorien(liste: readonly Kategorie[]): Promise<Kategorie[]> {
+  return anfrage(z.array(kategorieSchema), 'Kategorien speichern', '/api/postfach/kategorien', 'PUT', liste)
+}
+
+/** Neue Signatur eines Kontos. */
+export function speichereSignatur(konto: string, signatur: string): Promise<Konto> {
+  return anfrage(kontoSchema, 'Signatur speichern', `/api/postfach/konten/${encodeURIComponent(konto)}/signatur`, 'PUT', { signatur })
+}
+
+// ── Abwesenheit und Blockiert
+
+/** Automatische Antwort: wer schreibt, bekommt sie einmal je Person, solange sie an ist. */
+export const abwesenheitSchema = z.object({
+  an: z.boolean(),
+  /** Letzter Tag als „JJJJ-MM-TT“; danach geht sie von selbst aus */
+  bis: z.iso.date().optional(),
+  /** Nur für dieses Konto; fehlt es, für alle */
+  konto: z.string().optional(),
+  text: z.string(),
+})
+export type Abwesenheit = z.infer<typeof abwesenheitSchema>
+
+export function holeAbwesenheit(): Promise<Abwesenheit> {
+  return anfrage(abwesenheitSchema, 'Abwesenheit holen', '/api/postfach/abwesenheit')
+}
+
+export function speichereAbwesenheit(a: Abwesenheit): Promise<Abwesenheit> {
+  return anfrage(abwesenheitSchema, 'Abwesenheit speichern', '/api/postfach/abwesenheit', 'PUT', a)
+}
+
+/** Blockierte Absender-Adressen; ihre Mails landen in „Junk“. */
+export const blockiertSchema = z.array(z.email())
+
+export function holeBlockiert(): Promise<string[]> {
+  return anfrage(blockiertSchema, 'Blockierte holen', '/api/postfach/blockiert')
+}
+
+/** Speichert die ganze Liste. */
+export function speichereBlockiert(liste: readonly string[]): Promise<string[]> {
+  return anfrage(blockiertSchema, 'Blockierte speichern', '/api/postfach/blockiert', 'PUT', liste)
 }
 
 // ── Regeln: eine Regel ist ein Stück Daten. Die Bedingung ist JsonLogic (so gibt sie der Editor aus),

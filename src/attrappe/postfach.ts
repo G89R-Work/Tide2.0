@@ -3,7 +3,7 @@ import { z } from 'zod'
 import { echterOrdner, inOrdner, mailsAendern, ordnerZahl, zurueckGekommen } from '../logik/mails'
 import { ordnerFehler } from '../logik/ordner'
 import { abgeschickt, entwurfAlsMail, sendeFehler } from '../logik/schreiben'
-import { entwurfSchema, mailAenderungSchema, mailInhaltSchema, mailSchema, ordnerStandSchema, regelSchema, type Mail, type MailInhalt, type Ordner, type OrdnerStand, type Regel } from '../vertrag/postfach'
+import { abwesenheitSchema, blockiertSchema, entwurfSchema, kategorieSchema, kontoSchema, mailAenderungSchema, mailInhaltSchema, mailSchema, ordnerStandSchema, regelSchema, type Mail, type MailInhalt, type Ordner, type OrdnerStand, type Regel } from '../vertrag/postfach'
 import { beispielInhalt, beispielKategorien, beispielKonten, beispielMails } from './mails'
 import { abgelehnt, anfrageInhalt, gemerkt } from './pruefen'
 
@@ -13,6 +13,10 @@ const schluessel = 'tide.attrappe.ordner'
 const mailSchluessel = 'tide.attrappe.mails'
 const inhaltSchluessel = 'tide.attrappe.inhalte'
 const regelSchluessel = 'tide.attrappe.regeln'
+const kategorienSchluessel = 'tide.attrappe.kategorien'
+const kontenSchluessel = 'tide.attrappe.konten'
+const abwesenheitSchluessel = 'tide.attrappe.abwesenheit'
+const blockiertSchluessel = 'tide.attrappe.blockiert'
 /** So lange bleibt eine sofort gesendete Mail in „Geplant“ und lässt sich zurückholen (wie beim echten Server). */
 const RUECKHOL_MS = 5000
 
@@ -43,9 +47,18 @@ const ausgang: OrdnerStand[] = [
 const laden = () => gemerkt(schluessel, z.array(ordnerStandSchema), () => ausgang, 'Ordner')
 // Gemerkt wird erst nach der ersten Änderung; bis dahin entstehen die Beispielmails beim Laden neu (Zeiten relativ zu jetzt).
 // Zurückgestellte Mails kommen zu ihrer Zeit von selbst zurück, geplante gehen zu ihrer Zeit hinaus, wie beim echten Server.
+// Mails blockierter Absender liegen statt im Posteingang in „Junk“, solange die Adresse blockiert ist.
 const mailsLaden = () => {
   const jetzt = new Date()
-  return abgeschickt(zurueckGekommen(gemerkt(mailSchluessel, z.array(mailSchema), () => beispielMails(jetzt), 'Mails'), jetzt), jetzt)
+  const blockiert = new Set(blockiertLaden())
+  const mails = abgeschickt(zurueckGekommen(gemerkt(mailSchluessel, z.array(mailSchema), () => beispielMails(jetzt), 'Mails'), jetzt), jetzt)
+  return mails.map((m) => (m.ordner === 'eingang' && blockiert.has(m.adresse) ? { ...m, ordner: 'junk' } : m))
+}
+const kategorienLaden = () => gemerkt(kategorienSchluessel, z.array(kategorieSchema), () => beispielKategorien, 'Kategorien')
+const kontenLaden = () => gemerkt(kontenSchluessel, z.array(kontoSchema), () => beispielKonten, 'Konten')
+const abwesenheitLaden = () => gemerkt(abwesenheitSchluessel, abwesenheitSchema, () => ({ an: false, text: 'Ich bin bis auf Weiteres nicht erreichbar und antworte nach meiner Rückkehr.' }), 'Abwesenheit')
+function blockiertLaden() {
+  return gemerkt(blockiertSchluessel, blockiertSchema, () => ['spam@gewinn-sofort.example'], 'Blockierte')
 }
 const mailsMerken = (l: readonly Mail[]) => localStorage.setItem(mailSchluessel, JSON.stringify(l))
 // Inhalt geschriebener Mails (Entwürfe); alle anderen entstehen aus der Beispielmail.
@@ -116,14 +129,23 @@ export const postfachAntworten = [
     const m = mailsLaden().find((x) => x.id === params.id)
     return m ? HttpResponse.json(inhaltVon(m)) : abgelehnt(`Mail unbekannt: ${String(params.id)}`)
   }),
-  http.get('/api/postfach/konten', () => HttpResponse.json(beispielKonten)),
+  http.get('/api/postfach/konten', () => HttpResponse.json(kontenLaden())),
+  http.put('/api/postfach/konten/:konto/signatur', async ({ params, request }) => {
+    const neu = await anfrageInhalt(request, z.object({ signatur: z.string() }))
+    if (neu instanceof HttpResponse) return neu
+    const konten = kontenLaden()
+    const k = konten.find((x) => x.adresse === params.konto)
+    if (!k) return abgelehnt(`Konto unbekannt: ${String(params.konto)}`)
+    localStorage.setItem(kontenSchluessel, JSON.stringify(konten.map((x) => (x === k ? { ...k, signatur: neu.signatur } : x))))
+    return HttpResponse.json({ ...k, signatur: neu.signatur })
+  }),
   http.put('/api/postfach/entwuerfe/:id', async ({ params, request }) => {
     const id = String(params.id)
     const e = await anfrageInhalt(request, entwurfSchema)
     if (e instanceof HttpResponse) return e
     const alt = mailsLaden().find((m) => m.id === id)
     if (alt && alt.ordner !== 'entwuerfe') return abgelehnt(`„${alt.betreff}“ ist kein Entwurf mehr`)
-    if (!beispielKonten.some((k) => k.adresse === e.konto)) return abgelehnt(`Konto unbekannt: ${e.konto}`)
+    if (!kontenLaden().some((k) => k.adresse === e.konto)) return abgelehnt(`Konto unbekannt: ${e.konto}`)
     localStorage.setItem(inhaltSchluessel, JSON.stringify({ ...inhalteLaden(), [id]: { id, an: e.an, cc: e.cc, text: e.text } }))
     return HttpResponse.json(mailMerken(entwurfAlsMail(id, e, new Date())))
   }),
@@ -153,5 +175,27 @@ export const postfachAntworten = [
     localStorage.setItem(regelSchluessel, JSON.stringify(neu))
     return HttpResponse.json(neu)
   }),
-  http.get('/api/postfach/kategorien', () => HttpResponse.json(beispielKategorien)),
+  http.get('/api/postfach/kategorien', () => HttpResponse.json(kategorienLaden())),
+  http.put('/api/postfach/kategorien', async ({ request }) => {
+    const neu = await anfrageInhalt(request, z.array(kategorieSchema))
+    if (neu instanceof HttpResponse) return neu
+    if (new Set(neu.map((k) => k.name.toLowerCase())).size !== neu.length) return abgelehnt('Kategorie doppelt')
+    localStorage.setItem(kategorienSchluessel, JSON.stringify(neu))
+    return HttpResponse.json(neu)
+  }),
+  http.get('/api/postfach/abwesenheit', () => HttpResponse.json(abwesenheitLaden())),
+  http.put('/api/postfach/abwesenheit', async ({ request }) => {
+    const neu = await anfrageInhalt(request, abwesenheitSchema)
+    if (neu instanceof HttpResponse) return neu
+    if (neu.konto && !kontenLaden().some((k) => k.adresse === neu.konto)) return abgelehnt(`Konto unbekannt: ${neu.konto}`)
+    localStorage.setItem(abwesenheitSchluessel, JSON.stringify(neu))
+    return HttpResponse.json(neu)
+  }),
+  http.get('/api/postfach/blockiert', () => HttpResponse.json(blockiertLaden())),
+  http.put('/api/postfach/blockiert', async ({ request }) => {
+    const neu = await anfrageInhalt(request, blockiertSchema)
+    if (neu instanceof HttpResponse) return neu
+    localStorage.setItem(blockiertSchluessel, JSON.stringify([...new Set(neu)]))
+    return HttpResponse.json([...new Set(neu)])
+  }),
 ]

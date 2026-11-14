@@ -13,6 +13,10 @@ export const stundeKurz = f('HH')
 export const monatName = f('LLLL')
 export const monatKurz = f('LLL')
 
+const euroFormat = new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' })
+/** Betrag in Cent als „44,95 €“. */
+export const euro = (cent: number) => euroFormat.format(cent / 100)
+
 const zahlFormat = new Intl.NumberFormat('de-DE', { maximumFractionDigits: 1 })
 /** Zahl auf Deutsch mit höchstens einer Nachkommastelle: „6,4“. */
 export const zahl = (x: number) => zahlFormat.format(x)

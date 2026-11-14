@@ -11,6 +11,7 @@ import { spaeterZeiten, kannHinein, kuerzel, mailsText, nachverfolgenWahl } from
 import type { Mail } from '../../vertrag/postfach'
 import { ordnerFarben } from '../../werte/ordner'
 import { hinweisKlassen } from '../../werte/postfach'
+import { Erkannt } from './Erkannt'
 import { Schreiben } from './Schreiben'
 import { MitListe, Wahlliste, type Punkt } from './Wahlliste'
 
@@ -30,6 +31,7 @@ export function Leser({ mails, ordner }: { mails: readonly Mail[]; ordner: strin
             <>
               {m ? <Kopf m={m} /> : <h2 className="text-xl font-semibold">{mailsText(mails.length)} ausgewählt</h2>}
               <Knoepfe mails={mails} ordner={ordner} einzeln={!!m} />
+              {m && m.ordner !== 'gesendet' && <Erkannt m={m} />}
               {m && <Text m={m} />}
               {m && <Antworten m={m} />}
             </>

@@ -62,7 +62,7 @@ Vorlage ist das Postfach aus `docs/vorlage-aussehen/prototyp3.html` (Nutzer 2026
 - [x] `postfach-leser` · liest: 11-postfach.md · Leser mit allen Aktionen, jede mit Rückgängig; ziehbare Trennlinien · Fertig, wenn: jede Aktion sich zurücknehmen lässt
 - [x] `postfach-schreiben` · liest: 11-postfach.md · Antworten unter der Mail, neue Mail, Signatur je Konto, sofort oder geplant senden, fünf Sekunden rückholbar · Fertig, wenn: ein Entwurf das Neuladen übersteht
 - [x] `postfach-regeln` · liest: 11-postfach.md · Regel-Editor mit react-querybuilder im Tide-Aussehen, Auswertung mit json-logic-js, Probelauf, „Jetzt ausführen" mit Rückgängig, Regel aus dem Rechtsklick · Fertig, wenn: eine Regel sich anlegen, proben, ausführen und zurücknehmen lässt
-- [ ] `postfach-erkannt-und-handy` · liest: 11-postfach.md · Erkannt-Kasten für Rechnung, Termin, Sendung und Frist; Kategorien, Signaturen, Abwesenheit, Blockiert; Handy-Ansicht mit Wisch-Aktionen · Fertig, wenn: das Postfach am Handy ohne die frühere Wisch-Leiste bedienbar ist
+- [x] `postfach-erkannt-und-handy` · liest: 11-postfach.md · Erkannt-Kasten für Rechnung, Termin, Sendung und Frist; Kategorien, Signaturen, Abwesenheit, Blockiert; Handy-Ansicht mit Wisch-Aktionen · Fertig, wenn: das Postfach am Handy ohne die frühere Wisch-Leiste bedienbar ist
 
 ## Etappe 4: Kalender und Arbeit
 - [ ] `kalender-monat` · liest: 12-kalender.md · Monat mit sechs Wochen, Tages-Kachel rechts, Kalenderwoche, Feiertage aus date-holidays, Termin per Rechtsklick oder langem Druck · Fertig, wenn: die Kalenderwoche an jeder Zeile und in der Kopfzeile steht

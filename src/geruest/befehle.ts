@@ -7,8 +7,29 @@ import { rueckgaengig, wiederherstellen } from './rueckgaengig'
 
 type MailAktionen = typeof import('./mailAktionen')
 
+type MailBefehl = (a: MailAktionen, ms: Mail[]) => Promise<void>
+
+/** Antwort oder Weiterleitung: nur, wenn genau eine Mail gewählt ist. */
+const antwort =
+  (art: Antwortart): MailBefehl =>
+  (a, ms) =>
+    ms.length === 1 && ms[0] ? a.antworte(ms[0], art) : Promise.resolve()
+
+// Was Aktionen auf Mails tun: auf die gewählten (Knopf, Kürzel) oder auf genannte (Wischen am Handy).
+const mailBefehle: Record<string, MailBefehl> = {
+  'mail-antworten': antwort('antworten'),
+  'mail-allen-antworten': antwort('allen'),
+  'mail-weiterleiten': antwort('weiterleiten'),
+  'mail-archivieren': (a, ms) => a.archiviere(ms),
+  'mail-loeschen': (a, ms) => a.loesche(ms),
+  'mail-ungelesen': (a, ms) => a.schalte(ms, 'ungelesen'),
+  'mail-anheften': (a, ms) => a.schalte(ms, 'angeheftet'),
+  'mail-wichtig': (a, ms) => a.schalte(ms, 'wichtig'),
+  'mail-regel': async (a, ms) => (ms.length === 1 && ms[0] ? a.regelVonMail(ms[0]) : undefined),
+}
+
 /** Wirkt auf die gewählten Mails, wenn das Postfach offen ist; sonst nichts. Die Aktionen laden erst mit dem ersten Druck. */
-const mitMails = (tun: (a: MailAktionen, ms: Mail[]) => Promise<void>) => async () => {
+const mitMails = (tun: MailBefehl) => async () => {
   const ort = ortAusMarke(location.hash)
   if (ort.bereich !== 'postfach' || !ort.unter) return
   const a = await import('./mailAktionen')
@@ -16,8 +37,12 @@ const mitMails = (tun: (a: MailAktionen, ms: Mail[]) => Promise<void>) => async 
   if (ms.length) await tun(a, ms)
 }
 
-/** Antwort oder Weiterleitung: nur, wenn genau eine Mail gewählt ist. */
-const antwort = (art: Antwortart) => mitMails((a, ms) => (ms.length === 1 && ms[0] ? a.antworte(ms[0], art) : Promise.resolve()))
+/** Dieselbe Aktion auf genau diesen Mails (etwa die gewischte Zeile). */
+export async function fuehreAusFuer(id: string, ms: Mail[]) {
+  const b = mailBefehle[id]
+  if (!b) throw new Error(`Aktion ${id} wirkt nicht auf Mails (src/geruest/befehle.ts)`)
+  await b(await import('./mailAktionen'), ms)
+}
 
 // Was Aktionen mit `befehl` tun. Eine neue Befehls-Aktion braucht hier eine Zeile.
 const befehle: Record<string, () => unknown> = {
@@ -25,15 +50,7 @@ const befehle: Record<string, () => unknown> = {
   wiederherstellen: () => wiederherstellen(),
   kurve: () => kurveUmschalten(ortAusMarke(location.hash).bereich),
   'neue-mail': () => void import('./mailAktionen').then((a) => a.neueMail()),
-  'mail-antworten': antwort('antworten'),
-  'mail-allen-antworten': antwort('allen'),
-  'mail-weiterleiten': antwort('weiterleiten'),
-  'mail-archivieren': mitMails((a, ms) => a.archiviere(ms)),
-  'mail-loeschen': mitMails((a, ms) => a.loesche(ms)),
-  'mail-ungelesen': mitMails((a, ms) => a.schalte(ms, 'ungelesen')),
-  'mail-anheften': mitMails((a, ms) => a.schalte(ms, 'angeheftet')),
-  'mail-wichtig': mitMails((a, ms) => a.schalte(ms, 'wichtig')),
-  'mail-regel': mitMails(async (a, ms) => (ms.length === 1 && ms[0] ? a.regelVonMail(ms[0]) : undefined)),
+  ...Object.fromEntries(Object.entries(mailBefehle).map(([id, b]) => [id, mitMails(b)])),
 }
 
 if (import.meta.env.DEV)

@@ -3,6 +3,7 @@
 // Gruppen und Reihenfolge der Abschnitte wie die mittlere Spalte der Vorlage (bilder/einstellungen-spalte.jpg).
 // Gemerkt werden nur Abweichungen vom Standard; je Geräteart unter „<id>@pc" bzw. „<id>@handy".
 import { z } from 'zod'
+import { aktionen } from './aktionen'
 import { bereiche, type BereichId } from './bereiche'
 
 export type Geraet = 'pc' | 'handy'
@@ -80,6 +81,10 @@ const zonen = [
   ['Australia/Sydney', 'Sydney'], ['Pacific/Auckland', 'Auckland'],
 ] as const
 
+/** Was Wischen auf einer Mail am Handy auslösen kann: Aus oder eine Mail-Aktion. */
+const wischbar = new Set(['mail-archivieren', 'mail-loeschen', 'mail-ungelesen', 'mail-anheften', 'mail-wichtig'])
+const wischen = [['aus', 'Aus'] as const, ...aktionen.filter((a) => wischbar.has(a.id)).map((a) => [a.id, a.name] as const)]
+
 const liste = [
   { id: 'morgen-zusammenfassung', name: 'Morgen-Zusammenfassung', abschnitt: 'benachrichtigungen', art: 'schalter', standard: true, wichtig: true },
   { id: 'ebbe-modus', name: 'Ebbe-Modus', abschnitt: 'benachrichtigungen', art: 'schalter', standard: false },
@@ -111,6 +116,8 @@ const liste = [
   { id: 'wochenbeginn', name: 'Wochenbeginn', abschnitt: 'kalender', art: 'auswahl', standard: 'montag', optionen: [['montag', 'Montag'], ['sonntag', 'Sonntag']], wichtig: true },
   { id: 'kalenderwoche', name: 'Kalenderwoche anzeigen', abschnitt: 'kalender', art: 'schalter', standard: true },
   { id: 'bundesland', name: 'Bundesland für Feiertage', abschnitt: 'kalender', art: 'auswahl', standard: 'bund', optionen: bundeslaender },
+  { id: 'wischen-links', name: 'Wischen nach links', abschnitt: 'postfach', art: 'auswahl', standard: 'mail-archivieren', optionen: wischen },
+  { id: 'wischen-rechts', name: 'Wischen nach rechts', abschnitt: 'postfach', art: 'auswahl', standard: 'mail-ungelesen', optionen: wischen },
   { id: 'archivfrist', name: 'Erledigtes ins Archiv nach', abschnitt: 'todos', art: 'zahl', standard: 30, min: 1, max: 365, einheit: 'Tagen' },
 ] as const satisfies readonly Einstellung[]
 

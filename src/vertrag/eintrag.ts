@@ -41,6 +41,19 @@ export function aendereEintrag(id: string, aenderung: Aenderung): Promise<Eintra
   return anfrage(eintragSchema, 'Eintrag ändern', `${adresse}/${encodeURIComponent(id)}`, 'PATCH', aenderung)
 }
 
+/** Was Tide beim Anlegen schickt; Anlage- und Änderungszeit setzt der Server. */
+export const neuerEintragSchema = eintragSchema.pick({ id: true, art: true, titel: true, frist: true })
+export type NeuerEintrag = z.infer<typeof neuerEintragSchema>
+
+export function legeEintragAn(neu: NeuerEintrag): Promise<Eintrag> {
+  return anfrage(eintragSchema, 'Eintrag anlegen', adresse, 'POST', neu)
+}
+
+/** Löscht einen Eintrag; Antwort ist der gelöschte Eintrag. */
+export function loescheEintrag(id: string): Promise<Eintrag> {
+  return anfrage(eintragSchema, 'Eintrag löschen', `${adresse}/${encodeURIComponent(id)}`, 'DELETE')
+}
+
 /** Einträge mit Uhrzeit, die den Zeitraum berühren (für Gezeitenkurve und Kalender). */
 export function holeTermine(von: Date, bis: Date): Promise<Eintrag[]> {
   const q = new URLSearchParams({ von: von.toISOString(), bis: bis.toISOString() })
