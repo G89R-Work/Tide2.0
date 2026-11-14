@@ -1,5 +1,5 @@
 import { aktionen } from '../logik/aktionen'
-import { ortAusMarke } from '../logik/ebenen'
+import { markeFuer, ortAusMarke } from '../logik/ebenen'
 import type { Antwortart } from '../logik/schreiben'
 import type { Mail } from '../vertrag/postfach'
 import { kurveUmschalten } from './einstellungen'
@@ -44,11 +44,18 @@ export async function fuehreAusFuer(id: string, ms: Mail[]) {
   await b(await import('./mailAktionen'), ms)
 }
 
+/** Kalender: wechselt zwischen Monat und Woche (Unterpunkt in der Adresse); woanders nichts. */
+function kalenderAnsicht() {
+  const ort = ortAusMarke(location.hash)
+  if (ort.bereich === 'kalender') location.hash = markeFuer('kalender', ort.unter === 'woche' ? 'monat' : 'woche')
+}
+
 // Was Aktionen mit `befehl` tun. Eine neue Befehls-Aktion braucht hier eine Zeile.
 const befehle: Record<string, () => unknown> = {
   rueckgaengig: () => rueckgaengig(),
   wiederherstellen: () => wiederherstellen(),
   kurve: () => kurveUmschalten(ortAusMarke(location.hash).bereich),
+  'kalender-ansicht': kalenderAnsicht,
   'neue-mail': () => void import('./mailAktionen').then((a) => a.neueMail()),
   ...Object.fromEntries(Object.entries(mailBefehle).map(([id, b]) => [id, mitMails(b)])),
 }

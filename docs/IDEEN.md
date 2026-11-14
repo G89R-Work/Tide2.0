@@ -53,6 +53,8 @@ Was umgesetzt ist, wandert beim Abschluss einer Scheibe nach „Erledigt“, mit
 - Termin aus dem Erkannt-Kasten in den Kalender eintragen, sobald es den Kalender gibt (postfach-erkannt-und-handy)
 
 - Termine in der Tages-Kachel bearbeiten (Titel, Zeit), nicht nur löschen (kalender-monat)
+- Woche: Termin durch Aufziehen einer leeren Fläche anlegen (FullCalendar `selectable`) und Rechtsklick auf einen Tag wie im Monat (kalender-woche)
+- Woche am Handy: Stunden passen nicht in die Kachel, FullCalendar scrollt innen (kalender-woche, gehört zu kalender-handy)
 - Startcode wieder unter 200 KB: Handy-Gerüst (MitKurve mit react-resizable-panels) nur am Handy nachladen (kalender-monat)
 
 ## Erledigt

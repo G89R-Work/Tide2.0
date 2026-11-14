@@ -9,7 +9,7 @@ const pruefungen = [
   ['Werte', 'node skripte/werte-pruefen.mjs'],
   // Kopierter Code (ab 5 Zeilen und 50 Tokens) lässt die Prüfung scheitern; Einstellungen in .jscpd.json.
   ['Doppelt', 'jscpd --no-colors'],
-  ['Tempo', 'node skripte/sicht.mjs start postfach postfach/gesendet kalender todos einkauf kochen finanzen arbeit notizen einstellungen einstellungen/darstellung einstellungen/navigation heute bausteine'],
+  ['Tempo', 'node skripte/sicht.mjs start postfach postfach/gesendet kalender todos einkauf kochen finanzen arbeit notizen einstellungen einstellungen/darstellung einstellungen/navigation heute bausteine kalender/woche'],
 ]
 
 let fehler = 0

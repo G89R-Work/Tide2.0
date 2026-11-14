@@ -219,13 +219,16 @@ export function useEintragFehler() {
   return meldung('Nicht gespeichert', useLetzterFehler('eintrag'))
 }
 
-/** Ändert einen Eintrag; `text` beschreibt den Schritt für „Rückgängig“. Gemerkt wird nur, was gespeichert ist. */
-export async function aendereEintragMitSchritt(e: Eintrag, aenderung: Aenderung, text: string): Promise<void> {
+/** Ändert einen Eintrag; `text` beschreibt den Schritt für „Rückgängig“. Gemerkt wird nur, was gespeichert ist. Liefert, ob es geklappt hat.
+ *  `bereich`: Seite, deren Rückgängig-Knöpfe den Schritt zeigen (ohne: nur Alt+Z). */
+export async function aendereEintragMitSchritt(e: Eintrag, aenderung: Aenderung, text: string, bereich?: BereichId): Promise<boolean> {
   const vorher: Aenderung = Object.fromEntries(Object.keys(aenderung).map((k) => [k, e[k as keyof Aenderung]]))
   const senden = (a: Aenderung) => async () => {
     await eintragSpeichernVon(e.id, a)
   }
-  if (await eintragSpeichernVon(e.id, aenderung)) merke({ text, zurueck: senden(vorher), vor: senden(aenderung) })
+  const ok = await eintragSpeichernVon(e.id, aenderung)
+  if (ok) merke({ text, zurueck: senden(vorher), vor: senden(aenderung), ...(bereich ? { bereich } : {}) })
+  return ok
 }
 
 const eintragAnlegen = new MutationObserver(abfragen, {

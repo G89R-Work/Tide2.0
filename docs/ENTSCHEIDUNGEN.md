@@ -172,6 +172,8 @@ Eine Zeile je Entscheidung, neueste unten. Was hier steht, gilt und wird nicht n
 - 2026-11-14 · Vertrag (Ja des Nutzers): `legeEintragAn` nimmt auch Beginn und Ende (nur zusammen, Ende nach Beginn). Die Attrappe liefert angelegte Termine in `/api/termine` mit; Termine des Beispieltags lassen sich löschen und per Rückgängig zurückholen.
 - 2026-11-14 · Startcode-Grenze von 200 auf 210 KB (Wunsch des Nutzers): gemeinsame Symbole von Start und Kalender teilt der Bauer in eigene Dateien, das sprengte 200 KB. Statt `useGesture` nur `useDrag`/`useWheel` (kleiner).
 - 2026-11-14 · Kalender-Monat: KW je Zeile ist die ISO-Woche (auch bei Sonntag als Wochenbeginn); die Kopfzeile nennt Monat, Jahr und die KW des gewählten Tags (liegt er nicht im Monat, die erste Zeile). Je Tag zwei Etiketten, der Rest als „+n“. Rechtsklick/langer Druck auf einen Tag und „Neuer Termin“ öffnen dasselbe Feld in der Tages-Kachel. Kopfzeile jeder Seite bricht bei wenig Platz um.
+- 2026-11-14 · Wochenansicht mit FullCalendar 7 statt Schedule-X (Ja des Nutzers): Schedule-X verlangt ab v4 Geld fürs Ziehen und bringt Preact mit. FullCalendar lädt nur mit der Woche nach; Aussehen ganz über Tailwind-Klassen aus Tide.
+- 2026-11-14 · Kalender-Woche: Monat oder Woche ist der Unterpunkt der zweiten Ebene (`#kalender/monat`, `#kalender/woche`; Reihenfolge jetzt Monat, Woche, Tag), umgeschaltet über die Aktion „Monat oder Woche“ (Alt+V, Knopf, Wischen waagrecht). Die Woche zeigt 7–20 Uhr und weitet sich, bis jeder Termin passt; Schichten als Fläche, Termine ziehbar und in der Länge änderbar mit Rückgängig. Wischen nur mit dem Finger; ein Finger auf einem Termin gehört dem Ziehen.
 
 ## Offen
 

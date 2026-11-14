@@ -23,7 +23,7 @@ const KurveKarte = lazy(() => import('./KurveKarte'))
 
 const { fingerPx, schildMaxPx, schildMinPx, schildLueckePx, jetztBreitePx, wetterAbstandPx, ziehAbPx } = kurve
 
-export type Aendere = (e: Eintrag, aenderung: Aenderung, text: string) => Promise<void>
+export type Aendere = (e: Eintrag, aenderung: Aenderung, text: string) => Promise<boolean>
 
 const links = (k: number, minute: number) => `${((k * MIN_TAG + minute) / (3 * MIN_TAG)) * 100}%`
 const kopien = [0, 1, 2] as const

@@ -20,7 +20,7 @@ export default function KurveKarte(p: {
   waehle: (id: string) => void
   termine: (Punkt | Band)[]
   treibgut: Eintrag[]
-  verschiebe: (e: Eintrag, delta: number, art?: Ziehart) => Promise<void>
+  verschiebe: (e: Eintrag, delta: number, art?: Ziehart) => Promise<boolean>
   aendere: Aendere
 }) {
   const { karte, schliessen } = p
@@ -59,7 +59,7 @@ export default function KurveKarte(p: {
   )
 }
 
-function TerminKarte({ t, verschiebe, aendere }: { t: Punkt | Band; verschiebe: (e: Eintrag, delta: number, art?: Ziehart) => Promise<void>; aendere: Aendere }) {
+function TerminKarte({ t, verschiebe, aendere }: { t: Punkt | Band; verschiebe: (e: Eintrag, delta: number, art?: Ziehart) => Promise<boolean>; aendere: Aendere }) {
   const [bearbeiten, setBearbeiten] = useState(false)
   const e = t.eintrag
   const ueberschneidet = 'ueberschneidet' in t ? t.ueberschneidet : []

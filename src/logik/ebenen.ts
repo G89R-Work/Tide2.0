@@ -13,7 +13,7 @@ const ebenen: Record<BereichId, Unterpunkt[]> = {
   // Die Ordner selbst kommen aus den Daten (`ausDaten`); fest sind nur diese Seiten.
   postfach: u(undefined, ['einstellungen', 'Einstellungen'], ['regeln', 'Regeln']),
   kalender: [
-    ...u('Ansichten', ['woche', 'Woche'], ['tag', 'Tag'], ['monat', 'Monat']),
+    ...u('Ansichten', ['monat', 'Monat'], ['woche', 'Woche'], ['tag', 'Tag']),
     ...u('Kalender', ['privat', 'Privat'], ['arbeit', 'Arbeit'], ['feiertage', 'Feiertage']),
   ],
   todos: [

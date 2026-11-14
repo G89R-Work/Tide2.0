@@ -21,7 +21,7 @@ Fast alles, was in deinem Prototyp von Hand gebaut ist, gibt es fertig. Selbst g
 | Regel-Editor | [react-querybuilder](https://react-querybuilder.js.org/docs/utils/export) | Geprüft |
 | Regeln auswerten | [json-logic-js](https://npmjs.com/package/json-logic-js) | Bekannt |
 | Feiertage je Bundesland | [date-holidays](https://cdn.jsdelivr.net/npm/date-holidays@3.28.0/README.md) | Geprüft; die Daten verlangen eine Quellenangabe |
-| Wochenansicht im Kalender | [Schedule-X](https://v2.schedule-x.dev) | Bekannt, Versuch in Etappe 4 |
+| Wochenansicht im Kalender | [FullCalendar 7](https://fullcalendar.io/docs/react) | Gewählt in kalender-woche (Schedule-X: Ziehen kostet ab v4) |
 | Attrappen-Daten | [Mock Service Worker](https://github.com/mswjs/mswjs.io/blob/f089c360f7b5b9b9a89cc6fad0f08f8c1223fe39/src/content/docs/integrations/browser.mdx) | Geprüft |
 | Rechtschreibprüfung | [LanguageTool](https://dev.languagetool.org/public-http-api) auf dem eigenen Server | Geprüft |
 | Diktat | Spracherkennung des Browsers, [auf dem Gerät](https://developer.mozilla.org/docs/Web/API/SpeechRecognition/processLocally) | Geprüft, Unterstützung je Gerät offen |

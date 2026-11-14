@@ -20,6 +20,7 @@ export const aktionen: readonly Aktion[] = [
   ...bereiche.map((b, i) => ({ id: `bereich-${b.id}`, name: b.name, ziel: `#${b.id}`, kuerzel: `Alt+${(i + 1) % 10}` })),
   { id: 'neue-mail', name: 'Neue Mail', befehl: true, kuerzel: 'Alt+M' },
   { id: 'neuer-termin', name: 'Neuer Termin', ziel: '#kalender', kuerzel: 'Alt+T' },
+  { id: 'kalender-ansicht', name: 'Monat oder Woche', befehl: true, kuerzel: 'Alt+V' },
   { id: 'neues-todo', name: 'Neues To-do', ziel: '#todos', kuerzel: 'Alt+N' },
   { id: 'einkaufsmodus', name: 'Einkaufsmodus', ziel: '#einkauf/listen', kuerzel: 'Alt+E' },
   { id: 'knoepfe-belegen', name: 'Knöpfe belegen', ziel: '#einstellungen/navigation' },

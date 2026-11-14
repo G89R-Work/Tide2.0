@@ -1,7 +1,7 @@
 import { useDrag, useWheel } from '@use-gesture/react'
-import { addDays, addMonths, isSameDay, startOfMonth } from 'date-fns'
+import { addDays, addMonths, addWeeks, isSameDay, startOfMonth } from 'date-fns'
 import { ChevronLeft, ChevronRight, Plus, X } from 'lucide-react'
-import { useMemo, useState, type FormEvent } from 'react'
+import { lazy, Suspense, useMemo, useState, type FormEvent } from 'react'
 import { Eingabe } from '../../bausteine/Eingabe'
 import { Knopf } from '../../bausteine/Knopf'
 import { Menue, MenueAusloeser, MenueInhalt, MenuePunkt } from '../../bausteine/Menue'
@@ -9,12 +9,16 @@ import { cn } from '../../bausteine/cn'
 import { eintragMitSchritt, useEintragFehler, useFeiertage, useTermine } from '../../geruest/daten'
 import { useEinstellung } from '../../geruest/einstellungen'
 import { monatName, tagKurz, tagLang, uhrzeit } from '../../geruest/format'
+import { AktionKnopf } from '../../geruest/AktionKnopf'
+import { fuehreAus } from '../../geruest/befehle'
+import { useSprungmarke } from '../../geruest/useSprungmarke'
+import { ortAusMarke } from '../../logik/ebenen'
 import { RueckgaengigKnoepfe } from '../../geruest/RueckgaengigKnoepfe'
 import { Seitenkopf } from '../../geruest/Seitenkopf'
 import { useMinute } from '../../geruest/useMinute'
 import { einstellung } from '../../logik/einstellungen'
-import { monatsRaster } from '../../logik/heute'
-import { kalenderwoche, termineAm } from '../../logik/kalender'
+import { monatsRaster, wochenTage } from '../../logik/heute'
+import { kalenderwoche, termineAm, wischZiel } from '../../logik/kalender'
 import { tagSchluessel } from '../../logik/zeit'
 import type { Eintrag } from '../../vertrag/eintrag'
 import { WISCH_GRENZE } from '../../werte/bewegung'
@@ -23,14 +27,19 @@ const wochenbeginn = einstellung('wochenbeginn')
 const kwZeigen = einstellung('kalenderwoche')
 const bundesland = einstellung('bundesland')
 
+// Die Woche lädt FullCalendar erst, wenn sie aufgeht.
+const Woche = lazy(() => import('./Woche'))
+
 /** So viele Termine stehen als Etikett in einem Tag, der Rest als „+n“. */
 const ETIKETTEN = 2
 
-// Kalender (docs/konzept/12-kalender.md): links breit der Monat mit sechs Wochen und Kalenderwoche, rechts schmal der gewählte Tag.
-// Blättern per ‹ ›, Wischen oder Scrollen nach oben und unten; Rechtsklick oder langer Druck auf einen Tag legt einen Termin an.
+// Kalender (docs/konzept/12-kalender.md): links breit der Monat mit sechs Wochen und Kalenderwoche oder die Woche, rechts schmal der gewählte Tag.
+// Wechsel per Knopf oder Wischen nach links und rechts; blättern per ‹ ›, Wischen oder Scrollen nach oben und unten (Monat oder Woche).
+// Rechtsklick oder langer Druck auf einen Tag legt einen Termin an.
 export default function Seite() {
   const jetzt = useMinute()
   const beginn = useEinstellung(wochenbeginn)
+  const ansicht = ortAusMarke(useSprungmarke()).unter === 'woche' ? 'woche' : 'monat'
   const [monat, setMonat] = useState(() => startOfMonth(jetzt))
   const [gewaehlt, setGewaehlt] = useState(jetzt)
   const [neu, setNeu] = useState(false)
@@ -40,7 +49,6 @@ export default function Seite() {
   const { liste: termine, fehler } = useTermine(erster, letzter)
   const kwGewaehlt = kalenderwoche(raster.find((z) => z.some((t) => isSameDay(t, gewaehlt))) ?? raster[0] ?? [])
 
-  const blaettern = (n: number) => setMonat((m) => addMonths(m, n))
   const zuHeute = () => {
     setMonat(startOfMonth(jetzt))
     setGewaehlt(jetzt)
@@ -50,28 +58,57 @@ export default function Seite() {
     setNeu(neuerTermin)
     if (t.getMonth() !== monat.getMonth()) setMonat(startOfMonth(t))
   }
+  const blaettern = (n: number) => (ansicht === 'monat' ? setMonat((m) => addMonths(m, n)) : waehle(addWeeks(gewaehlt, n)))
+  const wischen = useWischen(blaettern)
+  const einheit = ansicht === 'monat' ? 'Monat' : 'Woche'
 
   return (
     <div className="flex min-h-0 flex-1 flex-col gap-3">
       <Seitenkopf titel={`${monatName(monat)} ${monat.getFullYear()}, KW ${kwGewaehlt}`}>
         <RueckgaengigKnoepfe bereich="kalender" />
-        <Knopf art="symbol" aria-label="Monat zurück" onClick={() => blaettern(-1)}>
+        <AktionKnopf id="kalender-ansicht" groesse="klein" />
+        <Knopf art="symbol" aria-label={`${einheit} zurück`} onClick={() => blaettern(-1)}>
           <ChevronLeft aria-hidden className="size-4" />
         </Knopf>
         <Knopf groesse="klein" onClick={zuHeute}>
           Heute
         </Knopf>
-        <Knopf art="symbol" aria-label="Monat vor" onClick={() => blaettern(1)}>
+        <Knopf art="symbol" aria-label={`${einheit} vor`} onClick={() => blaettern(1)}>
           <ChevronRight aria-hidden className="size-4" />
         </Knopf>
       </Seitenkopf>
       {fehler && <p className="text-sm text-warnung">{fehler}</p>}
       <div className="inhalt-frei flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto md:flex-row md:overflow-hidden">
-        <Monat raster={raster} monat={monat} jetzt={jetzt} gewaehlt={gewaehlt} termine={termine ?? []} waehle={waehle} blaettern={blaettern} />
+        {ansicht === 'monat' ? (
+          <Monat raster={raster} monat={monat} jetzt={jetzt} gewaehlt={gewaehlt} termine={termine ?? []} waehle={waehle} wischen={wischen} />
+        ) : (
+          <section {...wischen()} aria-label="Woche" className="flaeche-kachel flex h-96 min-h-0 shrink-0 touch-none flex-col p-3 select-none md:h-auto md:flex-1 md:shrink">
+            <Suspense>
+              <Woche tage={wochenTage(gewaehlt, beginn, 0)} gewaehlt={gewaehlt} termine={termine ?? []} waehle={waehle} />
+            </Suspense>
+          </section>
+        )}
         <Tag key={tagSchluessel(gewaehlt)} tag={gewaehlt} termine={termine ?? []} neu={neu} setNeu={setNeu} />
       </div>
     </div>
   )
+}
+
+/** Wischen (nur Finger) und Mausrad auf Monat oder Woche: waagrecht wechselt die Ansicht, senkrecht blättert.
+ *  Ein Finger, der auf einem Termin beginnt, gehört dem Ziehen; Touch-Ereignisse behalten das Ziel, auf dem sie begannen. */
+function useWischen(blaettern: (n: number) => void) {
+  const ziehen = useDrag(
+    ({ last, movement, swipe, event }) => {
+      if (!last || !('touches' in event) || (event.target instanceof Element && event.target.closest('[data-termin]'))) return
+      const el = event.currentTarget instanceof HTMLElement ? event.currentTarget : null
+      const ziel = wischZiel(movement, swipe, [el?.clientWidth ?? 1, el?.clientHeight ?? 1], WISCH_GRENZE)
+      if (ziel === 'ansicht') fuehreAus('kalender-ansicht')
+      else if (ziel) blaettern(ziel)
+    },
+    { filterTaps: true, pointer: { touch: true } },
+  )
+  const scrollen = useWheel(({ last, direction: [, dy] }) => last && dy !== 0 && blaettern(Math.sign(dy)))
+  return () => ({ ...ziehen(), ...scrollen() })
 }
 
 type MonatProps = {
@@ -81,33 +118,23 @@ type MonatProps = {
   gewaehlt: Date
   termine: readonly Eintrag[]
   waehle: (t: Date, neuerTermin?: boolean) => void
-  blaettern: (n: number) => void
+  wischen: ReturnType<typeof useWischen>
 }
 
 /** Sechs Wochenzeilen, links je die Kalenderwoche; je Tag Feiertag und Termine als Etiketten. */
-function Monat({ raster, monat, jetzt, gewaehlt, termine, waehle, blaettern }: MonatProps) {
+function Monat({ raster, monat, jetzt, gewaehlt, termine, waehle, wischen }: MonatProps) {
   const kw = useEinstellung(kwZeigen)
   const land = useEinstellung(bundesland)
   const feiertag = useFeiertage(monat.getFullYear(), land)
   const heute = tagSchluessel(jetzt)
   const gewaehltS = tagSchluessel(gewaehlt)
-  const wischen = useDrag(
-    ({ last, movement: [, my], swipe: [, sy], event }) => {
-      if (!last) return
-      const hoehe = (event.currentTarget as HTMLElement | null)?.clientHeight ?? 1
-      const n = sy !== 0 ? -sy : Math.abs(my) > hoehe * WISCH_GRENZE ? -Math.sign(my) : 0
-      if (n) blaettern(n)
-    },
-    { axis: 'y', filterTaps: true, pointer: { touch: true } },
-  )
-  const scrollen = useWheel(({ last, direction: [, dy] }) => last && dy !== 0 && blaettern(Math.sign(dy)))
   return (
     <section aria-label="Monat" className="flaeche-kachel flex min-h-0 shrink-0 flex-col p-3 md:flex-1 md:shrink">
       <div className={cn('grid gap-1 pb-1 text-center text-xs text-text-blass', kw ? 'grid-cols-8' : 'grid-cols-7')}>
         {kw && <span>KW</span>}
         {raster[0]?.map((t) => <span key={t.getDay()}>{tagKurz(t)}</span>)}
       </div>
-      <div {...wischen()} {...scrollen()} role="grid" aria-label={`${monatName(monat)} ${monat.getFullYear()}`} className="flex min-h-0 flex-1 touch-pan-x flex-col gap-1 select-none">
+      <div {...wischen()} role="grid" aria-label={`${monatName(monat)} ${monat.getFullYear()}`} className="flex min-h-0 flex-1 touch-none flex-col gap-1 select-none">
         {raster.map((zeile) => (
           <div key={tagSchluessel(zeile[0] ?? monat)} role="row" className={cn('grid min-h-16 flex-1 gap-1', kw ? 'grid-cols-8' : 'grid-cols-7')}>
             {kw && (

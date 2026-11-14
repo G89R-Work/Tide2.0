@@ -205,3 +205,10 @@ Muster für einen Eintrag:
 - Link: https://react-querybuilder.js.org · https://github.com/jwadhams/json-logic-js
 - Eingebaut in Scheibe: postfach-regeln
 
+
+## 2026-11-14 · Wochenansicht im Kalender
+- Kandidaten: Schedule-X 4 (Ziehen nur noch kostenpflichtig, bringt Preact, Signals und alten Temporal-Ersatz mit), Schedule-X 3 (veraltet), react-big-calendar (zieht moment, luxon, globalize, lodash), FullCalendar 7 (MIT, React, Zeitraster, Ziehen, Größe ändern, Hintergrund-Termine, Gerüst-CSS ohne Aussehen)
+- Entscheidung: FullCalendar 7 (`@fullcalendar/react` mit `temporal-polyfill`), Ja des Nutzers am 14.11.
+- Grund: einziger kostenloser React-Baustein mit Ziehen, dessen Aussehen ganz aus Tide kommen kann; ca. 80 KB, nur geladen, wenn die Woche aufgeht.
+- Link: https://fullcalendar.io/docs/react
+- Eingebaut in Scheibe: kalender-woche
