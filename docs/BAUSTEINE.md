@@ -197,3 +197,11 @@ Muster für einen Eintrag:
 - Grund: wartet auf die Tipp-Pause (`werte/postfach.ts`), `flush` beim Verlassen der Seite und vor dem Senden.
 - Link: https://github.com/xnimorz/use-debounce
 - Eingebaut in Scheibe: postfach-schreiben
+
+## 2026-11-14 · Regel-Editor und Auswertung
+- Kandidaten: react-querybuilder 8.26 (Bedingungszeilen, und/oder, Ausgabe und Einlesen als JsonLogic, MIT; bringt Redux Toolkit mit), json-logic-js 2.0.5 (wertet JsonLogic aus, MIT) mit @types/json-logic-js; für das Aussehen der shadcn-Zusatz von react-querybuilder (zieht weitere shadcn-Teile nach)
+- Entscheidung: react-querybuilder und json-logic-js (Nutzer, wie im Konzept); Aussehen über `controlElements` mit Tides `Auswahl`, `Eingabe`, `Knopf` (`bereiche/postfach/RegelTeile.tsx`) statt des shadcn-Zusatzes, ohne die mitgelieferte CSS
+- Grund: Tide hat eigene Bausteine; fünf kleine Teile ersetzen sonst eine zweite Fassung von Knopf und Auswahl. Editor lädt erst mit der Regel-Seite (`lazy`), der Startcode bleibt gleich. „Beginnt mit“ (`startsWith`) meldet `logik/regeln.ts` bei json-logic-js an.
+- Link: https://react-querybuilder.js.org · https://github.com/jwadhams/json-logic-js
+- Eingebaut in Scheibe: postfach-regeln
+

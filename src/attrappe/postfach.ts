@@ -3,7 +3,7 @@ import { z } from 'zod'
 import { echterOrdner, inOrdner, mailsAendern, ordnerZahl, zurueckGekommen } from '../logik/mails'
 import { ordnerFehler } from '../logik/ordner'
 import { abgeschickt, entwurfAlsMail, sendeFehler } from '../logik/schreiben'
-import { entwurfSchema, mailAenderungSchema, mailInhaltSchema, mailSchema, ordnerStandSchema, type Mail, type MailInhalt, type Ordner, type OrdnerStand } from '../vertrag/postfach'
+import { entwurfSchema, mailAenderungSchema, mailInhaltSchema, mailSchema, ordnerStandSchema, regelSchema, type Mail, type MailInhalt, type Ordner, type OrdnerStand, type Regel } from '../vertrag/postfach'
 import { beispielInhalt, beispielKategorien, beispielKonten, beispielMails } from './mails'
 import { abgelehnt, anfrageInhalt, gemerkt } from './pruefen'
 
@@ -12,6 +12,7 @@ import { abgelehnt, anfrageInhalt, gemerkt } from './pruefen'
 const schluessel = 'tide.attrappe.ordner'
 const mailSchluessel = 'tide.attrappe.mails'
 const inhaltSchluessel = 'tide.attrappe.inhalte'
+const regelSchluessel = 'tide.attrappe.regeln'
 /** So lange bleibt eine sofort gesendete Mail in „Geplant“ und lässt sich zurückholen (wie beim echten Server). */
 const RUECKHOL_MS = 5000
 
@@ -60,6 +61,21 @@ function mailMerken(neu: Mail): Mail {
 const mitZahlen = (liste: readonly OrdnerStand[]): Ordner[] => {
   const mails = mailsLaden()
   return liste.map((x) => ({ ...x, zahl: ordnerZahl(mails, x), ...(x.id === 'braucht-dich' ? { wichtig: true as const } : {}) }))
+}
+
+// Zwei Beispielregeln wie in der Vorlage.
+const beispielRegeln: Regel[] = [
+  { id: 'regel-rechnungen', name: 'Rechnungen sammeln', an: true, bedingung: { or: [{ in: ['rechnung', { var: 'betreff' }] }, { in: ['abschlag', { var: 'betreff' }] }] }, aktionen: [{ art: 'verschieben', ordner: 'rechnungen' }, { art: 'kategorie', name: 'Rechnung' }] },
+  { id: 'regel-newsletter', name: 'Newsletter später', an: false, bedingung: { and: [{ in: ['newsletter', { var: 'text' }] }] }, aktionen: [{ art: 'verschieben', ordner: 'newsletter' }, { art: 'gelesen' }] },
+]
+const regelnLaden = () => gemerkt(regelSchluessel, z.array(regelSchema), () => beispielRegeln, 'Regeln')
+
+/** Wie der echte Server: jede id einmal, jedes Ziel ein Ordner, in dem Mails liegen können. */
+function regelnFehler(liste: readonly Regel[], ordner: readonly OrdnerStand[]): string | undefined {
+  if (new Set(liste.map((r) => r.id)).size !== liste.length) return 'Regel doppelt'
+  for (const r of liste)
+    for (const a of r.aktionen) if (a.art === 'verschieben' && !ordner.some((o) => o.id === a.ordner && echterOrdner(o))) return `Regel „${r.name}“: in „${a.ordner}“ kann keine Mail liegen`
+  return undefined
 }
 
 const systemIds = (liste: readonly OrdnerStand[]) => liste.filter((x) => x.art === 'system').map((x) => x.id).sort().join(',')
@@ -127,6 +143,15 @@ export const postfachAntworten = [
     if (!m || m.ordner !== 'geplant') return abgelehnt('Schon verschickt')
     const { sendenAm: _weg, ...rest } = m
     return HttpResponse.json(mailMerken({ ...rest, ordner: 'entwuerfe' }))
+  }),
+  http.get('/api/postfach/regeln', () => HttpResponse.json(regelnLaden())),
+  http.put('/api/postfach/regeln', async ({ request }) => {
+    const neu = await anfrageInhalt(request, z.array(regelSchema))
+    if (neu instanceof HttpResponse) return neu
+    const fehler = regelnFehler(neu, laden())
+    if (fehler) return abgelehnt(fehler)
+    localStorage.setItem(regelSchluessel, JSON.stringify(neu))
+    return HttpResponse.json(neu)
   }),
   http.get('/api/postfach/kategorien', () => HttpResponse.json(beispielKategorien)),
 ]

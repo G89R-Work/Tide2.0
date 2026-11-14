@@ -9,7 +9,7 @@ import { stand } from '../logik/ordner'
 import { tagSchluessel } from '../logik/zeit'
 import { aendereEinstellungen, holeEinstellungen } from '../vertrag/einstellungen'
 import { aendereEintrag, holeEintraege, holeTermine, type Aenderung, type Eintrag } from '../vertrag/eintrag'
-import { aendereMails, holeKategorien, holeKonten, holeMailInhalt, holeMails, holeZurueck, sendeMail, speichereEntwurf, type Entwurf, holeOrdner, speichereOrdner, type Mail, type MailAenderung, type Ordner, type OrdnerStand } from '../vertrag/postfach'
+import { aendereMails, holeKategorien, holeKonten, holeMailInhalt, holeMails, holeZurueck, sendeMail, speichereEntwurf, type Entwurf, holeOrdner, speichereOrdner, holeRegeln, speichereRegeln, type Regel, type Mail, type MailAenderung, type Ordner, type OrdnerStand } from '../vertrag/postfach'
 import { holeWetter, holeWetterTage } from '../vertrag/wetter'
 import { merke } from './rueckgaengig'
 
@@ -32,6 +32,7 @@ const schluessel = {
   kategorien: ['kategorien'],
   mailInhalt: ['mail-inhalt'],
   konten: ['konten'],
+  regeln: ['regeln'],
   einstellungen: ['einstellungen'],
   feiertage: ['feiertage'],
 } as const satisfies Record<string, QueryKey>
@@ -100,6 +101,13 @@ export const mailsJetzt = (ordner: string): readonly Mail[] => abfragen.getQuery
 export function useKategorien() {
   const q = useQuery({ queryKey: schluessel.kategorien, queryFn: holeKategorien, staleTime: Infinity })
   return { kategorien: q.data, fehler: meldung('Kategorien', q.error) }
+}
+
+/** Regeln des Postfachs in ihrer Reihenfolge. */
+export function useRegeln() {
+  const q = useQuery({ queryKey: schluessel.regeln, queryFn: holeRegeln })
+  const speichern = useLetzterFehler('regeln')
+  return { regeln: q.data, fehler: meldung('Regeln', q.error) ?? meldung('Regeln nicht gespeichert', speichern) }
 }
 
 /** Feiertage vom Vorjahr bis zum Folgejahr; der große Baustein wird erst hier nachgeladen. Bis dahin gibt es keine. */
@@ -234,6 +242,34 @@ export async function aendereOrdnerMitSchritt(vorher: readonly Ordner[], neu: re
     () => false,
   )
   if (ok) merke({ text, zurueck: senden(alt), vor: senden([...neu]), bereich: 'postfach' })
+}
+
+// ── Regeln: gespeichert wird immer die ganze Liste (anlegen, ändern, an/aus, löschen).
+
+const regelnSpeichern = new MutationObserver(abfragen, {
+  mutationKey: ['regeln'],
+  mutationFn: (neu: Regel[]) => speichereRegeln(neu),
+  onMutate: async (neu) => {
+    await abfragen.cancelQueries({ queryKey: schluessel.regeln })
+    const vorher = abfragen.getQueryData<Regel[]>(schluessel.regeln)
+    abfragen.setQueryData(schluessel.regeln, neu)
+    return vorher
+  },
+  onSuccess: (liste) => abfragen.setQueryData(schluessel.regeln, liste),
+  onError: (_f, _neu, vorher) => abfragen.setQueryData(schluessel.regeln, vorher),
+})
+
+/** Speichert den neuen Stand der Regeln; `text` beschreibt den Schritt für „Rückgängig“. Liefert, ob es geklappt hat. */
+export async function aendereRegelnMitSchritt(vorher: readonly Regel[], neu: readonly Regel[], text: string): Promise<boolean> {
+  const senden = (l: readonly Regel[]) => async () => {
+    await regelnSpeichern.mutate([...l]).catch(() => undefined)
+  }
+  const ok = await regelnSpeichern.mutate([...neu]).then(
+    () => true,
+    () => false,
+  )
+  if (ok) merke({ text, zurueck: senden(vorher), vor: senden(neu), bereich: 'postfach' })
+  return ok
 }
 
 // ── Mails ändern (verschieben, gelesen, anheften): wirkt sofort in jeder geladenen Liste; Zähler der Ordner danach neu.

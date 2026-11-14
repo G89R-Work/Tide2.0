@@ -34,6 +34,7 @@ export const aktionen: readonly Aktion[] = [
   { id: 'mail-ungelesen', name: 'Gelesen oder ungelesen', befehl: true, kuerzel: 'Alt+U' },
   { id: 'mail-anheften', name: 'Anheften oder lösen', befehl: true, kuerzel: 'Alt+P' },
   { id: 'mail-wichtig', name: 'Wichtig oder nicht', befehl: true, kuerzel: 'Alt+W' },
+  { id: 'mail-regel', name: 'Regel aus Mail', befehl: true },
   { id: 'suche', name: 'Suche', spaeter: true, kuerzel: 'Strg+K' },
   { id: 'diktat', name: 'Diktat', spaeter: true, kuerzel: 'Alt+D' },
 ]

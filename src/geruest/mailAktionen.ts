@@ -1,9 +1,11 @@
 import { markeFuer } from '../logik/ebenen'
 import { kategorieUmschalten, mailsText, umschalten } from '../logik/mails'
+import { regelAenderungen, regelAusMail } from '../logik/regeln'
 import { antwortEntwurf, neuerEntwurf, type Antwortart } from '../logik/schreiben'
-import type { Entwurf, Mail, Ordner } from '../vertrag/postfach'
+import type { Entwurf, Mail, Ordner, Regel } from '../vertrag/postfach'
 import { aendereMailsMitSchritt, kontenJetzt, mailInhaltJetzt, mailsJetzt, neuerEntwurfMitSchritt, sendenMitSchritt } from './daten'
 import { mailAuswahlJetzt, waehleMails } from './mailAuswahl'
+import { regelId, setzeRegelEntwurf } from './regelEntwurf'
 
 // Jede Aktion auf einer oder mehreren Mails, einmal für Leser, Menü und Tastenkürzel. Jede lässt sich zurücknehmen.
 
@@ -86,3 +88,18 @@ export const sende = (m: Mail, am: Date | null, name?: string) => sendenMitSchri
 
 /** Holt eine geplante Mail zurück in die Entwürfe. */
 export const holeZurueck = (m: Mail) => sendenMitSchritt(m.id, m.sendenAm ? new Date(m.sendenAm) : null, true, `${was([m])} zurückgeholt`)
+
+// ── Regeln
+
+/** Öffnet eine vorbereitete Regel für Mails dieser Adresse im Editor; gespeichert wird erst dort. */
+export function regelVonMail(m: Mail) {
+  setzeRegelEntwurf(regelAusMail(m, regelId()))
+  location.hash = markeFuer('postfach', 'regeln')
+}
+
+/** Führt die Regel jetzt auf dem Posteingang aus (ein Schritt für „Rückgängig“); liefert die Zahl geänderter Mails. */
+export async function fuehreRegelAus(r: Pick<Regel, 'name' | 'bedingung' | 'aktionen'>): Promise<number> {
+  const liste = regelAenderungen(r, mailsJetzt('eingang'))
+  if (liste.length) await aendereMailsMitSchritt(liste, `„${r.name}“ ausgeführt: ${mailsText(liste.length)}`)
+  return liste.length
+}

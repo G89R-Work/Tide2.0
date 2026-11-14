@@ -33,6 +33,7 @@ const befehle: Record<string, () => unknown> = {
   'mail-ungelesen': mitMails((a, ms) => a.schalte(ms, 'ungelesen')),
   'mail-anheften': mitMails((a, ms) => a.schalte(ms, 'angeheftet')),
   'mail-wichtig': mitMails((a, ms) => a.schalte(ms, 'wichtig')),
+  'mail-regel': mitMails(async (a, ms) => (ms.length === 1 && ms[0] ? a.regelVonMail(ms[0]) : undefined)),
 }
 
 if (import.meta.env.DEV)

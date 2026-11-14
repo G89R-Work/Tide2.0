@@ -6,10 +6,11 @@ import { VList, type VListHandle } from 'virtua'
 import { Aufklapp, AufklappInhalt, AufklappKnopf } from '../../bausteine/Aufklapp'
 import { Eingabe } from '../../bausteine/Eingabe'
 import { Knopf } from '../../bausteine/Knopf'
+import { Menue, MenueAusloeser, MenueInhalt, MenuePunkt } from '../../bausteine/Menue'
 import { cn } from '../../bausteine/cn'
 import { useKategorien, useMailFehler, useMails, useOrdner, useSendeFehler } from '../../geruest/daten'
 import { mailZeit } from '../../geruest/format'
-import { gelesen } from '../../geruest/mailAktionen'
+import { gelesen, regelVonMail } from '../../geruest/mailAktionen'
 import { mailAuswahlJetzt, useMailAuswahl, waehleMails } from '../../geruest/mailAuswahl'
 import { mailDaten } from '../../geruest/mailZiehen'
 import { useMinute } from '../../geruest/useMinute'
@@ -193,51 +194,58 @@ const MailZeile = memo(function MailZeile({ m, gewaehlt, mehrfach, mitnehmen, au
   }, [mitnehmen, aus, m.betreff])
 
   return (
-    <div
-      ref={ref}
-      role="option"
-      aria-selected={gewaehlt}
-      data-ungelesen={m.ungelesen || undefined}
-      data-mehrfach={(mehrfach && gewaehlt) || undefined}
-      data-zieht={zieht || undefined}
-      onClick={(e) => klick(m.id, wahlVon(e))}
-      className="mail-zeile group flex gap-2 px-3 py-2.5"
-      style={{ height: postfach.zeilePx }}
-    >
-      <input
-        type="checkbox"
-        aria-label={`${m.betreff} auswählen`}
-        tabIndex={-1}
-        checked={mehrfach && gewaehlt}
-        onClick={(e) => e.stopPropagation()}
-        onChange={() => klick(m.id, 'dazu')}
-        className={cn('mt-0.5 size-4 shrink-0 cursor-pointer accent-akzent opacity-0 group-hover:opacity-100 focus-visible:opacity-100', mehrfach && 'opacity-100')}
-      />
-      <div className="flex min-w-0 flex-1 flex-col gap-0.5">
-        <div className="flex items-center gap-2">
-          <span className={cn('min-w-0 flex-1 truncate text-sm', m.ungelesen && 'font-bold')}>{m.von}</span>
-          {m.angeheftet && <Pin aria-label="Angeheftet" className="size-3.5 shrink-0 text-akzent" />}
-          {m.wichtig && <CircleAlert aria-label="Wichtig" className="size-3.5 shrink-0 text-warnung" />}
-          {m.anhaenge.length > 0 && <Paperclip aria-label="Anhang" className="size-3.5 shrink-0 text-text-gedaempft" />}
-          {m.nachverfolgen && <Flag aria-label="Nachverfolgen" className="size-3.5 shrink-0 text-warnung" />}
-          <time dateTime={m.zeit} className="shrink-0 text-xs text-text-gedaempft tabular-nums">
-            {mailZeit(m.zeit, jetzt)}
-          </time>
+    <Menue>
+      <MenueAusloeser asChild>
+        <div
+          ref={ref}
+          role="option"
+          aria-selected={gewaehlt}
+          data-ungelesen={m.ungelesen || undefined}
+          data-mehrfach={(mehrfach && gewaehlt) || undefined}
+          data-zieht={zieht || undefined}
+          onClick={(e) => klick(m.id, wahlVon(e))}
+          className="mail-zeile group flex gap-2 px-3 py-2.5"
+          style={{ height: postfach.zeilePx }}
+        >
+          <input
+            type="checkbox"
+            aria-label={`${m.betreff} auswählen`}
+            tabIndex={-1}
+            checked={mehrfach && gewaehlt}
+            onClick={(e) => e.stopPropagation()}
+            onChange={() => klick(m.id, 'dazu')}
+            className={cn('mt-0.5 size-4 shrink-0 cursor-pointer accent-akzent opacity-0 group-hover:opacity-100 focus-visible:opacity-100', mehrfach && 'opacity-100')}
+          />
+          <div className="flex min-w-0 flex-1 flex-col gap-0.5">
+            <div className="flex items-center gap-2">
+              <span className={cn('min-w-0 flex-1 truncate text-sm', m.ungelesen && 'font-bold')}>{m.von}</span>
+              {m.angeheftet && <Pin aria-label="Angeheftet" className="size-3.5 shrink-0 text-akzent" />}
+              {m.wichtig && <CircleAlert aria-label="Wichtig" className="size-3.5 shrink-0 text-warnung" />}
+              {m.anhaenge.length > 0 && <Paperclip aria-label="Anhang" className="size-3.5 shrink-0 text-text-gedaempft" />}
+              {m.nachverfolgen && <Flag aria-label="Nachverfolgen" className="size-3.5 shrink-0 text-warnung" />}
+              <time dateTime={m.zeit} className="shrink-0 text-xs text-text-gedaempft tabular-nums">
+                {mailZeit(m.zeit, jetzt)}
+              </time>
+            </div>
+            <span className={cn('truncate text-sm', m.ungelesen ? 'font-semibold' : 'text-text-gedaempft')}>{m.betreff}</span>
+            <div className="flex min-w-0 items-center gap-1.5">
+              {m.kategorien.map((k) => (
+                <span key={k} className={cn('schild schild-gefuellt', farbe.get(k) ?? 'text-text-gedaempft')}>
+                  {k}
+                </span>
+              ))}
+              <span className="min-w-0 flex-1 truncate text-xs text-text-gedaempft">
+                {m.faellig && <b className="font-semibold text-warnung">Fällig {seitText(m.faellig, jetzt)} · </b>}
+                {m.vorschau}
+              </span>
+              {m.hinweis && <span className={cn('schild', hinweisKlassen[m.hinweis])}>{m.hinweis}</span>}
+            </div>
+          </div>
         </div>
-        <span className={cn('truncate text-sm', m.ungelesen ? 'font-semibold' : 'text-text-gedaempft')}>{m.betreff}</span>
-        <div className="flex min-w-0 items-center gap-1.5">
-          {m.kategorien.map((k) => (
-            <span key={k} className={cn('schild schild-gefuellt', farbe.get(k) ?? 'text-text-gedaempft')}>
-              {k}
-            </span>
-          ))}
-          <span className="min-w-0 flex-1 truncate text-xs text-text-gedaempft">
-            {m.faellig && <b className="font-semibold text-warnung">Fällig {seitText(m.faellig, jetzt)} · </b>}
-            {m.vorschau}
-          </span>
-          {m.hinweis && <span className={cn('schild', hinweisKlassen[m.hinweis])}>{m.hinweis}</span>}
-        </div>
-      </div>
-    </div>
+      </MenueAusloeser>
+      <MenueInhalt>
+        <MenuePunkt onSelect={() => regelVonMail(m)}>Regel für „{m.von}“ …</MenuePunkt>
+      </MenueInhalt>
+    </Menue>
   )
 })

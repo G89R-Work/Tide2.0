@@ -1,26 +1,10 @@
 import { describe, expect, it } from 'vitest'
 import type { Mail, OrdnerStand } from '../vertrag/postfach'
+import { testMail } from './testMail'
 import { spaeterZeiten, gezogen, inOrdner, kannHinein, kategorieUmschalten, kuerzel, mailsAendern, mailsText, nachverfolgenWahl, umschalten, zurueckGekommen, ordnerZahl, passt, vorherWerte, waehle, zeigeMails } from './mails'
 
 // Erfundene Mails; `zeit` zählt Minuten ab Mitternacht am 13.11.2026.
-const m = (id: string, x: Partial<Mail> = {}): Mail => ({
-  id,
-  ordner: 'eingang',
-  konto: 'ich@beispiel.de',
-  von: `Absender ${id}`,
-  adresse: `${id}@beispiel.de`,
-  betreff: `Betreff ${id}`,
-  vorschau: '',
-  zeit: '2026-11-13T08:00:00.000Z',
-  ungelesen: false,
-  angeheftet: false,
-  wichtig: false,
-  nachverfolgen: false,
-  anhaenge: [],
-  kategorien: [],
-  brauchtDich: false,
-  ...x,
-})
+const m = testMail
 const o = (id: string, art: OrdnerStand['art'] = 'system', suche?: string): OrdnerStand => ({ id, name: id, art, angeheftet: true, ...(suche ? { suche } : {}) })
 const ids = (l: readonly Mail[]) => l.map((x) => x.id)
 

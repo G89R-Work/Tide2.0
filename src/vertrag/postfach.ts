@@ -154,3 +154,34 @@ export function holeZurueck(id: string): Promise<Mail> {
 export function holeKategorien(): Promise<Kategorie[]> {
   return anfrage(z.array(kategorieSchema), 'Kategorien holen', '/api/postfach/kategorien')
 }
+
+// ── Regeln: eine Regel ist ein Stück Daten. Die Bedingung ist JsonLogic (so gibt sie der Editor aus),
+// ausgewertet wird sie mit json-logic-js – im Browser und später auf dem Server mit demselben Code.
+
+/** Was eine Regel mit einer getroffenen Mail tut (Vorbild: Sieve, RFC 5228). Archiv und Löschen sind Verschieben. */
+export const regelAktionSchema = z.discriminatedUnion('art', [
+  z.object({ art: z.literal('verschieben'), ordner: z.string().min(1) }),
+  z.object({ art: z.literal('kategorie'), name: z.string().min(1) }),
+  z.object({ art: z.enum(['gelesen', 'wichtig', 'anheften', 'nachverfolgen']) }),
+])
+export type RegelAktion = z.infer<typeof regelAktionSchema>
+
+export const regelSchema = z.object({
+  id: z.string().min(1),
+  name: z.string().trim().min(1),
+  an: z.boolean(),
+  /** JsonLogic; Felder über `{"var": …}`: von, adresse, betreff, text, konto. Vergleiche ohne Groß- und Kleinschreibung. */
+  bedingung: z.union([z.boolean(), z.record(z.string(), z.json())]),
+  aktionen: z.array(regelAktionSchema).min(1),
+})
+export type Regel = z.infer<typeof regelSchema>
+
+/** Alle Regeln in ihrer Reihenfolge. */
+export function holeRegeln(): Promise<Regel[]> {
+  return anfrage(z.array(regelSchema), 'Regeln holen', '/api/postfach/regeln')
+}
+
+/** Speichert alle Regeln in dieser Reihenfolge (anlegen, ändern, an/aus, löschen). */
+export function speichereRegeln(liste: readonly Regel[]): Promise<Regel[]> {
+  return anfrage(z.array(regelSchema), 'Regeln speichern', '/api/postfach/regeln', 'PUT', liste)
+}

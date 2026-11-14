@@ -1,7 +1,7 @@
 import { combine } from '@atlaskit/pragmatic-drag-and-drop/combine'
 import { draggable, dropTargetForElements } from '@atlaskit/pragmatic-drag-and-drop/element/adapter'
 import { attachInstruction, extractInstruction, type Instruction } from '@atlaskit/pragmatic-drag-and-drop-hitbox/list-item'
-import { ChevronDown, ChevronRight, Eye, Folder, ListFilter, Plus, Settings } from 'lucide-react'
+import { ChevronDown, ChevronRight, Eye, Folder, ListFilter, Plus, Settings, Workflow } from 'lucide-react'
 import { useEffect, useMemo, useRef, useState, type FormEvent } from 'react'
 import { Aufklapp, AufklappInhalt, AufklappKnopf } from '../bausteine/Aufklapp'
 import { Eingabe } from '../bausteine/Eingabe'
@@ -149,11 +149,20 @@ export default function PostfachOrdner({ aktiv, beiWahl }: { aktiv: string | nul
             </AufklappInhalt>
           </Aufklapp>
         )}
-        <Knopf alsKind className={cn('w-full', aktiv === 'einstellungen' && 'border-akzent')}>
-          <a href={markeFuer('postfach', 'einstellungen')} aria-current={aktiv === 'einstellungen' ? 'page' : undefined} onClick={beiWahl}>
-            <Settings aria-hidden className="size-4" /> Einstellungen
-          </a>
-        </Knopf>
+        <div className="flex gap-2">
+          {(
+            [
+              ['regeln', 'Regeln', Workflow],
+              ['einstellungen', 'Einstellungen', Settings],
+            ] as const
+          ).map(([id, name, Symbol]) => (
+            <Knopf key={id} alsKind className={cn('min-w-0 flex-1', aktiv === id && 'border-akzent')}>
+              <a href={markeFuer('postfach', id)} aria-current={aktiv === id ? 'page' : undefined} onClick={beiWahl}>
+                <Symbol aria-hidden className="size-4" /> {name}
+              </a>
+            </Knopf>
+          ))}
+        </div>
       </div>
     </div>
   )

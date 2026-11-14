@@ -1,4 +1,4 @@
-import { Archive, CalendarPlus, CircleAlert, Forward, ListPlus, Mail, Mic, PencilRuler, Pin, Redo2, Reply, ReplyAll, Search, ShoppingBasket, SquarePen, Trash2, Undo2, Waves, type LucideIcon } from 'lucide-react'
+import { Archive, CalendarPlus, CircleAlert, Forward, ListPlus, Mail, Mic, PencilRuler, Pin, Redo2, Reply, ReplyAll, Search, ShoppingBasket, SquarePen, Trash2, Undo2, Waves, Workflow, type LucideIcon } from 'lucide-react'
 import { aktionen, type Aktion } from '../logik/aktionen'
 import { bereiche } from '../logik/bereiche'
 import { symbole } from './seiten'
@@ -23,6 +23,7 @@ const eigene: Record<string, LucideIcon> = {
   'mail-ungelesen': Mail,
   'mail-anheften': Pin,
   'mail-wichtig': CircleAlert,
+  'mail-regel': Workflow,
 }
 
 export const aktionSymbole: Record<string, LucideIcon> = { ...eigene }

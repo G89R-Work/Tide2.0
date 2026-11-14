@@ -38,7 +38,7 @@ Was umgesetzt ist, wandert beim Abschluss einer Scheibe nach „Erledigt“, mit
 - Wochenleiste: Buchstabe der Schicht aus der Schichtart statt aus dem ersten Buchstaben des Titels, sobald Arbeit die Schichtart kennt
 - Höhe der Wellen in der Gezeitenkurve am Handy prüfen, vielleicht zu viel (heute-kacheln)
 - Eigene Kacheln/Widgets anlegen und festlegen, auf welchen Seiten sie verfügbar sind (Wunsch des Nutzers, 2026-11-12)
-- Regeln des Postfachs sind in der Ordnerleiste nicht mehr verlinkt (nur `#postfach/regeln`); Zugang über Postfach-Einstellungen (postfach-regeln)
+- Regeln automatisch auf neu eingehende Mails anwenden, Reihenfolge der Regeln ändern, „Danach keine weiteren Regeln“ (postfach-regeln)
 - Ordnerzeilen am PC dichter (Vorlage 34 px statt 44 px), damit „Einstellungen“ ohne Scrollen sichtbar ist (postfach-ordner)
 
 - 2026-11-13 · Wochenrückblick (`Rueckblick.tsx`) noch als natives Popover: auf `Aufklapp` umstellen, damit es nur einen Weg für schwebende Karten gibt (heute-uhr-und-wetter)
@@ -62,3 +62,4 @@ Was umgesetzt ist, wandert beim Abschluss einer Scheibe nach „Erledigt“, mit
 - 2026-11-12 · Monatskalender klappt aus dem Knopf „Monat“ nach oben auf, kleiner Kalender mit Walze und Feiertagen (aussehen-wochenleiste)
 - 2026-11-12 · Buchstaben der Schicht an den Tagen der Wochenleiste, vorerst aus dem Titel (aussehen-wochenleiste)
 - 2026-11-13 · Termine auf der Kurve mit `useDrag` von @use-gesture/react ziehen statt Pointer-Capture von Hand, damit es nur einen Weg zum Ziehen gibt (PRUEFUNG E8, aufraeumen-waechter)
+- 2026-11-14 · Regeln in der Ordnerleiste verlinkt: Knopf „Regeln“ neben „Einstellungen“ (postfach-regeln)

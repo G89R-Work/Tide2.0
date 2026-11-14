@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { lazy, Suspense, useMemo } from 'react'
 import { Group, Panel, useDefaultLayout, usePanelRef } from 'react-resizable-panels'
 import { Trenner } from '../../bausteine/Trenner'
 import { useMails, useOrdner } from '../../geruest/daten'
@@ -12,13 +12,22 @@ import { Leser } from './Leser'
 import { MailListe } from './MailListe'
 
 /** Unterpunkte des Postfachs, die keine Ordner sind. */
-const ohneListe = new Set(['einstellungen', 'regeln'])
+const ohneListe = new Set(['einstellungen'])
+
+// Der Regel-Editor ist groß (react-querybuilder) und lädt erst, wenn die Regeln offen sind.
+const Regeln = lazy(() => import('./Regeln'))
 
 // Postfach: links die Mail-Liste des gewählten Ordners, rechts der Leser; die Trennlinie dazwischen lässt sich ziehen
 // (Breite im Browser gemerkt, Doppelklick stellt sie zurück). Am Handy nur die Liste (Leser folgt mit postfach-erkannt-und-handy).
 export default function Seite() {
   const unter = ortAusMarke(useSprungmarke()).unter
   const ordner = useOrdner().ordner
+  if (unter === 'regeln')
+    return (
+      <Suspense>
+        <Regeln />
+      </Suspense>
+    )
   if (!unter || ohneListe.has(unter)) return <LeereSeite titel="Postfach" namen={ordner} />
   return <Ordner key={unter} ordner={unter} />
 }
